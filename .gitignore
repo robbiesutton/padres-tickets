@@ -1,0 +1,7 @@
+node_modules/
+padres.db
+padres.db-shm
+padres.db-wal
+.env
+.DS_Store
+.claude/

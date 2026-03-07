@@ -1,0 +1,14 @@
+{
+  "name": "padres-tickets",
+  "version": "1.0.0",
+  "description": "Padres 2026 season ticket manager",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "better-sqlite3": "^11.7.0"
+  }
+}

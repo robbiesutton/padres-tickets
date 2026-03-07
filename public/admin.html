@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Padres Tickets</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <h1>Admin Dashboard</h1>
+      <p class="subtitle">Padres Tickets 2026</p>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="admin-header">
+      <div></div>
+      <a href="/">&#8592; Back to Public View</a>
+    </div>
+
+    <div id="login-section">
+      <h2 style="margin-bottom: 16px;">Admin Login</h2>
+      <input type="password" id="admin-password" placeholder="Admin Password" onkeydown="if(event.key==='Enter')login()">
+      <button onclick="login()">Login</button>
+    </div>
+
+    <div id="admin-content" class="hidden">
+      <div id="stats" class="stats-grid"></div>
+
+      <h2 class="section-title">Current Claims</h2>
+      <div id="claims-section"></div>
+
+      <h2 class="section-title">All Games</h2>
+      <div style="overflow-x: auto;">
+        <table class="admin-table" id="games-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Opponent</th>
+              <th>Section</th>
+              <th>Giveaway</th>
+              <th>Status</th>
+              <th>Claimer</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="games-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+  <script src="/js/admin.js"></script>
+</body>
+</html>
