@@ -3,7 +3,7 @@
 // Extracted from the "26 Padres 113" and "26 Padres 309" spreadsheet tabs
 //
 // Section 113: All 41 games are Available
-// Section 309: 35 Available, 6 marked No (Sell plan) on: May 7, May 25, Jun 9, Aug 24, Sep 7, Sep 8
+// Section 309: 35 Available, 6 pre-claimed by Robbie on: May 7, May 25, Jun 9, Aug 24, Sep 7, Sep 8
 
 module.exports = [
   // === MARCH ===
@@ -97,7 +97,7 @@ module.exports = [
     opponent: "Cardinals",
     giveaway: "Miller Bobble",
     section113: "available",
-    section309: "no"
+    section309: "claimed"
   },
   {
     date: "2026-05-09",
@@ -137,7 +137,7 @@ module.exports = [
     opponent: "Phillies",
     giveaway: null,
     section113: "available",
-    section309: "no"
+    section309: "claimed"
   },
   {
     date: "2026-05-26",
@@ -171,7 +171,7 @@ module.exports = [
     opponent: "Reds",
     giveaway: "Bogerts Bobble",
     section113: "available",
-    section309: "no"
+    section309: "claimed"
   },
   {
     date: "2026-06-22",
@@ -295,7 +295,7 @@ module.exports = [
     opponent: "Pirates",
     giveaway: "Merrill Bobble",
     section113: "available",
-    section309: "no"
+    section309: "claimed"
   },
   {
     date: "2026-08-25",
@@ -321,7 +321,7 @@ module.exports = [
     opponent: "Nationals",
     giveaway: null,
     section113: "available",
-    section309: "no"
+    section309: "claimed"
   },
   {
     date: "2026-09-08",
@@ -329,7 +329,7 @@ module.exports = [
     opponent: "Nationals",
     giveaway: "Tatis Bobble",
     section113: "available",
-    section309: "no"
+    section309: "claimed"
   },
   {
     date: "2026-09-19",

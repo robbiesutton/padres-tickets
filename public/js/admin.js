@@ -78,6 +78,11 @@ function renderGamesTable(games) {
       <td>${g.section}</td>
       <td>${esc(g.giveaway || '-')}</td>
       <td>
+        <input type="number" class="admin-select" value="${g.price != null ? g.price : ''}"
+          placeholder="$" step="1" min="0" style="width: 70px;"
+          onchange="updatePrice(${g.id}, this.value)">
+      </td>
+      <td>
         <select class="admin-select" onchange="updateStatus(${g.id}, this.value)" ${g.status === 'claimed' ? 'disabled' : ''}>
           <option value="available" ${g.status === 'available' ? 'selected' : ''}>Available</option>
           <option value="no" ${g.status === 'no' ? 'selected' : ''}>Not Available</option>
@@ -100,6 +105,15 @@ async function unclaim(gameId) {
   });
   showToast('Claim removed');
   loadAdminData();
+}
+
+async function updatePrice(gameId, price) {
+  await fetch('/api/admin/update-price', {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ gameId, price: price || null })
+  });
+  showToast('Price updated');
 }
 
 async function updateStatus(gameId, status) {

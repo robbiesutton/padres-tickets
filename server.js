@@ -72,6 +72,17 @@ app.post('/api/admin/unclaim', adminAuth, (req, res) => {
   }
 });
 
+app.post('/api/admin/update-price', adminAuth, (req, res) => {
+  try {
+    const { gameId, price } = req.body;
+    const numPrice = price === '' || price === null ? null : parseFloat(price);
+    db.updateGamePrice(gameId, numPrice);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
 app.post('/api/admin/update-status', adminAuth, (req, res) => {
   try {
     db.updateGameStatus(req.body.gameId, req.body.status);

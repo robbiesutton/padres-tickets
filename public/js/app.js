@@ -134,9 +134,11 @@ function renderGames() {
 
   for (const [month, dateGamesList] of Object.entries(grouped)) {
     html += `<h2 class="month-header">${month}</h2>`;
+    html += '<div class="games-grid">';
     for (const games of dateGamesList) {
       html += renderMergedCard(games);
     }
+    html += '</div>';
   }
 
   container.innerHTML = html;
@@ -148,14 +150,16 @@ function renderMergedCard(games) {
     ? `<span class="giveaway-badge">${escapeHtml(first.giveaway)}</span>`
     : '';
 
+  const priceHtml = first.price != null ? `<span class="price-badge">$${Math.round(first.price)}</span>` : '';
+
   const sorted = games.sort((a, b) => a.section.localeCompare(b.section));
   let buttonsHtml = '';
   for (const game of sorted) {
-    const label = `Section ${game.section}`;
+    const label = `Sec ${game.section}`;
     if (game.status === 'available') {
       buttonsHtml += `<button class="btn-section btn-section-available" onclick="openClaimModal(${game.id}, '${escapeAttr(game.display_date)}', '${escapeAttr(game.opponent)}', '${game.section}', '${escapeAttr(game.giveaway || '')}')">Claim ${label}</button>`;
     } else {
-      buttonsHtml += `<button class="btn-section btn-section-unavailable" disabled>${label} Unavailable</button>`;
+      buttonsHtml += `<button class="btn-section btn-section-unavailable" disabled>${label} N/A</button>`;
     }
   }
 
@@ -165,6 +169,7 @@ function renderMergedCard(games) {
         <div class="game-date">${escapeHtml(first.display_date)}</div>
         <div class="game-opponent">vs ${escapeHtml(first.opponent)}</div>
         <div class="game-meta">
+          ${priceHtml}
           ${giveawayHtml}
           <span>2 tickets per section</span>
         </div>

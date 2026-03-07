@@ -36,12 +36,21 @@ function initialize() {
   const count = db.prepare('SELECT COUNT(*) as c FROM games').get().c;
   if (count === 0) {
     const insert = db.prepare(
-      'INSERT INTO games (date, display_date, opponent, giveaway, section, status) VALUES (?, ?, ?, ?, ?, ?)'
+      'INSERT INTO games (date, display_date, opponent, giveaway, section, price, status) VALUES (?, ?, ?, ?, ?, ?, ?)'
     );
     const seedAll = db.transaction(() => {
       for (const game of gamesData) {
-        insert.run(game.date, game.displayDate, game.opponent, game.giveaway, '113', game.section113);
-        insert.run(game.date, game.displayDate, game.opponent, game.giveaway, '309', game.section309);
+        insert.run(game.date, game.displayDate, game.opponent, game.giveaway, '113', 99, game.section113);
+        insert.run(game.date, game.displayDate, game.opponent, game.giveaway, '309', 99, game.section309);
+      }
+
+      // Seed claims for pre-claimed games
+      const claimedGames = db.prepare("SELECT id FROM games WHERE status = 'claimed'").all();
+      const insertClaim = db.prepare(
+        'INSERT INTO claims (game_id, email, name, notes) VALUES (?, ?, ?, ?)'
+      );
+      for (const g of claimedGames) {
+        insertClaim.run(g.id, 'robbiecsutton@gmail.com', 'Robbie Sutton', 'Pre-claimed');
       }
     });
     seedAll();
@@ -50,7 +59,7 @@ function initialize() {
 }
 
 function getGames(section) {
-  let query = 'SELECT id, date, display_date, opponent, giveaway, section, status FROM games';
+  let query = 'SELECT id, date, display_date, opponent, giveaway, section, price, status FROM games';
   const params = [];
   if (section && section !== 'all') {
     query += ' WHERE section = ?';
@@ -100,6 +109,10 @@ function updateGameStatus(gameId, status) {
   db.prepare('UPDATE games SET status = ? WHERE id = ?').run(status, gameId);
 }
 
+function updateGamePrice(gameId, price) {
+  db.prepare('UPDATE games SET price = ? WHERE id = ?').run(price, gameId);
+}
+
 function getClaimsByEmail(email) {
   return db.prepare(`
     SELECT c.*, g.date, g.display_date, g.opponent, g.giveaway, g.section
@@ -110,4 +123,4 @@ function getClaimsByEmail(email) {
   `).all(email);
 }
 
-module.exports = { initialize, getGames, getAdminGames, claimGame, getClaims, unclaimGame, updateGameStatus, getClaimsByEmail };
+module.exports = { initialize, getGames, getAdminGames, claimGame, getClaims, unclaimGame, updateGameStatus, updateGamePrice, getClaimsByEmail };
