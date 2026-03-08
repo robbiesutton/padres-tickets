@@ -59,13 +59,13 @@ function initialize() {
 }
 
 function getGames(section) {
-  let query = 'SELECT id, date, display_date, opponent, giveaway, section, price, status FROM games';
+  let query = 'SELECT g.id, g.date, g.display_date, g.opponent, g.giveaway, g.section, g.price, g.status, c.name as claimed_by FROM games g LEFT JOIN claims c ON c.game_id = g.id';
   const params = [];
   if (section && section !== 'all') {
-    query += ' WHERE section = ?';
+    query += ' WHERE g.section = ?';
     params.push(section);
   }
-  query += ' ORDER BY date, section';
+  query += ' ORDER BY g.date, g.section';
   return db.prepare(query).all(params);
 }
 

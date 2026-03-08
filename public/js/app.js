@@ -150,16 +150,18 @@ function renderMergedCard(games) {
     ? `<span class="giveaway-badge">${escapeHtml(first.giveaway)}</span>`
     : '';
 
-  const priceHtml = first.price != null ? `<span class="price-badge">$${Math.round(first.price)}</span>` : '';
-
   const sorted = games.sort((a, b) => a.section.localeCompare(b.section));
   let buttonsHtml = '';
   for (const game of sorted) {
     const label = `Sec ${game.section}`;
     if (game.status === 'available') {
-      buttonsHtml += `<button class="btn-section btn-section-available" onclick="openClaimModal(${game.id}, '${escapeAttr(game.display_date)}', '${escapeAttr(game.opponent)}', '${game.section}', '${escapeAttr(game.giveaway || '')}')">Claim ${label}</button>`;
+      const priceText = game.price != null ? ` · $${Math.round(game.price)}` : '';
+      buttonsHtml += `<button class="btn-section btn-section-available" onclick="openClaimModal(${game.id}, '${escapeAttr(game.display_date)}', '${escapeAttr(game.opponent)}', '${game.section}', '${escapeAttr(game.giveaway || '')}')">${label}${priceText}</button>`;
+    } else if (game.status === 'claimed' && game.claimed_by) {
+      const firstName = escapeHtml(game.claimed_by.trim().split(' ')[0]);
+      buttonsHtml += `<button class="btn-section btn-section-unavailable" disabled>${label} · ${firstName}</button>`;
     } else {
-      buttonsHtml += `<button class="btn-section btn-section-unavailable" disabled>${label} N/A</button>`;
+      buttonsHtml += `<button class="btn-section btn-section-unavailable" disabled>${label} · N/A</button>`;
     }
   }
 
@@ -169,7 +171,6 @@ function renderMergedCard(games) {
         <div class="game-date">${escapeHtml(first.display_date)}</div>
         <div class="game-opponent">vs ${escapeHtml(first.opponent)}</div>
         <div class="game-meta">
-          ${priceHtml}
           ${giveawayHtml}
           <span>2 tickets per section</span>
         </div>
