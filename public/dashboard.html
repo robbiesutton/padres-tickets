@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Season Ticket Share</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <h1>Your Dashboard</h1>
+      <p class="subtitle" id="share-link-display"></p>
+      <nav class="nav-bar">
+        <button class="nav-btn active" data-tab="games">Games</button>
+        <button class="nav-btn" data-tab="claims">Claims</button>
+        <button class="nav-btn" data-tab="upload">Upload</button>
+        <button class="nav-btn" data-tab="settings">Settings</button>
+      </nav>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="dash-topbar">
+      <div class="share-link-row">
+        <span id="share-url"></span>
+        <button class="btn-small btn-copy" onclick="copyShareLink()">Copy Link</button>
+        <a id="view-page-link" href="#" target="_blank" class="btn-small btn-view">View Page</a>
+      </div>
+      <button class="btn-small btn-logout" onclick="logout()">Log Out</button>
+    </div>
+
+    <div id="stats" class="stats-grid"></div>
+
+    <!-- === Games Tab === -->
+    <section id="tab-games">
+      <div class="tab-header">
+        <h2 class="section-title">Your Games</h2>
+        <button class="btn-primary btn-add" onclick="openAddGameModal()">+ Add Game</button>
+      </div>
+      <div style="overflow-x: auto;">
+        <table class="admin-table" id="games-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Opponent</th>
+              <th>Giveaway</th>
+              <th>Price</th>
+              <th>Status</th>
+              <th>Claimer</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="games-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- === Claims Tab === -->
+    <section id="tab-claims" class="hidden">
+      <h2 class="section-title">Current Claims</h2>
+      <div id="claims-section"></div>
+    </section>
+
+    <!-- === Upload Tab === -->
+    <section id="tab-upload" class="hidden">
+      <h2 class="section-title">Bulk Upload Games</h2>
+
+      <div class="upload-options">
+        <div class="upload-card">
+          <h3>Upload CSV</h3>
+          <p>Upload a CSV file with columns: date, opponent, giveaway, price</p>
+          <input type="file" id="csv-file" accept=".csv,.tsv,.txt" onchange="handleCsvUpload(this)">
+        </div>
+
+        <div class="upload-card" id="ocr-card">
+          <h3>Upload Schedule Photo</h3>
+          <p>Take a photo of your season ticket schedule and we'll parse it automatically.</p>
+          <input type="file" id="photo-file" accept="image/*" onchange="handlePhotoUpload(this)">
+        </div>
+      </div>
+
+      <div id="upload-preview" class="hidden">
+        <h3>Preview Parsed Games</h3>
+        <p id="upload-preview-msg"></p>
+        <div style="overflow-x: auto;">
+          <table class="admin-table" id="preview-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Date</th>
+                <th>Opponent</th>
+                <th>Giveaway</th>
+                <th>Price</th>
+              </tr>
+            </thead>
+            <tbody id="preview-tbody"></tbody>
+          </table>
+        </div>
+        <div class="upload-actions">
+          <button class="btn-primary" onclick="confirmBulkUpload()">Add Selected Games</button>
+          <button class="btn-cancel" onclick="cancelPreview()">Cancel</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- === Settings Tab === -->
+    <section id="tab-settings" class="hidden">
+      <h2 class="section-title">Account Settings</h2>
+      <div class="settings-card">
+        <form id="settings-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="set-display-name">Display Name</label>
+              <input type="text" id="set-display-name" required>
+            </div>
+            <div class="form-group">
+              <label for="set-slug">Page URL Slug</label>
+              <input type="text" id="set-slug" required pattern="[a-z0-9-]+">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="set-team-name">Team Name</label>
+              <input type="text" id="set-team-name" required>
+            </div>
+            <div class="form-group">
+              <label for="set-venue-name">Venue</label>
+              <input type="text" id="set-venue-name">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="set-section">Section</label>
+              <input type="text" id="set-section">
+            </div>
+            <div class="form-group">
+              <label for="set-season">Season</label>
+              <input type="text" id="set-season">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="set-tickets">Tickets Per Game</label>
+              <input type="number" id="set-tickets" min="1" max="20" value="2">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="set-primary-color">Primary Color</label>
+              <input type="color" id="set-primary-color" value="#2F241D">
+            </div>
+            <div class="form-group">
+              <label for="set-accent-color">Accent Color</label>
+              <input type="color" id="set-accent-color" value="#FFC425">
+            </div>
+          </div>
+          <button type="submit" class="btn-primary">Save Settings</button>
+        </form>
+      </div>
+    </section>
+  </div>
+
+  <!-- Add Game Modal -->
+  <div id="add-game-modal" class="modal hidden">
+    <div class="modal-overlay" onclick="closeAddGameModal()"></div>
+    <div class="modal-content">
+      <h2>Add Game</h2>
+      <form id="add-game-form">
+        <div class="form-group">
+          <label for="ag-date">Date</label>
+          <input type="date" id="ag-date" required>
+        </div>
+        <div class="form-group">
+          <label for="ag-opponent">Opponent</label>
+          <input type="text" id="ag-opponent" required placeholder="Tigers">
+        </div>
+        <div class="form-group">
+          <label for="ag-giveaway">Giveaway (optional)</label>
+          <input type="text" id="ag-giveaway" placeholder="Bobblehead">
+        </div>
+        <div class="form-group">
+          <label for="ag-price">Price (optional)</label>
+          <input type="number" id="ag-price" step="1" min="0" placeholder="99">
+        </div>
+        <div class="modal-buttons">
+          <button type="submit" class="btn-primary">Add Game</button>
+          <button type="button" class="btn-cancel" onclick="closeAddGameModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>
