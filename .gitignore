@@ -2,6 +2,12 @@ node_modules/
 padres.db
 padres.db-shm
 padres.db-wal
+tickets.db
+tickets.db-shm
+tickets.db-wal
+*.db
+*.db-shm
+*.db-wal
 .env
 .DS_Store
 .claude/
