@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tickets Claimed!</title>
+  <style>
+    body { margin: 0; padding: 0; background: #f5f5f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    .container { max-width: 600px; margin: 0 auto; background: #ffffff; }
+    .header { background: {{primaryColor}}; color: #ffffff; padding: 32px 24px; }
+    .header h1 { margin: 0; font-size: 20px; font-weight: 600; }
+    .header p { margin: 8px 0 0; opacity: 0.9; font-size: 14px; }
+    .body { padding: 24px; }
+    .game-card { background: #f8f9fa; border-radius: 8px; padding: 20px; margin: 16px 0; }
+    .game-card .detail { display: flex; align-items: center; margin: 8px 0; font-size: 15px; }
+    .game-card .icon { margin-right: 10px; }
+    .divider { border: none; border-top: 1px solid #e0e0e0; margin: 24px 0; }
+    .steps { padding: 0; margin: 16px 0; }
+    .steps li { padding: 8px 0; font-size: 15px; line-height: 1.5; }
+    .btn { display: inline-block; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 15px; margin: 8px 8px 8px 0; }
+    .btn-primary { background: {{primaryColor}}; color: #ffffff; }
+    .payment { background: #fef3c7; border-radius: 8px; padding: 16px 20px; margin: 16px 0; }
+    .footer { padding: 24px; text-align: center; color: #999; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>You're going to the game!</h1>
+      <p>{{teamName}} vs {{opponent}} &mdash; {{gameDate}}</p>
+    </div>
+    <div class="body">
+      <p style="font-size: 16px; line-height: 1.5;">
+        Hey {{claimerFirstName}},
+      </p>
+      <p style="font-size: 16px; line-height: 1.5;">
+        You've claimed tickets from <strong>{{holderName}}</strong> for {{teamName}} vs {{opponent}} on <strong>{{gameDate}}</strong>.
+      </p>
+
+      <div class="game-card">
+        <div class="detail"><span class="icon">&#x1f4cd;</span> Section {{section}}, Row {{row}}, Seats {{seats}}</div>
+        <div class="detail"><span class="icon">&#x1f3df;</span> {{venueName}}</div>
+        <div class="detail"><span class="icon">&#x1f39f;</span> {{numTickets}} ticket(s)</div>
+      </div>
+
+      {{#if totalAmount}}
+      <div class="payment">
+        <strong>Payment: ${{totalAmount}}</strong>
+        {{#if venmoAppUrl}}
+        <br><br>
+        <a href="{{venmoAppUrl}}" class="btn btn-primary" style="margin: 8px 0;">Pay via Venmo</a>
+        <br>
+        <a href="{{venmoWebUrl}}" style="font-size: 13px; color: #666;">Or pay on web</a>
+        {{else}}
+        <br><span style="font-size: 14px; color: #666;">Arrange payment directly with {{holderName}}</span>
+        {{/if}}
+      </div>
+      {{/if}}
+
+      <hr class="divider">
+
+      <h2 style="font-size: 18px; margin-bottom: 4px;">What to Expect</h2>
+      <p style="font-size: 15px; line-height: 1.6;">
+        {{holderName}} will transfer the tickets to <strong>{{claimerEmail}}</strong> via {{platformName}}.
+        You'll receive an email when the transfer is ready.
+      </p>
+
+      <h3 style="font-size: 16px; margin-bottom: 4px;">To accept the tickets:</h3>
+      <ol class="steps">
+        {{#each acceptSteps}}
+        <li>{{this}}</li>
+        {{/each}}
+      </ol>
+    </div>
+    <div class="footer">
+      <p>&mdash; BenchBuddies</p>
+    </div>
+  </div>
+</body>
+</html>

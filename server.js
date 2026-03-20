@@ -5,6 +5,11 @@ const bcrypt = require('bcrypt');
 const multer = require('multer');
 const db = require('./db');
 
+const notifications = require('./lib/notifications');
+const venmoLib = require('./lib/venmo');
+const transferLib = require('./lib/transfer');
+const autoTransfer = require('./lib/auto-transfer');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
@@ -347,6 +352,122 @@ app.get('/api/u/:slug/my-games', (req, res) => {
 
   const claims = db.getClaimsBySlugAndEmail(req.params.slug, email.trim());
   res.json({ claims });
+});
+
+// === Transfer Routes ===
+
+// Mark a listing as transferred (called from email link or dashboard)
+app.post('/api/transfers/:listingId/mark-transferred', ownerAuth, (req, res) => {
+  try {
+    const listingId = parseInt(req.params.listingId);
+    const listing = db.getListingWithContext(listingId);
+    if (!listing) return res.status(404).json({ error: 'Listing not found' });
+    if (listing.owner_id !== req.account.id) return res.status(403).json({ error: 'Not authorized' });
+
+    const claim = db.markTransferred(listingId, req.account.id);
+
+    // Notify claimer that tickets are on the way
+    const holder = db.getUserById(listing.owner_id);
+    const claimer = db.getUserById(claim.claimer_id);
+    if (holder && claimer) {
+      notifications.sendTransferComplete(listing, claim, holder, claimer, listing, { opponent: listing.opponent, game_date: listing.game_date }, listing.team_id);
+    }
+
+    res.json({ success: true });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// GET handler for mark-transferred (for email link clicks)
+app.get('/api/transfers/:listingId/mark-transferred', ownerAuth, (req, res) => {
+  try {
+    const listingId = parseInt(req.params.listingId);
+    const listing = db.getListingWithContext(listingId);
+    if (!listing) return res.status(404).send('Listing not found');
+    if (listing.owner_id !== req.account.id) return res.status(403).send('Not authorized');
+
+    const claim = db.markTransferred(listingId, req.account.id);
+
+    const holder = db.getUserById(listing.owner_id);
+    const claimer = db.getUserById(claim.claimer_id);
+    if (holder && claimer) {
+      notifications.sendTransferComplete(listing, claim, holder, claimer, listing, { opponent: listing.opponent, game_date: listing.game_date }, listing.team_id);
+    }
+
+    // Redirect to dashboard with success message
+    res.redirect('/dashboard?transferred=1');
+  } catch (err) {
+    res.redirect('/dashboard?error=' + encodeURIComponent(err.message));
+  }
+});
+
+// Get pending transfers for the logged-in holder
+app.get('/api/transfers/pending', ownerAuth, (req, res) => {
+  const pending = db.getPendingTransfers(req.account.id);
+  res.json({ transfers: pending });
+});
+
+// Update payment status on a claim
+app.put('/api/transfers/:claimId/payment', ownerAuth, (req, res) => {
+  try {
+    const { status } = req.body;
+    db.updatePaymentStatus(parseInt(req.params.claimId), status);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// Generate Venmo payment link
+app.get('/api/venmo/link', (req, res) => {
+  const { handle, amount, note } = req.query;
+  if (!handle || !amount) return res.status(400).json({ error: 'handle and amount required' });
+  const urls = venmoLib.generateRequestUrl(handle, parseFloat(amount), note || '');
+  if (!urls) return res.status(400).json({ error: 'Invalid handle' });
+  res.json(urls);
+});
+
+// Get transfer instructions for a team
+app.get('/api/transfer-instructions/:teamId', (req, res) => {
+  const info = transferLib.getTransferInstructions(parseInt(req.params.teamId));
+  if (!info) return res.status(404).json({ error: 'Team not found' });
+  res.json(info);
+});
+
+// === Connected Accounts (Auto Mode) ===
+
+app.post('/api/connected-accounts/connect', ownerAuth, (req, res) => {
+  const { email, password, platform } = req.body;
+  if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
+
+  try {
+    const result = autoTransfer.connectAccount(req.account.id, email, password, platform || 'ticketmaster');
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to connect account: ' + err.message });
+  }
+});
+
+app.post('/api/connected-accounts/disconnect', ownerAuth, (req, res) => {
+  const { platform } = req.body;
+  const result = autoTransfer.disconnectAccount(req.account.id, platform || 'ticketmaster');
+  res.json(result);
+});
+
+app.get('/api/connected-accounts/status', ownerAuth, (req, res) => {
+  const platform = req.query.platform || 'ticketmaster';
+  const status = autoTransfer.getConnectionStatus(req.account.id, platform);
+  res.json(status);
+});
+
+app.post('/api/connected-accounts/sync', ownerAuth, async (req, res) => {
+  try {
+    const result = await autoTransfer.syncInventory(req.account.id);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // === Page Routes ===
