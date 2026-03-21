@@ -1,0 +1,298 @@
+export interface MlbTeam {
+  id: number;
+  name: string;
+  abbreviation: string;
+  city: string;
+  venue: string;
+  league: 'AL' | 'NL';
+  division: 'East' | 'Central' | 'West';
+}
+
+export const MLB_TEAMS: MlbTeam[] = [
+  // AL East
+  {
+    id: 110,
+    name: 'Baltimore Orioles',
+    abbreviation: 'BAL',
+    city: 'Baltimore',
+    venue: 'Oriole Park at Camden Yards',
+    league: 'AL',
+    division: 'East',
+  },
+  {
+    id: 111,
+    name: 'Boston Red Sox',
+    abbreviation: 'BOS',
+    city: 'Boston',
+    venue: 'Fenway Park',
+    league: 'AL',
+    division: 'East',
+  },
+  {
+    id: 147,
+    name: 'New York Yankees',
+    abbreviation: 'NYY',
+    city: 'New York',
+    venue: 'Yankee Stadium',
+    league: 'AL',
+    division: 'East',
+  },
+  {
+    id: 139,
+    name: 'Tampa Bay Rays',
+    abbreviation: 'TB',
+    city: 'St. Petersburg',
+    venue: 'Tropicana Field',
+    league: 'AL',
+    division: 'East',
+  },
+  {
+    id: 141,
+    name: 'Toronto Blue Jays',
+    abbreviation: 'TOR',
+    city: 'Toronto',
+    venue: 'Rogers Centre',
+    league: 'AL',
+    division: 'East',
+  },
+  // AL Central
+  {
+    id: 145,
+    name: 'Chicago White Sox',
+    abbreviation: 'CWS',
+    city: 'Chicago',
+    venue: 'Guaranteed Rate Field',
+    league: 'AL',
+    division: 'Central',
+  },
+  {
+    id: 114,
+    name: 'Cleveland Guardians',
+    abbreviation: 'CLE',
+    city: 'Cleveland',
+    venue: 'Progressive Field',
+    league: 'AL',
+    division: 'Central',
+  },
+  {
+    id: 116,
+    name: 'Detroit Tigers',
+    abbreviation: 'DET',
+    city: 'Detroit',
+    venue: 'Comerica Park',
+    league: 'AL',
+    division: 'Central',
+  },
+  {
+    id: 118,
+    name: 'Kansas City Royals',
+    abbreviation: 'KC',
+    city: 'Kansas City',
+    venue: 'Kauffman Stadium',
+    league: 'AL',
+    division: 'Central',
+  },
+  {
+    id: 142,
+    name: 'Minnesota Twins',
+    abbreviation: 'MIN',
+    city: 'Minneapolis',
+    venue: 'Target Field',
+    league: 'AL',
+    division: 'Central',
+  },
+  // AL West
+  {
+    id: 117,
+    name: 'Houston Astros',
+    abbreviation: 'HOU',
+    city: 'Houston',
+    venue: 'Minute Maid Park',
+    league: 'AL',
+    division: 'West',
+  },
+  {
+    id: 108,
+    name: 'Los Angeles Angels',
+    abbreviation: 'LAA',
+    city: 'Anaheim',
+    venue: 'Angel Stadium',
+    league: 'AL',
+    division: 'West',
+  },
+  {
+    id: 133,
+    name: 'Oakland Athletics',
+    abbreviation: 'OAK',
+    city: 'Sacramento',
+    venue: 'Sutter Health Park',
+    league: 'AL',
+    division: 'West',
+  },
+  {
+    id: 136,
+    name: 'Seattle Mariners',
+    abbreviation: 'SEA',
+    city: 'Seattle',
+    venue: 'T-Mobile Park',
+    league: 'AL',
+    division: 'West',
+  },
+  {
+    id: 140,
+    name: 'Texas Rangers',
+    abbreviation: 'TEX',
+    city: 'Arlington',
+    venue: 'Globe Life Field',
+    league: 'AL',
+    division: 'West',
+  },
+  // NL East
+  {
+    id: 144,
+    name: 'Atlanta Braves',
+    abbreviation: 'ATL',
+    city: 'Atlanta',
+    venue: 'Truist Park',
+    league: 'NL',
+    division: 'East',
+  },
+  {
+    id: 146,
+    name: 'Miami Marlins',
+    abbreviation: 'MIA',
+    city: 'Miami',
+    venue: 'LoanDepot Park',
+    league: 'NL',
+    division: 'East',
+  },
+  {
+    id: 121,
+    name: 'New York Mets',
+    abbreviation: 'NYM',
+    city: 'New York',
+    venue: 'Citi Field',
+    league: 'NL',
+    division: 'East',
+  },
+  {
+    id: 143,
+    name: 'Philadelphia Phillies',
+    abbreviation: 'PHI',
+    city: 'Philadelphia',
+    venue: 'Citizens Bank Park',
+    league: 'NL',
+    division: 'East',
+  },
+  {
+    id: 120,
+    name: 'Washington Nationals',
+    abbreviation: 'WSH',
+    city: 'Washington',
+    venue: 'Nationals Park',
+    league: 'NL',
+    division: 'East',
+  },
+  // NL Central
+  {
+    id: 112,
+    name: 'Chicago Cubs',
+    abbreviation: 'CHC',
+    city: 'Chicago',
+    venue: 'Wrigley Field',
+    league: 'NL',
+    division: 'Central',
+  },
+  {
+    id: 113,
+    name: 'Cincinnati Reds',
+    abbreviation: 'CIN',
+    city: 'Cincinnati',
+    venue: 'Great American Ball Park',
+    league: 'NL',
+    division: 'Central',
+  },
+  {
+    id: 158,
+    name: 'Milwaukee Brewers',
+    abbreviation: 'MIL',
+    city: 'Milwaukee',
+    venue: 'American Family Field',
+    league: 'NL',
+    division: 'Central',
+  },
+  {
+    id: 134,
+    name: 'Pittsburgh Pirates',
+    abbreviation: 'PIT',
+    city: 'Pittsburgh',
+    venue: 'PNC Park',
+    league: 'NL',
+    division: 'Central',
+  },
+  {
+    id: 138,
+    name: 'St. Louis Cardinals',
+    abbreviation: 'STL',
+    city: 'St. Louis',
+    venue: 'Busch Stadium',
+    league: 'NL',
+    division: 'Central',
+  },
+  // NL West
+  {
+    id: 109,
+    name: 'Arizona Diamondbacks',
+    abbreviation: 'AZ',
+    city: 'Phoenix',
+    venue: 'Chase Field',
+    league: 'NL',
+    division: 'West',
+  },
+  {
+    id: 115,
+    name: 'Colorado Rockies',
+    abbreviation: 'COL',
+    city: 'Denver',
+    venue: 'Coors Field',
+    league: 'NL',
+    division: 'West',
+  },
+  {
+    id: 119,
+    name: 'Los Angeles Dodgers',
+    abbreviation: 'LAD',
+    city: 'Los Angeles',
+    venue: 'Dodger Stadium',
+    league: 'NL',
+    division: 'West',
+  },
+  {
+    id: 135,
+    name: 'San Diego Padres',
+    abbreviation: 'SD',
+    city: 'San Diego',
+    venue: 'Petco Park',
+    league: 'NL',
+    division: 'West',
+  },
+  {
+    id: 137,
+    name: 'San Francisco Giants',
+    abbreviation: 'SF',
+    city: 'San Francisco',
+    venue: 'Oracle Park',
+    league: 'NL',
+    division: 'West',
+  },
+];
+
+export function getTeamById(id: number): MlbTeam | undefined {
+  return MLB_TEAMS.find((t) => t.id === id);
+}
+
+export function getTeamByAbbreviation(abbr: string): MlbTeam | undefined {
+  return MLB_TEAMS.find(
+    (t) => t.abbreviation.toLowerCase() === abbr.toLowerCase()
+  );
+}
