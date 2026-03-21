@@ -6,3 +6,199 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+// ─── Enums ───────────────────────────────────────────────
+
+enum UserRole {
+  HOLDER
+  CLAIMER
+  BOTH
+}
+
+enum PackageStatus {
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
+
+enum GameStatus {
+  GOING_MYSELF
+  AVAILABLE
+  CLAIMED
+  TRANSFERRED
+  COMPLETE
+  SOLD_ELSEWHERE
+  UNAVAILABLE
+}
+
+enum ClaimStatus {
+  PENDING
+  CONFIRMED
+  RELEASED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PENDING
+  REQUESTED
+  PAID
+  WAIVED
+}
+
+enum TransferStatus {
+  NOT_STARTED
+  SENT
+  ACCEPTED
+}
+
+enum TokenType {
+  EMAIL_VERIFY
+  PASSWORD_RESET
+  MAGIC_LINK
+}
+
+enum SubscriptionPlan {
+  FREE
+  PRO
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  PAST_DUE
+}
+
+enum BillingCycle {
+  MONTHLY
+  ANNUAL
+}
+
+// ─── Models ──────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  firstName     String
+  lastName      String
+  email         String    @unique
+  phone         String?
+  passwordHash  String?
+  role          UserRole  @default(CLAIMER)
+  venmoHandle   String?
+  zelleInfo     String?
+  emailVerified DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  packages     Package[]
+  claims       Claim[]
+  invitations  Invitation[]
+  subscription Subscription?
+  tokens       Token[]
+}
+
+model Package {
+  id                    String        @id @default(cuid())
+  userId                String
+  sport                 String        @default("MLB")
+  team                  String
+  section               String
+  row                   String?
+  seats                 String
+  seatCount             Int
+  season                String
+  shareLinkSlug         String        @unique
+  status                PackageStatus @default(ACTIVE)
+  defaultPricePerTicket Decimal?      @db.Decimal(10, 2)
+  defaultAvailability   GameStatus    @default(AVAILABLE)
+  defaultSplitRule      String?
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+
+  user        User         @relation(fields: [userId], references: [id])
+  games       Game[]
+  invitations Invitation[]
+
+  @@index([userId])
+}
+
+model Game {
+  id             String     @id @default(cuid())
+  packageId      String
+  date           DateTime
+  time           String?
+  opponent       String
+  opponentLogo   String?
+  status         GameStatus @default(AVAILABLE)
+  pricePerTicket Decimal?   @db.Decimal(10, 2)
+  splitRule      String?
+  notes          String?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  package Package @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  claim   Claim?
+
+  @@unique([packageId, date])
+  @@index([packageId])
+  @@index([date])
+  @@index([status])
+}
+
+model Claim {
+  id             String         @id @default(cuid())
+  gameId         String         @unique
+  claimerUserId  String
+  status         ClaimStatus    @default(PENDING)
+  claimedAt      DateTime       @default(now())
+  paymentStatus  PaymentStatus  @default(UNPAID)
+  transferStatus TransferStatus @default(NOT_STARTED)
+  releasedAt     DateTime?
+  reminderSentAt DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  game    Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  claimer User @relation(fields: [claimerUserId], references: [id])
+
+  @@index([claimerUserId])
+  @@index([transferStatus])
+}
+
+model Invitation {
+  id            String   @id @default(cuid())
+  packageId     String
+  claimerUserId String
+  invitedAt     DateTime @default(now())
+
+  package Package @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  claimer User    @relation(fields: [claimerUserId], references: [id])
+
+  @@unique([packageId, claimerUserId])
+}
+
+model Token {
+  id        String    @id @default(cuid())
+  userId    String
+  type      TokenType
+  token     String    @unique
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+}
+
+model Subscription {
+  id            String             @id @default(cuid())
+  userId        String             @unique
+  plan          SubscriptionPlan   @default(FREE)
+  status        SubscriptionStatus @default(ACTIVE)
+  billingCycle  BillingCycle?
+  packagesCount Int                @default(1)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+}
