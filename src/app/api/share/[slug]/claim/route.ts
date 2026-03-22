@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/db';
 import { requireAuth, jsonError, jsonSuccess } from '@/lib/api-utils';
 import { createClaim } from '@/lib/services/claim';
+import { trackServerEvent, AnalyticsEvents } from '@/lib/analytics';
 
 export async function POST(
   request: NextRequest,
@@ -44,6 +45,12 @@ export async function POST(
   if (!result.success) {
     return jsonError(result.error!, 409);
   }
+
+  trackServerEvent(AnalyticsEvents.CLAIM_COMPLETED, {
+    slug,
+    gameId,
+    userId: user.id,
+  });
 
   return jsonSuccess({ claim: result.claim }, 201);
 }
