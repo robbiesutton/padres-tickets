@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/db';
-import { sendEmail } from './email';
+import { sendNotification } from './notifications';
 import { createToken } from './tokens';
 import { buildTransferActionEmail } from '@/lib/emails/transfer-action';
 import { buildClaimConfirmationEmail } from '@/lib/emails/claim-confirmation';
@@ -75,11 +75,14 @@ export async function sendClaimNotifications(claimId: string) {
       markTransferredUrl,
     });
 
-    await sendEmail({
-      to: holder.email,
-      subject: transferEmail.subject,
-      html: transferEmail.html,
-    });
+    await sendNotification(
+      holder.id,
+      'TRANSFER_ACTION',
+      holder.email,
+      transferEmail.subject,
+      transferEmail.html,
+      { claimId: claim.id, gameId: game.id }
+    );
   } catch (error) {
     console.error('Failed to send transfer action email:', error);
   }
@@ -99,11 +102,14 @@ export async function sendClaimNotifications(claimId: string) {
       myGamesUrl: `${BASE_URL}/dashboard/my-games`,
     });
 
-    await sendEmail({
-      to: claimer.email,
-      subject: confirmEmail.subject,
-      html: confirmEmail.html,
-    });
+    await sendNotification(
+      claimer.id,
+      'CLAIM_CREATED',
+      claimer.email,
+      confirmEmail.subject,
+      confirmEmail.html,
+      { claimId: claim.id, gameId: game.id }
+    );
   } catch (error) {
     console.error('Failed to send claim confirmation email:', error);
   }
