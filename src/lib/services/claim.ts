@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/db';
 import { Prisma } from '@/generated/prisma/client';
 import { logActivity } from './activity';
+import { sendClaimNotifications } from './claim-notifications';
 
 interface CreateClaimResult {
   success: boolean;
@@ -114,6 +115,11 @@ export async function createClaim(
         { gameId, claimId: result.id } as Prisma.InputJsonValue
       ).catch(() => {});
     }
+
+    // Send claim notification emails (best-effort, async)
+    sendClaimNotifications(result.id).catch((err) =>
+      console.error('Failed to send claim notifications:', err)
+    );
 
     return {
       success: true,
