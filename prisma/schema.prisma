@@ -73,6 +73,15 @@ enum BillingCycle {
   ANNUAL
 }
 
+enum ActivityType {
+  CLAIM_CREATED
+  CLAIM_RELEASED
+  PAYMENT_UPDATED
+  TRANSFER_UPDATED
+  GAME_ADDED
+  GAME_UPDATED
+}
+
 // ─── Models ──────────────────────────────────────────────
 
 model User {
@@ -117,6 +126,7 @@ model Package {
   user        User         @relation(fields: [userId], references: [id])
   games       Game[]
   invitations Invitation[]
+  activities  Activity[]
 
   @@index([userId])
 }
@@ -188,6 +198,20 @@ model Token {
 
   @@index([userId])
   @@index([token])
+}
+
+model Activity {
+  id          String       @id @default(cuid())
+  packageId   String
+  type        ActivityType
+  description String
+  metadata    Json?
+  createdAt   DateTime     @default(now())
+
+  package Package @relation(fields: [packageId], references: [id], onDelete: Cascade)
+
+  @@index([packageId])
+  @@index([createdAt])
 }
 
 model Subscription {

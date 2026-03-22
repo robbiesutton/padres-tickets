@@ -1,4 +1,6 @@
 import { prisma } from '@/lib/db';
+import { Prisma } from '@/generated/prisma/client';
+import { logActivity } from './activity';
 
 interface CreateClaimResult {
   success: boolean;
@@ -91,6 +93,28 @@ export async function createClaim(
       return claim;
     });
 
+    // Log activity (best-effort, outside transaction)
+    const game = await prisma.game.findUnique({
+      where: { id: gameId },
+      include: {
+        package: { select: { id: true } },
+        claim: {
+          include: { claimer: { select: { firstName: true, lastName: true } } },
+        },
+      },
+    });
+    if (game) {
+      const claimerName = game.claim
+        ? `${game.claim.claimer.firstName} ${game.claim.claimer.lastName}`
+        : 'Someone';
+      logActivity(
+        game.package.id,
+        'CLAIM_CREATED',
+        `${claimerName} claimed ${game.opponent} on ${game.date.toLocaleDateString()}`,
+        { gameId, claimId: result.id } as Prisma.InputJsonValue
+      ).catch(() => {});
+    }
+
     return {
       success: true,
       claim: {
@@ -114,7 +138,7 @@ export async function releaseClaim(
   userId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    await prisma.$transaction(async (tx) => {
+    const txResult = await prisma.$transaction(async (tx) => {
       const claim = await tx.claim.findUnique({
         where: { id: claimId },
         include: { game: true },
@@ -146,7 +170,27 @@ export async function releaseClaim(
         where: { id: claim.gameId },
         data: { status: 'AVAILABLE' },
       });
+
+      return claim;
     });
+
+    // Log activity (best-effort)
+    const claimer = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { firstName: true, lastName: true },
+    });
+    const game = await prisma.game.findUnique({
+      where: { id: txResult.gameId },
+      select: { opponent: true, date: true, packageId: true },
+    });
+    if (game && claimer) {
+      logActivity(
+        game.packageId,
+        'CLAIM_RELEASED',
+        `${claimer.firstName} ${claimer.lastName} released ${game.opponent} on ${game.date.toLocaleDateString()}`,
+        { gameId: txResult.gameId, claimId } as Prisma.InputJsonValue
+      ).catch(() => {});
+    }
 
     return { success: true };
   } catch (error) {
