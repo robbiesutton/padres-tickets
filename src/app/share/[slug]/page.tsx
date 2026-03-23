@@ -1,5 +1,3 @@
-// PLACEHOLDER UI — To be replaced by designer
-
 import { prisma } from '@/lib/db';
 import { notFound } from 'next/navigation';
 import { SharePageClient } from './share-page-client';
@@ -26,6 +24,13 @@ export default async function SharePage({ params }: Props) {
           status: true,
           pricePerTicket: true,
           notes: true,
+          claim: {
+            select: {
+              id: true,
+              claimerUserId: true,
+              status: true,
+            },
+          },
         },
       },
     },
@@ -35,7 +40,6 @@ export default async function SharePage({ params }: Props) {
     notFound();
   }
 
-  // Serialize dates for client component
   const games = pkg.games.map((g) => ({
     ...g,
     date: g.date.toISOString(),
@@ -46,14 +50,22 @@ export default async function SharePage({ params }: Props) {
 
   return (
     <SharePageClient
-      slug={slug}
-      holderName={`${pkg.user.firstName} ${pkg.user.lastName}`}
-      team={pkg.team}
-      section={pkg.section}
-      row={pkg.row}
-      seats={pkg.seats}
-      seatCount={pkg.seatCount}
-      season={pkg.season}
+      packageInfo={{
+        slug,
+        holderName: `${pkg.user.firstName} ${pkg.user.lastName}`,
+        team: pkg.team,
+        section: pkg.section,
+        row: pkg.row,
+        seats: pkg.seats,
+        seatCount: pkg.seatCount,
+        season: pkg.season,
+        defaultPricePerTicket: pkg.defaultPricePerTicket
+          ? Number(pkg.defaultPricePerTicket)
+          : null,
+        description: pkg.description,
+        seatPhotoUrl: pkg.seatPhotoUrl,
+        perks: pkg.perks ?? [],
+      }}
       games={games}
       opponents={opponents}
     />

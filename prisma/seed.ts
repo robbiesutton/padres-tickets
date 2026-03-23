@@ -55,6 +55,14 @@ async function main() {
       season: '2026',
       shareLinkSlug: 'mark-rockies',
       defaultPricePerTicket: 45.0,
+      description:
+        'Premium field-level seats on the third base side with unobstructed views of the diamond. Just 20 rows from the field — close enough to hear the crack of the bat.',
+      perks: [
+        'Aisle Access',
+        'Field Level',
+        '2 Seats Together',
+        'Shaded by 4th Inning',
+      ],
     },
   });
   console.log(`  Created package: ${pkg.team} (${pkg.shareLinkSlug})`);

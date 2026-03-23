@@ -53,6 +53,9 @@ export async function POST(request: NextRequest) {
     season,
     defaultPricePerTicket,
     autoLoadSchedule,
+    seatPhotoUrl,
+    perks,
+    description,
   } = body;
 
   if (!teamId || !section || !seats || !seatCount || !season) {
@@ -88,6 +91,9 @@ export async function POST(request: NextRequest) {
       defaultPricePerTicket: defaultPricePerTicket
         ? parseFloat(defaultPricePerTicket)
         : null,
+      seatPhotoUrl: seatPhotoUrl || null,
+      perks: Array.isArray(perks) ? perks : [],
+      description: description || null,
     },
   });
 

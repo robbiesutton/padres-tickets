@@ -1,6 +1,34 @@
 // PLACEHOLDER UI — To be replaced by designer
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
+  const router = useRouter();
+  const [showLinkInput, setShowLinkInput] = useState(false);
+  const [sharedLink, setSharedLink] = useState('');
+  const [linkError, setLinkError] = useState('');
+
+  function handleGoToLink() {
+    setLinkError('');
+    try {
+      // Accept full URLs or just the slug
+      let slug = sharedLink.trim();
+      if (slug.includes('/share/')) {
+        const url = new URL(slug.startsWith('http') ? slug : `https://${slug}`);
+        const parts = url.pathname.split('/share/');
+        slug = parts[1]?.split('/')[0]?.split('?')[0] || '';
+      }
+      if (!slug) {
+        setLinkError('Please paste a valid BenchBuddy link');
+        return;
+      }
+      router.push(`/share/${slug}`);
+    } catch {
+      setLinkError('Please paste a valid BenchBuddy link');
+    }
+  }
   return (
     <div className="flex flex-1 flex-col">
       {/* Hero */}
@@ -19,13 +47,41 @@ export default function Home() {
           >
             I Have Season Tickets
           </a>
-          <a
-            href="/login"
+          <button
+            onClick={() => setShowLinkInput(true)}
             className="rounded-lg border border-foreground/20 px-8 py-3 text-sm font-medium text-foreground hover:bg-foreground/5"
           >
             I Was Shared a Link
-          </a>
+          </button>
         </div>
+
+        {showLinkInput && (
+          <div className="w-full max-w-md space-y-3">
+            <p className="text-sm text-foreground/60">
+              Paste the link your friend shared with you:
+            </p>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={sharedLink}
+                onChange={(e) => setSharedLink(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleGoToLink()}
+                placeholder="e.g. benchbuddy.com/share/mark-rockies"
+                className="flex-1 rounded-lg border border-foreground/20 px-3 py-2 text-sm"
+                autoFocus
+              />
+              <button
+                onClick={handleGoToLink}
+                className="rounded-lg bg-brand-600 px-5 py-2 text-sm font-medium text-white hover:bg-brand-700"
+              >
+                Go
+              </button>
+            </div>
+            {linkError && (
+              <p className="text-sm text-red-600">{linkError}</p>
+            )}
+          </div>
+        )}
       </section>
 
       {/* How it works */}

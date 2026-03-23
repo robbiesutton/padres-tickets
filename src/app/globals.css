@@ -1,17 +1,33 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #F8F7F4;
+  --foreground: #1A1A1A;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-dm-sans);
   --font-mono: var(--font-geist-mono);
 
-  /* Placeholder BenchBuddy design tokens — will be replaced by designer */
+  /* BenchBuddy design tokens */
+  --color-card: #FFFFFF;
+  --color-border: #ECEAE5;
+  --color-muted: #8C8984;
+  --color-muted-light: #B5B1AB;
+  --color-accent: #D4A843;
+  --color-navy: #1B2A4A;
+  --color-green: #0F6E56;
+  --color-green-light: #E1F5EE;
+  --color-green-border: #9FE1CB;
+  --color-green-dark: #085041;
+  --color-error: #DC2626;
+  --color-warning-bg: #FAEEDA;
+  --color-warning-border: #FAC775;
+  --color-warning-text: #854F0B;
+
+  /* Legacy brand tokens (used by dashboard/auth pages) */
   --color-brand-50: #f0f9ff;
   --color-brand-100: #e0f2fe;
   --color-brand-200: #bae6fd;
@@ -27,18 +43,10 @@
   --color-accent-600: #d97706;
   --color-success: #22c55e;
   --color-warning: #f59e0b;
-  --color-error: #ef4444;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'DM Sans', system-ui, sans-serif;
 }

@@ -122,6 +122,9 @@ model Package {
   defaultPricePerTicket Decimal?      @db.Decimal(10, 2)
   defaultAvailability   GameStatus    @default(AVAILABLE)
   defaultSplitRule      String?
+  description           String?
+  seatPhotoUrl          String?
+  perks                 String[]
   createdAt             DateTime      @default(now())
   updatedAt             DateTime      @updatedAt
 

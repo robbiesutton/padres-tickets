@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { signOut } from 'next-auth/react';
 
 interface UserProfile {
   id: string;
@@ -211,6 +212,16 @@ export default function SettingsPage() {
             {saving ? 'Saving...' : 'Save Settings'}
           </button>
         </form>
+
+        {/* Logout */}
+        <div className="border-t border-foreground/10 pt-6">
+          <button
+            onClick={() => signOut({ callbackUrl: '/' })}
+            className="w-full rounded-lg border border-red-200 px-6 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50"
+          >
+            Sign out
+          </button>
+        </div>
       </div>
     </div>
   );

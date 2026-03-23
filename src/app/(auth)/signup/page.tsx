@@ -15,6 +15,7 @@ export default function SignupPage() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   function update(field: string, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -104,15 +105,24 @@ export default function SignupPage() {
             <label htmlFor="password" className="block text-sm font-medium">
               Password
             </label>
-            <input
-              id="password"
-              type="password"
-              required
-              minLength={8}
-              value={form.password}
-              onChange={(e) => update('password', e.target.value)}
-              className="mt-1 block w-full rounded-lg border border-foreground/20 px-3 py-2 text-sm"
-            />
+            <div className="relative mt-1">
+              <input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                required
+                minLength={8}
+                value={form.password}
+                onChange={(e) => update('password', e.target.value)}
+                className="block w-full rounded-lg border border-foreground/20 px-3 py-2 pr-10 text-sm"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-foreground/40 hover:text-foreground/70 text-xs px-1"
+              >
+                {showPassword ? 'Hide' : 'Show'}
+              </button>
+            </div>
             <p className="mt-1 text-xs text-foreground/40">
               Minimum 8 characters
             </p>
