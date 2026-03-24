@@ -26,6 +26,16 @@ export async function GET() {
       zelleInfo: true,
       emailVerified: true,
       createdAt: true,
+      subscription: {
+        select: {
+          plan: true,
+          status: true,
+          billingCycle: true,
+          currentPeriodEnd: true,
+          cancelAtPeriodEnd: true,
+          trialEnd: true,
+        },
+      },
     },
   });
 

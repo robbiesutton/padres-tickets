@@ -61,6 +61,12 @@ export async function POST(request: NextRequest) {
     seatPhotoUrl,
     perks,
     description,
+    // New fields for 9-step wizard
+    gameOverrides,
+    excludedDates,
+    venmoHandle,
+    zelleInfo,
+    shareLinkSlug,
   } = body;
 
   if (!teamId || !section || !seats || !seatCount || !season) {
@@ -75,11 +81,39 @@ export async function POST(request: NextRequest) {
     return jsonError('Invalid team ID', 400);
   }
 
-  // Generate unique slug
-  const slug = await generateUniqueSlug(
-    dbUser?.firstName ?? user.name.split(' ')[0],
-    team.abbreviation
-  );
+  // Use custom slug if provided and available, otherwise auto-generate
+  let slug: string;
+  if (shareLinkSlug) {
+    const sanitized = shareLinkSlug
+      .toLowerCase()
+      .replace(/[^a-z0-9-]/g, '')
+      .replace(/-+/g, '-');
+    const existing = await prisma.package.findUnique({
+      where: { shareLinkSlug: sanitized },
+    });
+    slug = existing
+      ? await generateUniqueSlug(
+          dbUser?.firstName ?? user.name.split(' ')[0],
+          team.abbreviation
+        )
+      : sanitized;
+  } else {
+    slug = await generateUniqueSlug(
+      dbUser?.firstName ?? user.name.split(' ')[0],
+      team.abbreviation
+    );
+  }
+
+  // Save payment method to user if provided
+  if (venmoHandle || zelleInfo) {
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        ...(venmoHandle ? { venmoHandle } : {}),
+        ...(zelleInfo ? { zelleInfo } : {}),
+      },
+    });
+  }
 
   // Create the package
   const pkg = await prisma.package.create({
@@ -107,17 +141,24 @@ export async function POST(request: NextRequest) {
   if (autoLoadSchedule !== false) {
     try {
       const schedule = await getHomeSchedule(teamId, season);
-      const gameData = schedule.map((g) => ({
-        packageId: pkg.id,
-        date: new Date(g.gameDate),
-        time: g.time,
-        opponent: g.opponent,
-        opponentLogo: null as string | null,
-        pricePerTicket: defaultPricePerTicket
-          ? parseFloat(defaultPricePerTicket)
-          : null,
-        status: 'AVAILABLE' as const,
-      }));
+      const excludedSet = new Set(excludedDates || []);
+
+      const gameData = schedule
+        .filter((g) => !excludedSet.has(g.gameDate))
+        .map((g) => {
+          const override = gameOverrides?.[g.gameDate];
+          return {
+            packageId: pkg.id,
+            date: new Date(g.gameDate),
+            time: g.time,
+            opponent: g.opponent,
+            opponentLogo: null as string | null,
+            pricePerTicket: override?.pricePerTicket ?? (defaultPricePerTicket
+              ? parseFloat(defaultPricePerTicket)
+              : null),
+            status: (override?.status || 'AVAILABLE') as 'AVAILABLE' | 'GOING_MYSELF',
+          };
+        });
 
       if (gameData.length > 0) {
         await prisma.game.createMany({ data: gameData });

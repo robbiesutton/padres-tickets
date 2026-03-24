@@ -1,9 +1,9 @@
-// PLACEHOLDER UI — To be replaced by designer
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
+
+// ─── Types ──────────────────────────────────────────────
 
 interface MlbTeam {
   id: number;
@@ -43,28 +43,49 @@ interface ScheduleGame {
   opponent: string;
 }
 
-interface SeatViewPhoto {
-  imageUrl: string;
-  section: string;
-  row: string;
-  rating: number;
-}
+type Step = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 
-type Step = 1 | 2 | 3 | 4 | 5 | 6;
+// ─── Constants ──────────────────────────────────────────
+
+const LEAGUES = [
+  { value: 'MLB', label: 'MLB', available: true },
+  { value: 'NBA', label: 'NBA', available: false },
+  { value: 'NFL', label: 'NFL', available: false },
+  { value: 'NHL', label: 'NHL', available: false },
+  { value: 'MLS', label: 'MLS', available: false },
+  { value: 'WNBA', label: 'WNBA', available: false },
+  { value: 'NWSL', label: 'NWSL', available: false },
+];
+
+const MONTH_NAMES = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+];
+
+const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+// ─── Component ──────────────────────────────────────────
 
 export default function NewPackagePage() {
   const router = useRouter();
   const [step, setStep] = useState<Step>(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [toast, setToast] = useState('');
 
-  // Step 1: Team
+  // Step 1: League
+  const [league, setLeague] = useState('');
+
+  // Step 2: Team
   const [teams, setTeams] = useState<MlbTeam[]>([]);
-  const [teamsLoaded, setTeamsLoaded] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState<MlbTeam | null>(null);
   const [season] = useState(new Date().getFullYear().toString());
 
-  // Step 2: Seats
+  // Step 3: Package
+  const [packages, setPackages] = useState<SeasonPackage[]>([]);
+  const [selectedPackage, setSelectedPackage] = useState<SeasonPackage | null>(null);
+
+  // Step 4: Seats
   const [sections, setSections] = useState<StadiumSection[]>([]);
   const [sectionsLoading, setSectionsLoading] = useState(false);
   const [selectedSection, setSelectedSection] = useState<StadiumSection | null>(null);
@@ -72,43 +93,55 @@ export default function NewPackagePage() {
   const [rowsLoading, setRowsLoading] = useState(false);
   const [sectionTags, setSectionTags] = useState<string[]>([]);
   const [row, setRow] = useState('');
-  const [seats, setSeats] = useState('');
-  const [seatCount, setSeatCount] = useState('2');
-  const [seatViewPhoto, setSeatViewPhoto] = useState<string | null>(null);
-  const [seatViewLoading, setSeatViewLoading] = useState(false);
+  const [selectedSeats, setSelectedSeats] = useState<Set<number>>(new Set());
 
-  // Step 3: Package selection
-  const [packages, setPackages] = useState<SeasonPackage[]>([]);
-  const [selectedPackage, setSelectedPackage] = useState<SeasonPackage | null>(null);
-
-  // Step 4: Schedule
+  // Step 5: Schedule
   const [schedule, setSchedule] = useState<ScheduleGame[]>([]);
   const [selectedGames, setSelectedGames] = useState<Set<number>>(new Set());
   const [scheduleLoading, setScheduleLoading] = useState(false);
 
-  // Step 5: Defaults
-  const [defaultPrice, setDefaultPrice] = useState('');
+  // Step 6: Availability
+  const [availability, setAvailability] = useState<Record<number, 'available' | 'keeping'>>({});
 
-  // Step 6: Result
-  const [result, setResult] = useState<{
-    shareLink: string;
-    gamesCreated: number;
-  } | null>(null);
+  // Step 7: Pricing
+  const [prices, setPrices] = useState<Record<number, number>>({});
+  const [bulkPrice, setBulkPrice] = useState('');
 
-  // Load teams on mount
+  // Step 8: Payment
+  const [venmoHandle, setVenmoHandle] = useState('');
+  const [zelleInfo, setZelleInfo] = useState('');
+  const [venmoExpanded, setVenmoExpanded] = useState(false);
+  const [zelleExpanded, setZelleExpanded] = useState(false);
+
+  // Step 9: Share link
+  const [linkSlug, setLinkSlug] = useState('');
+  const [slugAvailable, setSlugAvailable] = useState<boolean | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [result, setResult] = useState<{ shareLink: string; gamesCreated: number } | null>(null);
+
+  // Subscription status
+  const [subscribed, setSubscribed] = useState(true);
+  const [subLoading, setSubLoading] = useState(false);
+
   useEffect(() => {
-    async function load() {
-      const res = await fetch('/api/teams');
-      if (res.ok) {
-        const data = await res.json();
-        setTeams(data.teams);
-        setTeamsLoaded(true);
-      }
-    }
-    load();
+    fetch('/api/users/me')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (!data) return;
+        const status = data.subscription?.status;
+        setSubscribed(status === 'ACTIVE' || status === 'TRIALING');
+      })
+      .catch(() => {});
   }, []);
 
-  // Load sections when team changes
+  // ─── Data loading ───────────────────────────────────
+
+  useEffect(() => {
+    fetch('/api/teams')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => { if (data) setTeams(data.teams); });
+  }, []);
+
   useEffect(() => {
     if (!selectedTeam) return;
     setSectionsLoading(true);
@@ -116,32 +149,24 @@ export default function NewPackagePage() {
     setSelectedSection(null);
     setRows([]);
     setRow('');
-    setSeatViewPhoto(null);
+    setSelectedSeats(new Set());
 
     fetch(`/api/stadiums/${selectedTeam.abbreviation}/sections`)
       .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (data) setSections(data.sections);
-      })
+      .then((data) => { if (data) setSections(data.sections); })
       .finally(() => setSectionsLoading(false));
 
-    // Also load packages
     fetch(`/api/stadiums/${selectedTeam.abbreviation}/packages`)
       .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (data) setPackages(data.packages);
-      });
+      .then((data) => { if (data) setPackages(data.packages); });
   }, [selectedTeam]);
 
-  // Load rows when section changes
   useEffect(() => {
     if (!selectedTeam || !selectedSection) return;
     setRowsLoading(true);
     setRow('');
 
-    fetch(
-      `/api/stadiums/${selectedTeam.abbreviation}/sections/${selectedSection.id}/rows`
-    )
+    fetch(`/api/stadiums/${selectedTeam.abbreviation}/sections/${selectedSection.id}/rows`)
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (data) {
@@ -150,76 +175,191 @@ export default function NewPackagePage() {
         }
       })
       .finally(() => setRowsLoading(false));
-
-    // Fetch seat view photo
-    setSeatViewLoading(true);
-    setSeatViewPhoto(null);
-    fetch(
-      `/api/stadiums/${selectedTeam.abbreviation}/seat-view?section=${selectedSection.id}`
-    )
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (data?.photos?.length > 0) {
-          setSeatViewPhoto(data.photos[0].imageUrl);
-        }
-      })
-      .finally(() => setSeatViewLoading(false));
   }, [selectedTeam, selectedSection]);
 
-  async function loadSchedule() {
+  // ─── Schedule loading ─────────────────────────────────
+
+  const loadSchedule = useCallback(async () => {
     if (!selectedTeam) return;
     setScheduleLoading(true);
     try {
-      const res = await fetch(
-        `/api/schedule/${selectedTeam.id}?season=${season}`
-      );
+      const res = await fetch(`/api/schedule/${selectedTeam.id}?season=${season}`);
       if (res.ok) {
         const data = await res.json();
         setSchedule(data.games);
 
-        // Auto-select games based on package filter
+        const selected = new Set<number>();
         if (selectedPackage?.gameFilter) {
           const filter = selectedPackage.gameFilter;
-          const selected = new Set<number>();
-
           data.games.forEach((game: ScheduleGame, i: number) => {
-            if (filter.all) {
-              selected.add(i);
-              return;
-            }
+            if (filter.all) { selected.add(i); return; }
             const d = new Date(game.date);
-            const dow = d.getDay(); // 0=Sun, 6=Sat
-
-            if (filter.dayOfWeek && filter.dayOfWeek.includes(dow)) {
-              selected.add(i);
-            } else if (filter.fridays && dow === 5) {
-              selected.add(i);
-            } else if (filter.saturdays && dow === 6) {
-              selected.add(i);
-            } else if (filter.sundays && dow === 0) {
-              selected.add(i);
-            } else if (filter.weekendsOnly && (dow === 0 || dow === 5 || dow === 6)) {
-              selected.add(i);
-            }
+            const dow = d.getDay();
+            if (filter.dayOfWeek?.includes(dow)) selected.add(i);
+            else if (filter.fridays && dow === 5) selected.add(i);
+            else if (filter.saturdays && dow === 6) selected.add(i);
+            else if (filter.sundays && dow === 0) selected.add(i);
+            else if (filter.weekendsOnly && (dow === 0 || dow === 5 || dow === 6)) selected.add(i);
           });
-
-          // If no filter matched or it's a curated plan, select all
-          if (selected.size === 0) {
-            data.games.forEach((_: unknown, i: number) => selected.add(i));
-          }
-
-          setSelectedGames(selected);
+          if (selected.size === 0) data.games.forEach((_: unknown, i: number) => selected.add(i));
         } else {
-          // Select all by default
-          setSelectedGames(
-            new Set(data.games.map((_: unknown, i: number) => i))
-          );
+          data.games.forEach((_: unknown, i: number) => selected.add(i));
         }
+        setSelectedGames(selected);
+
+        // Initialize availability and prices for all games
+        const avail: Record<number, 'available' | 'keeping'> = {};
+        const pr: Record<number, number> = {};
+        data.games.forEach((_: unknown, i: number) => {
+          avail[i] = 'available';
+          pr[i] = 0;
+        });
+        setAvailability(avail);
+        setPrices(pr);
       }
     } finally {
       setScheduleLoading(false);
     }
+  }, [selectedTeam, selectedPackage, season]);
+
+  // ─── Derived data ─────────────────────────────────────
+
+  const gamesByMonth = useMemo(() => {
+    const grouped: Record<string, { game: ScheduleGame; index: number }[]> = {};
+    schedule.forEach((game, index) => {
+      const d = new Date(game.date);
+      const month = MONTH_NAMES[d.getMonth()];
+      if (!grouped[month]) grouped[month] = [];
+      grouped[month].push({ game, index });
+    });
+    return grouped;
+  }, [schedule]);
+
+  const selectedGamesByMonth = useMemo(() => {
+    const grouped: Record<string, { game: ScheduleGame; index: number }[]> = {};
+    schedule.forEach((game, index) => {
+      if (!selectedGames.has(index)) return;
+      const d = new Date(game.date);
+      const month = MONTH_NAMES[d.getMonth()];
+      if (!grouped[month]) grouped[month] = [];
+      grouped[month].push({ game, index });
+    });
+    return grouped;
+  }, [schedule, selectedGames]);
+
+  const availableCount = useMemo(() => {
+    return Array.from(selectedGames).filter((i) => availability[i] === 'available').length;
+  }, [selectedGames, availability]);
+
+  const pricedCount = useMemo(() => {
+    return Array.from(selectedGames).filter(
+      (i) => availability[i] === 'available'
+    ).length;
+  }, [selectedGames, availability]);
+
+  // ─── Seat summary ─────────────────────────────────────
+
+  const seatSummary = useMemo(() => {
+    if (!selectedSection || !row || selectedSeats.size === 0) return '';
+    const sorted = Array.from(selectedSeats).sort((a, b) => a - b);
+    return `Section ${selectedSection.id}, Row ${row}, Seats ${sorted.join(' & ')}`;
+  }, [selectedSection, row, selectedSeats]);
+
+  // ─── Actions ──────────────────────────────────────────
+
+  function showToast(message: string) {
+    setToast(message);
+    setTimeout(() => setToast(''), 3000);
   }
+
+  function goToStep(s: Step) {
+    setStep(s);
+    window.scrollTo(0, 0);
+  }
+
+  function handleLeagueSelect(value: string) {
+    const l = LEAGUES.find((l) => l.value === value);
+    if (!l) return;
+    if (!l.available) {
+      showToast(`Coming soon! We'll notify you when ${l.label} is available.`);
+      setLeague('');
+      return;
+    }
+    setLeague(value);
+  }
+
+  function toggleGame(index: number) {
+    setSelectedGames((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
+      return next;
+    });
+  }
+
+  function toggleAvailability(index: number) {
+    setAvailability((prev) => ({
+      ...prev,
+      [index]: prev[index] === 'available' ? 'keeping' : 'available',
+    }));
+  }
+
+  function setAllAvailability(value: 'available' | 'keeping') {
+    setAvailability((prev) => {
+      const next = { ...prev };
+      selectedGames.forEach((i) => { next[i] = value; });
+      return next;
+    });
+  }
+
+  function applyBulkPrice() {
+    const price = parseInt(bulkPrice) || 0;
+    setPrices((prev) => {
+      const next = { ...prev };
+      selectedGames.forEach((i) => {
+        if (availability[i] === 'available') next[i] = price;
+      });
+      return next;
+    });
+  }
+
+  function makeAllFree() {
+    setPrices((prev) => {
+      const next = { ...prev };
+      selectedGames.forEach((i) => {
+        if (availability[i] === 'available') next[i] = 0;
+      });
+      return next;
+    });
+  }
+
+  function toggleSeat(seatNum: number) {
+    setSelectedSeats((prev) => {
+      const next = new Set(prev);
+      if (next.has(seatNum)) next.delete(seatNum);
+      else next.add(seatNum);
+      return next;
+    });
+  }
+
+  // ─── Slug checking ────────────────────────────────────
+
+  useEffect(() => {
+    if (!linkSlug || linkSlug.length < 2) {
+      setSlugAvailable(null);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      const res = await fetch(`/api/packages/check-slug?slug=${encodeURIComponent(linkSlug)}`);
+      if (res.ok) {
+        const data = await res.json();
+        setSlugAvailable(data.available);
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [linkSlug]);
+
+  // ─── Package creation ─────────────────────────────────
 
   async function createPackage() {
     if (!selectedTeam) return;
@@ -227,6 +367,23 @@ export default function NewPackagePage() {
     setError('');
 
     try {
+      // Build per-game overrides
+      const gameOverrides: Record<string, { status: string; pricePerTicket: number }> = {};
+      const excludedDates: string[] = [];
+
+      schedule.forEach((game, i) => {
+        if (!selectedGames.has(i)) {
+          excludedDates.push(game.gameDate);
+          return;
+        }
+        gameOverrides[game.gameDate] = {
+          status: availability[i] === 'keeping' ? 'GOING_MYSELF' : 'AVAILABLE',
+          pricePerTicket: availability[i] === 'available' ? (prices[i] || 0) : 0,
+        };
+      });
+
+      const seatsStr = Array.from(selectedSeats).sort((a, b) => a - b).join(', ');
+
       const res = await fetch('/api/packages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -234,16 +391,20 @@ export default function NewPackagePage() {
           teamId: selectedTeam.id,
           section: selectedSection?.id || '',
           row: row || undefined,
-          seats,
-          seatCount,
+          seats: seatsStr || 'TBD',
+          seatCount: selectedSeats.size || 2,
           season,
-          defaultPricePerTicket: defaultPrice || undefined,
           autoLoadSchedule: true,
-          seatPhotoUrl: seatViewPhoto || undefined,
+          seatPhotoUrl: undefined,
           perks: sectionTags.length > 0 ? sectionTags : undefined,
           description: selectedSection
             ? `${selectedSection.level} seats at ${selectedTeam.venue}`
             : undefined,
+          gameOverrides,
+          excludedDates,
+          venmoHandle: venmoHandle || undefined,
+          zelleInfo: zelleInfo || undefined,
+          shareLinkSlug: linkSlug || undefined,
         }),
       });
 
@@ -258,479 +419,787 @@ export default function NewPackagePage() {
         shareLink: data.shareLink,
         gamesCreated: data.gamesCreated,
       });
-      setStep(6);
     } finally {
       setLoading(false);
     }
   }
 
-  function toggleGame(index: number) {
-    setSelectedGames((prev) => {
-      const next = new Set(prev);
-      if (next.has(index)) next.delete(index);
-      else next.add(index);
-      return next;
-    });
+  async function handleSubscribe() {
+    setSubLoading(true);
+    try {
+      const res = await fetch('/api/stripe/checkout', { method: 'POST' });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        setError(data.error || 'Failed to start checkout');
+        setSubLoading(false);
+      }
+    } catch {
+      setError('Something went wrong');
+      setSubLoading(false);
+    }
   }
 
-  const totalSteps = 5;
+  async function copyLink() {
+    if (!result) return;
+    const link = `${window.location.origin}${result.shareLink}`;
+    await navigator.clipboard.writeText(link);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  // ─── Game row helper ──────────────────────────────────
+
+  function formatGameDate(game: ScheduleGame) {
+    const d = new Date(game.date);
+    return {
+      month: MONTH_NAMES[d.getMonth()].substring(0, 3),
+      date: d.getDate().toString().padStart(2, '0'),
+      day: DAY_NAMES[d.getDay()],
+    };
+  }
+
+  // ─── Progress ─────────────────────────────────────────
+
+  const totalSteps = 9;
+  const progressPct = result ? 100 : (step / totalSteps) * 100;
+
+  // ─── Render ───────────────────────────────────────────
 
   return (
-    <div className="flex flex-1 flex-col p-4 sm:p-8">
-      <div className="mx-auto w-full max-w-2xl space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold">Set Up Your Package</h1>
-          {step <= totalSteps && (
-            <div className="mt-3 flex gap-1">
-              {Array.from({ length: totalSteps }, (_, i) => i + 1).map((s) => (
-                <div
-                  key={s}
-                  className={`h-1.5 flex-1 rounded-full ${
-                    s <= step ? 'bg-brand-600' : 'bg-foreground/10'
-                  }`}
-                />
-              ))}
-            </div>
-          )}
+    <>
+      {/* Header */}
+      <div className="sticky top-0 z-50 flex h-[54px] items-center justify-between border-b border-[#ECEAE5] bg-white px-5">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-7 w-7 items-center justify-center rounded-[7px] bg-[#1A1A1A] text-[10px] font-bold text-white">
+            BB
+          </div>
+          <span className="text-[15px] font-semibold text-[#1A1A1A]">
+            BenchBuddy / Set up your package
+          </span>
         </div>
+        <span className="text-[13px] font-medium text-[#8C8984]">{season} Season</span>
+      </div>
 
-        {/* Step 1: Team Selection */}
+      {/* Progress bar */}
+      <div className="relative z-40 h-[2px] bg-[#ECEAE5]">
+        <div
+          className="h-full bg-[#1B2A4A] transition-all duration-400"
+          style={{ width: `${progressPct}%` }}
+        />
+      </div>
+
+      {/* Main container */}
+      <div className="mx-auto flex min-h-[calc(100vh-56px)] max-w-[600px] flex-col px-5 py-10">
+
+        {/* ─── STEP 1: SELECT LEAGUE ─── */}
         {step === 1 && (
-          <div className="space-y-4">
-            <h2 className="text-lg font-medium">Select Your Team</h2>
-            <p className="text-sm text-foreground/60">
-              MLB is supported. Other leagues coming soon.
-            </p>
-            {teams.length === 0 ? (
-              <p className="text-sm text-foreground/50">Loading teams...</p>
-            ) : (
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                {teams.map((team) => (
-                  <button
-                    key={team.id}
-                    onClick={() => setSelectedTeam(team)}
-                    className={`rounded-lg border p-3 text-left text-sm transition-colors ${
-                      selectedTeam?.id === team.id
-                        ? 'border-brand-600 bg-brand-50 text-brand-900'
-                        : 'border-foreground/10 hover:border-foreground/30'
-                    }`}
-                  >
-                    <p className="font-medium">{team.name}</p>
-                    <p className="text-xs text-foreground/50">{team.venue}</p>
-                  </button>
+          <div className="flex animate-[fadeIn_0.4s_ease] flex-col gap-6">
+            <div>
+              <h1 className="text-[28px] font-semibold leading-tight text-[#1A1A1A]">
+                What league are your season tickets for?
+              </h1>
+              <p className="mt-2 text-base text-[#8C8984]">
+                We support MLB today and are adding more leagues soon.
+              </p>
+            </div>
+            <div className="rounded-xl border border-[#ECEAE5] bg-white p-5">
+              <select
+                value={league}
+                onChange={(e) => handleLeagueSelect(e.target.value)}
+                className="w-full appearance-none rounded-lg border border-[#ECEAE5] bg-white bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%238C8984%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3c%2Fpolyline%3E%3c%2Fsvg%3E')] bg-[length:20px] bg-[right_12px_center] bg-no-repeat px-4 py-3 pr-10 text-base text-[#1A1A1A] transition-all hover:border-[#B5B1AB] focus:border-[#1B2A4A] focus:outline-none focus:ring-[3px] focus:ring-[#1B2A4A]/10"
+              >
+                <option value="">Select a league...</option>
+                {LEAGUES.map((l) => (
+                  <option key={l.value} value={l.value}>{l.label}</option>
                 ))}
-              </div>
-            )}
-            <button
-              onClick={() => selectedTeam && setStep(2)}
-              disabled={!selectedTeam}
-              className="rounded-lg bg-brand-600 px-6 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
-            >
-              Next
-            </button>
+              </select>
+              {league && (
+                <div className="mt-4 flex items-center justify-end">
+                  <button
+                    onClick={() => goToStep(2)}
+                    className="rounded-lg bg-[#1B2A4A] px-5 py-3 text-base font-semibold text-white transition-all hover:-translate-y-px hover:bg-[#142140] active:translate-y-0"
+                  >
+                    Continue
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         )}
 
-        {/* Step 2: Seat Details */}
+        {/* ─── STEP 2: SELECT TEAM ─── */}
         {step === 2 && (
-          <div className="space-y-4">
-            <h2 className="text-lg font-medium">Seat Details</h2>
-            <p className="text-sm text-foreground/60">
-              {selectedTeam?.name} at {selectedTeam?.venue}
-            </p>
+          <div className="flex animate-[fadeIn_0.4s_ease] flex-col gap-6">
+            <div>
+              <h1 className="text-[28px] font-semibold leading-tight text-[#1A1A1A]">
+                Which team do you have season tickets for?
+              </h1>
+              <p className="mt-2 text-base text-[#8C8984]">
+                Let&apos;s get ready for the season! We&apos;ll pull in your team&apos;s full home schedule.
+              </p>
+            </div>
+            <div className="rounded-xl border border-[#ECEAE5] bg-white p-5">
+              <select
+                value={selectedTeam?.abbreviation || ''}
+                onChange={(e) => {
+                  const team = teams.find((t) => t.abbreviation === e.target.value);
+                  setSelectedTeam(team || null);
+                }}
+                className="w-full appearance-none rounded-lg border border-[#ECEAE5] bg-white bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%238C8984%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3c%2Fpolyline%3E%3c%2Fsvg%3E')] bg-[length:20px] bg-[right_12px_center] bg-no-repeat px-4 py-3 pr-10 text-base text-[#1A1A1A] transition-all hover:border-[#B5B1AB] focus:border-[#1B2A4A] focus:outline-none focus:ring-[3px] focus:ring-[#1B2A4A]/10"
+              >
+                <option value="">Select a team...</option>
+                {teams.map((team) => (
+                  <option key={team.id} value={team.abbreviation}>{team.name}</option>
+                ))}
+              </select>
+              {selectedTeam && (
+                <div className="mt-4 flex items-center justify-between">
+                  <button onClick={() => goToStep(1)} className="text-sm text-[#1B2A4A]">
+                    &larr; Back
+                  </button>
+                  <button
+                    onClick={() => goToStep(3)}
+                    className="rounded-lg bg-[#1B2A4A] px-5 py-3 text-base font-semibold text-white transition-all hover:-translate-y-px hover:bg-[#142140]"
+                  >
+                    Continue
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
-            <div className="grid grid-cols-2 gap-3">
-              {/* Section dropdown */}
-              <div>
-                <label className="block text-sm font-medium">Section</label>
+        {/* ─── STEP 3: SELECT PACKAGE TYPE ─── */}
+        {step === 3 && (
+          <div className="flex animate-[fadeIn_0.4s_ease] flex-col gap-6">
+            <div>
+              <h1 className="text-[28px] font-semibold leading-tight text-[#1A1A1A]">
+                What kind of package do you have?
+              </h1>
+              <p className="mt-2 text-base text-[#8C8984]">
+                We&apos;ll find all the games in your plan and load them automatically.
+              </p>
+            </div>
+            <div className="rounded-xl border border-[#ECEAE5] bg-white p-5">
+              <select
+                value={selectedPackage?.id || ''}
+                onChange={(e) => {
+                  const pkg = packages.find((p) => p.id === e.target.value);
+                  if (e.target.value === 'custom') {
+                    setSelectedPackage({ id: 'custom', name: 'Custom / Other', gameCount: 0, description: "I'll select my games manually" });
+                  } else {
+                    setSelectedPackage(pkg || null);
+                  }
+                }}
+                className="w-full appearance-none rounded-lg border border-[#ECEAE5] bg-white bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%238C8984%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3c%2Fpolyline%3E%3c%2Fsvg%3E')] bg-[length:20px] bg-[right_12px_center] bg-no-repeat px-4 py-3 pr-10 text-base text-[#1A1A1A] transition-all hover:border-[#B5B1AB] focus:border-[#1B2A4A] focus:outline-none focus:ring-[3px] focus:ring-[#1B2A4A]/10"
+              >
+                <option value="">Select a package...</option>
+                {packages.map((pkg) => (
+                  <option key={pkg.id} value={pkg.id}>
+                    {pkg.name} ({pkg.gameCount} games)
+                  </option>
+                ))}
+                <option value="custom">Custom / Other</option>
+              </select>
+              {selectedPackage && (
+                <div className="mt-4 flex items-center justify-between">
+                  <button onClick={() => goToStep(2)} className="text-sm text-[#1B2A4A]">
+                    &larr; Back
+                  </button>
+                  <button
+                    onClick={() => goToStep(4)}
+                    className="rounded-lg bg-[#1B2A4A] px-5 py-3 text-base font-semibold text-white transition-all hover:-translate-y-px hover:bg-[#142140]"
+                  >
+                    Continue
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ─── STEP 4: SEAT DETAILS ─── */}
+        {step === 4 && (
+          <div className="flex animate-[fadeIn_0.4s_ease] flex-col gap-6">
+            <div>
+              <h1 className="text-[28px] font-semibold leading-tight text-[#1A1A1A]">
+                Which seats do you have?
+              </h1>
+              <p className="mt-2 text-base text-[#8C8984]">
+                Your friends will see this when they browse your games.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-4">
+              {/* Section */}
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-[#1A1A1A]">Section</label>
                 {sectionsLoading ? (
-                  <p className="mt-1 text-sm text-foreground/50">Loading sections...</p>
+                  <p className="text-sm text-[#8C8984]">Loading sections...</p>
                 ) : (
                   <select
                     value={selectedSection?.id || ''}
                     onChange={(e) => {
                       const s = sections.find((s) => s.id === e.target.value);
                       setSelectedSection(s || null);
+                      setRow('');
+                      setSelectedSeats(new Set());
                     }}
-                    className="mt-1 block w-full rounded-lg border border-foreground/20 px-3 py-2 text-sm"
+                    className="w-full appearance-none rounded-lg border border-[#ECEAE5] bg-white bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%238C8984%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3c%2Fpolyline%3E%3c%2Fsvg%3E')] bg-[length:20px] bg-[right_12px_center] bg-no-repeat px-4 py-3 pr-10 text-base text-[#1A1A1A] transition-all hover:border-[#B5B1AB] focus:border-[#1B2A4A] focus:outline-none focus:ring-[3px] focus:ring-[#1B2A4A]/10"
                   >
-                    <option value="">Select section...</option>
+                    <option value="">Select a section...</option>
                     {sections.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.id} — {s.level}
-                      </option>
+                      <option key={s.id} value={s.id}>{s.id} — {s.level}</option>
                     ))}
                   </select>
                 )}
               </div>
 
-              {/* Row dropdown */}
-              <div>
-                <label className="block text-sm font-medium">Row</label>
+              {/* Row */}
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-[#1A1A1A]">Row</label>
                 {rowsLoading ? (
-                  <p className="mt-1 text-sm text-foreground/50">Loading rows...</p>
-                ) : rows.length > 0 ? (
+                  <p className="text-sm text-[#8C8984]">Loading rows...</p>
+                ) : (
                   <select
                     value={row}
                     onChange={(e) => setRow(e.target.value)}
-                    className="mt-1 block w-full rounded-lg border border-foreground/20 px-3 py-2 text-sm"
+                    disabled={!selectedSection}
+                    className="w-full appearance-none rounded-lg border border-[#ECEAE5] bg-white bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%238C8984%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3c%2Fpolyline%3E%3c%2Fsvg%3E')] bg-[length:20px] bg-[right_12px_center] bg-no-repeat px-4 py-3 pr-10 text-base text-[#1A1A1A] transition-all disabled:opacity-50 hover:border-[#B5B1AB] focus:border-[#1B2A4A] focus:outline-none focus:ring-[3px] focus:ring-[#1B2A4A]/10"
                   >
-                    <option value="">Select row...</option>
+                    <option value="">Select a row...</option>
                     {rows.map((r) => (
-                      <option key={r} value={r}>
-                        Row {r}
-                      </option>
+                      <option key={r} value={r}>{r}</option>
                     ))}
                   </select>
-                ) : (
-                  <input
-                    type="text"
-                    value={row}
-                    onChange={(e) => setRow(e.target.value)}
-                    placeholder="e.g., 10"
-                    className="mt-1 block w-full rounded-lg border border-foreground/20 px-3 py-2 text-sm"
-                  />
                 )}
               </div>
 
-              <div>
-                <label className="block text-sm font-medium">Seats</label>
-                <input
-                  type="text"
-                  required
-                  value={seats}
-                  onChange={(e) => setSeats(e.target.value)}
-                  placeholder="e.g., 3-4"
-                  className="mt-1 block w-full rounded-lg border border-foreground/20 px-3 py-2 text-sm"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">
-                  Number of Seats
-                </label>
-                <input
-                  type="number"
-                  required
-                  min="1"
-                  value={seatCount}
-                  onChange={(e) => setSeatCount(e.target.value)}
-                  className="mt-1 block w-full rounded-lg border border-foreground/20 px-3 py-2 text-sm"
-                />
-              </div>
+              {/* Seats - individual checkboxes */}
+              {row && (
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-medium text-[#1A1A1A]">Seats</label>
+                  <div className="flex flex-col gap-1">
+                    {Array.from({ length: 12 }, (_, i) => i + 1).map((seatNum) => (
+                      <label
+                        key={seatNum}
+                        className="flex cursor-pointer items-center gap-1.5 rounded-md border border-[#ECEAE5] px-2 py-2 transition-all hover:bg-[#F0EEEA]"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedSeats.has(seatNum)}
+                          onChange={() => toggleSeat(seatNum)}
+                          className="h-[18px] w-[18px] cursor-pointer accent-[#1B2A4A]"
+                        />
+                        <span className="text-sm">{seatNum}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Seat summary */}
+              {seatSummary && (
+                <div className="rounded-lg border border-[#9FE1CB] bg-[#E1F5EE] px-4 py-3 text-[15px] font-medium text-[#0F6E56]">
+                  {seatSummary}
+                </div>
+              )}
             </div>
 
-            {/* Section tags */}
-            {sectionTags.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {sectionTags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="rounded-full border border-foreground/10 px-3 py-1 text-xs text-foreground/60"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
-
-            {/* Seat view preview */}
-            {selectedSection && (
-              <div>
-                {seatViewLoading ? (
-                  <p className="text-sm text-foreground/50">Loading seat view...</p>
-                ) : seatViewPhoto ? (
-                  <div className="rounded-lg overflow-hidden border border-foreground/10">
-                    <div className="relative w-full h-48">
-                      <Image
-                        src={seatViewPhoto}
-                        alt={`View from Section ${selectedSection.id}`}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 672px) 100vw, 672px"
-                        unoptimized
-                      />
-                    </div>
-                    <p className="px-3 py-2 text-xs text-foreground/50">
-                      View from Section {selectedSection.id} &middot; {selectedSection.level}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="rounded-lg border border-foreground/10 p-4 text-center text-sm text-foreground/40">
-                    No seat view photo available for this section
-                  </div>
-                )}
-              </div>
-            )}
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => setStep(1)}
-                className="rounded-lg border border-foreground/20 px-6 py-2 text-sm"
-              >
-                Back
-              </button>
-              <button
-                onClick={() => {
-                  if (selectedSection && seats && seatCount) setStep(3);
-                }}
-                disabled={!selectedSection || !seats || !seatCount}
-                className="rounded-lg bg-brand-600 px-6 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
-              >
-                Next
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Step 3: Package Selection */}
-        {step === 3 && (
-          <div className="space-y-4">
-            <h2 className="text-lg font-medium">Select Your Package</h2>
-            <p className="text-sm text-foreground/60">
-              Which season ticket package do you have? This helps us pre-select the right games.
-            </p>
-
-            <div className="space-y-2">
-              {packages.map((pkg) => (
-                <button
-                  key={pkg.id}
-                  onClick={() => setSelectedPackage(pkg)}
-                  className={`w-full rounded-lg border p-4 text-left transition-colors ${
-                    selectedPackage?.id === pkg.id
-                      ? 'border-brand-600 bg-brand-50'
-                      : 'border-foreground/10 hover:border-foreground/30'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">{pkg.name}</p>
-                      <p className="text-sm text-foreground/60">{pkg.description}</p>
-                    </div>
-                    <span className="shrink-0 rounded-full bg-foreground/5 px-3 py-1 text-sm font-medium">
-                      {pkg.gameCount} games
-                    </span>
-                  </div>
-                </button>
-              ))}
-
-              {/* Custom option */}
-              <button
-                onClick={() =>
-                  setSelectedPackage({
-                    id: 'custom',
-                    name: 'Custom',
-                    gameCount: 0,
-                    description: 'I\'ll select my games manually',
-                  })
-                }
-                className={`w-full rounded-lg border p-4 text-left transition-colors ${
-                  selectedPackage?.id === 'custom'
-                    ? 'border-brand-600 bg-brand-50'
-                    : 'border-foreground/10 hover:border-foreground/30'
-                }`}
-              >
-                <p className="font-medium">Custom</p>
-                <p className="text-sm text-foreground/60">
-                  I&apos;ll select my games manually
-                </p>
-              </button>
-            </div>
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => setStep(2)}
-                className="rounded-lg border border-foreground/20 px-6 py-2 text-sm"
-              >
-                Back
+            {/* Sticky footer */}
+            <div className="sticky bottom-0 z-10 flex items-center justify-between border-t border-[#ECEAE5] bg-[#F8F7F4] px-5 py-5">
+              <button onClick={() => goToStep(3)} className="text-sm text-[#1B2A4A]">
+                &larr; Back
               </button>
               <button
                 onClick={() => {
                   loadSchedule();
-                  setStep(4);
+                  goToStep(5);
                 }}
-                disabled={!selectedPackage}
-                className="rounded-lg bg-brand-600 px-6 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
+                className="rounded-lg bg-[#1B2A4A] px-5 py-3 text-base font-semibold text-white transition-all hover:-translate-y-px hover:bg-[#142140]"
               >
-                Next
+                Continue
               </button>
             </div>
           </div>
         )}
 
-        {/* Step 4: Schedule Review */}
-        {step === 4 && (
-          <div className="space-y-4">
-            <h2 className="text-lg font-medium">Review Schedule</h2>
-            <p className="text-sm text-foreground/60">
-              {selectedPackage?.name !== 'Custom' && selectedPackage ? (
-                <>
-                  Games pre-selected for your <strong>{selectedPackage.name}</strong> package.{' '}
-                  You can adjust if needed.
-                </>
-              ) : (
-                <>
-                  {schedule.length} home games loaded for {season}. Select the games
-                  in your package.
-                </>
-              )}
-            </p>
-            {scheduleLoading ? (
-              <p className="py-8 text-center text-foreground/50">
-                Loading schedule...
-              </p>
-            ) : (
-              <div className="max-h-96 space-y-1 overflow-y-auto">
-                {schedule.map((game, i) => (
-                  <label
-                    key={i}
-                    className="flex items-center gap-3 rounded-lg p-2 text-sm hover:bg-foreground/5"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedGames.has(i)}
-                      onChange={() => toggleGame(i)}
-                    />
-                    <span className="w-24 text-foreground/60">
-                      {new Date(game.date).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        weekday: 'short',
-                      })}
-                    </span>
-                    <span>{game.opponent}</span>
-                    <span className="text-foreground/40">{game.time}</span>
-                  </label>
-                ))}
-              </div>
-            )}
-            <p className="text-xs text-foreground/40">
-              {selectedGames.size} of {schedule.length} games selected
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setStep(3)}
-                className="rounded-lg border border-foreground/20 px-6 py-2 text-sm"
-              >
-                Back
-              </button>
-              <button
-                onClick={() => setStep(5)}
-                disabled={selectedGames.size === 0}
-                className="rounded-lg bg-brand-600 px-6 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
-              >
-                Next
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Step 5: Defaults */}
+        {/* ─── STEP 5: CONFIRM GAMES ─── */}
         {step === 5 && (
-          <div className="space-y-4">
-            <h2 className="text-lg font-medium">Set Defaults</h2>
+          <div className="flex animate-[fadeIn_0.4s_ease] flex-col gap-6">
             <div>
-              <label className="block text-sm font-medium">
-                Default Price Per Ticket
-              </label>
-              <div className="mt-1 flex items-center gap-2">
-                <span className="text-foreground/60">$</span>
+              <h1 className="text-[28px] font-semibold leading-tight text-[#1A1A1A]">
+                This is a big one — confirm your games
+              </h1>
+              <p className="mt-2 text-base text-[#8C8984]">
+                We pulled in the full {selectedTeam?.name} home schedule and highlighted the games in
+                your package. Double-check that these are right — you can always change this later.
+              </p>
+            </div>
+
+            {scheduleLoading ? (
+              <p className="py-8 text-center text-[#8C8984]">Loading schedule...</p>
+            ) : (
+              <>
+                <p className="text-sm text-[#8C8984]">
+                  <span className="font-semibold text-[#1A1A1A]">{selectedGames.size} of {schedule.length}</span> games selected
+                </p>
+
+                <div className="flex flex-col gap-6">
+                  {Object.entries(gamesByMonth).map(([month, games]) => (
+                    <div key={month} className="flex flex-col gap-3">
+                      <div className="text-sm font-semibold uppercase tracking-wider text-[#8C8984]">
+                        {month} ({games.length} games)
+                      </div>
+                      {games.map(({ game, index }) => {
+                        const { month: m, date, day } = formatGameDate(game);
+                        const isSelected = selectedGames.has(index);
+                        return (
+                          <div
+                            key={index}
+                            onClick={() => toggleGame(index)}
+                            className={`flex cursor-pointer items-center gap-3 rounded-lg border border-[#ECEAE5] px-4 py-3.5 transition-all hover:border-[#B5B1AB] ${
+                              !isSelected ? 'bg-[#FAFAF8] opacity-50 hover:border-[#ECEAE5]' : 'bg-white'
+                            }`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              onChange={() => toggleGame(index)}
+                              onClick={(e) => e.stopPropagation()}
+                              className="h-5 w-5 shrink-0 cursor-pointer accent-[#1B2A4A]"
+                            />
+                            <span className="min-w-[45px] text-sm font-semibold text-[#1A1A1A]">
+                              {m} {date}
+                            </span>
+                            <span className="min-w-[35px] text-[13px] text-[#B5B1AB]">{day}</span>
+                            <span className="min-w-[55px] text-[13px] text-[#B5B1AB]">{game.time}</span>
+                            <span className="flex flex-1 items-center gap-2 text-sm font-medium text-[#1A1A1A]">
+                              <span className="h-2 w-2 rounded-full bg-[#1B2A4A]" />
+                              vs {game.opponent}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+
+            <div className="sticky bottom-0 z-10 flex items-center justify-between border-t border-[#ECEAE5] bg-[#F8F7F4] px-5 py-5">
+              <button onClick={() => goToStep(4)} className="text-sm text-[#1B2A4A]">
+                &larr; Back
+              </button>
+              <button
+                onClick={() => goToStep(6)}
+                className="rounded-lg bg-[#1B2A4A] px-5 py-3 text-base font-semibold text-white transition-all hover:-translate-y-px hover:bg-[#142140]"
+              >
+                Continue
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ─── STEP 6: SET AVAILABILITY ─── */}
+        {step === 6 && (
+          <div className="flex animate-[fadeIn_0.4s_ease] flex-col gap-6">
+            <div>
+              <h1 className="text-[28px] font-semibold leading-tight text-[#1A1A1A]">
+                Which games do you want to share?
+              </h1>
+              <p className="mt-2 text-base text-[#8C8984]">
+                Mark the games you want to make available to friends. You can keep any for yourself.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="text-sm text-[#8C8984]">
+                <span className="font-semibold text-[#1A1A1A]">{availableCount} of {selectedGames.size}</span> games available to share
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setAllAvailability('available')}
+                  className="rounded-md border border-[#ECEAE5] bg-white px-3 py-2 text-[13px] text-[#1A1A1A] transition-all hover:border-[#1B2A4A] hover:text-[#1B2A4A]"
+                >
+                  All available
+                </button>
+                <button
+                  onClick={() => setAllAvailability('keeping')}
+                  className="rounded-md border border-[#ECEAE5] bg-white px-3 py-2 text-[13px] text-[#1A1A1A] transition-all hover:border-[#1B2A4A] hover:text-[#1B2A4A]"
+                >
+                  All keeping
+                </button>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-6">
+              {Object.entries(selectedGamesByMonth).map(([month, games]) => (
+                <div key={month} className="flex flex-col gap-3">
+                  <div className="text-sm font-semibold uppercase tracking-wider text-[#8C8984]">
+                    {month} ({games.length} games)
+                  </div>
+                  {games.map(({ game, index }) => {
+                    const { month: m, date, day } = formatGameDate(game);
+                    const avail = availability[index] || 'available';
+                    return (
+                      <div
+                        key={index}
+                        className="flex items-center gap-3 rounded-lg border border-[#ECEAE5] bg-white px-4 py-3.5 transition-all hover:border-[#B5B1AB]"
+                      >
+                        <span className="min-w-[45px] text-sm font-semibold text-[#1A1A1A]">
+                          {m} {date}
+                        </span>
+                        <span className="min-w-[35px] text-[13px] text-[#B5B1AB]">{day}</span>
+                        <span className="min-w-[55px] text-[13px] text-[#B5B1AB]">{game.time}</span>
+                        <span className="flex flex-1 items-center gap-2 text-sm font-medium text-[#1A1A1A]">
+                          <span className="h-2 w-2 rounded-full bg-[#1B2A4A]" />
+                          vs {game.opponent}
+                        </span>
+                        <button
+                          onClick={() => toggleAvailability(index)}
+                          className={`rounded-md px-3 py-1.5 text-xs font-semibold uppercase tracking-wide transition-all ${
+                            avail === 'available'
+                              ? 'bg-[#E1F5EE] text-[#0F6E56]'
+                              : 'bg-[#E8EEFA] text-[#1B2A4A]'
+                          }`}
+                        >
+                          {avail === 'available' ? 'Available' : 'Keeping'}
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+
+            <div className="sticky bottom-0 z-10 flex items-center justify-between border-t border-[#ECEAE5] bg-[#F8F7F4] px-5 py-5">
+              <button onClick={() => goToStep(5)} className="text-sm text-[#1B2A4A]">
+                &larr; Back
+              </button>
+              <button
+                onClick={() => goToStep(7)}
+                className="rounded-lg bg-[#1B2A4A] px-5 py-3 text-base font-semibold text-white transition-all hover:-translate-y-px hover:bg-[#142140]"
+              >
+                Continue
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ─── STEP 7: SET PRICING ─── */}
+        {step === 7 && (
+          <div className="flex animate-[fadeIn_0.4s_ease] flex-col gap-6">
+            <div>
+              <h1 className="text-[28px] font-semibold leading-tight text-[#1A1A1A]">
+                How much per ticket?
+              </h1>
+              <p className="mt-2 text-base text-[#8C8984]">
+                Set a price for each game you&apos;re sharing, or make them free. You can always change these later.
+              </p>
+            </div>
+
+            {/* Bulk tools */}
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-2">
+                <span className="text-[13px] text-[#8C8984]">Set all to</span>
                 <input
                   type="number"
-                  min="0"
-                  step="0.01"
-                  value={defaultPrice}
-                  onChange={(e) => setDefaultPrice(e.target.value)}
-                  placeholder="0 = free"
-                  className="block w-40 rounded-lg border border-foreground/20 px-3 py-2 text-sm"
+                  value={bulkPrice}
+                  onChange={(e) => setBulkPrice(e.target.value)}
+                  placeholder="65"
+                  className="w-20 rounded-lg border border-[#ECEAE5] bg-white px-3 py-2 text-[13px] text-[#1A1A1A] focus:border-[#1B2A4A] focus:outline-none focus:ring-[3px] focus:ring-[#1B2A4A]/10"
                 />
+                <button
+                  onClick={applyBulkPrice}
+                  className="rounded-md bg-[#1B2A4A] px-3 py-2 text-[13px] font-semibold text-white"
+                >
+                  Apply
+                </button>
               </div>
-              <p className="mt-1 text-xs text-foreground/40">
-                Leave blank or set to 0 for free tickets.
-              </p>
+              <button
+                onClick={makeAllFree}
+                className="rounded-md border border-[#ECEAE5] bg-white px-3 py-2 text-[13px] text-[#1A1A1A] transition-all hover:border-[#1B2A4A] hover:text-[#1B2A4A]"
+              >
+                Make all free
+              </button>
             </div>
 
-            {error && <p className="text-sm text-red-600">{error}</p>}
+            <p className="text-sm text-[#8C8984]">
+              <span className="font-semibold text-[#1A1A1A]">{pricedCount}</span> games priced
+            </p>
 
-            <div className="flex gap-3">
-              <button
-                onClick={() => setStep(4)}
-                className="rounded-lg border border-foreground/20 px-6 py-2 text-sm"
-              >
-                Back
+            <div className="flex flex-col gap-6">
+              {Object.entries(selectedGamesByMonth).map(([month, games]) => (
+                <div key={month} className="flex flex-col gap-3">
+                  <div className="text-sm font-semibold uppercase tracking-wider text-[#8C8984]">
+                    {month} ({games.length} games)
+                  </div>
+                  {games.map(({ game, index }) => {
+                    const { month: m, date, day } = formatGameDate(game);
+                    const isKeeping = availability[index] === 'keeping';
+                    return (
+                      <div
+                        key={index}
+                        className={`flex flex-wrap items-center gap-3 rounded-lg border border-[#ECEAE5] px-4 py-3.5 transition-all ${
+                          isKeeping ? 'bg-[#FAFAF8] opacity-50' : 'bg-white'
+                        }`}
+                      >
+                        <span className="min-w-[45px] text-sm font-semibold text-[#1A1A1A]">
+                          {m} {date}
+                        </span>
+                        <span className="min-w-[35px] text-[13px] text-[#B5B1AB]">{day}</span>
+                        <span className="min-w-[55px] text-[13px] text-[#B5B1AB]">{game.time}</span>
+                        <span className="flex flex-1 items-center gap-2 text-sm font-medium text-[#1A1A1A]">
+                          <span className="h-2 w-2 rounded-full bg-[#1B2A4A]" />
+                          vs {game.opponent}
+                        </span>
+                        <span
+                          className={`rounded-md px-3 py-1.5 text-xs font-semibold uppercase tracking-wide ${
+                            isKeeping
+                              ? 'bg-[#E8EEFA] text-[#1B2A4A]'
+                              : 'bg-[#E1F5EE] text-[#0F6E56]'
+                          }`}
+                        >
+                          {isKeeping ? 'Keeping' : 'Available'}
+                        </span>
+                        {!isKeeping && (
+                          <div className="flex items-center gap-0.5 text-sm font-medium text-[#1A1A1A]">
+                            $
+                            <input
+                              type="number"
+                              value={prices[index] ?? 0}
+                              onChange={(e) =>
+                                setPrices((prev) => ({
+                                  ...prev,
+                                  [index]: parseInt(e.target.value) || 0,
+                                }))
+                              }
+                              onClick={(e) => e.stopPropagation()}
+                              className="w-20 rounded-lg border border-[#ECEAE5] bg-white px-2 py-1.5 text-right text-sm focus:border-[#1B2A4A] focus:outline-none focus:ring-[3px] focus:ring-[#1B2A4A]/10"
+                            />
+                            <span className="text-[#8C8984]">/seat</span>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+
+            <div className="sticky bottom-0 z-10 flex items-center justify-between border-t border-[#ECEAE5] bg-[#F8F7F4] px-5 py-5">
+              <button onClick={() => goToStep(6)} className="text-sm text-[#1B2A4A]">
+                &larr; Back
               </button>
               <button
-                onClick={createPackage}
-                disabled={loading}
-                className="rounded-lg bg-brand-600 px-6 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
+                onClick={() => goToStep(8)}
+                className="rounded-lg bg-[#1B2A4A] px-5 py-3 text-base font-semibold text-white transition-all hover:-translate-y-px hover:bg-[#142140]"
               >
-                {loading ? 'Creating...' : 'Create Package'}
+                Continue
               </button>
             </div>
           </div>
         )}
 
-        {/* Step 6: Done */}
-        {step === 6 && result && (
-          <div className="space-y-4">
-            <div className="text-center text-4xl">&#10003;</div>
-            <h2 className="text-center text-lg font-bold">Package Created!</h2>
-            <div className="rounded-lg bg-foreground/5 p-4 text-sm">
-              <p>
-                <strong>{selectedTeam?.name}</strong> &middot; Section{' '}
-                {selectedSection?.id || ''}
-                {row ? `, Row ${row}` : ''} &middot; {seatCount} seats
+        {/* ─── STEP 8: PAYMENT METHOD ─── */}
+        {step === 8 && (
+          <div className="flex animate-[fadeIn_0.4s_ease] flex-col gap-6">
+            <div>
+              <h1 className="text-[28px] font-semibold leading-tight text-[#1A1A1A]">
+                How should friends pay you?
+              </h1>
+              <p className="mt-2 text-base text-[#8C8984]">
+                We don&apos;t handle any money or ticket transfers — we just help you coordinate. Let your
+                friends know the best way to pay you.
               </p>
-              <p className="text-foreground/60">
-                {result.gamesCreated} games loaded for {season}
-              </p>
-              {selectedPackage && selectedPackage.id !== 'custom' && (
-                <p className="text-foreground/60">
-                  Package: {selectedPackage.name}
-                </p>
-              )}
             </div>
-            {seatViewPhoto && (
-              <div className="rounded-lg overflow-hidden border border-foreground/10">
-                <div className="relative w-full h-32">
-                  <Image
-                    src={seatViewPhoto}
-                    alt="Seat view"
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 672px) 100vw, 672px"
-                    unoptimized
-                  />
-                </div>
+
+            <div className="grid grid-cols-2 gap-4 max-[600px]:grid-cols-1">
+              {/* Venmo */}
+              <div
+                onClick={() => setVenmoExpanded(true)}
+                className={`cursor-pointer rounded-xl border-2 p-5 text-center transition-all ${
+                  venmoExpanded
+                    ? 'border-[#1B2A4A] bg-[#1B2A4A]/[0.02]'
+                    : 'border-[#ECEAE5] bg-white hover:border-[#B5B1AB]'
+                }`}
+              >
+                <div className="mb-3 text-base font-semibold text-[#1A1A1A]">Venmo</div>
+                {venmoExpanded && (
+                  <div className="flex flex-col gap-2">
+                    <input
+                      type="text"
+                      value={venmoHandle}
+                      onChange={(e) => setVenmoHandle(e.target.value)}
+                      placeholder="@username"
+                      onClick={(e) => e.stopPropagation()}
+                      className="rounded-lg border border-[#ECEAE5] bg-white px-3 py-2.5 text-sm text-[#1A1A1A] focus:border-[#1B2A4A] focus:outline-none focus:ring-[3px] focus:ring-[#1B2A4A]/10"
+                    />
+                  </div>
+                )}
               </div>
-            )}
-            <div className="rounded-lg border border-foreground/10 p-4">
-              <p className="text-sm font-medium">Your share link:</p>
-              <p className="mt-1 font-mono text-brand-600">
-                {window.location.origin}
-                {result.shareLink}
-              </p>
+
+              {/* Zelle */}
+              <div
+                onClick={() => setZelleExpanded(true)}
+                className={`cursor-pointer rounded-xl border-2 p-5 text-center transition-all ${
+                  zelleExpanded
+                    ? 'border-[#1B2A4A] bg-[#1B2A4A]/[0.02]'
+                    : 'border-[#ECEAE5] bg-white hover:border-[#B5B1AB]'
+                }`}
+              >
+                <div className="mb-3 text-base font-semibold text-[#1A1A1A]">Zelle</div>
+                {zelleExpanded && (
+                  <div className="flex flex-col gap-2">
+                    <input
+                      type="text"
+                      value={zelleInfo}
+                      onChange={(e) => setZelleInfo(e.target.value)}
+                      placeholder="Phone or email"
+                      onClick={(e) => e.stopPropagation()}
+                      className="rounded-lg border border-[#ECEAE5] bg-white px-3 py-2.5 text-sm text-[#1A1A1A] focus:border-[#1B2A4A] focus:outline-none focus:ring-[3px] focus:ring-[#1B2A4A]/10"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
-            <div className="flex gap-3">
+
+            <div className="text-center">
               <button
                 onClick={() => {
-                  navigator.clipboard.writeText(
-                    `${window.location.origin}${result.shareLink}`
-                  );
+                  setVenmoHandle('');
+                  setZelleInfo('');
+                  goToStep(9);
                 }}
-                className="rounded-lg bg-brand-600 px-6 py-2 text-sm font-medium text-white hover:bg-brand-700"
+                className="text-sm text-[#1B2A4A] hover:underline"
               >
-                Copy Link
-              </button>
-              <button
-                onClick={() => router.push('/dashboard')}
-                className="rounded-lg border border-foreground/20 px-6 py-2 text-sm"
-              >
-                Go to Dashboard
+                Skip — I&apos;ll handle payments on my own
               </button>
             </div>
+
+            <div className="sticky bottom-0 z-10 flex items-center justify-between border-t border-[#ECEAE5] bg-[#F8F7F4] px-5 py-5">
+              <button onClick={() => goToStep(7)} className="text-sm text-[#1B2A4A]">
+                &larr; Back
+              </button>
+              <button
+                onClick={async () => {
+                  await createPackage();
+                  if (!error) goToStep(9);
+                }}
+                disabled={loading}
+                className="rounded-lg bg-[#1B2A4A] px-5 py-3 text-base font-semibold text-white transition-all hover:-translate-y-px hover:bg-[#142140] disabled:opacity-50"
+              >
+                {loading ? 'Creating...' : 'Continue'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ─── STEP 9: ALL SET ─── */}
+        {step === 9 && result && (
+          <div className="flex animate-[fadeIn_0.4s_ease] flex-col gap-6">
+            <div>
+              <h1 className="text-[28px] font-semibold leading-tight text-[#1A1A1A]">
+                {subscribed ? 'You\u0027re all set!' : 'Your package is ready!'}
+              </h1>
+              <p className="mt-2 text-base text-[#8C8984]">
+                {subscribed
+                  ? 'Here\u0027s your personal sharing link. This is what your friends will see when you send it to them.'
+                  : 'Subscribe to activate your package and start sharing with friends and family.'}
+              </p>
+            </div>
+
+            {!subscribed && (
+              <div className="flex flex-col gap-4 rounded-xl border-2 border-[#D4A843] bg-[#FFFDF7] p-6">
+                <div>
+                  <div className="text-lg font-semibold text-[#1A1A1A]">
+                    Subscribe to BenchBuddy
+                  </div>
+                  <p className="mt-1 text-sm text-[#8C8984]">
+                    Activate your package and share your season tickets.
+                  </p>
+                </div>
+                <div className="flex items-baseline justify-between">
+                  <div>
+                    <span className="text-2xl font-bold text-[#1A1A1A]">$39.99</span>
+                    <span className="text-sm text-[#8C8984]"> / year</span>
+                  </div>
+                  <span className="text-sm font-medium text-[#0F6E56]">
+                    First month free
+                  </span>
+                </div>
+                <button
+                  onClick={handleSubscribe}
+                  disabled={subLoading}
+                  className="w-full rounded-lg bg-[#D4A843] px-5 py-3.5 text-base font-semibold text-white transition-all hover:bg-[#C49A3A] disabled:opacity-50"
+                >
+                  {subLoading ? 'Loading...' : 'Subscribe Now'}
+                </button>
+              </div>
+            )}
+
+            <div className="flex flex-col gap-4 rounded-xl border border-[#ECEAE5] bg-white p-6">
+              <div>
+                <div className="text-sm font-semibold uppercase tracking-wider text-[#1A1A1A]">
+                  Your share link
+                </div>
+                <p className="mt-2 text-[13px] text-[#B5B1AB]">
+                  {subscribed
+                    ? 'This is the link you\u0027ll text to friends and family'
+                    : 'This link will be active once you subscribe'}
+                </p>
+              </div>
+              <div className="flex items-stretch overflow-hidden rounded-lg border border-[#ECEAE5]">
+                <div className="flex items-center border-r border-[#ECEAE5] bg-[#F0EEEA] px-4 text-sm font-medium text-[#8C8984]">
+                  getbenchbuddy.com/
+                </div>
+                <input
+                  type="text"
+                  value={result.shareLink.replace('/share/', '')}
+                  readOnly
+                  className="flex-1 border-none bg-white px-4 py-3 text-sm text-[#1A1A1A] focus:outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              {subscribed && (
+                <button
+                  onClick={copyLink}
+                  className={`w-full rounded-lg px-5 py-3.5 text-base font-semibold text-white transition-all ${
+                    copied ? 'bg-[#0F6E56]' : 'bg-[#1B2A4A] hover:bg-[#142140]'
+                  }`}
+                >
+                  {copied ? 'Copied!' : 'Copy Link'}
+                </button>
+              )}
+              <button
+                onClick={() => router.push('/dashboard')}
+                className="w-full rounded-lg border border-[#1B2A4A] bg-transparent px-5 py-3.5 text-base font-semibold text-[#1B2A4A] transition-all hover:bg-[#1B2A4A]/5"
+              >
+                Go to your dashboard &rarr;
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Error display */}
+        {error && step !== 9 && (
+          <div className="fixed bottom-20 left-1/2 z-[1000] max-w-[90%] -translate-x-1/2 rounded-lg bg-red-600 px-5 py-3.5 text-sm text-white">
+            {error}
           </div>
         )}
       </div>
-    </div>
+
+      {/* Toast */}
+      {toast && (
+        <div className="fixed bottom-5 left-1/2 z-[1000] max-w-[90%] -translate-x-1/2 animate-[slideUp_0.3s_ease] rounded-lg bg-[#1A1A1A] px-5 py-3.5 text-sm text-white">
+          {toast}
+        </div>
+      )}
+    </>
   );
 }
