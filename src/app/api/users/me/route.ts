@@ -1,8 +1,13 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/db';
 import { requireAuth, jsonError, jsonSuccess } from '@/lib/api-utils';
+import { DESIGN_MODE, mockHolder } from '@/lib/mock-data';
 
 export async function GET() {
+  if (DESIGN_MODE) {
+    return jsonSuccess(mockHolder);
+  }
+
   const sessionUser = await requireAuth();
   if (!sessionUser) {
     return jsonError('Unauthorized', 401);

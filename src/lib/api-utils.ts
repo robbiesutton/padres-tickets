@@ -15,6 +15,16 @@ export async function getSession() {
 }
 
 export async function requireAuth() {
+  // In design mode, return a mock user so API routes work without a real session
+  if (process.env.NEXT_PUBLIC_DESIGN_MODE === 'true') {
+    return {
+      id: 'design-user-holder-001',
+      name: 'Robbie Sutton',
+      email: 'robbie@benchbuddy.app',
+      role: 'HOLDER',
+    };
+  }
+
   const session = await getSession();
   if (!session?.user?.id) {
     return null;

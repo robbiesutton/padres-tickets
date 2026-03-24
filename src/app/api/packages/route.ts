@@ -4,8 +4,13 @@ import { requireAuth, jsonError, jsonSuccess } from '@/lib/api-utils';
 import { generateUniqueSlug } from '@/lib/services/slug';
 import { getTeamById } from '@/lib/data/mlb-teams';
 import { getHomeSchedule } from '@/lib/services/schedule';
+import { DESIGN_MODE, mockPackage } from '@/lib/mock-data';
 
 export async function GET() {
+  if (DESIGN_MODE) {
+    return jsonSuccess({ packages: [mockPackage] });
+  }
+
   const user = await requireAuth();
   if (!user) return jsonError('Unauthorized', 401);
 
