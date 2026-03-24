@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/services/tokens';
 import { createClaim } from '@/lib/services/claim';
 import { jsonError } from '@/lib/api-utils';
@@ -45,12 +45,15 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  const response = Response.redirect(redirectUrl);
+  const response = NextResponse.redirect(redirectUrl);
 
-  response.headers.set(
-    'Set-Cookie',
-    `next-auth.session-token=${sessionToken}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${30 * 24 * 60 * 60}`
-  );
+  response.cookies.set('next-auth.session-token', sessionToken, {
+    path: '/',
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: true,
+    maxAge: 30 * 24 * 60 * 60,
+  });
 
   return response;
 }

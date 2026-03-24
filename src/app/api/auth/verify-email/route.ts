@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { verifyToken } from '@/lib/services/tokens';
 import { jsonError } from '@/lib/api-utils';
@@ -22,5 +22,5 @@ export async function GET(request: NextRequest) {
   });
 
   // Redirect to login with success message
-  return Response.redirect(`${process.env.NEXTAUTH_URL}/login?verified=true`);
+  return NextResponse.redirect(`${process.env.NEXTAUTH_URL}/login?verified=true`);
 }
