@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import type { PackageInfo } from '../types';
 import { getOpponentAbbr } from '../utils';
 
@@ -61,11 +62,14 @@ export function SeatInfoBar({ pkg }: Props) {
         <div className="px-6 pb-6">
           <div className="flex items-start gap-4 pt-2">
             {pkg.seatPhotoUrl ? (
-              <div className="w-[120px] h-[80px] rounded-lg overflow-hidden shrink-0">
-                <img
+              <div className="w-[120px] h-[80px] rounded-lg overflow-hidden shrink-0 relative">
+                <Image
                   src={pkg.seatPhotoUrl}
                   alt="Seat view"
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
+                  sizes="120px"
+                  unoptimized
                 />
               </div>
             ) : (

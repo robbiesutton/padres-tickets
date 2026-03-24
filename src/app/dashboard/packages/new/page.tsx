@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 interface MlbTeam {
   id: number;
@@ -439,11 +440,16 @@ export default function NewPackagePage() {
                   <p className="text-sm text-foreground/50">Loading seat view...</p>
                 ) : seatViewPhoto ? (
                   <div className="rounded-lg overflow-hidden border border-foreground/10">
-                    <img
-                      src={seatViewPhoto}
-                      alt={`View from Section ${selectedSection.id}`}
-                      className="w-full h-48 object-cover"
-                    />
+                    <div className="relative w-full h-48">
+                      <Image
+                        src={seatViewPhoto}
+                        alt={`View from Section ${selectedSection.id}`}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 672px) 100vw, 672px"
+                        unoptimized
+                      />
+                    </div>
                     <p className="px-3 py-2 text-xs text-foreground/50">
                       View from Section {selectedSection.id} &middot; {selectedSection.level}
                     </p>
@@ -685,11 +691,16 @@ export default function NewPackagePage() {
             </div>
             {seatViewPhoto && (
               <div className="rounded-lg overflow-hidden border border-foreground/10">
-                <img
-                  src={seatViewPhoto}
-                  alt="Seat view"
-                  className="w-full h-32 object-cover"
-                />
+                <div className="relative w-full h-32">
+                  <Image
+                    src={seatViewPhoto}
+                    alt="Seat view"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 672px) 100vw, 672px"
+                    unoptimized
+                  />
+                </div>
               </div>
             )}
             <div className="rounded-lg border border-foreground/10 p-4">

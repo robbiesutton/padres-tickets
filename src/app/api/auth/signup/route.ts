@@ -4,8 +4,13 @@ import { prisma } from '@/lib/db';
 import { jsonError, jsonSuccess } from '@/lib/api-utils';
 import { createToken } from '@/lib/services/tokens';
 import { sendEmail } from '@/lib/services/email';
+import { getClientIp, rateLimit, rateLimitResponse } from '@/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
+  const ip = getClientIp(request);
+  const { success } = rateLimit(`signup:${ip}`, 5, 60_000);
+  if (!success) return rateLimitResponse();
+
   const body = await request.json();
   const { firstName, lastName, email, password, role } = body;
 

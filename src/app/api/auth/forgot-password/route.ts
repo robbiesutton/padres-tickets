@@ -3,8 +3,13 @@ import { prisma } from '@/lib/db';
 import { createToken } from '@/lib/services/tokens';
 import { sendEmail } from '@/lib/services/email';
 import { jsonSuccess } from '@/lib/api-utils';
+import { getClientIp, rateLimit, rateLimitResponse } from '@/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
+  const ip = getClientIp(request);
+  const { success } = rateLimit(`forgot-pw:${ip}`, 3, 60_000);
+  if (!success) return rateLimitResponse();
+
   const { email } = await request.json();
   const normalizedEmail = email?.toLowerCase().trim();
 

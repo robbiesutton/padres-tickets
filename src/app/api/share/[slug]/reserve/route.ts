@@ -3,11 +3,15 @@ import { prisma } from '@/lib/db';
 import { jsonError, jsonSuccess } from '@/lib/api-utils';
 import { createToken } from '@/lib/services/tokens';
 import { sendEmail } from '@/lib/services/email';
+import { getClientIp, rateLimit, rateLimitResponse } from '@/lib/rate-limit';
 
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
+  const ip = getClientIp(request);
+  const { success } = rateLimit(`reserve:${ip}`, 5, 60_000);
+  if (!success) return rateLimitResponse();
   const { slug } = await params;
 
   const { gameId, email, firstName, lastName } = await request.json();

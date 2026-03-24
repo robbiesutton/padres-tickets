@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { DM_Sans } from 'next/font/google';
 import Providers from './providers';
 import { ScoreTicker } from '@/components/score-ticker';
+import { Analytics } from '@vercel/analytics/next';
 import './globals.css';
 
 const dmSans = DM_Sans({
@@ -30,6 +31,7 @@ export default function RootLayout({
         <Providers>
           <div className="flex-1 flex flex-col">{children}</div>
           <ScoreTicker />
+          <Analytics />
         </Providers>
       </body>
     </html>
