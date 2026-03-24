@@ -36,15 +36,15 @@ function SharePageInner({ packageInfo, games, opponents }: Props) {
   const [calendarStartIndex, setCalendarStartIndex] = useState(0);
   const [expandedGameId, setExpandedGameId] = useState<string | null>(null);
   const [reservedGameIds, setReservedGameIds] = useState<Set<string>>(new Set());
-  const [reservedCount, setReservedCount] = useState(0);
-
   const currentUserId = session?.user?.id || null;
 
   // Handle ?reserved= URL param from magic link redirect
   useEffect(() => {
     const reservedId = searchParams.get('reserved');
     if (reservedId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setReservedGameIds((prev) => new Set([...prev, reservedId]));
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setExpandedGameId(reservedId);
       window.history.replaceState(null, '', window.location.pathname);
     }
@@ -55,15 +55,13 @@ function SharePageInner({ packageInfo, games, opponents }: Props) {
   }, [searchParams]);
 
   // Count reserved games from data
-  useEffect(() => {
-    if (currentUserId) {
-      const count = games.filter(
-        (g) =>
-          g.claim?.claimerUserId === currentUserId &&
-          g.claim?.status !== 'RELEASED'
-      ).length + reservedGameIds.size;
-      setReservedCount(count);
-    }
+  const reservedCount = useMemo(() => {
+    if (!currentUserId) return 0;
+    return games.filter(
+      (g) =>
+        g.claim?.claimerUserId === currentUserId &&
+        g.claim?.status !== 'RELEASED'
+    ).length + reservedGameIds.size;
   }, [currentUserId, games, reservedGameIds]);
 
   // Filter games
@@ -129,7 +127,7 @@ function SharePageInner({ packageInfo, games, opponents }: Props) {
       const filled: { month: number; year: number }[] = [];
       const start = monthList[0];
       const end = monthList[monthList.length - 1];
-      let cur = { ...start };
+      const cur = { ...start };
       while (cur.year * 12 + cur.month <= end.year * 12 + end.month) {
         filled.push({ ...cur });
         cur.month++;

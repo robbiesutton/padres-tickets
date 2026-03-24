@@ -42,7 +42,7 @@ export function useCalendar(games: Game[], calendarStartIndex: number) {
     const result: MonthRange[] = [];
     const start = entries[0];
     const end = entries[entries.length - 1];
-    let current = { ...start };
+    const current = { ...start };
     while (
       current.year * 12 + current.month <=
       end.year * 12 + end.month
