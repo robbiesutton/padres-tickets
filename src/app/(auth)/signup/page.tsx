@@ -2,10 +2,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 
 export default function SignupPage() {
-  const router = useRouter();
   const [form, setForm] = useState({
     firstName: '',
     lastName: '',
@@ -16,6 +14,7 @@ export default function SignupPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   function update(field: string, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -40,7 +39,22 @@ export default function SignupPage() {
       return;
     }
 
-    router.push('/login?verified=check-email');
+    setSuccess(true);
+  }
+
+  if (success) {
+    return (
+      <div className="flex flex-1 items-center justify-center p-8">
+        <div className="w-full max-w-sm space-y-4 text-center">
+          <h1 className="text-2xl font-bold">Check your email</h1>
+          <p className="text-sm text-foreground/60">
+            We sent a confirmation link to <strong>{form.email}</strong>.
+            Click the link to verify your email and you&apos;ll be signed in
+            automatically.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (
