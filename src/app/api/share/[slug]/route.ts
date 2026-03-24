@@ -16,6 +16,8 @@ export async function GET(
           id: true,
           firstName: true,
           lastName: true,
+          venmoHandle: true,
+          zelleInfo: true,
         },
       },
     },
@@ -50,6 +52,8 @@ export async function GET(
     holder: {
       firstName: pkg.user.firstName,
       lastName: pkg.user.lastName,
+      venmoHandle: pkg.user.venmoHandle,
+      zelleInfo: pkg.user.zelleInfo,
     },
     stats: {
       totalGames,

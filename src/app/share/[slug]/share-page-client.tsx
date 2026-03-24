@@ -174,8 +174,9 @@ function SharePageInner({ packageInfo, games, opponents }: Props) {
     setExpandedGameId(null);
   }
 
-  const handleReservationCountChange = useCallback((count: number) => {
-    setReservedCount(count);
+  // Count is derived via useMemo; this callback is kept for MyGamesTab API compatibility
+  const handleReservationCountChange = useCallback((_count: number) => {
+    // reservedCount is derived from games + reservedGameIds via useMemo
   }, []);
 
   return (
