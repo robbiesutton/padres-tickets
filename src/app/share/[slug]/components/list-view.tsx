@@ -1,7 +1,7 @@
 'use client';
 
 import type { Game, PackageInfo } from '../types';
-import { groupGamesByMonth, isGameAvailable, isGameClaimed } from '../utils';
+import { groupGamesByMonth, isGameAvailable } from '../utils';
 import { GameCard } from './game-card';
 import { GameExpansionPanel } from './game-expansion-panel';
 
@@ -28,36 +28,29 @@ export function ListView({
   onReserved,
   onCancelled,
 }: Props) {
-  const grouped = groupGamesByMonth(games);
+  const availableGames = games.filter(isGameAvailable);
+  const grouped = groupGamesByMonth(availableGames);
 
   return (
     <div>
       {Array.from(grouped.entries()).map(([monthLabel, monthGames]) => (
         <div key={monthLabel} className="mb-[22px]">
           {/* Month header */}
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-[3px] h-4 bg-accent rounded-sm" />
-            <span className="text-base font-semibold text-foreground">
-              {monthLabel}
-            </span>
-            <span className="text-sm text-muted">
-              {monthGames.length} game{monthGames.length !== 1 ? 's' : ''}
+          <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center gap-2 pl-1">
+              <div className="w-[3px] h-4 bg-accent rounded-sm" />
+              <span className="text-xl font-semibold text-black">
+                {monthLabel}
+              </span>
+            </div>
+            <span className="text-sm font-medium text-[#8e8985] leading-5">
+              &bull; {monthGames.length} game{monthGames.length !== 1 ? 's' : ''}
             </span>
           </div>
 
           {/* Game cards */}
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-2">
             {monthGames.map((game) => {
-              const isReservedByMe =
-                reservedGameIds.has(game.id) ||
-                (game.claim?.claimerUserId === currentUserId &&
-                  game.claim?.status !== 'RELEASED');
-              const isTakenByOthers =
-                !isReservedByMe &&
-                (isGameClaimed(game) ||
-                  game.status === 'GOING_MYSELF' ||
-                  game.status === 'SOLD_ELSEWHERE' ||
-                  game.status === 'UNAVAILABLE');
               const isSelected = expandedGameId === game.id;
 
               return (
@@ -65,8 +58,8 @@ export function ListView({
                   <GameCard
                     game={game}
                     isSelected={isSelected}
-                    isReservedByMe={isReservedByMe}
-                    isTakenByOthers={isTakenByOthers}
+                    isReservedByMe={false}
+                    isTakenByOthers={false}
                     seatCount={pkg.seatCount}
                     onClick={() =>
                       onSelectGame(isSelected ? '' : game.id)
@@ -84,7 +77,7 @@ export function ListView({
                       <GameExpansionPanel
                         game={game}
                         pkg={pkg}
-                        isReservedByMe={isReservedByMe}
+                        isReservedByMe={false}
                         onClose={onCloseExpansion}
                         onReserved={onReserved}
                         onCancelled={onCancelled}

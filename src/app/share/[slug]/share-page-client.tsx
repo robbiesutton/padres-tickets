@@ -17,6 +17,7 @@ import { CalendarView } from './components/calendar-view';
 import { MyGamesTab } from './components/my-games-tab';
 import { ShareFooter } from './components/share-footer';
 import { EmptyState } from './components/empty-state';
+import { AlsoPlaysIn } from './components/also-plays-in';
 
 interface Props {
   packageInfo: PackageInfo;
@@ -179,19 +180,18 @@ function SharePageInner({ packageInfo, games, opponents }: Props) {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-full">
+    <div className="flex flex-col min-h-full bg-[#F5F4F2]">
       <ShareHeader
         holderName={packageInfo.holderName}
         activeTab={activeTab}
         onTabChange={setActiveTab}
         reservedCount={reservedCount}
+        pkg={packageInfo}
       />
 
-      <div className="max-w-[880px] mx-auto w-full px-5 pt-8 pb-16 flex-1">
+      <div className="max-w-[880px] mx-auto w-full px-5 pt-6 pb-16 flex-1">
         {activeTab === 'available' ? (
           <>
-            <SeatInfoBar pkg={packageInfo} />
-
             <Toolbar
               viewMode={viewMode}
               onViewChange={(mode) => {
@@ -208,6 +208,13 @@ function SharePageInner({ packageInfo, games, opponents }: Props) {
               onMonthFilterChange={handleMonthFilterChange}
               availableCount={availableCount}
               months={monthOptions}
+            />
+
+            <AlsoPlaysIn
+              games={games}
+              opponentFilter={opponentFilter}
+              monthFilter={monthFilter}
+              onJumpToMonth={handleJumpToMonth}
             />
 
             {viewMode === 'calendar' ? (
@@ -233,27 +240,27 @@ function SharePageInner({ packageInfo, games, opponents }: Props) {
               <>
                 {filteredGames.length === 0 &&
                 (opponentFilter || monthFilter) ? (
-                  <div className="bg-card border border-border rounded-xl">
-                    <EmptyState
-                      games={games}
-                      opponentFilter={opponentFilter}
-                      monthFilter={monthFilter}
-                      onJumpToMonth={handleJumpToMonth}
-                      onClearFilters={handleClearFilters}
+                  <EmptyState
+                    games={games}
+                    opponentFilter={opponentFilter}
+                    monthFilter={monthFilter}
+                    onJumpToMonth={handleJumpToMonth}
+                    onClearFilters={handleClearFilters}
+                  />
+                ) : (
+                  <div className="bg-white border border-border rounded-xl p-6">
+                    <ListView
+                      games={filteredGames}
+                      pkg={packageInfo}
+                      expandedGameId={expandedGameId}
+                      reservedGameIds={reservedGameIds}
+                      currentUserId={currentUserId}
+                      onSelectGame={handleSelectGame}
+                      onCloseExpansion={() => setExpandedGameId(null)}
+                      onReserved={handleReserved}
+                      onCancelled={handleCancelled}
                     />
                   </div>
-                ) : (
-                  <ListView
-                    games={filteredGames}
-                    pkg={packageInfo}
-                    expandedGameId={expandedGameId}
-                    reservedGameIds={reservedGameIds}
-                    currentUserId={currentUserId}
-                    onSelectGame={handleSelectGame}
-                    onCloseExpansion={() => setExpandedGameId(null)}
-                    onReserved={handleReserved}
-                    onCancelled={handleCancelled}
-                  />
                 )}
               </>
             )}

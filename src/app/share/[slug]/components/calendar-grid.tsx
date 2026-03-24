@@ -13,12 +13,12 @@ interface Props {
   onSelectGame: (id: string) => void;
 }
 
-function CheckSvg({ size }: { size: number }) {
+function CheckSvg({ color }: { color: string }) {
   return (
-    <svg viewBox="0 0 16 16" width={size} height={size} fill="none">
+    <svg viewBox="0 0 16 16" width={24} height={24} fill="none">
       <path
         d="M3.5 8.5L6.5 11.5L12.5 4.5"
-        stroke="#fff"
+        stroke={color}
         strokeWidth="2.2"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -46,7 +46,7 @@ export function CalendarGrid({
         {DAY_LABELS.map((d, i) => (
           <div
             key={i}
-            className="text-sm text-muted-light text-center py-1 font-medium uppercase tracking-wider"
+            className="text-sm text-[#8e8985] text-center py-1 font-semibold uppercase tracking-wider"
           >
             {d}
           </div>
@@ -66,7 +66,9 @@ export function CalendarGrid({
                 key={day}
                 className="text-center py-1 rounded-lg aspect-square flex flex-col items-center justify-center"
               >
-                <span className="text-sm text-muted-light">{day}</span>
+                <span className="text-[15px] font-normal text-[#8e8985] w-[42px] h-[42px] flex items-center justify-center">
+                  {day}
+                </span>
               </div>
             );
           }
@@ -89,9 +91,11 @@ export function CalendarGrid({
           const abbr = getOpponentAbbr(game.opponent);
           const color = getOpponentColor(game.opponent);
 
+          const hasHover = clickable && !isTaken && !dimmed;
           let cellClass =
-            'text-center py-1 rounded-lg aspect-square flex flex-col items-center justify-center gap-1 transition-all relative group';
-          if (isReserved) cellClass += ' bg-[rgba(15,110,86,0.06)] cursor-pointer';
+            'text-center py-1 rounded-lg aspect-square flex flex-col items-center justify-center transition-all relative';
+          if (hasHover) cellClass += ' group';
+          if (isReserved) cellClass += ' cursor-pointer';
           else if (isSelected && inFilter) cellClass += ' bg-[rgba(27,42,74,0.06)]';
           else if (clickable) cellClass += ' cursor-pointer';
           if (isTaken || dimmed) cellClass += ' cursor-default';
@@ -102,39 +106,47 @@ export function CalendarGrid({
               className={cellClass}
               onClick={clickable ? () => onSelectGame(game.id) : undefined}
             >
-              {/* Day number (shows on hover for game cells) */}
-              <span
-                className={`text-sm hidden group-hover:flex items-center justify-center w-[42px] h-[42px] rounded-full ${
-                  isReserved
-                    ? 'font-semibold text-green'
-                    : 'font-semibold text-foreground'
-                }`}
-                style={
-                  !isReserved
-                    ? { border: `1.5px solid ${color}` }
-                    : { border: '1.5px solid var(--color-green)' }
-                }
-              >
-                {day}
-              </span>
-
-              {/* Badge (hidden on hover) */}
               {isReserved ? (
-                <div className="w-[42px] h-[42px] rounded-full bg-green flex items-center justify-center group-hover:hidden">
-                  <CheckSvg size={22} />
-                </div>
+                <>
+                  {/* Reserved default: green filled circle with white check */}
+                  <div className="w-[42px] h-[42px] rounded-full bg-[#0f6f57] flex items-center justify-center group-hover:hidden">
+                    <CheckSvg color="#fff" />
+                  </div>
+                  {/* Reserved hover: green border ring with green check */}
+                  <div
+                    className="w-[42px] h-[42px] rounded-full hidden group-hover:flex items-center justify-center"
+                    style={{ border: '2px solid #0f6f57' }}
+                  >
+                    <CheckSvg color="#0f6f57" />
+                  </div>
+                </>
               ) : (
-                <div
-                  className={`w-[42px] h-[42px] rounded-full flex items-center justify-center text-xs font-bold text-white group-hover:hidden ${
-                    isTaken || dimmed ? 'opacity-25' : ''
-                  }`}
-                  style={{
-                    backgroundColor:
-                      isSelected && inFilter ? 'var(--color-navy)' : color,
-                  }}
-                >
-                  {abbr}
-                </div>
+                <>
+                  {/* Available default: filled circle with abbreviation */}
+                  <div
+                    className={`w-[42px] h-[42px] rounded-full flex items-center justify-center text-[13px] font-bold text-white group-hover:hidden ${
+                      isTaken || dimmed ? 'opacity-25' : ''
+                    }`}
+                    style={{
+                      backgroundColor:
+                        isSelected && inFilter ? 'var(--color-navy)' : color,
+                    }}
+                  >
+                    {abbr}
+                  </div>
+                  {/* Available hover: border ring with abbreviation */}
+                  <div
+                    className={`w-[42px] h-[42px] rounded-full hidden group-hover:flex items-center justify-center text-[13px] font-bold ${
+                      isTaken || dimmed ? 'opacity-25' : ''
+                    }`}
+                    style={{
+                      border: `2px solid ${isSelected && inFilter ? 'var(--color-navy)' : color}`,
+                      color: isSelected && inFilter ? 'var(--color-navy)' : color,
+                    }}
+                  >
+                    {abbr}
+                  </div>
+                </>
               )}
             </div>
           );

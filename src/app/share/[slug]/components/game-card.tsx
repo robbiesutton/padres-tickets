@@ -17,9 +17,9 @@ interface Props {
   onClick: () => void;
 }
 
-function CheckSvg({ size }: { size: number }) {
+function CheckSvg() {
   return (
-    <svg viewBox="0 0 16 16" width={size} height={size} fill="none">
+    <svg viewBox="0 0 16 16" width={24} height={24} fill="none">
       <path
         d="M3.5 8.5L6.5 11.5L12.5 4.5"
         stroke="#fff"
@@ -44,16 +44,21 @@ export function GameCard({
   const color = getOpponentColor(game.opponent);
   const clickable = !isTakenByOthers;
 
+  const totalPrice =
+    game.pricePerTicket !== null ? game.pricePerTicket * seatCount : null;
+
   let cardClass =
-    'bg-card rounded-[10px] p-6 border border-border cursor-pointer flex items-center gap-3 transition-all';
-  if (isSelected && !isReservedByMe) {
-    cardClass += ' !border-navy bg-[rgba(27,42,74,0.015)]';
-  } else if (isReservedByMe) {
-    cardClass += ' !border-green-border bg-[rgba(15,110,86,0.02)] hover:!border-green';
+    'rounded-lg px-6 py-4 border border-solid cursor-pointer flex items-center gap-4 transition-all';
+
+  if (isReservedByMe) {
+    cardClass +=
+      ' bg-[rgba(15,111,87,0.15)] border-[#dcd7d4] hover:border-[#0f6f57]';
+  } else if (isSelected) {
+    cardClass += ' bg-white border-[#005ca1]';
   } else if (isTakenByOthers) {
-    cardClass += ' opacity-40 !cursor-default';
+    cardClass += ' bg-white border-[#dcd7d4] opacity-40 !cursor-default';
   } else {
-    cardClass += ' hover:!border-accent';
+    cardClass += ' bg-white border-[#dcd7d4] hover:border-[#005ca1]';
   }
 
   return (
@@ -62,23 +67,27 @@ export function GameCard({
       onClick={clickable ? onClick : undefined}
     >
       {/* Date column */}
-      <div className="text-center min-w-[34px]">
-        <div className="text-sm text-muted uppercase tracking-wider">{dow}</div>
-        <div className="text-lg font-semibold text-foreground leading-tight">{day}</div>
-        <div className="text-sm text-muted">{month}</div>
+      <div className="text-center min-w-[30px] flex flex-col items-center gap-px">
+        <div className="text-sm font-medium text-[#8e8985] uppercase">
+          {dow}
+        </div>
+        <div className="text-base font-bold text-[#2c2a2b] leading-tight">
+          {day}
+        </div>
+        <div className="text-sm font-medium text-[#8e8985]">{month}</div>
       </div>
 
       {/* Separator */}
-      <div className="w-px h-[42px] bg-border shrink-0" />
+      <div className="w-px h-[57px] bg-[#dcd7d4] shrink-0" />
 
       {/* Team badge */}
       {isReservedByMe ? (
-        <div className="w-[42px] h-[42px] rounded-full bg-green flex items-center justify-center shrink-0">
-          <CheckSvg size={22} />
+        <div className="w-[42px] h-[42px] rounded-full bg-[#0f6f57] flex items-center justify-center shrink-0">
+          <CheckSvg />
         </div>
       ) : (
         <div
-          className="w-[42px] h-[42px] rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
+          className="w-[42px] h-[42px] rounded-full flex items-center justify-center text-[13px] font-bold text-white shrink-0"
           style={{ backgroundColor: color }}
         >
           {abbr}
@@ -86,10 +95,17 @@ export function GameCard({
       )}
 
       {/* Game info */}
-      <div className="flex-1 min-w-0">
-        <div className="text-base font-medium text-foreground">vs {game.opponent}</div>
-        <div className="text-sm text-muted mt-0.5 flex items-center gap-1.5 flex-wrap">
+      <div className="flex-1 min-w-0 flex flex-col gap-2">
+        <div className="text-base font-bold text-[#2c2a2b]">
+          vs {game.opponent}
+        </div>
+        <div className="text-sm font-medium text-[#8e8985] flex items-center gap-1.5 flex-wrap">
           {formatTime(game.time)} &middot; Petco Park
+          {totalPrice !== null && (
+            <>
+              {' '}&middot; {seatCount} ticket{seatCount !== 1 ? 's' : ''} for ${totalPrice}
+            </>
+          )}
           {!isReservedByMe && !isTakenByOthers && game.notes && (
             <span className="text-sm font-semibold px-1.5 py-0.5 rounded-[10px] bg-[rgba(212,168,67,0.09)] text-accent border border-[rgba(212,168,67,0.19)]">
               {game.notes}
@@ -97,43 +113,30 @@ export function GameCard({
           )}
         </div>
         {isReservedByMe && (
-          <div className="mt-[3px]">
+          <div>
             <span className="text-sm font-semibold text-green bg-green-light px-2 py-0.5 rounded-[10px]">
               Reserved
             </span>
           </div>
         )}
         {isTakenByOthers && (
-          <div className="mt-[3px]">
-            <span className="text-sm text-muted">Reserved by others</span>
+          <div>
+            <span className="text-sm text-[#8e8985]">Reserved by others</span>
           </div>
         )}
       </div>
 
-      {/* Price */}
-      {!isReservedByMe && !isTakenByOthers && game.pricePerTicket !== null && (
-        <div className="text-right shrink-0">
-          <div className="text-sm text-muted uppercase">per seat</div>
-          <div className="text-base font-semibold text-foreground">${game.pricePerTicket}</div>
-        </div>
-      )}
-
-      {/* Arrow */}
-      {clickable && (
-        <svg
-          className={`shrink-0 opacity-20 transition-transform duration-200 ${isSelected ? 'rotate-90 opacity-40' : ''}`}
-          width="14"
-          height="14"
-          viewBox="0 0 16 16"
-          fill="none"
+      {/* Reserve button */}
+      {!isReservedByMe && !isTakenByOthers && (
+        <button
+          className="shrink-0 h-10 px-4 rounded-lg text-base font-medium text-black cursor-pointer border-none bg-[#f5f4f2] hover:bg-transparent transition-colors"
+          onClick={(e) => {
+            e.stopPropagation();
+            onClick();
+          }}
         >
-          <path
-            d="M6 4l4 4-4 4"
-            stroke="#1A1A1A"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-          />
-        </svg>
+          Reserve
+        </button>
       )}
     </div>
   );

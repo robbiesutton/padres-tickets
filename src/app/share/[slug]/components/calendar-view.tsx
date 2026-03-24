@@ -5,7 +5,6 @@ import { useCalendar } from '../hooks/use-calendar';
 import { CalendarGrid } from './calendar-grid';
 import { CalendarLegend } from './calendar-legend';
 import { GameExpansionPanel } from './game-expansion-panel';
-import { AlsoPlaysInBar } from './also-plays-in-bar';
 import { SoldOutBar } from './sold-out-bar';
 import { EmptyState } from './empty-state';
 import { isGameAvailable } from '../utils';
@@ -90,37 +89,31 @@ export function CalendarView({
     ? allGames.find((g) => g.id === expandedGameId)
     : null;
 
-  const currentVisibleMonthIndices = displayMonths.map((m) => m.month);
-
   return (
     <div>
       {allTaken && <SoldOutBar />}
 
       <div className="bg-card border border-border rounded-xl p-6">
-        {/* Also plays in bar */}
-        <AlsoPlaysInBar
-          games={allGames}
-          opponentFilter={opponentFilter}
-          onJumpToMonth={onJumpToMonth}
-          currentVisibleMonths={currentVisibleMonthIndices}
-        />
-
         {/* Calendar nav */}
         <div className="flex items-center justify-between mb-2">
           <button
-            className="w-7 h-7 rounded-full border border-border bg-card cursor-pointer flex items-center justify-center text-muted text-[13px] disabled:opacity-30 disabled:cursor-default"
+            className="w-8 h-8 rounded-full border border-[#8e8985] bg-white cursor-pointer flex items-center justify-center disabled:opacity-30 disabled:cursor-default hover:bg-[#f5f4f2] transition-colors"
             onClick={() => onCalendarNav('prev')}
             disabled={!canGoBack}
           >
-            &lsaquo;
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M15 6l-6 6 6 6" stroke="#8e8985" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
           </button>
           <div />
           <button
-            className="w-7 h-7 rounded-full border border-border bg-card cursor-pointer flex items-center justify-center text-muted text-[13px] disabled:opacity-30 disabled:cursor-default"
+            className="w-8 h-8 rounded-full border border-[#8e8985] bg-white cursor-pointer flex items-center justify-center disabled:opacity-30 disabled:cursor-default hover:bg-[#f5f4f2] transition-colors"
             onClick={() => onCalendarNav('next')}
             disabled={!canGoForward}
           >
-            &rsaquo;
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M9 6l6 6-6 6" stroke="#8e8985" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
           </button>
         </div>
 
