@@ -4,7 +4,6 @@ import { requireAuth, jsonError, jsonSuccess } from '@/lib/api-utils';
 import { generateUniqueSlug } from '@/lib/services/slug';
 import { getTeamById } from '@/lib/data/mlb-teams';
 import { getHomeSchedule } from '@/lib/services/schedule';
-
 export async function GET() {
   const user = await requireAuth();
   if (!user) return jsonError('Unauthorized', 401);

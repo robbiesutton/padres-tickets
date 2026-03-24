@@ -64,6 +64,7 @@ enum SubscriptionPlan {
 
 enum SubscriptionStatus {
   ACTIVE
+  TRIALING
   CANCELLED
   PAST_DUE
 }
@@ -235,14 +236,20 @@ model Notification {
 }
 
 model Subscription {
-  id            String             @id @default(cuid())
-  userId        String             @unique
-  plan          SubscriptionPlan   @default(FREE)
-  status        SubscriptionStatus @default(ACTIVE)
-  billingCycle  BillingCycle?
-  packagesCount Int                @default(1)
-  createdAt     DateTime           @default(now())
-  updatedAt     DateTime           @updatedAt
+  id                   String             @id @default(cuid())
+  userId               String             @unique
+  plan                 SubscriptionPlan   @default(FREE)
+  status               SubscriptionStatus @default(ACTIVE)
+  billingCycle         BillingCycle?
+  packagesCount        Int                @default(1)
+  stripeCustomerId     String?            @unique
+  stripeSubscriptionId String?            @unique
+  stripePriceId        String?
+  currentPeriodEnd     DateTime?
+  cancelAtPeriodEnd    Boolean            @default(false)
+  trialEnd             DateTime?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
 
   user User @relation(fields: [userId], references: [id])
 }

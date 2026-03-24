@@ -1,8 +1,17 @@
-// PLACEHOLDER UI — To be replaced by designer
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { signOut } from 'next-auth/react';
+
+interface SubscriptionInfo {
+  plan: 'FREE' | 'PRO';
+  status: 'ACTIVE' | 'TRIALING' | 'CANCELLED' | 'PAST_DUE';
+  billingCycle: 'MONTHLY' | 'ANNUAL' | null;
+  currentPeriodEnd: string | null;
+  cancelAtPeriodEnd: boolean;
+  trialEnd: string | null;
+}
 
 interface UserProfile {
   id: string;
@@ -13,12 +22,15 @@ interface UserProfile {
   role: string;
   venmoHandle: string | null;
   zelleInfo: string | null;
+  subscription: SubscriptionInfo | null;
 }
 
 export default function SettingsPage() {
+  const searchParams = useSearchParams();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [subLoading, setSubLoading] = useState(false);
   const [message, setMessage] = useState<{
     type: 'success' | 'error';
     text: string;
@@ -31,6 +43,12 @@ export default function SettingsPage() {
     venmoHandle: '',
     zelleInfo: '',
   });
+
+  useEffect(() => {
+    if (searchParams.get('subscription') === 'success') {
+      setMessage({ type: 'success', text: 'Subscription activated!' });
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     let cancelled = false;
@@ -79,6 +97,248 @@ export default function SettingsPage() {
       const data = await res.json();
       setMessage({ type: 'error', text: data.error || 'Failed to save' });
     }
+  }
+
+  async function handleSubscribe() {
+    setSubLoading(true);
+    try {
+      const res = await fetch('/api/stripe/checkout', { method: 'POST' });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        setMessage({ type: 'error', text: data.error || 'Failed to start checkout' });
+        setSubLoading(false);
+      }
+    } catch {
+      setMessage({ type: 'error', text: 'Something went wrong' });
+      setSubLoading(false);
+    }
+  }
+
+  async function handleCancel() {
+    if (!confirm('Are you sure you want to cancel? You\'ll keep access until the end of your billing period.')) {
+      return;
+    }
+    setSubLoading(true);
+    try {
+      const res = await fetch('/api/stripe/cancel', { method: 'POST' });
+      if (res.ok) {
+        setProfile((prev) =>
+          prev
+            ? {
+                ...prev,
+                subscription: prev.subscription
+                  ? { ...prev.subscription, cancelAtPeriodEnd: true }
+                  : null,
+              }
+            : null
+        );
+        setMessage({ type: 'success', text: 'Subscription will cancel at end of period' });
+      } else {
+        const data = await res.json();
+        setMessage({ type: 'error', text: data.error || 'Failed to cancel' });
+      }
+    } catch {
+      setMessage({ type: 'error', text: 'Something went wrong' });
+    }
+    setSubLoading(false);
+  }
+
+  async function handleResubscribe() {
+    setSubLoading(true);
+    try {
+      const res = await fetch('/api/stripe/resubscribe', { method: 'POST' });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else if (res.ok) {
+        setProfile((prev) =>
+          prev
+            ? {
+                ...prev,
+                subscription: prev.subscription
+                  ? { ...prev.subscription, cancelAtPeriodEnd: false }
+                  : null,
+              }
+            : null
+        );
+        setMessage({ type: 'success', text: 'Subscription reactivated!' });
+        setSubLoading(false);
+      } else {
+        setMessage({ type: 'error', text: data.error || 'Failed to resubscribe' });
+        setSubLoading(false);
+      }
+    } catch {
+      setMessage({ type: 'error', text: 'Something went wrong' });
+      setSubLoading(false);
+    }
+  }
+
+  async function handleManageBilling() {
+    setSubLoading(true);
+    try {
+      const res = await fetch('/api/stripe/portal', { method: 'POST' });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        setMessage({ type: 'error', text: data.error || 'Failed to open billing' });
+        setSubLoading(false);
+      }
+    } catch {
+      setMessage({ type: 'error', text: 'Something went wrong' });
+      setSubLoading(false);
+    }
+  }
+
+  function formatDate(dateStr: string) {
+    return new Date(dateStr).toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  }
+
+  function renderSubscriptionSection() {
+    const sub = profile?.subscription;
+    const isActive = sub?.status === 'ACTIVE' || sub?.status === 'TRIALING';
+    const isPendingCancel = isActive && sub?.cancelAtPeriodEnd;
+
+    // Past due — needs payment update
+    if (sub?.status === 'PAST_DUE') {
+      return (
+        <div className="space-y-4">
+          <h2 className="text-lg font-medium">Subscription</h2>
+          <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium text-red-800">Payment Failed</p>
+                <p className="text-sm text-red-600">
+                  Please update your payment method to keep your subscription active.
+                </p>
+              </div>
+              <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-800">
+                Past Due
+              </span>
+            </div>
+            <button
+              onClick={handleManageBilling}
+              disabled={subLoading}
+              className="mt-3 w-full rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+            >
+              {subLoading ? 'Loading...' : 'Update Payment Method'}
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // Pending cancel
+    if (isPendingCancel) {
+      return (
+        <div className="space-y-4">
+          <h2 className="text-lg font-medium">Subscription</h2>
+          <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium text-amber-800">Cancelling</p>
+                <p className="text-sm text-amber-700">
+                  Your subscription will end on{' '}
+                  {sub.currentPeriodEnd ? formatDate(sub.currentPeriodEnd) : 'end of period'}.
+                  You&apos;ll keep access until then.
+                </p>
+              </div>
+              <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800">
+                Cancelling
+              </span>
+            </div>
+            <button
+              onClick={handleResubscribe}
+              disabled={subLoading}
+              className="mt-3 w-full rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
+            >
+              {subLoading ? 'Loading...' : 'Keep My Subscription'}
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // Active or trialing
+    if (isActive) {
+      return (
+        <div className="space-y-4">
+          <h2 className="text-lg font-medium">Subscription</h2>
+          <div className="rounded-lg border border-foreground/10 p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium">BenchBuddy</p>
+                <p className="text-sm text-foreground/60">
+                  {sub?.status === 'TRIALING' && sub.trialEnd
+                    ? `Free trial ends ${formatDate(sub.trialEnd)}`
+                    : sub?.currentPeriodEnd
+                      ? `Renews ${formatDate(sub.currentPeriodEnd)}`
+                      : '$39.99/year'}
+                </p>
+              </div>
+              <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">
+                {sub?.status === 'TRIALING' ? 'Trial' : 'Active'}
+              </span>
+            </div>
+            <div className="mt-3 flex gap-2">
+              <button
+                onClick={handleManageBilling}
+                disabled={subLoading}
+                className="flex-1 rounded-lg border border-foreground/20 px-4 py-2 text-sm font-medium hover:bg-foreground/5 disabled:opacity-50"
+              >
+                Manage Billing
+              </button>
+              <button
+                onClick={handleCancel}
+                disabled={subLoading}
+                className="flex-1 rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Not subscribed (no subscription, cancelled, or free)
+    return (
+      <div className="space-y-4">
+        <h2 className="text-lg font-medium">Subscription</h2>
+        <div className="rounded-lg border border-foreground/10 p-4">
+          <div className="mb-3">
+            <p className="font-medium">Subscribe to BenchBuddy</p>
+            <p className="text-sm text-foreground/60">
+              Share your season tickets with friends and family.
+            </p>
+          </div>
+          <div className="rounded-lg border border-brand-200 bg-brand-50 p-4">
+            <div className="flex items-baseline justify-between">
+              <div>
+                <p className="text-2xl font-bold text-brand-800">$39.99</p>
+                <p className="text-sm text-brand-600">per year</p>
+              </div>
+              <p className="text-sm font-medium text-brand-700">
+                First month free
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={handleSubscribe}
+            disabled={subLoading}
+            className="mt-3 w-full rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
+          >
+            {subLoading ? 'Loading...' : 'Subscribe Now'}
+          </button>
+        </div>
+      </div>
+    );
   }
 
   if (loading) {
@@ -186,23 +446,8 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          {/* Subscription stub */}
-          <div className="space-y-4">
-            <h2 className="text-lg font-medium">Subscription</h2>
-            <div className="rounded-lg border border-foreground/10 p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Free Plan</p>
-                  <p className="text-sm text-foreground/60">
-                    1 package, unlimited games
-                  </p>
-                </div>
-                <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">
-                  Active
-                </span>
-              </div>
-            </div>
-          </div>
+          {/* Subscription section */}
+          {renderSubscriptionSection()}
 
           <button
             type="submit"

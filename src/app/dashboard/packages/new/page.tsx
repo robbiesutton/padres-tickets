@@ -119,6 +119,21 @@ export default function NewPackagePage() {
   const [copied, setCopied] = useState(false);
   const [result, setResult] = useState<{ shareLink: string; gamesCreated: number } | null>(null);
 
+  // Subscription status
+  const [subscribed, setSubscribed] = useState(true);
+  const [subLoading, setSubLoading] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/users/me')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (!data) return;
+        const status = data.subscription?.status;
+        setSubscribed(status === 'ACTIVE' || status === 'TRIALING');
+      })
+      .catch(() => {});
+  }, []);
+
   // ─── Data loading ───────────────────────────────────
 
   useEffect(() => {
@@ -406,6 +421,23 @@ export default function NewPackagePage() {
       });
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleSubscribe() {
+    setSubLoading(true);
+    try {
+      const res = await fetch('/api/stripe/checkout', { method: 'POST' });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        setError(data.error || 'Failed to start checkout');
+        setSubLoading(false);
+      }
+    } catch {
+      setError('Something went wrong');
+      setSubLoading(false);
     }
   }
 
@@ -1071,12 +1103,43 @@ export default function NewPackagePage() {
           <div className="flex animate-[fadeIn_0.4s_ease] flex-col gap-6">
             <div>
               <h1 className="text-[28px] font-semibold leading-tight text-[#1A1A1A]">
-                You&apos;re all set!
+                {subscribed ? 'You\u0027re all set!' : 'Your package is ready!'}
               </h1>
               <p className="mt-2 text-base text-[#8C8984]">
-                Here&apos;s your personal sharing link. This is what your friends will see when you send it to them.
+                {subscribed
+                  ? 'Here\u0027s your personal sharing link. This is what your friends will see when you send it to them.'
+                  : 'Subscribe to activate your package and start sharing with friends and family.'}
               </p>
             </div>
+
+            {!subscribed && (
+              <div className="flex flex-col gap-4 rounded-xl border-2 border-[#D4A843] bg-[#FFFDF7] p-6">
+                <div>
+                  <div className="text-lg font-semibold text-[#1A1A1A]">
+                    Subscribe to BenchBuddy
+                  </div>
+                  <p className="mt-1 text-sm text-[#8C8984]">
+                    Activate your package and share your season tickets.
+                  </p>
+                </div>
+                <div className="flex items-baseline justify-between">
+                  <div>
+                    <span className="text-2xl font-bold text-[#1A1A1A]">$39.99</span>
+                    <span className="text-sm text-[#8C8984]"> / year</span>
+                  </div>
+                  <span className="text-sm font-medium text-[#0F6E56]">
+                    First month free
+                  </span>
+                </div>
+                <button
+                  onClick={handleSubscribe}
+                  disabled={subLoading}
+                  className="w-full rounded-lg bg-[#D4A843] px-5 py-3.5 text-base font-semibold text-white transition-all hover:bg-[#C49A3A] disabled:opacity-50"
+                >
+                  {subLoading ? 'Loading...' : 'Subscribe Now'}
+                </button>
+              </div>
+            )}
 
             <div className="flex flex-col gap-4 rounded-xl border border-[#ECEAE5] bg-white p-6">
               <div>
@@ -1084,7 +1147,9 @@ export default function NewPackagePage() {
                   Your share link
                 </div>
                 <p className="mt-2 text-[13px] text-[#B5B1AB]">
-                  This is the link you&apos;ll text to friends and family
+                  {subscribed
+                    ? 'This is the link you\u0027ll text to friends and family'
+                    : 'This link will be active once you subscribe'}
                 </p>
               </div>
               <div className="flex items-stretch overflow-hidden rounded-lg border border-[#ECEAE5]">
@@ -1101,14 +1166,16 @@ export default function NewPackagePage() {
             </div>
 
             <div className="flex flex-col gap-3">
-              <button
-                onClick={copyLink}
-                className={`w-full rounded-lg px-5 py-3.5 text-base font-semibold text-white transition-all ${
-                  copied ? 'bg-[#0F6E56]' : 'bg-[#1B2A4A] hover:bg-[#142140]'
-                }`}
-              >
-                {copied ? 'Copied!' : 'Copy Link'}
-              </button>
+              {subscribed && (
+                <button
+                  onClick={copyLink}
+                  className={`w-full rounded-lg px-5 py-3.5 text-base font-semibold text-white transition-all ${
+                    copied ? 'bg-[#0F6E56]' : 'bg-[#1B2A4A] hover:bg-[#142140]'
+                  }`}
+                >
+                  {copied ? 'Copied!' : 'Copy Link'}
+                </button>
+              )}
               <button
                 onClick={() => router.push('/dashboard')}
                 className="w-full rounded-lg border border-[#1B2A4A] bg-transparent px-5 py-3.5 text-base font-semibold text-[#1B2A4A] transition-all hover:bg-[#1B2A4A]/5"
