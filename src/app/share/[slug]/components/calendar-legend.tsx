@@ -2,7 +2,7 @@
 
 export function CalendarLegend() {
   return (
-    <div className="flex gap-[25px] items-center justify-center mt-4 pt-4">
+    <div className="flex gap-[25px] items-center justify-center mt-2">
       <div className="flex items-center gap-1">
         <div className="w-[19px] h-[19px] rounded-full bg-[#ffc425] flex items-center justify-center text-[7px] font-bold text-[#1a1a1a]">
           SD

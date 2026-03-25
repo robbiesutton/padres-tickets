@@ -40,7 +40,7 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
     : null;
 
   return (
-    <header className="bg-white h-[77px] flex items-center justify-between px-[31px] border-b border-[#eceae5] relative z-50">
+    <header className="bg-white h-[60px] md:h-[77px] flex items-center justify-between px-3 md:px-[31px] sticky top-0 z-50 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
       <div
         className="flex items-center gap-1.5 cursor-pointer"
         onClick={() => onTabChange('available')}
@@ -52,7 +52,7 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
           width={24}
           height={24}
         />
-        <span style={{ fontFamily: 'var(--font-syne), sans-serif' }} className="text-lg font-bold text-[#1a1a1a]">
+        <span style={{ fontFamily: 'var(--font-syne), sans-serif' }} className="hidden sm:inline text-lg font-bold text-[#1a1a1a]">
           BenchBuddy
         </span>
       </div>
@@ -60,7 +60,7 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
         <div className="relative">
           <button
             ref={buttonRef}
-            className={`h-10 px-4 py-2.5 rounded-lg text-base font-medium border-none cursor-pointer transition-all flex items-center gap-2 ${
+            className={`h-9 md:h-10 px-2.5 md:px-4 py-2.5 rounded-lg text-sm md:text-base font-medium border-none cursor-pointer transition-all flex items-center gap-2 ${
               seatInfoOpen ? 'bg-[#eceae5] text-black' : 'bg-[#f5f4f2] text-black hover:bg-[#eceae5]'
             }`}
             onClick={() => setSeatInfoOpen(!seatInfoOpen)}
@@ -80,7 +80,7 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
           {/* Dropdown panel */}
           <div
             ref={panelRef}
-            className={`absolute right-0 top-[calc(100%+8px)] w-[366px] bg-white rounded-lg border border-[#eceae5] shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.1),0px_4px_6px_-4px_rgba(0,0,0,0.1)] overflow-hidden transition-all duration-200 ${
+            className={`absolute right-0 top-[calc(100%+8px)] w-[calc(100vw-24px)] md:w-[366px] max-w-[366px] bg-white rounded-lg border border-[#eceae5] shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.1),0px_4px_6px_-4px_rgba(0,0,0,0.1)] overflow-hidden transition-all duration-200 ${
               seatInfoOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'
             }`}
           >
@@ -163,10 +163,17 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
             </div>
           </div>
         </div>
-        <svg width="30" height="30" viewBox="0 0 30 30" fill="none" className="shrink-0 cursor-pointer hover:opacity-75 transition-opacity">
-          <circle cx="15" cy="10" r="5" fill="#222222" />
-          <rect x="6.25" y="17.5" width="17.5" height="8.75" rx="4.375" fill="#222222" />
-        </svg>
+        <button
+          className="h-9 md:h-10 px-2.5 md:px-4 rounded-lg text-sm md:text-base font-medium border-none cursor-pointer transition-all bg-[#f5f4f2] text-black hover:bg-[#eceae5] flex items-center gap-2"
+          onClick={() => onTabChange('my-games')}
+        >
+          My Games
+          {reservedCount > 0 && (
+            <span className="w-5 h-5 rounded-full bg-[#0F6F57] text-white text-[11px] font-semibold flex items-center justify-center">
+              {reservedCount}
+            </span>
+          )}
+        </button>
       </div>
     </header>
   );

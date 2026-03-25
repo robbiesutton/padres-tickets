@@ -3,6 +3,8 @@ import { prisma } from '@/lib/db';
 import { requireAuth, jsonError, jsonSuccess } from '@/lib/api-utils';
 import { createClaim } from '@/lib/services/claim';
 import { trackServerEvent, AnalyticsEvents } from '@/lib/analytics';
+import { DESIGN_MODE } from '@/lib/mock-data';
+import { addDesignClaim } from '@/lib/design-claims-store';
 
 export async function POST(
   request: NextRequest,
@@ -15,6 +17,20 @@ export async function POST(
     return jsonError('Authentication required to claim tickets', 401);
   }
 
+  const { gameId } = await request.json();
+
+  if (!gameId) {
+    return jsonError('gameId is required', 400);
+  }
+
+  if (DESIGN_MODE) {
+    const result = addDesignClaim(gameId);
+    if (!result.success) {
+      return jsonError(result.error!, 409);
+    }
+    return jsonSuccess({ claim: result.claim }, 201);
+  }
+
   const pkg = await prisma.package.findUnique({
     where: { shareLinkSlug: slug },
     select: { id: true, status: true },
@@ -22,12 +38,6 @@ export async function POST(
 
   if (!pkg || pkg.status !== 'ACTIVE') {
     return jsonError('Share link not found or deactivated', 404);
-  }
-
-  const { gameId } = await request.json();
-
-  if (!gameId) {
-    return jsonError('gameId is required', 400);
   }
 
   // Verify the game belongs to this package

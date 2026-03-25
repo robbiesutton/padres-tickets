@@ -10,7 +10,6 @@ interface Props {
   onOpponentFilterChange: (value: string) => void;
   monthFilter: string;
   onMonthFilterChange: (value: string) => void;
-  availableCount: number;
   months: { value: string; label: string }[];
 }
 
@@ -22,11 +21,10 @@ export function Toolbar({
   onOpponentFilterChange,
   monthFilter,
   onMonthFilterChange,
-  availableCount,
   months,
 }: Props) {
   return (
-    <div className="flex items-center gap-3 mb-6 flex-wrap">
+    <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-3 mb-4 md:mb-6 flex-wrap">
       <div className="flex items-start w-[87px] h-10 bg-white border border-[#f5f4f2] rounded-[9px] overflow-hidden p-px">
         <button
           className={`flex items-center justify-center w-[42px] h-[38px] border-none cursor-pointer transition-all rounded-none ${
@@ -60,32 +58,31 @@ export function Toolbar({
           </svg>
         </button>
       </div>
-      <select
-        className="h-10 px-4 pr-10 rounded-lg border border-[#2c2a2b] bg-transparent hover:bg-[#f5f4f2] hover:border-[#dcd7d4] transition-colors text-base font-medium text-black cursor-pointer appearance-none bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M6%209l6%206%206-6%22%20stroke%3D%22%232c2a2b%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_8px_center]"
-        value={opponentFilter}
-        onChange={(e) => onOpponentFilterChange(e.target.value)}
-      >
-        <option value="">All opponents</option>
-        {opponents.map((o) => (
-          <option key={o} value={o}>
-            {o}
-          </option>
-        ))}
-      </select>
-      <select
-        className="h-10 px-4 pr-10 rounded-lg border border-[#2c2a2b] bg-transparent hover:bg-[#f5f4f2] hover:border-[#dcd7d4] transition-colors text-base font-medium text-black cursor-pointer appearance-none bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M6%209l6%206%206-6%22%20stroke%3D%22%232c2a2b%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_8px_center]"
-        value={monthFilter}
-        onChange={(e) => onMonthFilterChange(e.target.value)}
-      >
-        <option value="">All months</option>
-        {months.map((m) => (
-          <option key={m.value} value={m.value}>
-            {m.label}
-          </option>
-        ))}
-      </select>
-      <div className="ml-auto h-10 flex items-center text-base font-medium text-[#8e8985]">
-        <span className="font-bold text-black">{availableCount}</span>&nbsp;Available
+      <div className="flex gap-2 w-full md:w-auto">
+        <select
+          className="flex-1 md:flex-none h-10 px-4 pr-10 rounded-lg border-[1.5px] border-black bg-transparent hover:bg-[#f5f4f2] hover:border-[#dcd7d4] transition-colors text-base font-medium text-black cursor-pointer appearance-none bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M6%209l6%206%206-6%22%20stroke%3D%22%232c2a2b%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_8px_center]"
+          value={opponentFilter}
+          onChange={(e) => onOpponentFilterChange(e.target.value)}
+        >
+          <option value="">All opponents</option>
+          {opponents.map((o) => (
+            <option key={o} value={o}>
+              {o}
+            </option>
+          ))}
+        </select>
+        <select
+          className="flex-1 md:flex-none h-10 px-4 pr-10 rounded-lg border-[1.5px] border-black bg-transparent hover:bg-[#f5f4f2] hover:border-[#dcd7d4] transition-colors text-base font-medium text-black cursor-pointer appearance-none bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M6%209l6%206%206-6%22%20stroke%3D%22%232c2a2b%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_8px_center]"
+          value={monthFilter}
+          onChange={(e) => onMonthFilterChange(e.target.value)}
+        >
+          <option value="">All months</option>
+          {months.map((m) => (
+            <option key={m.value} value={m.value}>
+              {m.label}
+            </option>
+          ))}
+        </select>
       </div>
     </div>
   );
