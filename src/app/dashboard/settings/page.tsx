@@ -210,15 +210,15 @@ export default function SettingsPage() {
       return (
         <div className="space-y-4">
           <h2 className="text-lg font-medium">Subscription</h2>
-          <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+          <div className="rounded-lg border border-[#DC2626]/20 bg-[#FEE2E2] p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium text-red-800">Payment Failed</p>
-                <p className="text-sm text-red-600">
+                <p className="font-medium text-[#DC2626]">Payment Failed</p>
+                <p className="text-sm text-[#DC2626]">
                   Please update your payment method to keep your subscription active.
                 </p>
               </div>
-              <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-800">
+              <span className="rounded-full bg-[#FEE2E2] px-3 py-1 text-xs font-medium text-[#DC2626]">
                 Past Due
               </span>
             </div>
@@ -239,24 +239,24 @@ export default function SettingsPage() {
       return (
         <div className="space-y-4">
           <h2 className="text-lg font-medium">Subscription</h2>
-          <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
+          <div className="rounded-lg border border-[#FAC775] bg-[#FAEEDA] p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium text-amber-800">Cancelling</p>
-                <p className="text-sm text-amber-700">
+                <p className="font-medium text-[#2c2a2b]">Cancelling</p>
+                <p className="text-sm text-[#2c2a2b]">
                   Your subscription will end on{' '}
                   {sub.currentPeriodEnd ? formatDate(sub.currentPeriodEnd) : 'end of period'}.
                   You&apos;ll keep access until then.
                 </p>
               </div>
-              <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800">
+              <span className="rounded-full bg-[#FAEEDA] px-3 py-1 text-xs font-medium text-[#2c2a2b]">
                 Cancelling
               </span>
             </div>
             <button
               onClick={handleResubscribe}
               disabled={subLoading}
-              className="mt-3 w-full rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
+              className="mt-3 w-full rounded-lg bg-[#2c2a2b] px-4 py-2 text-sm font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] disabled:opacity-50"
             >
               {subLoading ? 'Loading...' : 'Keep My Subscription'}
             </button>
@@ -270,11 +270,11 @@ export default function SettingsPage() {
       return (
         <div className="space-y-4">
           <h2 className="text-lg font-medium">Subscription</h2>
-          <div className="rounded-lg border border-foreground/10 p-4">
+          <div className="rounded-lg border border-[#eceae5] p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-medium">BenchBuddy</p>
-                <p className="text-sm text-foreground/60">
+                <p className="text-sm text-[#8e8985]">
                   {sub?.status === 'TRIALING' && sub.trialEnd
                     ? `Free trial ends ${formatDate(sub.trialEnd)}`
                     : sub?.currentPeriodEnd
@@ -282,7 +282,7 @@ export default function SettingsPage() {
                       : '$39.99/year'}
                 </p>
               </div>
-              <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">
+              <span className="rounded-full bg-[#E1F5EE] px-3 py-1 text-xs font-medium text-[#0F6E56]">
                 {sub?.status === 'TRIALING' ? 'Trial' : 'Active'}
               </span>
             </div>
@@ -290,14 +290,14 @@ export default function SettingsPage() {
               <button
                 onClick={handleManageBilling}
                 disabled={subLoading}
-                className="flex-1 rounded-lg border border-foreground/20 px-4 py-2 text-sm font-medium hover:bg-foreground/5 disabled:opacity-50"
+                className="flex-1 rounded-lg border-[1.5px] border-black bg-transparent text-black hover:bg-[#f5f4f2] transition-colors px-4 py-2 text-sm font-medium disabled:opacity-50"
               >
                 Manage Billing
               </button>
               <button
                 onClick={handleCancel}
                 disabled={subLoading}
-                className="flex-1 rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
+                className="flex-1 rounded-lg border-[1.5px] border-black bg-transparent text-black hover:bg-[#f5f4f2] transition-colors px-4 py-2 text-sm font-medium disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -311,20 +311,20 @@ export default function SettingsPage() {
     return (
       <div className="space-y-4">
         <h2 className="text-lg font-medium">Subscription</h2>
-        <div className="rounded-lg border border-foreground/10 p-4">
+        <div className="rounded-lg border border-[#eceae5] p-4">
           <div className="mb-3">
             <p className="font-medium">Subscribe to BenchBuddy</p>
-            <p className="text-sm text-foreground/60">
+            <p className="text-sm text-[#8e8985]">
               Share your season tickets with friends and family.
             </p>
           </div>
-          <div className="rounded-lg border border-brand-200 bg-brand-50 p-4">
+          <div className="rounded-lg border border-[#eceae5] bg-[#f5f4f2] p-4">
             <div className="flex items-baseline justify-between">
               <div>
-                <p className="text-2xl font-bold text-brand-800">$39.99</p>
-                <p className="text-sm text-brand-600">per year</p>
+                <p className="text-2xl font-bold text-[#2c2a2b]">$39.99</p>
+                <p className="text-sm text-[#2c2a2b] font-medium underline">per year</p>
               </div>
-              <p className="text-sm font-medium text-brand-700">
+              <p className="text-sm font-medium text-[#2c2a2b]">
                 First month free
               </p>
             </div>
@@ -332,7 +332,7 @@ export default function SettingsPage() {
           <button
             onClick={handleSubscribe}
             disabled={subLoading}
-            className="mt-3 w-full rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
+            className="mt-3 w-full rounded-lg bg-[#2c2a2b] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] disabled:opacity-50"
           >
             {subLoading ? 'Loading...' : 'Subscribe Now'}
           </button>
@@ -344,7 +344,7 @@ export default function SettingsPage() {
   if (loading) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <p className="text-foreground/50">Loading settings...</p>
+        <p className="text-[#8e8985]">Loading settings...</p>
       </div>
     );
   }
@@ -358,8 +358,8 @@ export default function SettingsPage() {
           <div
             className={`rounded-lg p-3 text-sm ${
               message.type === 'success'
-                ? 'bg-green-50 text-green-800'
-                : 'bg-red-50 text-red-800'
+                ? 'bg-[#E1F5EE] text-[#0F6E56]'
+                : 'bg-[#FEE2E2] text-[#DC2626]'
             }`}
           >
             {message.text}
@@ -378,7 +378,7 @@ export default function SettingsPage() {
                   required
                   value={form.firstName}
                   onChange={(e) => update('firstName', e.target.value)}
-                  className="mt-1 block w-full rounded-lg border border-foreground/20 px-3 py-2 text-sm"
+                  className="mt-1 block w-full px-2.5 py-2 rounded-[7px] border border-[#eceae5] text-sm outline-none focus:border-[#1B2A4A]"
                 />
               </div>
               <div className="flex-1">
@@ -388,7 +388,7 @@ export default function SettingsPage() {
                   required
                   value={form.lastName}
                   onChange={(e) => update('lastName', e.target.value)}
-                  className="mt-1 block w-full rounded-lg border border-foreground/20 px-3 py-2 text-sm"
+                  className="mt-1 block w-full px-2.5 py-2 rounded-[7px] border border-[#eceae5] text-sm outline-none focus:border-[#1B2A4A]"
                 />
               </div>
             </div>
@@ -398,9 +398,9 @@ export default function SettingsPage() {
                 type="email"
                 disabled
                 value={profile?.email || ''}
-                className="mt-1 block w-full rounded-lg border border-foreground/10 bg-foreground/5 px-3 py-2 text-sm text-foreground/50"
+                className="mt-1 block w-full px-2.5 py-2 rounded-[7px] border border-[#eceae5] bg-[#f5f4f2] text-sm text-[#8e8985]"
               />
-              <p className="mt-1 text-xs text-foreground/40">
+              <p className="mt-1 text-xs text-[#8e8985]">
                 Contact support to change your email
               </p>
             </div>
@@ -411,7 +411,7 @@ export default function SettingsPage() {
                 value={form.phone}
                 onChange={(e) => update('phone', e.target.value)}
                 placeholder="Optional"
-                className="mt-1 block w-full rounded-lg border border-foreground/20 px-3 py-2 text-sm"
+                className="mt-1 block w-full px-2.5 py-2 rounded-[7px] border border-[#eceae5] text-sm outline-none focus:border-[#1B2A4A]"
               />
             </div>
           </div>
@@ -419,7 +419,7 @@ export default function SettingsPage() {
           {/* Payment section */}
           <div className="space-y-4">
             <h2 className="text-lg font-medium">Payment Info</h2>
-            <p className="text-sm text-foreground/60">
+            <p className="text-sm text-[#8e8985]">
               Share your payment details so claimers know how to pay you.
             </p>
             <div>
@@ -429,7 +429,7 @@ export default function SettingsPage() {
                 value={form.venmoHandle}
                 onChange={(e) => update('venmoHandle', e.target.value)}
                 placeholder="@your-handle"
-                className="mt-1 block w-full rounded-lg border border-foreground/20 px-3 py-2 text-sm"
+                className="mt-1 block w-full px-2.5 py-2 rounded-[7px] border border-[#eceae5] text-sm outline-none focus:border-[#1B2A4A]"
               />
             </div>
             <div>
@@ -441,7 +441,7 @@ export default function SettingsPage() {
                 value={form.zelleInfo}
                 onChange={(e) => update('zelleInfo', e.target.value)}
                 placeholder="email or phone for Zelle"
-                className="mt-1 block w-full rounded-lg border border-foreground/20 px-3 py-2 text-sm"
+                className="mt-1 block w-full px-2.5 py-2 rounded-[7px] border border-[#eceae5] text-sm outline-none focus:border-[#1B2A4A]"
               />
             </div>
           </div>
@@ -452,17 +452,17 @@ export default function SettingsPage() {
           <button
             type="submit"
             disabled={saving}
-            className="w-full rounded-lg bg-brand-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
+            className="w-full rounded-lg bg-[#2c2a2b] px-6 py-2.5 text-sm font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] disabled:opacity-50"
           >
             {saving ? 'Saving...' : 'Save Settings'}
           </button>
         </form>
 
         {/* Logout */}
-        <div className="border-t border-foreground/10 pt-6">
+        <div className="border-t border-[#eceae5] pt-6">
           <button
             onClick={() => signOut({ callbackUrl: '/' })}
-            className="w-full rounded-lg border border-red-200 px-6 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50"
+            className="w-full rounded-lg border-[1.5px] border-black bg-transparent text-black hover:bg-[#f5f4f2] transition-colors px-6 py-2.5 text-sm font-medium"
           >
             Sign out
           </button>

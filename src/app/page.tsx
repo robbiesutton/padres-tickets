@@ -31,13 +31,13 @@ export default function Home() {
     }
   }
   return (
-    <div className="flex flex-1 flex-col">
+    <div className="flex flex-1 flex-col bg-[#fefefe]">
       {/* Hero */}
       <section className="flex flex-col items-center gap-6 px-6 py-24 text-center">
         <h1 className="max-w-2xl text-4xl font-bold tracking-tight sm:text-5xl">
           Share your season tickets effortlessly
         </h1>
-        <p className="max-w-lg text-lg text-foreground/70">
+        <p className="max-w-lg text-lg text-[#8e8985]">
           BenchBuddy makes it easy for season ticket holders to share games with
           friends and family. Set up once, share a link, let them claim.
         </p>
@@ -47,7 +47,7 @@ export default function Home() {
           </PrimaryButton>
           <button
             onClick={() => setShowLinkInput(true)}
-            className="rounded-lg border border-foreground/20 px-8 py-3 text-sm font-medium text-foreground hover:bg-foreground/5"
+            className="rounded-lg border-[1.5px] border-black bg-transparent px-8 py-3 text-sm font-medium text-foreground hover:bg-[#f5f4f2] transition-colors"
           >
             I Was Shared a Link
           </button>
@@ -55,7 +55,7 @@ export default function Home() {
 
         {showLinkInput && (
           <div className="w-full max-w-md space-y-3">
-            <p className="text-sm text-foreground/60">
+            <p className="text-sm text-[#8e8985]">
               Paste the link your friend shared with you:
             </p>
             <div className="flex gap-2">
@@ -65,7 +65,7 @@ export default function Home() {
                 onChange={(e) => setSharedLink(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleGoToLink()}
                 placeholder="e.g. benchbuddy.com/share/mark-rockies"
-                className="flex-1 rounded-lg border border-foreground/20 px-3 py-2 text-sm"
+                className="flex-1 rounded-lg px-2.5 py-2 rounded-[7px] border border-[#eceae5] text-sm outline-none focus:border-[#1B2A4A]"
                 autoFocus
               />
               <PrimaryButton onClick={handleGoToLink} className="px-5">
@@ -73,14 +73,14 @@ export default function Home() {
               </PrimaryButton>
             </div>
             {linkError && (
-              <p className="text-sm text-red-600">{linkError}</p>
+              <p className="text-sm text-[#DC2626]">{linkError}</p>
             )}
           </div>
         )}
       </section>
 
       {/* How it works */}
-      <section className="bg-foreground/[0.02] px-6 py-20">
+      <section className="bg-[#f5f4f2] px-6 py-20">
         <div className="mx-auto max-w-4xl">
           <h2 className="mb-12 text-center text-2xl font-bold">How It Works</h2>
           <div className="grid gap-8 sm:grid-cols-3">
@@ -102,11 +102,11 @@ export default function Home() {
               },
             ].map((item) => (
               <div key={item.step} className="text-center">
-                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-brand-600 text-lg font-bold text-white">
+                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#2c2a2b] text-lg font-bold text-white">
                   {item.step}
                 </div>
                 <h3 className="mb-2 text-lg font-semibold">{item.title}</h3>
-                <p className="text-sm text-foreground/60">{item.desc}</p>
+                <p className="text-sm text-[#8e8985]">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -140,10 +140,10 @@ export default function Home() {
             ].map((feature) => (
               <div
                 key={feature.title}
-                className="rounded-lg border border-foreground/10 p-6"
+                className="rounded-xl border border-[#eceae5] bg-white p-6"
               >
                 <h3 className="mb-2 font-semibold">{feature.title}</h3>
-                <p className="text-sm text-foreground/60">{feature.desc}</p>
+                <p className="text-sm text-[#8e8985]">{feature.desc}</p>
               </div>
             ))}
           </div>
@@ -151,12 +151,12 @@ export default function Home() {
       </section>
 
       {/* Pricing */}
-      <section className="bg-foreground/[0.02] px-6 py-20">
+      <section className="bg-[#f5f4f2] px-6 py-20">
         <div className="mx-auto max-w-md text-center">
           <h2 className="mb-4 text-2xl font-bold">Simple Pricing</h2>
-          <div className="rounded-xl border border-foreground/10 p-8">
+          <div className="rounded-xl border border-[#eceae5] bg-white p-8">
             <p className="text-3xl font-bold">Free</p>
-            <p className="mt-1 text-sm text-foreground/60">
+            <p className="mt-1 text-sm text-[#8e8985]">
               during early access
             </p>
             <ul className="mt-6 space-y-2 text-left text-sm">
@@ -168,7 +168,7 @@ export default function Home() {
                 'Payment tracking',
               ].map((item) => (
                 <li key={item} className="flex items-center gap-2">
-                  <span className="text-green-600">&#10003;</span> {item}
+                  <span className="text-[#0F6E56]">&#10003;</span> {item}
                 </li>
               ))}
             </ul>
@@ -204,7 +204,7 @@ export default function Home() {
             ].map((faq) => (
               <div key={faq.q}>
                 <h3 className="font-semibold">{faq.q}</h3>
-                <p className="mt-1 text-sm text-foreground/60">{faq.a}</p>
+                <p className="mt-1 text-sm text-[#8e8985]">{faq.a}</p>
               </div>
             ))}
           </div>

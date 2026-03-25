@@ -33,18 +33,18 @@ interface Claim {
 
 function statusBadge(status: string) {
   const colors: Record<string, string> = {
-    UNPAID: 'bg-yellow-100 text-yellow-800',
-    PENDING: 'bg-yellow-100 text-yellow-800',
-    REQUESTED: 'bg-orange-100 text-orange-800',
-    PAID: 'bg-green-100 text-green-800',
-    WAIVED: 'bg-gray-100 text-gray-600',
-    NOT_STARTED: 'bg-gray-100 text-gray-600',
-    SENT: 'bg-blue-100 text-blue-800',
-    ACCEPTED: 'bg-green-100 text-green-800',
+    UNPAID: 'bg-[#FAEEDA] text-[#2c2a2b]',
+    PENDING: 'bg-[#FAEEDA] text-[#2c2a2b]',
+    REQUESTED: 'bg-[#f5f4f2] text-[#2c2a2b]',
+    PAID: 'bg-[#E1F5EE] text-[#0F6E56]',
+    WAIVED: 'bg-[#f5f4f2] text-[#8e8985]',
+    NOT_STARTED: 'bg-[#f5f4f2] text-[#8e8985]',
+    SENT: 'bg-[#f5f4f2] text-[#2c2a2b]',
+    ACCEPTED: 'bg-[#E1F5EE] text-[#0F6E56]',
   };
   return (
     <span
-      className={`rounded-full px-2 py-0.5 text-xs font-medium ${colors[status] || 'bg-gray-100 text-gray-600'}`}
+      className={`rounded-full px-2 py-0.5 text-xs font-medium ${colors[status] || 'bg-[#f5f4f2] text-[#8e8985]'}`}
     >
       {status.replace('_', ' ')}
     </span>
@@ -98,7 +98,7 @@ export default function MyGamesPage() {
   if (loading) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <p className="text-foreground/50">Loading your games...</p>
+        <p className="text-[#8e8985]">Loading your games...</p>
       </div>
     );
   }
@@ -109,11 +109,11 @@ export default function MyGamesPage() {
         <h1 className="text-2xl font-bold">My Games</h1>
 
         {claims.length === 0 ? (
-          <div className="rounded-lg border border-foreground/10 py-16 text-center">
-            <p className="text-lg text-foreground/50">
+          <div className="rounded-xl border border-[#eceae5] bg-white py-16 text-center">
+            <p className="text-lg text-[#8e8985]">
               You haven&apos;t claimed any games yet.
             </p>
-            <p className="mt-2 text-sm text-foreground/40">
+            <p className="mt-2 text-sm text-[#8e8985]">
               Ask a friend with season tickets for their BenchBuddy link!
             </p>
           </div>
@@ -126,7 +126,7 @@ export default function MyGamesPage() {
               return (
                 <div
                   key={claim.id}
-                  className={`rounded-lg border border-foreground/10 p-4 ${isPast ? 'opacity-60' : ''}`}
+                  className={`rounded-xl border border-[#eceae5] bg-white p-4 md:p-6 ${isPast ? 'opacity-60' : ''}`}
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0 flex-1 space-y-1">
@@ -135,12 +135,12 @@ export default function MyGamesPage() {
                           {claim.package.team} vs {claim.game.opponent}
                         </p>
                         {isPast && (
-                          <span className="text-xs text-foreground/40">
+                          <span className="text-xs text-[#8e8985]">
                             Past
                           </span>
                         )}
                       </div>
-                      <p className="text-sm text-foreground/60">
+                      <p className="text-sm text-[#8e8985]">
                         {d.toLocaleDateString('en-US', {
                           weekday: 'long',
                           month: 'long',
@@ -148,7 +148,7 @@ export default function MyGamesPage() {
                         })}
                         {claim.game.time ? ` at ${claim.game.time}` : ''}
                       </p>
-                      <p className="text-sm text-foreground/60">
+                      <p className="text-sm text-[#8e8985]">
                         Section {claim.package.section}
                         {claim.package.row
                           ? `, Row ${claim.package.row}`
@@ -157,17 +157,17 @@ export default function MyGamesPage() {
                         {claim.holder.firstName} {claim.holder.lastName}
                       </p>
                       <div className="flex flex-wrap items-center gap-2 pt-1">
-                        <span className="text-xs text-foreground/40">
+                        <span className="text-xs text-[#8e8985]">
                           Payment:
                         </span>
                         {statusBadge(claim.paymentStatus)}
-                        <span className="text-xs text-foreground/40">
+                        <span className="text-xs text-[#8e8985]">
                           Transfer:
                         </span>
                         {statusBadge(claim.transferStatus)}
                         {claim.game.pricePerTicket !== null &&
                           Number(claim.game.pricePerTicket) > 0 && (
-                            <span className="text-xs text-foreground/50">
+                            <span className="text-xs text-[#8e8985]">
                               ${Number(claim.game.pricePerTicket)}/ticket
                             </span>
                           )}
@@ -177,7 +177,7 @@ export default function MyGamesPage() {
                       <button
                         onClick={() => handleRelease(claim.id)}
                         disabled={releasingId === claim.id}
-                        className="shrink-0 rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
+                        className="shrink-0 h-9 px-3 rounded-lg bg-transparent border-[1.5px] border-black text-black text-sm font-medium hover:bg-[#f5f4f2] transition-colors disabled:opacity-50"
                       >
                         {releasingId === claim.id ? 'Releasing...' : 'Release'}
                       </button>

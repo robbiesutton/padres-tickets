@@ -58,15 +58,15 @@ const STATUS_OPTIONS = [
 
 function statusColor(status: string) {
   const colors: Record<string, string> = {
-    GOING_MYSELF: 'bg-blue-100 text-blue-800',
-    AVAILABLE: 'bg-green-100 text-green-800',
-    CLAIMED: 'bg-orange-100 text-orange-800',
-    TRANSFERRED: 'bg-purple-100 text-purple-800',
-    COMPLETE: 'bg-gray-100 text-gray-800',
-    SOLD_ELSEWHERE: 'bg-gray-100 text-gray-600',
-    UNAVAILABLE: 'bg-red-100 text-red-800',
+    GOING_MYSELF: 'bg-[#f5f4f2] text-[#2c2a2b]',
+    AVAILABLE: 'bg-[#E1F5EE] text-[#0F6E56]',
+    CLAIMED: 'bg-[rgba(15,111,87,0.15)] text-[#0f6f57]',
+    TRANSFERRED: 'bg-[#E1F5EE] text-[#0F6E56]',
+    COMPLETE: 'bg-[#f5f4f2] text-[#8e8985]',
+    SOLD_ELSEWHERE: 'bg-[#f5f4f2] text-[#8e8985]',
+    UNAVAILABLE: 'bg-[#FEE2E2] text-[#DC2626]',
   };
-  return colors[status] || 'bg-gray-100 text-gray-600';
+  return colors[status] || 'bg-[#f5f4f2] text-[#8e8985]';
 }
 
 export default function DashboardPage() {
@@ -139,7 +139,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <p className="text-foreground/50">Loading dashboard...</p>
+        <p className="text-[#8e8985]">Loading dashboard...</p>
       </div>
     );
   }
@@ -148,12 +148,12 @@ export default function DashboardPage() {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8">
         <h1 className="text-2xl font-bold">Welcome to BenchBuddy</h1>
-        <p className="text-foreground/60">
+        <p className="text-[#8e8985]">
           Set up your first season ticket package to get started.
         </p>
         <a
           href="/dashboard/packages/new"
-          className="rounded-lg bg-brand-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-brand-700"
+          className="rounded-lg bg-[#2c2a2b] px-6 py-2.5 text-sm font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b]"
         >
           Create Package
         </a>
@@ -172,7 +172,7 @@ export default function DashboardPage() {
               <select
                 value={selectedPkgId || ''}
                 onChange={(e) => setSelectedPkgId(e.target.value)}
-                className="rounded-lg border border-foreground/20 px-3 py-1.5 text-sm"
+                className="rounded-lg border border-[#eceae5] px-3 py-1.5 text-sm"
               >
                 {packages.map((p) => (
                   <option key={p.id} value={p.id}>
@@ -185,13 +185,13 @@ export default function DashboardPage() {
           <div className="flex gap-2">
             <a
               href={`/dashboard/packages/${selectedPkgId}/share`}
-              className="rounded-lg bg-brand-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-brand-700"
+              className="rounded-lg bg-[#2c2a2b] px-4 py-1.5 text-sm font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b]"
             >
               Share Link
             </a>
             <a
               href="/dashboard/packages/new"
-              className="rounded-lg border border-foreground/20 px-4 py-1.5 text-sm hover:bg-foreground/5"
+              className="rounded-lg border-[1.5px] border-black bg-transparent hover:bg-[#f5f4f2] text-sm font-medium transition-colors px-4 py-1.5"
             >
               + New Package
             </a>
@@ -212,9 +212,9 @@ export default function DashboardPage() {
             ].map((stat) => (
               <div
                 key={stat.label}
-                className="rounded-lg border border-foreground/10 p-4"
+                className="rounded-xl border border-[#eceae5] bg-white p-6"
               >
-                <p className="text-sm text-foreground/60">{stat.label}</p>
+                <p className="text-sm text-[#8e8985]">{stat.label}</p>
                 <p className="text-2xl font-bold">{stat.value}</p>
               </div>
             ))}
@@ -233,9 +233,9 @@ export default function DashboardPage() {
                 return (
                   <div
                     key={game.id}
-                    className="flex items-center gap-3 rounded-lg border border-foreground/10 p-3 text-sm"
+                    className="flex items-center gap-3 border border-[#eceae5] bg-white p-3 rounded-lg text-sm"
                   >
-                    <div className="w-16 shrink-0 text-foreground/60">
+                    <div className="w-16 shrink-0 text-[#8e8985]">
                       {d.toLocaleDateString('en-US', {
                         month: 'short',
                         day: 'numeric',
@@ -244,7 +244,7 @@ export default function DashboardPage() {
                     <div className="min-w-0 flex-1">
                       <p className="font-medium">{game.opponent}</p>
                       {hasClaim && (
-                        <p className="text-xs text-foreground/50">
+                        <p className="text-xs text-[#8e8985]">
                           {game.claim!.claimer.firstName}{' '}
                           {game.claim!.claimer.lastName}
                         </p>
@@ -272,7 +272,7 @@ export default function DashboardPage() {
                       </select>
                     )}
                     {game.pricePerTicket && (
-                      <span className="shrink-0 text-xs text-foreground/40">
+                      <span className="shrink-0 text-xs text-[#8e8985]">
                         ${Number(game.pricePerTicket)}
                       </span>
                     )}
@@ -286,16 +286,16 @@ export default function DashboardPage() {
           <div className="space-y-3">
             <h2 className="text-lg font-medium">Recent Activity</h2>
             {activities.length === 0 ? (
-              <p className="text-sm text-foreground/40">No activity yet</p>
+              <p className="text-sm text-[#8e8985]">No activity yet</p>
             ) : (
               <div className="space-y-2">
                 {activities.map((a) => (
                   <div
                     key={a.id}
-                    className="rounded-lg border border-foreground/10 p-3 text-sm"
+                    className="border border-[#eceae5] bg-white p-3 rounded-lg text-sm"
                   >
                     <p>{a.description}</p>
-                    <p className="mt-1 text-xs text-foreground/40">
+                    <p className="mt-1 text-xs text-[#8e8985]">
                       {new Date(a.createdAt).toLocaleDateString('en-US', {
                         month: 'short',
                         day: 'numeric',

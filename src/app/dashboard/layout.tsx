@@ -1,6 +1,7 @@
-// PLACEHOLDER UI — To be replaced by designer
+'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard' },
@@ -14,24 +15,37 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+
   return (
     <div className="flex flex-1 flex-col">
-      <nav className="border-b border-foreground/10 px-4 sm:px-8">
-        <div className="mx-auto flex max-w-5xl items-center justify-between">
-          <Link href="/" className="py-3 text-lg font-bold">
+      <nav className="bg-white h-[60px] md:h-[77px] flex items-center justify-between px-3 md:px-[31px] sticky top-0 z-50 shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+        <Link href="/dashboard" className="flex items-center gap-1.5">
+          <img src="/benchbuddy-logo.svg" alt="BenchBuddy" width={24} height={24} />
+          <span
+            style={{ fontFamily: 'var(--font-syne), sans-serif' }}
+            className="hidden sm:inline text-lg font-bold text-[#1a1a1a]"
+          >
             BenchBuddy
-          </Link>
-          <div className="flex gap-1">
-            {navItems.map((item) => (
+          </span>
+        </Link>
+        <div className="flex items-center gap-2 md:gap-4">
+          {navItems.map((item) => {
+            const isActive = pathname === item.href;
+            return (
               <Link
                 key={item.href}
                 href={item.href}
-                className="rounded-lg px-3 py-2 text-sm text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
+                className={`h-9 md:h-10 px-2.5 md:px-4 rounded-lg text-sm md:text-base font-medium border-none cursor-pointer transition-all flex items-center ${
+                  isActive
+                    ? 'bg-[#eceae5] text-black'
+                    : 'bg-[#f5f4f2] text-black hover:bg-[#eceae5]'
+                }`}
               >
                 {item.label}
               </Link>
-            ))}
-          </div>
+            );
+          })}
         </div>
       </nav>
       {children}
