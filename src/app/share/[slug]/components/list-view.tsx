@@ -63,7 +63,7 @@ export function ListView({
   return (
     <div>
       {Array.from(grouped.entries()).map(([monthLabel, monthGames]) => (
-        <div key={monthLabel} className="mb-[22px]">
+        <div key={monthLabel} className="mb-6">
           {/* Month header */}
           <div className="flex items-center gap-2 mb-4">
             <div className="flex items-center gap-2 pl-1">

@@ -150,10 +150,10 @@ export function CalendarView({
     <div>
       {allTaken && <SoldOutBar />}
 
-      <div ref={containerRef} className="bg-card border border-border rounded-xl p-3 md:p-6 relative">
+      <div ref={containerRef} className="bg-card md:border md:border-border md:rounded-xl px-2 py-4 md:p-6 relative">
         {/* Side arrows */}
         <button
-          className="absolute top-3 left-3 md:top-4 md:left-4 w-7 h-7 md:w-8 md:h-8 rounded-full border border-[#8e8985] bg-white cursor-pointer flex items-center justify-center disabled:opacity-30 disabled:cursor-default hover:bg-[#f5f4f2] transition-colors z-10"
+          className="absolute top-2 left-0 md:top-4 md:left-4 w-11 h-11 md:w-8 md:h-8 rounded-full border border-[#8e8985] bg-white cursor-pointer flex items-center justify-center disabled:opacity-30 disabled:cursor-default hover:bg-[#f5f4f2] transition-colors z-10"
           onClick={() => onCalendarNav('prev')}
           disabled={!canGoBack}
         >
@@ -162,7 +162,7 @@ export function CalendarView({
           </svg>
         </button>
         <button
-          className="absolute top-3 right-3 md:top-4 md:right-4 w-7 h-7 md:w-8 md:h-8 rounded-full border border-[#8e8985] bg-white cursor-pointer flex items-center justify-center disabled:opacity-30 disabled:cursor-default hover:bg-[#f5f4f2] transition-colors z-10"
+          className="absolute top-2 right-0 md:top-4 md:right-4 w-11 h-11 md:w-8 md:h-8 rounded-full border border-[#8e8985] bg-white cursor-pointer flex items-center justify-center disabled:opacity-30 disabled:cursor-default hover:bg-[#f5f4f2] transition-colors z-10"
           onClick={() => onCalendarNav('next')}
           disabled={!canGoForward}
         >
@@ -172,8 +172,8 @@ export function CalendarView({
         </button>
 
         {/* Calendar grids */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {grids.map(({ month, cells }) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {grids.map(({ month, cells }, i) => (
             <CalendarGrid
               key={`${month.year}-${month.month}`}
               month={month}
@@ -183,6 +183,7 @@ export function CalendarView({
               reservedGameIds={reservedGameIds}
               currentUserId={currentUserId}
               onSelectGame={handleSelectGame}
+              className={i > 0 ? 'hidden md:block' : ''}
             />
           ))}
         </div>

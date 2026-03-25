@@ -6,11 +6,12 @@ import { GameCard } from './game-card';
 
 interface Props {
   pkg: PackageInfo;
+  claimerName: string;
   onSwitchToAvailable: () => void;
   onReservationCountChange: (count: number) => void;
 }
 
-export function MyGamesTab({ pkg, onSwitchToAvailable, onReservationCountChange }: Props) {
+export function MyGamesTab({ pkg, claimerName, onSwitchToAvailable, onReservationCountChange }: Props) {
   const [claims, setClaims] = useState<MyGameClaim[] | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -63,12 +64,12 @@ export function MyGamesTab({ pkg, onSwitchToAvailable, onReservationCountChange 
           <p className="text-base font-medium text-black text-center">
             No games reserved yet
           </p>
-          <p className="text-sm font-normal text-[#2c2a2b] text-center">
+          <p className="text-base font-normal text-[#2c2a2b] text-center">
             Browse available games and reserve the ones you want to attend.
           </p>
         </div>
         <button
-          className="h-10 px-4 rounded-lg bg-[#2c2a2b] text-white border-none text-base font-medium cursor-pointer hover:opacity-90 transition-opacity flex items-center justify-center"
+          className="h-11 px-4 rounded-lg bg-[#2c2a2b] text-white border-none text-base font-medium cursor-pointer hover:opacity-90 transition-opacity flex items-center justify-center"
           onClick={onSwitchToAvailable}
         >
           Browse games
@@ -78,7 +79,23 @@ export function MyGamesTab({ pkg, onSwitchToAvailable, onReservationCountChange 
   }
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-4">
+      {/* Greeting */}
+      <div className="flex flex-col gap-2">
+        <p className="text-base text-[#2c2a2b]">
+          Hi{claimerName ? `, ${claimerName}` : ''}! Here are the games you have claimed.
+          {(pkg.holderEmail || pkg.holderPhone) && (
+            <> If you have questions, please reach out to {pkg.holderName}
+              {pkg.holderPhone && <> at <a href={`tel:${pkg.holderPhone}`} className="text-[#2c2a2b] font-medium underline">{pkg.holderPhone}</a></>}
+              {pkg.holderPhone && pkg.holderEmail && <> or</>}
+              {pkg.holderEmail && <> <a href={`mailto:${pkg.holderEmail}`} className="text-[#2c2a2b] font-medium underline">{pkg.holderEmail}</a></>}
+            .</>
+          )}
+        </p>
+      </div>
+
+      {/* Game cards */}
+      <div className="flex flex-col gap-2">
       {claims.map((claim) => {
         // Convert claim to Game shape for GameCard
         const game: Game = {
@@ -109,6 +126,15 @@ export function MyGamesTab({ pkg, onSwitchToAvailable, onReservationCountChange 
           />
         );
       })}
+      </div>
+
+      {/* Browse other games */}
+      <button
+        className="h-11 px-4 rounded-lg bg-transparent text-black text-base font-medium border-[1.5px] border-solid border-black cursor-pointer flex items-center justify-center hover:bg-[#f5f4f2] transition-colors self-start"
+        onClick={onSwitchToAvailable}
+      >
+        Browse other games
+      </button>
     </div>
   );
 }

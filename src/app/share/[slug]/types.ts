@@ -17,6 +17,8 @@ export interface Game {
 export interface PackageInfo {
   slug: string;
   holderName: string;
+  holderEmail: string | null;
+  holderPhone: string | null;
   team: string;
   section: string;
   row: string | null;

@@ -58,3 +58,15 @@ body {
 .animate-slide-up {
   animation: slide-up 0.25s ease-out;
 }
+
+@keyframes wave-flag {
+  0% { transform: perspective(400px) rotateY(0deg) skewY(0deg); }
+  25% { transform: perspective(400px) rotateY(4deg) skewY(-1.5deg); }
+  50% { transform: perspective(400px) rotateY(0deg) skewY(0deg); }
+  75% { transform: perspective(400px) rotateY(-4deg) skewY(1.5deg); }
+  100% { transform: perspective(400px) rotateY(0deg) skewY(0deg); }
+}
+.animate-wave-flag {
+  animation: wave-flag 4s ease-in-out infinite;
+  transform-origin: left center;
+}

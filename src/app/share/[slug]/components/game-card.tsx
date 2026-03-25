@@ -47,7 +47,7 @@ export function GameCard({
     game.pricePerTicket !== null ? game.pricePerTicket * seatCount : null;
 
   let cardClass =
-    'rounded-lg px-3 py-3 md:px-6 md:py-4 border border-solid flex items-center gap-3 md:gap-10';
+    'rounded-lg px-4 py-3 md:px-6 md:py-4 border border-solid flex items-center gap-3 md:gap-10';
 
   if (isReservedByMe) {
     cardClass += ' bg-[rgba(15,111,87,0.15)] border-[#0f6f57]';
@@ -93,10 +93,10 @@ export function GameCard({
 
         {/* Game info */}
         <div className="flex flex-col gap-2 min-w-0">
-          <div className="text-sm md:text-base font-bold text-[#2c2a2b]">
+          <div className="text-base md:text-base font-bold text-[#2c2a2b]">
             vs {game.opponent}
           </div>
-          <div className="text-xs md:text-sm font-medium text-[#8e8985]">
+          <div className="text-sm md:text-sm font-medium text-[#8e8985]">
             {formatTime(game.time)} &bull; Petco Park
             {totalPrice !== null && (
               <> &bull; {seatCount} ticket{seatCount !== 1 ? 's' : ''} for ${totalPrice}</>
@@ -109,14 +109,14 @@ export function GameCard({
       {!isTakenByOthers && (
         isReservedByMe ? (
           <button
-            className="shrink-0 h-9 px-3 md:h-10 md:px-4 rounded-lg bg-transparent text-black text-sm md:text-base font-medium border-[1.5px] border-solid border-black cursor-pointer flex items-center justify-center hover:bg-[#f5f4f2] transition-colors"
+            className="shrink-0 h-11 px-3 md:h-10 md:px-4 rounded-lg bg-transparent text-black text-sm md:text-base font-medium border-[1.5px] border-solid border-black cursor-pointer flex items-center justify-center hover:bg-[#f5f4f2] transition-colors"
             onClick={onRelease}
           >
             Release
           </button>
         ) : (
           <button
-            className="shrink-0 h-9 px-3 md:h-10 md:px-4 rounded-lg bg-transparent text-black text-sm md:text-base font-medium border-[1.5px] border-solid border-black cursor-pointer flex items-center justify-center hover:bg-[#f5f4f2] transition-colors"
+            className="shrink-0 h-11 px-3 md:h-10 md:px-4 rounded-lg bg-transparent text-black text-sm md:text-base font-medium border-[1.5px] border-solid border-black cursor-pointer flex items-center justify-center hover:bg-[#f5f4f2] transition-colors"
             onClick={onReserve}
           >
             Claim

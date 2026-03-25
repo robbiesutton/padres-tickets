@@ -196,7 +196,7 @@ function SharePageInner({ packageInfo, games, opponents }: Props) {
         pkg={packageInfo}
       />
 
-      <div className="max-w-[880px] mx-auto w-full px-3 pt-4 pb-12 md:px-5 md:pt-6 md:pb-16 flex-1">
+      <div className="max-w-[880px] mx-auto w-full px-4 pt-4 pb-12 md:px-5 md:pt-6 md:pb-16 overflow-x-hidden flex-1">
         {activeTab === 'available' ? (
           <>
             <Toolbar
@@ -273,6 +273,7 @@ function SharePageInner({ packageInfo, games, opponents }: Props) {
           <div className="pt-8 md:pt-18">
             <MyGamesTab
               pkg={packageInfo}
+              claimerName={session?.user?.name?.split(' ')[0] || ''}
               onSwitchToAvailable={() => setActiveTab('available')}
               onReservationCountChange={handleReservationCountChange}
             />

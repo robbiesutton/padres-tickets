@@ -11,6 +11,7 @@ interface Props {
   reservedGameIds: Set<string>;
   currentUserId: string | null;
   onSelectGame: (id: string, rect: DOMRect) => void;
+  className?: string;
 }
 
 function CheckSvg({ color }: { color: string }) {
@@ -35,9 +36,10 @@ export function CalendarGrid({
   reservedGameIds,
   currentUserId,
   onSelectGame,
+  className,
 }: Props) {
   return (
-    <div>
+    <div className={className}>
       <div className="text-base font-semibold text-foreground text-center mb-4">
         {month.label}
       </div>
@@ -46,7 +48,7 @@ export function CalendarGrid({
         {DAY_LABELS.map((d, i) => (
           <div
             key={i}
-            className="text-xs md:text-sm text-[#8e8985] text-center py-0.5 md:py-1 font-semibold uppercase tracking-wider"
+            className="text-xs md:text-sm text-[#8e8985] text-center py-1 md:py-1 font-semibold uppercase tracking-wider"
           >
             {d}
           </div>

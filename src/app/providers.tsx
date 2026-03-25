@@ -6,10 +6,10 @@ const mockSession =
   process.env.NEXT_PUBLIC_DESIGN_MODE === 'true'
     ? {
         user: {
-          id: 'design-user-holder-001',
-          name: 'Robbie Sutton',
-          email: 'robbie@benchbuddy.app',
-          role: 'HOLDER',
+          id: 'design-user-claimer-001',
+          name: 'Margo Coleman',
+          email: 'margo@benchbuddy.app',
+          role: 'CLAIMER',
         },
         expires: '2099-12-31T23:59:59.999Z',
       }
