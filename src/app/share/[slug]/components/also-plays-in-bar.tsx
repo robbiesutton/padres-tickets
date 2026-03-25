@@ -32,7 +32,7 @@ export function AlsoPlaysInBar({
   return (
     <div className="flex items-center gap-2 flex-wrap text-xs text-muted pb-3 mb-3 border-b border-border">
       <span className="text-foreground font-medium">
-        {opponentFilter} also plays in:
+        Also play in:
       </span>
       {sortedMonths.map(([month, count]) => {
         const isCurrent = currentVisibleMonths.includes(month);

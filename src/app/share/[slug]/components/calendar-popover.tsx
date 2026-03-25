@@ -199,7 +199,7 @@ export function CalendarPopover({
           reserved ? 'bg-[#ECF3F2] border-t border-[#0f6f57]' : 'bg-white border-t border-[#e5e3df]'
         }`}
       >
-        <div className="flex justify-center pt-3 pb-1">
+        <div className="flex justify-center pt-3 pb-2">
           <div className="w-10 h-1 rounded-full bg-[#dcd7d4]" />
         </div>
         {popoverContent}

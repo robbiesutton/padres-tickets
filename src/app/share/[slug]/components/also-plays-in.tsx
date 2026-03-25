@@ -28,9 +28,9 @@ export function AlsoPlaysIn({ games, opponentFilter, monthFilter, onJumpToMonth 
   const selectedMonth = monthFilter ? parseInt(monthFilter) - 1 : -1;
 
   return (
-    <div className="flex items-center gap-2 p-1 -mt-4 mb-4 flex-wrap">
+    <div className="flex items-center gap-2 mb-4 flex-wrap">
       <span className="text-sm font-normal text-[#2c2a2b]">
-        {opponentFilter} also play in:
+        Also play in:
       </span>
       {sortedMonths.map(([month, count]) => {
         const isSelected = month === selectedMonth;
@@ -45,7 +45,7 @@ export function AlsoPlaysIn({ games, opponentFilter, monthFilter, onJumpToMonth 
             <span className="text-xs font-medium text-[#2c2a2b] leading-5">
               {MONTH_NAMES[month]}
             </span>
-            <span className="w-5 h-5 rounded-full bg-[#ffad00] flex items-center justify-center text-[10px] font-medium text-white">
+            <span className="w-5 h-5 rounded-full bg-[#ffad00] flex items-center justify-center text-xs font-medium text-white">
               {count}
             </span>
           </button>

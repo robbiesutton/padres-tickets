@@ -32,7 +32,7 @@ export function EmptyState({
       (g) => g.opponent === opponentFilter && isGameAvailable(g)
     );
     if (oppGames.length > 0) {
-      alsoPlaysLabel = `${opponentFilter} also play in:`;
+      alsoPlaysLabel = `Also play in:`;
       const mCounts = new Map<number, number>();
       for (const g of oppGames) {
         const { month } = getGameMonthYear(g);
@@ -80,7 +80,7 @@ export function EmptyState({
                 <span className="text-xs font-medium text-[#2c2a2b] leading-5">
                   {MONTH_NAMES[month]}
                 </span>
-                <span className="w-5 h-5 rounded-full bg-[#ffad00] flex items-center justify-center text-[10px] font-medium text-white">
+                <span className="w-5 h-5 rounded-full bg-[#ffad00] flex items-center justify-center text-xs font-medium text-white">
                   {count}
                 </span>
               </button>

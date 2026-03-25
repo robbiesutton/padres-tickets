@@ -66,6 +66,8 @@ export const mockPackage = {
 export const mockPackageInfo = {
   slug: MOCK_SHARE_SLUG,
   holderName: `${mockHolder.firstName} ${mockHolder.lastName}`,
+  holderEmail: mockHolder.email,
+  holderPhone: mockHolder.phone,
   team: mockPackage.team,
   section: mockPackage.section,
   row: mockPackage.row,

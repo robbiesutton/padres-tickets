@@ -470,7 +470,7 @@ export default function NewPackagePage() {
   return (
     <>
       {/* Header */}
-      <div className="sticky top-0 z-50 flex h-[54px] items-center justify-between border-b border-[#ECEAE5] bg-white px-5">
+      <div className="sticky top-0 z-50 flex h-[60px] md:h-[77px] items-center justify-between shadow-[0_1px_3px_rgba(0,0,0,0.06)] bg-white px-5">
         <div className="flex items-center gap-2.5">
           <div className="flex h-7 w-7 items-center justify-center rounded-[7px] bg-[#1A1A1A] text-[10px] font-bold text-white">
             BB
@@ -485,7 +485,7 @@ export default function NewPackagePage() {
       {/* Progress bar */}
       <div className="relative z-40 h-[2px] bg-[#ECEAE5]">
         <div
-          className="h-full bg-[#1B2A4A] transition-all duration-400"
+          className="h-full bg-[#2c2a2b] transition-all duration-400"
           style={{ width: `${progressPct}%` }}
         />
       </div>
@@ -508,7 +508,7 @@ export default function NewPackagePage() {
               <select
                 value={league}
                 onChange={(e) => handleLeagueSelect(e.target.value)}
-                className="w-full appearance-none rounded-lg border border-[#ECEAE5] bg-white bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%238C8984%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3c%2Fpolyline%3E%3c%2Fsvg%3E')] bg-[length:20px] bg-[right_12px_center] bg-no-repeat px-4 py-3 pr-10 text-base text-[#1A1A1A] transition-all hover:border-[#B5B1AB] focus:border-[#1B2A4A] focus:outline-none focus:ring-[3px] focus:ring-[#1B2A4A]/10"
+                className="w-full appearance-none rounded-lg border border-[#ECEAE5] bg-white bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%238C8984%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3c%2Fpolyline%3E%3c%2Fsvg%3E')] bg-[length:20px] bg-[right_12px_center] bg-no-repeat px-4 py-3 pr-10 text-base text-[#1A1A1A] transition-all hover:border-[#B5B1AB] focus:border-[#2c2a2b] focus:outline-none focus:ring-[3px] focus:ring-[#2c2a2b]/10"
               >
                 <option value="">Select a league...</option>
                 {LEAGUES.map((l) => (
@@ -519,7 +519,7 @@ export default function NewPackagePage() {
                 <div className="mt-4 flex items-center justify-end">
                   <button
                     onClick={() => goToStep(2)}
-                    className="rounded-lg bg-[#1B2A4A] px-5 py-3 text-base font-semibold text-white transition-all hover:-translate-y-px hover:bg-[#142140] active:translate-y-0"
+                    className="rounded-lg bg-[#2c2a2b] px-5 py-3 text-base font-semibold text-white transition-all hover:-translate-y-px hover:bg-[#dcd7d4] hover:text-[#2c2a2b] active:translate-y-0"
                   >
                     Continue
                   </button>
@@ -547,7 +547,7 @@ export default function NewPackagePage() {
                   const team = teams.find((t) => t.abbreviation === e.target.value);
                   setSelectedTeam(team || null);
                 }}
-                className="w-full appearance-none rounded-lg border border-[#ECEAE5] bg-white bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%238C8984%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3c%2Fpolyline%3E%3c%2Fsvg%3E')] bg-[length:20px] bg-[right_12px_center] bg-no-repeat px-4 py-3 pr-10 text-base text-[#1A1A1A] transition-all hover:border-[#B5B1AB] focus:border-[#1B2A4A] focus:outline-none focus:ring-[3px] focus:ring-[#1B2A4A]/10"
+                className="w-full appearance-none rounded-lg border border-[#ECEAE5] bg-white bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%238C8984%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3c%2Fpolyline%3E%3c%2Fsvg%3E')] bg-[length:20px] bg-[right_12px_center] bg-no-repeat px-4 py-3 pr-10 text-base text-[#1A1A1A] transition-all hover:border-[#B5B1AB] focus:border-[#2c2a2b] focus:outline-none focus:ring-[3px] focus:ring-[#2c2a2b]/10"
               >
                 <option value="">Select a team...</option>
                 {teams.map((team) => (
@@ -556,12 +556,12 @@ export default function NewPackagePage() {
               </select>
               {selectedTeam && (
                 <div className="mt-4 flex items-center justify-between">
-                  <button onClick={() => goToStep(1)} className="text-sm text-[#1B2A4A]">
+                  <button onClick={() => goToStep(1)} className="text-sm text-[#2c2a2b]">
                     &larr; Back
                   </button>
                   <button
                     onClick={() => goToStep(3)}
-                    className="rounded-lg bg-[#1B2A4A] px-5 py-3 text-base font-semibold text-white transition-all hover:-translate-y-px hover:bg-[#142140]"
+                    className="rounded-lg bg-[#2c2a2b] px-5 py-3 text-base font-semibold text-white transition-all hover:-translate-y-px hover:bg-[#dcd7d4] hover:text-[#2c2a2b]"
                   >
                     Continue
                   </button>
@@ -593,7 +593,7 @@ export default function NewPackagePage() {
                     setSelectedPackage(pkg || null);
                   }
                 }}
-                className="w-full appearance-none rounded-lg border border-[#ECEAE5] bg-white bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%238C8984%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3c%2Fpolyline%3E%3c%2Fsvg%3E')] bg-[length:20px] bg-[right_12px_center] bg-no-repeat px-4 py-3 pr-10 text-base text-[#1A1A1A] transition-all hover:border-[#B5B1AB] focus:border-[#1B2A4A] focus:outline-none focus:ring-[3px] focus:ring-[#1B2A4A]/10"
+                className="w-full appearance-none rounded-lg border border-[#ECEAE5] bg-white bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%238C8984%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3c%2Fpolyline%3E%3c%2Fsvg%3E')] bg-[length:20px] bg-[right_12px_center] bg-no-repeat px-4 py-3 pr-10 text-base text-[#1A1A1A] transition-all hover:border-[#B5B1AB] focus:border-[#2c2a2b] focus:outline-none focus:ring-[3px] focus:ring-[#2c2a2b]/10"
               >
                 <option value="">Select a package...</option>
                 {packages.map((pkg) => (
@@ -605,12 +605,12 @@ export default function NewPackagePage() {
               </select>
               {selectedPackage && (
                 <div className="mt-4 flex items-center justify-between">
-                  <button onClick={() => goToStep(2)} className="text-sm text-[#1B2A4A]">
+                  <button onClick={() => goToStep(2)} className="text-sm text-[#2c2a2b]">
                     &larr; Back
                   </button>
                   <button
                     onClick={() => goToStep(4)}
-                    className="rounded-lg bg-[#1B2A4A] px-5 py-3 text-base font-semibold text-white transition-all hover:-translate-y-px hover:bg-[#142140]"
+                    className="rounded-lg bg-[#2c2a2b] px-5 py-3 text-base font-semibold text-white transition-all hover:-translate-y-px hover:bg-[#dcd7d4] hover:text-[#2c2a2b]"
                   >
                     Continue
                   </button>
@@ -647,7 +647,7 @@ export default function NewPackagePage() {
                       setRow('');
                       setSelectedSeats(new Set());
                     }}
-                    className="w-full appearance-none rounded-lg border border-[#ECEAE5] bg-white bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%238C8984%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3c%2Fpolyline%3E%3c%2Fsvg%3E')] bg-[length:20px] bg-[right_12px_center] bg-no-repeat px-4 py-3 pr-10 text-base text-[#1A1A1A] transition-all hover:border-[#B5B1AB] focus:border-[#1B2A4A] focus:outline-none focus:ring-[3px] focus:ring-[#1B2A4A]/10"
+                    className="w-full appearance-none rounded-lg border border-[#ECEAE5] bg-white bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%238C8984%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3c%2Fpolyline%3E%3c%2Fsvg%3E')] bg-[length:20px] bg-[right_12px_center] bg-no-repeat px-4 py-3 pr-10 text-base text-[#1A1A1A] transition-all hover:border-[#B5B1AB] focus:border-[#2c2a2b] focus:outline-none focus:ring-[3px] focus:ring-[#2c2a2b]/10"
                   >
                     <option value="">Select a section...</option>
                     {sections.map((s) => (
@@ -667,7 +667,7 @@ export default function NewPackagePage() {
                     value={row}
                     onChange={(e) => setRow(e.target.value)}
                     disabled={!selectedSection}
-                    className="w-full appearance-none rounded-lg border border-[#ECEAE5] bg-white bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%238C8984%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3c%2Fpolyline%3E%3c%2Fsvg%3E')] bg-[length:20px] bg-[right_12px_center] bg-no-repeat px-4 py-3 pr-10 text-base text-[#1A1A1A] transition-all disabled:opacity-50 hover:border-[#B5B1AB] focus:border-[#1B2A4A] focus:outline-none focus:ring-[3px] focus:ring-[#1B2A4A]/10"
+                    className="w-full appearance-none rounded-lg border border-[#ECEAE5] bg-white bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%238C8984%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3c%2Fpolyline%3E%3c%2Fsvg%3E')] bg-[length:20px] bg-[right_12px_center] bg-no-repeat px-4 py-3 pr-10 text-base text-[#1A1A1A] transition-all disabled:opacity-50 hover:border-[#B5B1AB] focus:border-[#2c2a2b] focus:outline-none focus:ring-[3px] focus:ring-[#2c2a2b]/10"
                   >
                     <option value="">Select a row...</option>
                     {rows.map((r) => (
@@ -691,7 +691,7 @@ export default function NewPackagePage() {
                           type="checkbox"
                           checked={selectedSeats.has(seatNum)}
                           onChange={() => toggleSeat(seatNum)}
-                          className="h-[18px] w-[18px] cursor-pointer accent-[#1B2A4A]"
+                          className="h-[18px] w-[18px] cursor-pointer accent-[#2c2a2b]"
                         />
                         <span className="text-sm">{seatNum}</span>
                       </label>
@@ -710,7 +710,7 @@ export default function NewPackagePage() {
 
             {/* Sticky footer */}
             <div className="sticky bottom-0 z-10 flex items-center justify-between border-t border-[#ECEAE5] bg-[#F8F7F4] px-5 py-5">
-              <button onClick={() => goToStep(3)} className="text-sm text-[#1B2A4A]">
+              <button onClick={() => goToStep(3)} className="text-sm text-[#2c2a2b]">
                 &larr; Back
               </button>
               <button
@@ -718,7 +718,7 @@ export default function NewPackagePage() {
                   loadSchedule();
                   goToStep(5);
                 }}
-                className="rounded-lg bg-[#1B2A4A] px-5 py-3 text-base font-semibold text-white transition-all hover:-translate-y-px hover:bg-[#142140]"
+                className="rounded-lg bg-[#2c2a2b] px-5 py-3 text-base font-semibold text-white transition-all hover:-translate-y-px hover:bg-[#dcd7d4] hover:text-[#2c2a2b]"
               >
                 Continue
               </button>
@@ -769,7 +769,7 @@ export default function NewPackagePage() {
                               checked={isSelected}
                               onChange={() => toggleGame(index)}
                               onClick={(e) => e.stopPropagation()}
-                              className="h-5 w-5 shrink-0 cursor-pointer accent-[#1B2A4A]"
+                              className="h-5 w-5 shrink-0 cursor-pointer accent-[#2c2a2b]"
                             />
                             <span className="min-w-[45px] text-sm font-semibold text-[#1A1A1A]">
                               {m} {date}
@@ -777,7 +777,7 @@ export default function NewPackagePage() {
                             <span className="min-w-[35px] text-[13px] text-[#B5B1AB]">{day}</span>
                             <span className="min-w-[55px] text-[13px] text-[#B5B1AB]">{game.time}</span>
                             <span className="flex flex-1 items-center gap-2 text-sm font-medium text-[#1A1A1A]">
-                              <span className="h-2 w-2 rounded-full bg-[#1B2A4A]" />
+                              <span className="h-2 w-2 rounded-full bg-[#2c2a2b]" />
                               vs {game.opponent}
                             </span>
                           </div>
@@ -790,12 +790,12 @@ export default function NewPackagePage() {
             )}
 
             <div className="sticky bottom-0 z-10 flex items-center justify-between border-t border-[#ECEAE5] bg-[#F8F7F4] px-5 py-5">
-              <button onClick={() => goToStep(4)} className="text-sm text-[#1B2A4A]">
+              <button onClick={() => goToStep(4)} className="text-sm text-[#2c2a2b]">
                 &larr; Back
               </button>
               <button
                 onClick={() => goToStep(6)}
-                className="rounded-lg bg-[#1B2A4A] px-5 py-3 text-base font-semibold text-white transition-all hover:-translate-y-px hover:bg-[#142140]"
+                className="rounded-lg bg-[#2c2a2b] px-5 py-3 text-base font-semibold text-white transition-all hover:-translate-y-px hover:bg-[#dcd7d4] hover:text-[#2c2a2b]"
               >
                 Continue
               </button>
@@ -822,13 +822,13 @@ export default function NewPackagePage() {
               <div className="flex gap-2">
                 <button
                   onClick={() => setAllAvailability('available')}
-                  className="rounded-md border border-[#ECEAE5] bg-white px-3 py-2 text-[13px] text-[#1A1A1A] transition-all hover:border-[#1B2A4A] hover:text-[#1B2A4A]"
+                  className="rounded-md border border-[#ECEAE5] bg-white px-3 py-2 text-[13px] text-[#1A1A1A] transition-all hover:border-[#2c2a2b] hover:text-[#2c2a2b]"
                 >
                   All available
                 </button>
                 <button
                   onClick={() => setAllAvailability('keeping')}
-                  className="rounded-md border border-[#ECEAE5] bg-white px-3 py-2 text-[13px] text-[#1A1A1A] transition-all hover:border-[#1B2A4A] hover:text-[#1B2A4A]"
+                  className="rounded-md border border-[#ECEAE5] bg-white px-3 py-2 text-[13px] text-[#1A1A1A] transition-all hover:border-[#2c2a2b] hover:text-[#2c2a2b]"
                 >
                   All keeping
                 </button>
@@ -855,7 +855,7 @@ export default function NewPackagePage() {
                         <span className="min-w-[35px] text-[13px] text-[#B5B1AB]">{day}</span>
                         <span className="min-w-[55px] text-[13px] text-[#B5B1AB]">{game.time}</span>
                         <span className="flex flex-1 items-center gap-2 text-sm font-medium text-[#1A1A1A]">
-                          <span className="h-2 w-2 rounded-full bg-[#1B2A4A]" />
+                          <span className="h-2 w-2 rounded-full bg-[#2c2a2b]" />
                           vs {game.opponent}
                         </span>
                         <button
@@ -863,7 +863,7 @@ export default function NewPackagePage() {
                           className={`rounded-md px-3 py-1.5 text-xs font-semibold uppercase tracking-wide transition-all ${
                             avail === 'available'
                               ? 'bg-[#E1F5EE] text-[#0F6E56]'
-                              : 'bg-[#E8EEFA] text-[#1B2A4A]'
+                              : 'bg-[#f5f4f2] text-[#2c2a2b]'
                           }`}
                         >
                           {avail === 'available' ? 'Available' : 'Keeping'}
@@ -876,12 +876,12 @@ export default function NewPackagePage() {
             </div>
 
             <div className="sticky bottom-0 z-10 flex items-center justify-between border-t border-[#ECEAE5] bg-[#F8F7F4] px-5 py-5">
-              <button onClick={() => goToStep(5)} className="text-sm text-[#1B2A4A]">
+              <button onClick={() => goToStep(5)} className="text-sm text-[#2c2a2b]">
                 &larr; Back
               </button>
               <button
                 onClick={() => goToStep(7)}
-                className="rounded-lg bg-[#1B2A4A] px-5 py-3 text-base font-semibold text-white transition-all hover:-translate-y-px hover:bg-[#142140]"
+                className="rounded-lg bg-[#2c2a2b] px-5 py-3 text-base font-semibold text-white transition-all hover:-translate-y-px hover:bg-[#dcd7d4] hover:text-[#2c2a2b]"
               >
                 Continue
               </button>
@@ -910,18 +910,18 @@ export default function NewPackagePage() {
                   value={bulkPrice}
                   onChange={(e) => setBulkPrice(e.target.value)}
                   placeholder="65"
-                  className="w-20 rounded-lg border border-[#ECEAE5] bg-white px-3 py-2 text-[13px] text-[#1A1A1A] focus:border-[#1B2A4A] focus:outline-none focus:ring-[3px] focus:ring-[#1B2A4A]/10"
+                  className="w-20 rounded-lg border border-[#ECEAE5] bg-white px-3 py-2 text-[13px] text-[#1A1A1A] focus:border-[#2c2a2b] focus:outline-none focus:ring-[3px] focus:ring-[#2c2a2b]/10"
                 />
                 <button
                   onClick={applyBulkPrice}
-                  className="rounded-md bg-[#1B2A4A] px-3 py-2 text-[13px] font-semibold text-white"
+                  className="rounded-md bg-[#2c2a2b] px-3 py-2 text-[13px] font-semibold text-white"
                 >
                   Apply
                 </button>
               </div>
               <button
                 onClick={makeAllFree}
-                className="rounded-md border border-[#ECEAE5] bg-white px-3 py-2 text-[13px] text-[#1A1A1A] transition-all hover:border-[#1B2A4A] hover:text-[#1B2A4A]"
+                className="rounded-md border border-[#ECEAE5] bg-white px-3 py-2 text-[13px] text-[#1A1A1A] transition-all hover:border-[#2c2a2b] hover:text-[#2c2a2b]"
               >
                 Make all free
               </button>
@@ -953,13 +953,13 @@ export default function NewPackagePage() {
                         <span className="min-w-[35px] text-[13px] text-[#B5B1AB]">{day}</span>
                         <span className="min-w-[55px] text-[13px] text-[#B5B1AB]">{game.time}</span>
                         <span className="flex flex-1 items-center gap-2 text-sm font-medium text-[#1A1A1A]">
-                          <span className="h-2 w-2 rounded-full bg-[#1B2A4A]" />
+                          <span className="h-2 w-2 rounded-full bg-[#2c2a2b]" />
                           vs {game.opponent}
                         </span>
                         <span
                           className={`rounded-md px-3 py-1.5 text-xs font-semibold uppercase tracking-wide ${
                             isKeeping
-                              ? 'bg-[#E8EEFA] text-[#1B2A4A]'
+                              ? 'bg-[#f5f4f2] text-[#2c2a2b]'
                               : 'bg-[#E1F5EE] text-[#0F6E56]'
                           }`}
                         >
@@ -978,7 +978,7 @@ export default function NewPackagePage() {
                                 }))
                               }
                               onClick={(e) => e.stopPropagation()}
-                              className="w-20 rounded-lg border border-[#ECEAE5] bg-white px-2 py-1.5 text-right text-sm focus:border-[#1B2A4A] focus:outline-none focus:ring-[3px] focus:ring-[#1B2A4A]/10"
+                              className="w-20 rounded-lg border border-[#ECEAE5] bg-white px-2 py-1.5 text-right text-sm focus:border-[#2c2a2b] focus:outline-none focus:ring-[3px] focus:ring-[#2c2a2b]/10"
                             />
                             <span className="text-[#8C8984]">/seat</span>
                           </div>
@@ -991,12 +991,12 @@ export default function NewPackagePage() {
             </div>
 
             <div className="sticky bottom-0 z-10 flex items-center justify-between border-t border-[#ECEAE5] bg-[#F8F7F4] px-5 py-5">
-              <button onClick={() => goToStep(6)} className="text-sm text-[#1B2A4A]">
+              <button onClick={() => goToStep(6)} className="text-sm text-[#2c2a2b]">
                 &larr; Back
               </button>
               <button
                 onClick={() => goToStep(8)}
-                className="rounded-lg bg-[#1B2A4A] px-5 py-3 text-base font-semibold text-white transition-all hover:-translate-y-px hover:bg-[#142140]"
+                className="rounded-lg bg-[#2c2a2b] px-5 py-3 text-base font-semibold text-white transition-all hover:-translate-y-px hover:bg-[#dcd7d4] hover:text-[#2c2a2b]"
               >
                 Continue
               </button>
@@ -1023,7 +1023,7 @@ export default function NewPackagePage() {
                 onClick={() => setVenmoExpanded(true)}
                 className={`cursor-pointer rounded-xl border-2 p-5 text-center transition-all ${
                   venmoExpanded
-                    ? 'border-[#1B2A4A] bg-[#1B2A4A]/[0.02]'
+                    ? 'border-[#2c2a2b] bg-[#2c2a2b]/[0.02]'
                     : 'border-[#ECEAE5] bg-white hover:border-[#B5B1AB]'
                 }`}
               >
@@ -1036,7 +1036,7 @@ export default function NewPackagePage() {
                       onChange={(e) => setVenmoHandle(e.target.value)}
                       placeholder="@username"
                       onClick={(e) => e.stopPropagation()}
-                      className="rounded-lg border border-[#ECEAE5] bg-white px-3 py-2.5 text-sm text-[#1A1A1A] focus:border-[#1B2A4A] focus:outline-none focus:ring-[3px] focus:ring-[#1B2A4A]/10"
+                      className="rounded-lg border border-[#ECEAE5] bg-white px-3 py-2.5 text-sm text-[#1A1A1A] focus:border-[#2c2a2b] focus:outline-none focus:ring-[3px] focus:ring-[#2c2a2b]/10"
                     />
                   </div>
                 )}
@@ -1047,7 +1047,7 @@ export default function NewPackagePage() {
                 onClick={() => setZelleExpanded(true)}
                 className={`cursor-pointer rounded-xl border-2 p-5 text-center transition-all ${
                   zelleExpanded
-                    ? 'border-[#1B2A4A] bg-[#1B2A4A]/[0.02]'
+                    ? 'border-[#2c2a2b] bg-[#2c2a2b]/[0.02]'
                     : 'border-[#ECEAE5] bg-white hover:border-[#B5B1AB]'
                 }`}
               >
@@ -1060,7 +1060,7 @@ export default function NewPackagePage() {
                       onChange={(e) => setZelleInfo(e.target.value)}
                       placeholder="Phone or email"
                       onClick={(e) => e.stopPropagation()}
-                      className="rounded-lg border border-[#ECEAE5] bg-white px-3 py-2.5 text-sm text-[#1A1A1A] focus:border-[#1B2A4A] focus:outline-none focus:ring-[3px] focus:ring-[#1B2A4A]/10"
+                      className="rounded-lg border border-[#ECEAE5] bg-white px-3 py-2.5 text-sm text-[#1A1A1A] focus:border-[#2c2a2b] focus:outline-none focus:ring-[3px] focus:ring-[#2c2a2b]/10"
                     />
                   </div>
                 )}
@@ -1074,14 +1074,14 @@ export default function NewPackagePage() {
                   setZelleInfo('');
                   goToStep(9);
                 }}
-                className="text-sm text-[#1B2A4A] hover:underline"
+                className="text-sm text-[#2c2a2b] hover:underline"
               >
                 Skip — I&apos;ll handle payments on my own
               </button>
             </div>
 
             <div className="sticky bottom-0 z-10 flex items-center justify-between border-t border-[#ECEAE5] bg-[#F8F7F4] px-5 py-5">
-              <button onClick={() => goToStep(7)} className="text-sm text-[#1B2A4A]">
+              <button onClick={() => goToStep(7)} className="text-sm text-[#2c2a2b]">
                 &larr; Back
               </button>
               <button
@@ -1090,7 +1090,7 @@ export default function NewPackagePage() {
                   if (!error) goToStep(9);
                 }}
                 disabled={loading}
-                className="rounded-lg bg-[#1B2A4A] px-5 py-3 text-base font-semibold text-white transition-all hover:-translate-y-px hover:bg-[#142140] disabled:opacity-50"
+                className="rounded-lg bg-[#2c2a2b] px-5 py-3 text-base font-semibold text-white transition-all hover:-translate-y-px hover:bg-[#dcd7d4] hover:text-[#2c2a2b] disabled:opacity-50"
               >
                 {loading ? 'Creating...' : 'Continue'}
               </button>
@@ -1170,7 +1170,7 @@ export default function NewPackagePage() {
                 <button
                   onClick={copyLink}
                   className={`w-full rounded-lg px-5 py-3.5 text-base font-semibold text-white transition-all ${
-                    copied ? 'bg-[#0F6E56]' : 'bg-[#1B2A4A] hover:bg-[#142140]'
+                    copied ? 'bg-[#0F6E56]' : 'bg-[#2c2a2b] hover:bg-[#dcd7d4] hover:text-[#2c2a2b]'
                   }`}
                 >
                   {copied ? 'Copied!' : 'Copy Link'}
@@ -1178,7 +1178,7 @@ export default function NewPackagePage() {
               )}
               <button
                 onClick={() => router.push('/dashboard')}
-                className="w-full rounded-lg border border-[#1B2A4A] bg-transparent px-5 py-3.5 text-base font-semibold text-[#1B2A4A] transition-all hover:bg-[#1B2A4A]/5"
+                className="w-full rounded-lg border border-[#2c2a2b] bg-transparent px-5 py-3.5 text-base font-semibold text-[#2c2a2b] transition-all hover:bg-[#2c2a2b]/5"
               >
                 Go to your dashboard &rarr;
               </button>

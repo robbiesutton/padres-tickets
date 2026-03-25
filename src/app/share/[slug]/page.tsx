@@ -29,7 +29,7 @@ export default async function SharePage({ params }: Props) {
   const pkg = await prisma.package.findUnique({
     where: { shareLinkSlug: slug },
     include: {
-      user: { select: { firstName: true, lastName: true } },
+      user: { select: { firstName: true, lastName: true, email: true, phone: true } },
       games: {
         orderBy: { date: 'asc' },
         select: {
@@ -70,6 +70,8 @@ export default async function SharePage({ params }: Props) {
       packageInfo={{
         slug,
         holderName: `${pkg.user.firstName} ${pkg.user.lastName}`,
+        holderEmail: pkg.user.email,
+        holderPhone: pkg.user.phone,
         team: pkg.team,
         section: pkg.section,
         row: pkg.row,
