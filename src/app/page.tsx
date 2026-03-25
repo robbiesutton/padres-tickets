@@ -3,6 +3,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { PrimaryButton } from '@/components/primary-button';
 
 export default function Home() {
   const router = useRouter();
@@ -41,12 +42,9 @@ export default function Home() {
           friends and family. Set up once, share a link, let them claim.
         </p>
         <div className="flex flex-wrap justify-center gap-4">
-          <a
-            href="/signup"
-            className="rounded-lg bg-brand-600 px-8 py-3 text-sm font-medium text-white hover:bg-brand-700"
-          >
+          <PrimaryButton href="/signup" className="px-8">
             I Have Season Tickets
-          </a>
+          </PrimaryButton>
           <button
             onClick={() => setShowLinkInput(true)}
             className="rounded-lg border border-foreground/20 px-8 py-3 text-sm font-medium text-foreground hover:bg-foreground/5"
@@ -70,12 +68,9 @@ export default function Home() {
                 className="flex-1 rounded-lg border border-foreground/20 px-3 py-2 text-sm"
                 autoFocus
               />
-              <button
-                onClick={handleGoToLink}
-                className="rounded-lg bg-brand-600 px-5 py-2 text-sm font-medium text-white hover:bg-brand-700"
-              >
+              <PrimaryButton onClick={handleGoToLink} className="px-5">
                 Go
-              </button>
+              </PrimaryButton>
             </div>
             {linkError && (
               <p className="text-sm text-red-600">{linkError}</p>
@@ -177,12 +172,9 @@ export default function Home() {
                 </li>
               ))}
             </ul>
-            <a
-              href="/signup"
-              className="mt-6 block rounded-lg bg-brand-600 px-6 py-3 text-sm font-medium text-white hover:bg-brand-700"
-            >
+            <PrimaryButton href="/signup" className="mt-6 w-full">
               Get Started Free
-            </a>
+            </PrimaryButton>
           </div>
         </div>
       </section>
@@ -224,12 +216,9 @@ export default function Home() {
         <h2 className="mb-4 text-2xl font-bold">
           Ready to share your tickets?
         </h2>
-        <a
-          href="/signup"
-          className="inline-block rounded-lg bg-brand-600 px-8 py-3 text-sm font-medium text-white hover:bg-brand-700"
-        >
+        <PrimaryButton href="/signup" className="px-8">
           Get Started Free
-        </a>
+        </PrimaryButton>
       </section>
     </div>
   );

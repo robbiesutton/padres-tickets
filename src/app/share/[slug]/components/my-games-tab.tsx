@@ -1,15 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useSession, signOut } from 'next-auth/react';
-import type { PackageInfo, MyGameClaim } from '../types';
-import { MagicLinkLogin } from './magic-link-login';
-import {
-  getOpponentAbbr,
-  getOpponentColor,
-  formatShortDate,
-  formatTime,
-} from '../utils';
+import type { PackageInfo, MyGameClaim, Game } from '../types';
+import { GameCard } from './game-card';
 
 interface Props {
   pkg: PackageInfo;
@@ -17,25 +10,9 @@ interface Props {
   onReservationCountChange: (count: number) => void;
 }
 
-function CheckGreen({ size }: { size: number }) {
-  return (
-    <svg viewBox="0 0 16 16" width={size} height={size} fill="none">
-      <path
-        d="M3.5 8.5L6.5 11.5L12.5 4.5"
-        stroke="#0F6E56"
-        strokeWidth="2.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
 export function MyGamesTab({ pkg, onSwitchToAvailable, onReservationCountChange }: Props) {
-  const { data: session } = useSession();
   const [claims, setClaims] = useState<MyGameClaim[] | null>(null);
   const [loading, setLoading] = useState(false);
-  const [cancellingId, setCancellingId] = useState<string | null>(null);
 
   const fetchClaims = useCallback(async () => {
     setLoading(true);
@@ -54,13 +31,10 @@ export function MyGamesTab({ pkg, onSwitchToAvailable, onReservationCountChange 
   }, [pkg.slug, onReservationCountChange]);
 
   useEffect(() => {
-    if (session?.user) {
-      fetchClaims();
-    }
-  }, [session, fetchClaims]);
+    fetchClaims();
+  }, [fetchClaims]);
 
-  async function handleCancel(claimId: string) {
-    setCancellingId(claimId);
+  async function handleRelease(claimId: string) {
     try {
       const res = await fetch(`/api/claims/${claimId}`, { method: 'DELETE' });
       if (res.ok) {
@@ -69,20 +43,13 @@ export function MyGamesTab({ pkg, onSwitchToAvailable, onReservationCountChange 
       }
     } catch {
       // ignore
-    } finally {
-      setCancellingId(null);
     }
-  }
-
-  // Not authenticated — show magic link login
-  if (!session?.user) {
-    return <MagicLinkLogin />;
   }
 
   // Loading
   if (loading && !claims) {
     return (
-      <div className="bg-card border border-border rounded-xl p-12 text-center text-muted">
+      <div className="py-12 text-center text-muted">
         Loading your reservations...
       </div>
     );
@@ -91,95 +58,57 @@ export function MyGamesTab({ pkg, onSwitchToAvailable, onReservationCountChange 
   // Empty state
   if (!claims || claims.length === 0) {
     return (
-      <div className="bg-card border border-border rounded-xl overflow-hidden">
-        <div className="p-10 text-center">
-          <div className="text-[15px] font-medium text-foreground mb-1.5">
+      <div className="flex flex-col items-center gap-6 py-10 md:gap-8 md:py-16">
+        <div className="flex flex-col items-center gap-2">
+          <p className="text-base font-medium text-black text-center">
             No games reserved yet
-          </div>
-          <div className="text-xs text-muted mb-4">
+          </p>
+          <p className="text-sm font-normal text-[#2c2a2b] text-center">
             Browse available games and reserve the ones you want to attend.
-          </div>
-          <button
-            className="px-5 py-2 rounded-lg bg-navy text-white border-none text-base font-medium cursor-pointer"
-            onClick={onSwitchToAvailable}
-          >
-            Browse games
-          </button>
+          </p>
         </div>
+        <button
+          className="h-10 px-4 rounded-lg bg-[#2c2a2b] text-white border-none text-base font-medium cursor-pointer hover:opacity-90 transition-opacity flex items-center justify-center"
+          onClick={onSwitchToAvailable}
+        >
+          Browse games
+        </button>
       </div>
     );
   }
 
-  const totalPrice = claims.reduce(
-    (sum, c) => sum + (c.game.pricePerTicket ?? 0) * pkg.seatCount,
-    0
-  );
-
   return (
-    <div className="bg-card border border-border rounded-xl overflow-hidden">
-      {/* Summary */}
-      <div className="p-6 bg-background flex justify-between text-base text-muted border-b border-border">
-        <span>
-          <strong className="text-foreground font-semibold">
-            {claims.length} game{claims.length !== 1 ? 's' : ''}
-          </strong>{' '}
-          reserved
-        </span>
-        <span>
-          Total:{' '}
-          <strong className="text-foreground font-semibold">${totalPrice}</strong>
-        </span>
-      </div>
-
-      {/* Claim list */}
+    <div className="flex flex-col gap-2">
       {claims.map((claim) => {
-        const abbr = getOpponentAbbr(claim.game.opponent);
-        const color = getOpponentColor(claim.game.opponent);
-        const { dow, day, month } = formatShortDate(claim.game.date);
+        // Convert claim to Game shape for GameCard
+        const game: Game = {
+          id: claim.gameId,
+          date: claim.game.date,
+          time: claim.game.time,
+          opponent: claim.game.opponent,
+          opponentLogo: null,
+          status: 'CLAIMED',
+          pricePerTicket: claim.game.pricePerTicket,
+          notes: null,
+          claim: {
+            id: claim.id,
+            claimerUserId: '',
+            status: claim.status,
+          },
+        };
 
         return (
-          <div
+          <GameCard
             key={claim.id}
-            className="flex items-center gap-2.5 p-6 border-b border-border last:border-b-0 transition-colors hover:bg-[rgba(0,0,0,0.01)]"
-          >
-            <div
-              className="w-[30px] h-[30px] rounded-full flex items-center justify-center text-[8px] font-bold text-white shrink-0"
-              style={{ backgroundColor: color }}
-            >
-              {abbr}
-            </div>
-            <div className="flex-1">
-              <div className="text-base font-medium text-foreground">
-                vs {claim.game.opponent}
-              </div>
-              <div className="text-[11px] text-muted mt-px">
-                {dow}, {month} {day} &middot; {formatTime(claim.game.time)}
-              </div>
-            </div>
-            <div className="text-[11px] text-green font-medium flex items-center gap-[3px] shrink-0">
-              <CheckGreen size={12} />
-              Reserved
-            </div>
-            <button
-              className="px-3 py-[5px] rounded-md bg-none border border-border text-muted text-[11px] cursor-pointer font-medium transition-all hover:border-muted hover:text-foreground shrink-0 disabled:opacity-50"
-              onClick={() => handleCancel(claim.id)}
-              disabled={cancellingId === claim.id}
-            >
-              {cancellingId === claim.id ? 'Cancelling...' : 'Cancel'}
-            </button>
-          </div>
+            game={game}
+            isReservedByMe={true}
+            isTakenByOthers={false}
+            seatCount={pkg.seatCount}
+            onReserve={() => {}}
+            onRelease={() => handleRelease(claim.id)}
+          />
         );
       })}
-
-      {/* Sign out */}
-      <div className="mt-4 text-center">
-        <button
-          onClick={() => signOut({ redirect: false }).then(() => window.location.reload())}
-          className="text-xs text-muted hover:text-foreground"
-        >
-          Sign out
-        </button>
-      </div>
     </div>
   );
 }

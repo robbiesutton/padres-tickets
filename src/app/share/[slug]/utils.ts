@@ -160,9 +160,11 @@ export function getGameMonthYear(game: Game): { month: number; year: number } {
 
 export function formatTime(time: string | null): string {
   if (!time) return '';
+  // If already in 12h format (e.g. "5:40 PM"), return as-is
+  if (/[APap][Mm]/.test(time)) return time;
   // Convert 24h "18:40" to "6:40 PM"
   const [h, m] = time.split(':').map(Number);
-  if (isNaN(h)) return time;
+  if (isNaN(h) || isNaN(m)) return time;
   const ampm = h >= 12 ? 'PM' : 'AM';
   const hour12 = h % 12 || 12;
   return `${hour12}:${m.toString().padStart(2, '0')} ${ampm}`;

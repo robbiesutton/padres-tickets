@@ -1,97 +1,102 @@
 'use client';
 
 import type { Game, PackageInfo } from '../types';
-import { groupGamesByMonth, isGameAvailable, isGameClaimed } from '../utils';
+import { groupGamesByMonth, isGameAvailable } from '../utils';
 import { GameCard } from './game-card';
-import { GameExpansionPanel } from './game-expansion-panel';
 
 interface Props {
   games: Game[];
   pkg: PackageInfo;
-  expandedGameId: string | null;
-  reservedGameIds: Set<string>;
+  reservedGames: Map<string, string>; // gameId -> claimId
+  cancelledGameIds: Set<string>;
   currentUserId: string | null;
-  onSelectGame: (id: string) => void;
-  onCloseExpansion: () => void;
-  onReserved: (gameId: string) => void;
+  onReserved: (gameId: string, claimId: string) => void;
   onCancelled: (gameId: string) => void;
 }
 
 export function ListView({
   games,
   pkg,
-  expandedGameId,
-  reservedGameIds,
+  reservedGames,
+  cancelledGameIds,
   currentUserId,
-  onSelectGame,
-  onCloseExpansion,
   onReserved,
   onCancelled,
 }: Props) {
-  const grouped = groupGamesByMonth(games);
+  const availableGames = games.filter(isGameAvailable);
+  const grouped = groupGamesByMonth(availableGames);
+
+  async function handleReserve(gameId: string) {
+    try {
+      const res = await fetch(`/api/share/${pkg.slug}/claim`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ gameId }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        onReserved(gameId, data.claim?.id || '');
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  async function handleRelease(gameId: string) {
+    // Find the claim ID from the reservedGames map or the original game data
+    const game = games.find((g) => g.id === gameId);
+    const claimId = reservedGames.get(gameId) || game?.claim?.id;
+
+    // Optimistically update the UI immediately
+    onCancelled(gameId);
+
+    // Then try the API call
+    if (claimId) {
+      try {
+        await fetch(`/api/claims/${claimId}`, { method: 'DELETE' });
+      } catch {
+        // ignore — UI already updated
+      }
+    }
+  }
 
   return (
     <div>
       {Array.from(grouped.entries()).map(([monthLabel, monthGames]) => (
         <div key={monthLabel} className="mb-[22px]">
           {/* Month header */}
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-[3px] h-4 bg-accent rounded-sm" />
-            <span className="text-base font-semibold text-foreground">
-              {monthLabel}
-            </span>
-            <span className="text-sm text-muted">
-              {monthGames.length} game{monthGames.length !== 1 ? 's' : ''}
+          <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center gap-2 pl-1">
+              <div className="w-[3px] h-4 bg-accent rounded-sm" />
+              <span className="text-xl font-semibold text-black">
+                {monthLabel}
+              </span>
+            </div>
+            <span className="text-sm font-medium text-[#8e8985] leading-5">
+              &bull; {monthGames.length} game{monthGames.length !== 1 ? 's' : ''}
             </span>
           </div>
 
           {/* Game cards */}
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-2">
             {monthGames.map((game) => {
-              const isReservedByMe =
-                reservedGameIds.has(game.id) ||
-                (game.claim?.claimerUserId === currentUserId &&
-                  game.claim?.status !== 'RELEASED');
-              const isTakenByOthers =
-                !isReservedByMe &&
-                (isGameClaimed(game) ||
-                  game.status === 'GOING_MYSELF' ||
-                  game.status === 'SOLD_ELSEWHERE' ||
-                  game.status === 'UNAVAILABLE');
-              const isSelected = expandedGameId === game.id;
+              const isCancelled = cancelledGameIds.has(game.id);
+              const isReservedByMe = !isCancelled && (
+                reservedGames.has(game.id) ||
+                (game.claim?.claimerUserId === currentUserId && game.claim?.status !== 'RELEASED')
+              );
+              const isTakenByOthers = !isReservedByMe && !isCancelled && !!game.claim;
 
               return (
-                <div key={game.id}>
-                  <GameCard
-                    game={game}
-                    isSelected={isSelected}
-                    isReservedByMe={isReservedByMe}
-                    isTakenByOthers={isTakenByOthers}
-                    seatCount={pkg.seatCount}
-                    onClick={() =>
-                      onSelectGame(isSelected ? '' : game.id)
-                    }
-                  />
-                  {/* Expansion panel */}
-                  <div
-                    className="overflow-hidden transition-all duration-300"
-                    style={{
-                      maxHeight: isSelected ? '500px' : '0',
-                      opacity: isSelected ? 1 : 0,
-                    }}
-                  >
-                    {isSelected && (
-                      <GameExpansionPanel
-                        game={game}
-                        pkg={pkg}
-                        isReservedByMe={isReservedByMe}
-                        onClose={onCloseExpansion}
-                        onReserved={onReserved}
-                        onCancelled={onCancelled}
-                      />
-                    )}
-                  </div>
-                </div>
+                <GameCard
+                  key={game.id}
+                  game={game}
+                  isReservedByMe={!!isReservedByMe}
+                  isTakenByOthers={isTakenByOthers}
+                  seatCount={pkg.seatCount}
+                  onReserve={() => handleReserve(game.id)}
+                  onRelease={() => handleRelease(game.id)}
+                />
               );
             })}
           </div>

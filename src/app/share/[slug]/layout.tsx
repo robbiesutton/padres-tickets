@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { prisma } from '@/lib/db';
+import { DESIGN_MODE, mockHolder, mockPackage } from '@/lib/mock-data';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -7,6 +8,14 @@ interface Props {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  if (DESIGN_MODE) {
+    const holderName = `${mockHolder.firstName} ${mockHolder.lastName}`;
+    return {
+      title: `${holderName}'s ${mockPackage.team} Tickets — BenchBuddy`,
+      description: `12 games available this ${mockPackage.season} season. Claim your tickets!`,
+    };
+  }
+
   const { slug } = await params;
 
   const pkg = await prisma.package.findUnique({
@@ -39,5 +48,5 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default function ShareLayout({ children }: Props) {
-  return <>{children}</>;
+  return <div className="font-[family-name:var(--font-inter)]">{children}</div>;
 }

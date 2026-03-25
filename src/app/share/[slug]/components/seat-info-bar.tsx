@@ -17,41 +17,32 @@ export function SeatInfoBar({ pkg }: Props) {
     : null;
 
   return (
-    <div className="mb-8 bg-card rounded-xl border border-border overflow-hidden">
+    <div className="mb-8 overflow-hidden">
       <div
-        className="flex items-center gap-3.5 p-6 cursor-pointer transition-colors hover:bg-[rgba(0,0,0,0.01)]"
+        className={`flex items-center h-12 px-6 py-3 bg-white rounded-lg border border-solid cursor-pointer transition-colors ${expanded ? 'border-[#ffad00]' : 'border-[#dcd7d4] hover:border-[#ffad00]'}`}
         onClick={() => setExpanded(!expanded)}
       >
-        <div className="w-9 h-9 rounded-full bg-[rgba(212,168,67,0.1)] flex items-center justify-center text-xs font-bold text-accent shrink-0">
-          {teamAbbr}
-        </div>
-        <div className="flex-1">
-          <div className="text-base font-semibold text-foreground">
-            {pkg.team} &middot; Section {pkg.section}
+        <div className="flex items-center gap-2 flex-1">
+          <div className="w-6 h-6 rounded-full bg-[rgba(255,173,0,0.1)] flex items-center justify-center text-[8px] font-bold text-[#ffad00] shrink-0">
+            {teamAbbr}
           </div>
-          <div className="text-sm text-muted mt-0.5">
-            {pkg.row ? `Row ${pkg.row}, ` : ''}Seats {pkg.seats} &middot;{' '}
-            {pkg.seatCount} seat{pkg.seatCount !== 1 ? 's' : ''}
+          <div className="text-base font-semibold text-[#2c2a2b] whitespace-nowrap">
+            Section {pkg.section} &bull; Row {pkg.row} &bull; Seats {pkg.seats}
           </div>
         </div>
-        {priceDisplay && (
-          <div className="px-3.5 py-1.5 bg-background rounded-lg text-base font-semibold text-foreground shrink-0">
-            {priceDisplay}
-            <span className="text-sm font-normal text-muted">/seat</span>
-          </div>
-        )}
         <svg
-          className={`shrink-0 transition-transform duration-200 text-muted ${expanded ? 'rotate-180' : ''}`}
-          width="16"
-          height="16"
-          viewBox="0 0 16 16"
+          className={`shrink-0 transition-transform duration-200 text-[#2c2a2b] ${expanded ? 'rotate-180' : ''}`}
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
           fill="none"
         >
           <path
-            d="M4 6l4 4 4-4"
+            d="M6 9l6 6 6-6"
             stroke="currentColor"
             strokeWidth="1.5"
             strokeLinecap="round"
+            strokeLinejoin="round"
           />
         </svg>
       </div>

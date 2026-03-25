@@ -10,16 +10,16 @@ import {
 
 interface Props {
   game: Game;
-  isSelected: boolean;
   isReservedByMe: boolean;
   isTakenByOthers: boolean;
   seatCount: number;
-  onClick: () => void;
+  onReserve: () => void;
+  onRelease?: () => void;
 }
 
-function CheckSvg({ size }: { size: number }) {
+function CheckSvg() {
   return (
-    <svg viewBox="0 0 16 16" width={size} height={size} fill="none">
+    <svg viewBox="0 0 16 16" width={24} height={24} fill="none">
       <path
         d="M3.5 8.5L6.5 11.5L12.5 4.5"
         stroke="#fff"
@@ -33,107 +33,95 @@ function CheckSvg({ size }: { size: number }) {
 
 export function GameCard({
   game,
-  isSelected,
   isReservedByMe,
   isTakenByOthers,
   seatCount,
-  onClick,
+  onReserve,
+  onRelease,
 }: Props) {
   const { dow, day, month } = formatShortDate(game.date);
   const abbr = getOpponentAbbr(game.opponent);
   const color = getOpponentColor(game.opponent);
-  const clickable = !isTakenByOthers;
+
+  const totalPrice =
+    game.pricePerTicket !== null ? game.pricePerTicket * seatCount : null;
 
   let cardClass =
-    'bg-card rounded-[10px] p-6 border border-border cursor-pointer flex items-center gap-3 transition-all';
-  if (isSelected && !isReservedByMe) {
-    cardClass += ' !border-navy bg-[rgba(27,42,74,0.015)]';
-  } else if (isReservedByMe) {
-    cardClass += ' !border-green-border bg-[rgba(15,110,86,0.02)] hover:!border-green';
+    'rounded-lg px-3 py-3 md:px-6 md:py-4 border border-solid flex items-center gap-3 md:gap-10';
+
+  if (isReservedByMe) {
+    cardClass += ' bg-[rgba(15,111,87,0.15)] border-[#0f6f57]';
   } else if (isTakenByOthers) {
-    cardClass += ' opacity-40 !cursor-default';
+    cardClass += ' bg-white border-[#f5f4f2] opacity-40';
   } else {
-    cardClass += ' hover:!border-accent';
+    cardClass += ' bg-white border-[#f5f4f2]';
   }
 
   return (
-    <div
-      className={cardClass}
-      onClick={clickable ? onClick : undefined}
-    >
-      {/* Date column */}
-      <div className="text-center min-w-[34px]">
-        <div className="text-sm text-muted uppercase tracking-wider">{dow}</div>
-        <div className="text-lg font-semibold text-foreground leading-tight">{day}</div>
-        <div className="text-sm text-muted">{month}</div>
-      </div>
+    <div className={cardClass}>
+      {/* Date + separator + badge + info */}
+      <div className="flex-1 flex items-center gap-2 md:gap-4 min-w-0">
+        <div className="flex items-center gap-2 md:gap-4 shrink-0">
+          {/* Date column */}
+          <div className="text-center w-[30px] flex flex-col items-center gap-px">
+            <div className="text-sm font-medium text-[#8e8985] uppercase">
+              {dow}
+            </div>
+            <div className="text-base font-bold text-[#2c2a2b] leading-tight">
+              {day}
+            </div>
+            <div className="text-sm font-medium text-[#8e8985]">{month}</div>
+          </div>
 
-      {/* Separator */}
-      <div className="w-px h-[42px] bg-border shrink-0" />
+          {/* Separator */}
+          <div className="w-px h-[40px] md:h-[57px] bg-[#dcd7d4]" />
 
-      {/* Team badge */}
-      {isReservedByMe ? (
-        <div className="w-[42px] h-[42px] rounded-full bg-green flex items-center justify-center shrink-0">
-          <CheckSvg size={22} />
-        </div>
-      ) : (
-        <div
-          className="w-[42px] h-[42px] rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
-          style={{ backgroundColor: color }}
-        >
-          {abbr}
-        </div>
-      )}
-
-      {/* Game info */}
-      <div className="flex-1 min-w-0">
-        <div className="text-base font-medium text-foreground">vs {game.opponent}</div>
-        <div className="text-sm text-muted mt-0.5 flex items-center gap-1.5 flex-wrap">
-          {formatTime(game.time)} &middot; Petco Park
-          {!isReservedByMe && !isTakenByOthers && game.notes && (
-            <span className="text-sm font-semibold px-1.5 py-0.5 rounded-[10px] bg-[rgba(212,168,67,0.09)] text-accent border border-[rgba(212,168,67,0.19)]">
-              {game.notes}
-            </span>
+          {/* Team badge / check */}
+          {isReservedByMe ? (
+            <div className="w-[34px] h-[34px] md:w-[42px] md:h-[42px] rounded-full bg-[#0f6f57] flex items-center justify-center shrink-0">
+              <CheckSvg />
+            </div>
+          ) : (
+            <div
+              className="w-[34px] h-[34px] md:w-[42px] md:h-[42px] rounded-full flex items-center justify-center text-[13px] font-bold text-white shrink-0"
+              style={{ backgroundColor: color }}
+            >
+              {abbr}
+            </div>
           )}
         </div>
-        {isReservedByMe && (
-          <div className="mt-[3px]">
-            <span className="text-sm font-semibold text-green bg-green-light px-2 py-0.5 rounded-[10px]">
-              Reserved
-            </span>
+
+        {/* Game info */}
+        <div className="flex flex-col gap-2 min-w-0">
+          <div className="text-sm md:text-base font-bold text-[#2c2a2b]">
+            vs {game.opponent}
           </div>
-        )}
-        {isTakenByOthers && (
-          <div className="mt-[3px]">
-            <span className="text-sm text-muted">Reserved by others</span>
+          <div className="text-xs md:text-sm font-medium text-[#8e8985]">
+            {formatTime(game.time)} &bull; Petco Park
+            {totalPrice !== null && (
+              <> &bull; {seatCount} ticket{seatCount !== 1 ? 's' : ''} for ${totalPrice}</>
+            )}
           </div>
-        )}
+        </div>
       </div>
 
-      {/* Price */}
-      {!isReservedByMe && !isTakenByOthers && game.pricePerTicket !== null && (
-        <div className="text-right shrink-0">
-          <div className="text-sm text-muted uppercase">per seat</div>
-          <div className="text-base font-semibold text-foreground">${game.pricePerTicket}</div>
-        </div>
-      )}
-
-      {/* Arrow */}
-      {clickable && (
-        <svg
-          className={`shrink-0 opacity-20 transition-transform duration-200 ${isSelected ? 'rotate-90 opacity-40' : ''}`}
-          width="14"
-          height="14"
-          viewBox="0 0 16 16"
-          fill="none"
-        >
-          <path
-            d="M6 4l4 4-4 4"
-            stroke="#1A1A1A"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-          />
-        </svg>
+      {/* Action button */}
+      {!isTakenByOthers && (
+        isReservedByMe ? (
+          <button
+            className="shrink-0 h-9 px-3 md:h-10 md:px-4 rounded-lg bg-transparent text-black text-sm md:text-base font-medium border-[1.5px] border-solid border-black cursor-pointer flex items-center justify-center hover:bg-[#f5f4f2] transition-colors"
+            onClick={onRelease}
+          >
+            Release
+          </button>
+        ) : (
+          <button
+            className="shrink-0 h-9 px-3 md:h-10 md:px-4 rounded-lg bg-transparent text-black text-sm md:text-base font-medium border-[1.5px] border-solid border-black cursor-pointer flex items-center justify-center hover:bg-[#f5f4f2] transition-colors"
+            onClick={onReserve}
+          >
+            Claim
+          </button>
+        )
       )}
     </div>
   );

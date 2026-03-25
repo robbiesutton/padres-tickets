@@ -2,16 +2,16 @@
 
 export function CalendarLegend() {
   return (
-    <div className="flex gap-3.5 justify-center mt-4 pt-4 border-t border-border">
-      <div className="flex items-center gap-1 text-sm text-muted">
-        <div className="w-[18px] h-[18px] rounded-full bg-accent flex items-center justify-center text-[7px] font-bold text-white">
+    <div className="flex gap-[25px] items-center justify-center mt-2">
+      <div className="flex items-center gap-1">
+        <div className="w-[19px] h-[19px] rounded-full bg-[#ffc425] flex items-center justify-center text-[7px] font-bold text-[#1a1a1a]">
           SD
         </div>
-        Available
+        <span className="text-sm font-normal text-[#8e8985]">Available</span>
       </div>
-      <div className="flex items-center gap-1 text-sm text-muted">
-        <div className="w-[18px] h-[18px] rounded-full bg-green flex items-center justify-center">
-          <svg viewBox="0 0 16 16" width={10} height={10} fill="none">
+      <div className="flex items-center gap-1">
+        <div className="w-[19px] h-[19px] rounded-full bg-[#0f6f57] flex items-center justify-center">
+          <svg viewBox="0 0 16 16" width={11} height={11} fill="none">
             <path
               d="M3.5 8.5L6.5 11.5L12.5 4.5"
               stroke="#fff"
@@ -21,11 +21,13 @@ export function CalendarLegend() {
             />
           </svg>
         </div>
-        Your reservation
+        <span className="text-sm font-normal text-[#8e8985]">Your reservation</span>
       </div>
-      <div className="flex items-center gap-1 text-sm text-muted">
-        <span className="text-muted-light text-xs">14</span>
-        &nbsp;No game
+      <div className="flex items-center gap-1">
+        <div className="w-[19px] h-[19px] flex items-center justify-center">
+          <span className="text-sm font-normal text-[#8e8985]">02</span>
+        </div>
+        <span className="text-sm font-normal text-[#8e8985]">No game</span>
       </div>
     </div>
   );

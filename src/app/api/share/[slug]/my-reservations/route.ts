@@ -1,6 +1,8 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/db';
 import { requireAuth, jsonError, jsonSuccess } from '@/lib/api-utils';
+import { DESIGN_MODE } from '@/lib/mock-data';
+import { getDesignClaims } from '@/lib/design-claims-store';
 
 export async function GET(
   request: NextRequest,
@@ -11,6 +13,10 @@ export async function GET(
   const user = await requireAuth();
   if (!user) {
     return jsonError('Authentication required', 401);
+  }
+
+  if (DESIGN_MODE) {
+    return jsonSuccess({ claims: getDesignClaims() });
   }
 
   const pkg = await prisma.package.findUnique({

@@ -1,11 +1,11 @@
 'use client';
 
+import { useRef, useState, useCallback } from 'react';
 import type { Game, PackageInfo } from '../types';
 import { useCalendar } from '../hooks/use-calendar';
 import { CalendarGrid } from './calendar-grid';
 import { CalendarLegend } from './calendar-legend';
-import { GameExpansionPanel } from './game-expansion-panel';
-import { AlsoPlaysInBar } from './also-plays-in-bar';
+import { CalendarPopover } from './calendar-popover';
 import { SoldOutBar } from './sold-out-bar';
 import { EmptyState } from './empty-state';
 import { isGameAvailable } from '../utils';
@@ -47,6 +47,9 @@ export function CalendarView({
   monthFilter,
   onClearFilters,
 }: Props) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null);
+
   const { grids, canGoBack, canGoForward, displayMonths } = useCalendar(
     allGames,
     calendarStartIndex
@@ -90,39 +93,83 @@ export function CalendarView({
     ? allGames.find((g) => g.id === expandedGameId)
     : null;
 
-  const currentVisibleMonthIndices = displayMonths.map((m) => m.month);
+  const isReservedByMe = expandedGame
+    ? reservedGameIds.has(expandedGame.id) ||
+      (expandedGame.claim?.claimerUserId === currentUserId &&
+        expandedGame.claim?.status !== 'RELEASED')
+    : false;
+
+  function handleSelectGame(id: string, cellRect: DOMRect) {
+    if (expandedGameId === id) {
+      onCloseExpansion();
+      setAnchorRect(null);
+    } else {
+      onSelectGame(id);
+      setAnchorRect(cellRect);
+    }
+  }
+
+  function handleClose() {
+    onCloseExpansion();
+    setAnchorRect(null);
+  }
+
+  async function handleClaim() {
+    if (!expandedGame) return;
+    try {
+      const res = await fetch(`/api/share/${pkg.slug}/claim`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ gameId: expandedGame.id }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        onReserved(expandedGame.id);
+        handleClose();
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  async function handleRelease() {
+    if (!expandedGame) return;
+    onCancelled(expandedGame.id);
+    handleClose();
+    const claimId = expandedGame.claim?.id;
+    if (claimId) {
+      try {
+        await fetch(`/api/claims/${claimId}`, { method: 'DELETE' });
+      } catch {
+        // ignore
+      }
+    }
+  }
 
   return (
     <div>
       {allTaken && <SoldOutBar />}
 
-      <div className="bg-card border border-border rounded-xl p-6">
-        {/* Also plays in bar */}
-        <AlsoPlaysInBar
-          games={allGames}
-          opponentFilter={opponentFilter}
-          onJumpToMonth={onJumpToMonth}
-          currentVisibleMonths={currentVisibleMonthIndices}
-        />
-
-        {/* Calendar nav */}
-        <div className="flex items-center justify-between mb-2">
-          <button
-            className="w-7 h-7 rounded-full border border-border bg-card cursor-pointer flex items-center justify-center text-muted text-[13px] disabled:opacity-30 disabled:cursor-default"
-            onClick={() => onCalendarNav('prev')}
-            disabled={!canGoBack}
-          >
-            &lsaquo;
-          </button>
-          <div />
-          <button
-            className="w-7 h-7 rounded-full border border-border bg-card cursor-pointer flex items-center justify-center text-muted text-[13px] disabled:opacity-30 disabled:cursor-default"
-            onClick={() => onCalendarNav('next')}
-            disabled={!canGoForward}
-          >
-            &rsaquo;
-          </button>
-        </div>
+      <div ref={containerRef} className="bg-card border border-border rounded-xl p-3 md:p-6 relative">
+        {/* Side arrows */}
+        <button
+          className="absolute top-3 left-3 md:top-4 md:left-4 w-7 h-7 md:w-8 md:h-8 rounded-full border border-[#8e8985] bg-white cursor-pointer flex items-center justify-center disabled:opacity-30 disabled:cursor-default hover:bg-[#f5f4f2] transition-colors z-10"
+          onClick={() => onCalendarNav('prev')}
+          disabled={!canGoBack}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M15 6l-6 6 6 6" stroke="#8e8985" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+        <button
+          className="absolute top-3 right-3 md:top-4 md:right-4 w-7 h-7 md:w-8 md:h-8 rounded-full border border-[#8e8985] bg-white cursor-pointer flex items-center justify-center disabled:opacity-30 disabled:cursor-default hover:bg-[#f5f4f2] transition-colors z-10"
+          onClick={() => onCalendarNav('next')}
+          disabled={!canGoForward}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M9 6l6 6-6 6" stroke="#8e8985" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
 
         {/* Calendar grids */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -135,34 +182,24 @@ export function CalendarView({
               expandedGameId={expandedGameId}
               reservedGameIds={reservedGameIds}
               currentUserId={currentUserId}
-              onSelectGame={onSelectGame}
+              onSelectGame={handleSelectGame}
             />
           ))}
         </div>
 
         <CalendarLegend />
-      </div>
 
-      {/* Expansion panel below calendar */}
-      <div
-        className="overflow-hidden transition-all duration-300"
-        style={{
-          maxHeight: expandedGame ? '500px' : '0',
-          opacity: expandedGame ? 1 : 0,
-        }}
-      >
+        {/* Popover */}
         {expandedGame && (
-          <GameExpansionPanel
+          <CalendarPopover
             game={expandedGame}
             pkg={pkg}
-            isReservedByMe={
-              reservedGameIds.has(expandedGame.id) ||
-              (expandedGame.claim?.claimerUserId === currentUserId &&
-                expandedGame.claim?.status !== 'RELEASED')
-            }
-            onClose={onCloseExpansion}
-            onReserved={onReserved}
-            onCancelled={onCancelled}
+            isReservedByMe={!!isReservedByMe}
+            anchorRect={anchorRect}
+            containerRect={containerRef.current?.getBoundingClientRect() ?? null}
+            onClose={handleClose}
+            onClaim={handleClaim}
+            onRelease={handleRelease}
           />
         )}
       </div>

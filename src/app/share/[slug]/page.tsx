@@ -1,6 +1,12 @@
 import { prisma } from '@/lib/db';
 import { notFound } from 'next/navigation';
 import { SharePageClient } from './share-page-client';
+import {
+  DESIGN_MODE,
+  mockPackageInfo,
+  mockGames,
+  mockOpponents,
+} from '@/lib/mock-data';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -8,6 +14,17 @@ interface Props {
 
 export default async function SharePage({ params }: Props) {
   const { slug } = await params;
+
+  // Design mode: return mock data without querying database
+  if (DESIGN_MODE) {
+    return (
+      <SharePageClient
+        packageInfo={mockPackageInfo}
+        games={mockGames}
+        opponents={mockOpponents}
+      />
+    );
+  }
 
   const pkg = await prisma.package.findUnique({
     where: { shareLinkSlug: slug },

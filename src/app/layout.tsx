@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import { DM_Sans } from 'next/font/google';
+import { DM_Sans, Inter, Syne } from 'next/font/google';
+import Script from 'next/script';
 import Providers from './providers';
 import { ScoreTicker } from '@/components/score-ticker';
 import { Analytics } from '@vercel/analytics/next';
@@ -9,6 +10,18 @@ const dmSans = DM_Sans({
   variable: '--font-dm-sans',
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
+});
+
+const inter = Inter({
+  variable: '--font-inter',
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+});
+
+const syne = Syne({
+  variable: '--font-syne',
+  subsets: ['latin'],
+  weight: ['700'],
 });
 
 export const metadata: Metadata = {
@@ -25,9 +38,10 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${dmSans.variable} h-full antialiased`}
+      className={`${dmSans.variable} ${inter.variable} ${syne.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <Script src="https://mcp.figma.com/mcp/html-to-design/capture.js" strategy="afterInteractive" />
         <Providers>
           <div className="flex-1 flex flex-col">{children}</div>
           <ScoreTicker />
