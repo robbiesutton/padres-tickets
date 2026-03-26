@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import type { PackageInfo, MyGameClaim, Game } from '../types';
+import { getTeamColors } from '../team-colors';
 import { GameCard } from './game-card';
 
 interface Props {
@@ -121,6 +122,7 @@ export function MyGamesTab({ pkg, claimerName, onSwitchToAvailable, onReservatio
             isReservedByMe={true}
             isTakenByOthers={false}
             seatCount={pkg.seatCount}
+            teamColor={getTeamColors(pkg.team).primary}
             onReserve={() => {}}
             onRelease={() => handleRelease(claim.id)}
           />

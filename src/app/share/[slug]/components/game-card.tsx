@@ -13,6 +13,7 @@ interface Props {
   isReservedByMe: boolean;
   isTakenByOthers: boolean;
   seatCount: number;
+  teamColor?: string;
   onReserve: () => void;
   onRelease?: () => void;
 }
@@ -36,6 +37,7 @@ export function GameCard({
   isReservedByMe,
   isTakenByOthers,
   seatCount,
+  teamColor,
   onReserve,
   onRelease,
 }: Props) {
@@ -50,11 +52,11 @@ export function GameCard({
     'rounded-lg px-4 py-3 md:px-6 md:py-4 border border-solid flex items-center gap-3 md:gap-10';
 
   if (isReservedByMe) {
-    cardClass += ' bg-[rgba(15,111,87,0.15)] border-[#0f6f57]';
+    cardClass += ' bg-white border-[#0f6f57] shadow-[0_1px_3px_rgba(0,0,0,0.04)]';
   } else if (isTakenByOthers) {
-    cardClass += ' bg-white border-[#f5f4f2] opacity-40';
+    cardClass += ' bg-white border-[#eceae5] opacity-40 shadow-[0_1px_3px_rgba(0,0,0,0.04)]';
   } else {
-    cardClass += ' bg-white border-[#f5f4f2]';
+    cardClass += ' bg-white border-[#eceae5] shadow-[0_1px_3px_rgba(0,0,0,0.04)]';
   }
 
   return (
@@ -109,14 +111,15 @@ export function GameCard({
       {!isTakenByOthers && (
         isReservedByMe ? (
           <button
-            className="shrink-0 h-11 px-3 md:h-10 md:px-4 rounded-lg bg-transparent text-black text-sm md:text-base font-medium border-[1.5px] border-solid border-black cursor-pointer flex items-center justify-center hover:bg-[#f5f4f2] transition-colors"
+            className="shrink-0 h-11 px-3 md:h-10 md:px-4 rounded-lg bg-transparent text-black text-sm md:text-base font-medium border border-solid border-black cursor-pointer flex items-center justify-center hover:bg-[#f5f4f2] transition-colors"
             onClick={onRelease}
           >
             Release
           </button>
         ) : (
           <button
-            className="shrink-0 h-11 px-3 md:h-10 md:px-4 rounded-lg bg-transparent text-black text-sm md:text-base font-medium border-[1.5px] border-solid border-black cursor-pointer flex items-center justify-center hover:bg-[#f5f4f2] transition-colors"
+            className="shrink-0 h-11 px-3 md:h-10 md:px-4 rounded-lg text-white text-sm md:text-base font-medium border-none cursor-pointer flex items-center justify-center hover:opacity-90 transition-opacity"
+            style={{ backgroundColor: teamColor || '#2c2a2b' }}
             onClick={onReserve}
           >
             Claim

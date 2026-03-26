@@ -2,6 +2,7 @@
 
 import type { Game, PackageInfo } from '../types';
 import { groupGamesByMonth, isGameAvailable } from '../utils';
+import { getTeamColors } from '../team-colors';
 import { GameCard } from './game-card';
 
 interface Props {
@@ -25,6 +26,7 @@ export function ListView({
 }: Props) {
   const availableGames = games.filter(isGameAvailable);
   const grouped = groupGamesByMonth(availableGames);
+  const { primary: teamPrimary } = getTeamColors(pkg.team);
 
   async function handleReserve(gameId: string) {
     try {
@@ -94,6 +96,7 @@ export function ListView({
                   isReservedByMe={!!isReservedByMe}
                   isTakenByOthers={isTakenByOthers}
                   seatCount={pkg.seatCount}
+                  teamColor={teamPrimary}
                   onReserve={() => handleReserve(game.id)}
                   onRelease={() => handleRelease(game.id)}
                 />

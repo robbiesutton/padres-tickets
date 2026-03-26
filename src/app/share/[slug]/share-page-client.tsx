@@ -196,10 +196,13 @@ function SharePageInner({ packageInfo, games, opponents }: Props) {
         pkg={packageInfo}
       />
 
-      <div className="max-w-[880px] mx-auto w-full px-4 pt-4 pb-12 md:px-5 md:pt-6 md:pb-16 overflow-x-hidden flex-1">
+      <div className="max-w-[1024px] mx-auto w-full px-4 pt-4 pb-12 md:px-8 md:pt-8 md:pb-16 overflow-x-hidden flex-1">
         {activeTab === 'available' ? (
           <>
-            <SeatInfoBar pkg={packageInfo} />
+            {/* Welcome message */}
+            <p className="text-2xl text-[#2c2a2b] mb-4 font-bold" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>
+              Welcome {session?.user?.name?.split(' ')[0] || 'Margo'}, select your games.
+            </p>
             <Toolbar
               viewMode={viewMode}
               onViewChange={(mode) => {
