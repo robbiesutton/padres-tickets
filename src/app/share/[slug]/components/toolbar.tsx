@@ -25,14 +25,15 @@ export function Toolbar({
 }: Props) {
   return (
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-3 mb-3 md:mb-4 flex-wrap">
-      <div className="relative flex h-11 bg-[#f5f4f2] rounded-lg p-[3px] gap-[3px]">
+      <div className="relative flex w-full md:w-auto h-11 bg-[#f5f4f2] rounded-lg p-[3px] gap-[3px]">
         <button
-          className={`relative z-10 w-[38px] h-[38px] flex items-center justify-center rounded-md border-none cursor-pointer transition-all ${
+          className={`relative z-10 flex-1 md:flex-none md:w-[38px] h-[38px] flex items-center justify-center rounded-md border-none cursor-pointer transition-all text-sm font-medium ${
             viewMode === 'calendar' ? 'bg-white shadow-sm text-[#2c2a2b]' : 'bg-transparent text-[#8e8985]'
           }`}
           onClick={() => onViewChange('calendar')}
         >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <span className="md:hidden">Calendar</span>
+          <svg className="hidden md:block" width="16" height="16" viewBox="0 0 16 16" fill="none">
             <rect x="1.5" y="2.5" width="13" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.2" />
             <line x1="1.5" y1="6" x2="14.5" y2="6" stroke="currentColor" strokeWidth="1.2" />
             <line x1="5" y1="1" x2="5" y2="4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
@@ -40,12 +41,13 @@ export function Toolbar({
           </svg>
         </button>
         <button
-          className={`relative z-10 w-[38px] h-[38px] flex items-center justify-center rounded-md border-none cursor-pointer transition-all ${
+          className={`relative z-10 flex-1 md:flex-none md:w-[38px] h-[38px] flex items-center justify-center rounded-md border-none cursor-pointer transition-all text-sm font-medium ${
             viewMode === 'list' ? 'bg-white shadow-sm text-[#2c2a2b]' : 'bg-transparent text-[#8e8985]'
           }`}
           onClick={() => onViewChange('list')}
         >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <span className="md:hidden">List</span>
+          <svg className="hidden md:block" width="16" height="16" viewBox="0 0 16 16" fill="none">
             <line x1="1" y1="5" x2="15" y2="5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
             <line x1="1" y1="8" x2="15" y2="8" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
             <line x1="1" y1="11" x2="15" y2="11" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />

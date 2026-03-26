@@ -7,6 +7,7 @@ import type { ActiveTab } from '../types';
 import type { PackageInfo } from '../types';
 
 import { getTeamColors, isColorDark } from '../team-colors';
+import { getOpponentAbbr } from '../utils';
 
 interface Props {
   holderName: string;
@@ -62,10 +63,7 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
       style={{ backgroundColor: navColor }}
     >
       <div className="flex items-center gap-4">
-        <div
-          className="flex items-center gap-1.5 cursor-pointer shrink-0"
-          onClick={() => onTabChange('available')}
-        >
+        <div className="flex items-center gap-1.5 cursor-pointer shrink-0" onClick={() => onTabChange('available')}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={isDark ? '/benchbuddy-mark-white.svg' : '/benchbuddy-logo.svg'}
@@ -88,7 +86,7 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
             onClick={() => { setPillOpen(!pillOpen); setSeatInfoOpen(false); }}
           >
             <div className="w-7 h-7 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0" style={{ backgroundColor: teamAccent, color: navColor }}>
-              SD
+              {getOpponentAbbr(pkg.team)}
             </div>
             <span className={`text-sm font-medium ${isDark ? 'text-white' : 'text-[#2c2a2b]'}`}>
               Sec {pkg.section} &middot; Row {pkg.row} &middot; Seats {pkg.seats}

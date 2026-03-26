@@ -1,9 +1,11 @@
 'use client';
 
+import { useState } from 'react';
 import type { Game, PackageInfo } from '../types';
 import { groupGamesByMonth, isGameAvailable } from '../utils';
 import { getTeamColors } from '../team-colors';
 import { GameCard } from './game-card';
+import { CalendarPopover } from './calendar-popover';
 
 interface Props {
   games: Game[];
@@ -24,9 +26,11 @@ export function ListView({
   onReserved,
   onCancelled,
 }: Props) {
+  const [selectedGameId, setSelectedGameId] = useState<string | null>(null);
   const availableGames = games.filter(isGameAvailable);
   const grouped = groupGamesByMonth(availableGames);
   const { primary: teamPrimary } = getTeamColors(pkg.team);
+  const selectedGame = selectedGameId ? availableGames.find(g => g.id === selectedGameId) : null;
 
   async function handleReserve(gameId: string) {
     try {
@@ -69,7 +73,7 @@ export function ListView({
           {/* Month header */}
           <div className="flex items-center gap-2 mb-4">
             <div className="flex items-center gap-2 pl-1">
-              <div className="w-[3px] h-4 bg-accent rounded-sm" />
+              <div className="w-[3px] h-4 rounded-sm" style={{ backgroundColor: getTeamColors(pkg.team).accent }} />
               <span className="text-xl font-semibold text-black">
                 {monthLabel}
               </span>
@@ -99,12 +103,38 @@ export function ListView({
                   teamColor={teamPrimary}
                   onReserve={() => handleReserve(game.id)}
                   onRelease={() => handleRelease(game.id)}
+                  onMobileTap={() => setSelectedGameId(game.id)}
                 />
               );
             })}
           </div>
         </div>
       ))}
+
+      {/* Mobile game detail drawer */}
+      {selectedGame && (
+        <CalendarPopover
+          game={selectedGame}
+          pkg={pkg}
+          isReservedByMe={
+            !cancelledGameIds.has(selectedGame.id) && (
+              reservedGames.has(selectedGame.id) ||
+              (selectedGame.claim?.claimerUserId === currentUserId && selectedGame.claim?.status !== 'RELEASED')
+            )
+          }
+          anchorRect={null}
+          containerRect={null}
+          onClose={() => setSelectedGameId(null)}
+          onClaim={async () => {
+            await handleReserve(selectedGame.id);
+            setSelectedGameId(null);
+          }}
+          onRelease={async () => {
+            await handleRelease(selectedGame.id);
+            setSelectedGameId(null);
+          }}
+        />
+      )}
     </div>
   );
 }

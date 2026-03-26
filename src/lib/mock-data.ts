@@ -44,7 +44,7 @@ export const mockPackage = {
   id: MOCK_PACKAGE_ID,
   userId: MOCK_USER_ID,
   sport: 'MLB',
-  team: 'Los Angeles Dodgers',
+  team: 'San Diego Padres',
   section: '203',
   row: '5',
   seats: '1-2',

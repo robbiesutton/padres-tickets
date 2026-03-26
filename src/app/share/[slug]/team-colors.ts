@@ -42,7 +42,7 @@ export const TEAM_COLORS: Record<string, { primary: string; accent: string }> = 
   'Pittsburgh Pirates':     { primary: '#27251F', accent: '#FDB827' },
 
   // NL West
-  'Los Angeles Dodgers':    { primary: '#005A9C', accent: '#EF3E42' },
+  'Los Angeles Dodgers':    { primary: '#005A9C', accent: '#FFFFFF' },
   'San Francisco Giants':   { primary: '#27251F', accent: '#FD5A1E' },
   'San Diego Padres':       { primary: '#2F241D', accent: '#FFC425' },
   'Colorado Rockies':       { primary: '#33006F', accent: '#C4CED4' },

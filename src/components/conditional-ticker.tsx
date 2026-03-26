@@ -6,5 +6,9 @@ import { ScoreTicker } from './score-ticker';
 export function ConditionalTicker() {
   const pathname = usePathname();
   if (pathname === '/') return null;
-  return <ScoreTicker />;
+  return (
+    <div className="hidden md:block">
+      <ScoreTicker />
+    </div>
+  );
 }
