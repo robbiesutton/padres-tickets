@@ -147,7 +147,7 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
                 {pkg.perks.map((perk) => (
                   <span
                     key={perk}
-                    className="text-[8px] font-medium text-[#8e8985] px-2.5 py-1 border border-[#8e8985] rounded-full whitespace-nowrap"
+                    className="inline-flex items-center justify-center text-xs font-medium text-[#8e8985] h-8 px-3 border border-[#8e8985]/75 rounded-full whitespace-nowrap"
                   >
                     {perk}
                   </span>
@@ -211,7 +211,7 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
                     {pkg.perks.map((perk) => (
                       <span
                         key={perk}
-                        className="text-xs font-medium text-[#8e8985] px-2.5 py-1 border border-[#8e8985] rounded-full whitespace-nowrap"
+                        className="inline-flex items-center justify-center text-xs font-medium text-[#8e8985] h-8 px-3 border border-[#8e8985]/75 rounded-full whitespace-nowrap"
                       >
                         {perk}
                       </span>

@@ -199,6 +199,7 @@ function SharePageInner({ packageInfo, games, opponents }: Props) {
       <div className="max-w-[880px] mx-auto w-full px-4 pt-4 pb-12 md:px-5 md:pt-6 md:pb-16 overflow-x-hidden flex-1">
         {activeTab === 'available' ? (
           <>
+            <SeatInfoBar pkg={packageInfo} />
             <Toolbar
               viewMode={viewMode}
               onViewChange={(mode) => {
