@@ -20,6 +20,7 @@ import { MyGamesTab } from './components/my-games-tab';
 import { ShareFooter } from './components/share-footer';
 import { EmptyState } from './components/empty-state';
 import { AlsoPlaysIn } from './components/also-plays-in';
+import { ScoreTicker } from '@/components/score-ticker';
 
 import { createPortal } from 'react-dom';
 import Image from 'next/image';
@@ -318,11 +319,11 @@ function SharePageInner({ packageInfo, games, opponents }: Props) {
       />
 
       {/* Mobile seat info pill */}
-      <div className="md:hidden px-4 pt-3">
+      <div className="md:hidden px-4 pt-4">
         <MobileSeatInfoPill pkg={packageInfo} />
       </div>
 
-      <div className="max-w-[1024px] mx-auto w-full px-4 pt-4 pb-12 md:px-8 md:pt-8 md:pb-16 overflow-x-hidden flex-1">
+      <div className="max-w-[1024px] mx-auto w-full px-4 pt-4 pb-12 md:px-8 md:pt-14 md:pb-0 overflow-x-hidden flex-1">
         {activeTab === 'available' ? (
           <>
             {/* Welcome message */}
@@ -400,7 +401,7 @@ function SharePageInner({ packageInfo, games, opponents }: Props) {
             )}
           </>
         ) : (
-          <div className="pt-8 md:pt-18">
+          <div className="-mt-2 md:mt-0">
             <MyGamesTab
               pkg={packageInfo}
               claimerName={session?.user?.name?.split(' ')[0] || ''}
@@ -411,6 +412,9 @@ function SharePageInner({ packageInfo, games, opponents }: Props) {
         )}
       </div>
 
+      <div className="hidden md:block mt-12">
+        <ScoreTicker />
+      </div>
       <ShareFooter team={packageInfo.team} />
     </div>
   );

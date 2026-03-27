@@ -33,11 +33,15 @@ export function CalendarPopover({
   onRelease,
 }: Props) {
   const popoverRef = useRef<HTMLDivElement>(null);
+  const desktopRef = useRef<HTMLDivElement>(null);
   const [justConfirmed, setJustConfirmed] = useState(false);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      const insideMobile = popoverRef.current?.contains(target);
+      const insideDesktop = desktopRef.current?.contains(target);
+      if (!insideMobile && !insideDesktop) {
         onClose();
       }
     }
@@ -132,21 +136,6 @@ export function CalendarPopover({
       {reserved ? (
         <>
           {/* Confirmed state */}
-          <div className="flex items-center gap-2 mb-5">
-            <div className="w-5 h-5 rounded-full bg-[#0f6f57] flex items-center justify-center shrink-0">
-              <svg viewBox="0 0 16 16" width={12} height={12} fill="none">
-                <path
-                  d="M3.5 8.5L6.5 11.5L12.5 4.5"
-                  stroke="#fff"
-                  strokeWidth="2.2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </div>
-            <span className="text-sm font-semibold text-[#0f6f57]">Reserved</span>
-          </div>
-
           <div className="flex flex-col gap-2 mb-5 text-sm text-[#8e8985]">
             <div>{formatTime(game.time)} &bull; Petco Park</div>
             <div>
@@ -158,6 +147,7 @@ export function CalendarPopover({
                 {pkg.seatCount} ticket{pkg.seatCount !== 1 ? 's' : ''} · ${totalPrice} total
               </div>
             )}
+            <div className="md:hidden">{pkg.holderName}&apos;s Season Tickets</div>
           </div>
 
           <button
@@ -181,6 +171,7 @@ export function CalendarPopover({
                 {pkg.seatCount} ticket{pkg.seatCount !== 1 ? 's' : ''} · ${totalPrice} total
               </div>
             )}
+            <div className="md:hidden">{pkg.holderName}&apos;s Season Tickets</div>
           </div>
 
           <button
@@ -201,7 +192,7 @@ export function CalendarPopover({
       <div
         ref={popoverRef}
         className={`absolute bottom-0 left-0 right-0 rounded-t-2xl shadow-[0_-8px_30px_rgba(0,0,0,0.12)] animate-slide-up ${
-          reserved ? 'bg-[#ECF3F2]' : 'bg-white'
+          'bg-white'
         }`}
       >
         {popoverContent}
@@ -215,8 +206,9 @@ export function CalendarPopover({
       {/* Desktop popover — only when positioned from calendar */}
       {hasPosition && (
         <div
-          className={`hidden md:block absolute z-50 w-[300px] rounded-xl border shadow-[0_8px_30px_rgba(0,0,0,0.12)] ${
-            reserved ? 'bg-[#ECF3F2] border-[#0f6f57]' : 'bg-white border-[#e5e3df]'
+          ref={desktopRef}
+          className={`hidden md:block absolute z-50 min-w-[280px] max-w-[380px] w-max rounded-xl border shadow-[0_8px_30px_rgba(0,0,0,0.12)] ${
+            reserved ? 'bg-white border-[#0f6f57]' : 'bg-white border-[#e5e3df]'
           }`}
           style={{
             left: `${left}px`,

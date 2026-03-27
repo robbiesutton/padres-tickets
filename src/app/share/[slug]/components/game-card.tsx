@@ -32,6 +32,7 @@ interface Props {
   isTakenByOthers: boolean;
   seatCount: number;
   teamColor?: string;
+  holderLabel?: string;
   onReserve: () => void;
   onRelease?: () => void;
   onMobileTap?: () => void;
@@ -57,6 +58,7 @@ export function GameCard({
   isTakenByOthers,
   seatCount,
   teamColor,
+  holderLabel,
   onReserve,
   onRelease,
   onMobileTap,
@@ -126,6 +128,7 @@ export function GameCard({
                 <> &bull; {seatCount} ticket{seatCount !== 1 ? 's' : ''} for ${totalPrice}</>
               )}
             </span>
+            {holderLabel && <span className="hidden md:inline"> &bull; {holderLabel}</span>}
           </div>
         </div>
       </div>
@@ -136,7 +139,7 @@ export function GameCard({
           isReservedByMe ? (
             <button
               className="shrink-0 h-10 px-4 rounded-lg bg-transparent text-black text-base font-medium border border-solid border-black cursor-pointer flex items-center justify-center hover:bg-[#f5f4f2] transition-colors"
-              onClick={onRelease}
+              onClick={(e) => { e.stopPropagation(); onRelease?.(); }}
             >
               Release
             </button>
@@ -144,7 +147,7 @@ export function GameCard({
             <button
               className="shrink-0 h-10 px-4 rounded-lg text-white text-base font-medium border-none cursor-pointer flex items-center justify-center hover:opacity-90 transition-opacity"
               style={{ backgroundColor: teamColor || '#2c2a2b' }}
-              onClick={onReserve}
+              onClick={(e) => { e.stopPropagation(); onReserve(); }}
             >
               Claim
             </button>

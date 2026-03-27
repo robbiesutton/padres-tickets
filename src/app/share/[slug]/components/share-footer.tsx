@@ -13,17 +13,16 @@ export function ShareFooter({ team }: Props) {
   return (
     <>
       {/* Desktop footer */}
-      <footer className="hidden md:flex px-7 py-4 justify-between items-center bg-card mt-0">
-        <div className="flex items-center gap-1.5">
-          <div className="w-[18px] h-[18px] rounded bg-foreground flex items-center justify-center text-[7px] font-bold text-white">
-            BB
-          </div>
-          <span className="text-xs font-semibold text-foreground">BenchBuddy</span>
-          <span className="text-xs text-muted ml-1">
+      <footer className="hidden md:flex px-7 py-4 justify-between items-center bg-[#1B1716] mt-0">
+        <div className="flex items-center gap-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/benchbuddy-mark-white.svg" alt="BenchBuddy" className="w-5 h-5" />
+          <span className="text-sm font-bold text-white/70" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>BenchBuddy</span>
+          <span className="text-xs text-white/30 ml-1">
             Your seats. Your friends. Your price.
           </span>
         </div>
-        <div className="text-xs text-muted-light">Not affiliated with the {team}</div>
+        <div className="text-xs text-white/20">Not affiliated with the {team}</div>
       </footer>
 
       {/* Mobile footer — matches global nav color */}

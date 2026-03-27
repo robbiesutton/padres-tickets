@@ -116,19 +116,16 @@ export function CalendarView({
 
   async function handleClaim() {
     if (!expandedGame) return;
+    // Optimistically update immediately
+    onReserved(expandedGame.id);
     try {
-      const res = await fetch(`/api/share/${pkg.slug}/claim`, {
+      await fetch(`/api/share/${pkg.slug}/claim`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ gameId: expandedGame.id }),
       });
-      if (res.ok) {
-        const data = await res.json();
-        onReserved(expandedGame.id);
-        handleClose();
-      }
     } catch {
-      // ignore
+      // ignore — UI already updated
     }
   }
 

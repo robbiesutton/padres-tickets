@@ -111,6 +111,19 @@ export function ListView({
         </div>
       ))}
 
+      {/* Scroll to top — mobile only */}
+      <div className="md:hidden flex justify-center py-6">
+        <button
+          className="flex items-center gap-1.5 text-sm font-medium text-[#8e8985] bg-transparent border-none cursor-pointer active:text-[#2c2a2b] transition-colors"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M18 15l-6-6-6 6" />
+          </svg>
+          Back to top
+        </button>
+      </div>
+
       {/* Mobile game detail drawer */}
       {selectedGame && (
         <CalendarPopover
@@ -127,7 +140,6 @@ export function ListView({
           onClose={() => setSelectedGameId(null)}
           onClaim={async () => {
             await handleReserve(selectedGame.id);
-            setSelectedGameId(null);
           }}
           onRelease={async () => {
             await handleRelease(selectedGame.id);
