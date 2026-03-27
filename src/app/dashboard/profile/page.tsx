@@ -54,11 +54,6 @@ const NAV_ITEMS = [
       <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
     </svg>
   )},
-  { id: 'package', label: 'New Package', icon: (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-    </svg>
-  )},
 ];
 
 const inputClass = "block w-full px-3 py-2.5 rounded-lg border border-[#eceae5] bg-white text-sm outline-none focus:border-[#2c2a2b] transition-colors";
@@ -349,58 +344,59 @@ export default function ProfilePage() {
             </div>
           </div>
         ) : (
-          <div className="rounded-lg border border-[#eceae5] p-5">
-            <p className="font-medium text-[#2c2a2b]">Subscribe to BenchBuddy</p>
-            <p className="text-sm text-[#3d3a38] mt-1 mb-4">Share your season tickets with friends and family.</p>
-            <div className="rounded-lg border border-[#eceae5] bg-[#f5f4f2] p-4 mb-4">
-              <div className="flex items-baseline justify-between">
-                <div>
-                  <p className="text-2xl font-bold text-[#2c2a2b]">$39.99</p>
-                  <p className="text-sm text-[#2c2a2b] font-medium">per year</p>
-                </div>
-                <p className="text-sm font-medium text-[#2c2a2b]">First month free</p>
-              </div>
+          <div className="rounded-xl border border-[#eceae5] p-6 md:p-8">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-bold text-[#2c2a2b]">BenchBuddy Season Pass</h3>
+              <span className="rounded-full bg-[#fdf6e3] px-3 py-1 text-xs font-bold text-[#d4a017] uppercase tracking-wide">Free for Early Adopters</span>
             </div>
-            <button onClick={handleSubscribe} disabled={subLoading} className="w-full h-10 rounded-lg bg-[#2c2a2b] text-sm font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] disabled:opacity-50">
+
+            {/* Price */}
+            <div className="mb-6">
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-[36px] font-extrabold text-[#2c2a2b] leading-none">$39.99</span>
+                <span className="text-base text-[#8e8985] font-medium">/ year</span>
+              </div>
+              <p className="text-sm text-[#3d3a38] mt-2">That&apos;s $3.33/mo to manage your entire season.</p>
+            </div>
+
+            {/* Benefits */}
+            <div className="flex flex-col gap-3 mb-8">
+              {[
+                'Share games with unlimited friends',
+                'Track claims, revenue, and status in one place',
+                'Cancel anytime — no commitment',
+              ].map((benefit) => (
+                <div key={benefit} className="flex items-start gap-3">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="shrink-0 mt-0.5">
+                    <path d="M5 13l4 4L19 7" stroke="#d4a017" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  <span className="text-sm text-[#2c2a2b]">{benefit}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* CTA */}
+            <button onClick={handleSubscribe} disabled={subLoading} className="w-full h-12 rounded-lg bg-[#2c2a2b] text-base font-semibold text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors disabled:opacity-50 cursor-pointer">
               {subLoading ? 'Loading...' : 'Subscribe Now'}
             </button>
+
+            {/* Fine print */}
+            <p className="text-xs text-[#8e8985] text-center mt-4">
+              Cancel anytime. You won&apos;t be charged until your free month ends.
+            </p>
           </div>
         )}
       </>
     );
   }
 
-  function renderPackage() {
-    return (
-      <>
-        <h2 className="text-lg font-medium text-[#2c2a2b] mb-2">New Package</h2>
-        <p className="text-sm text-[#3d3a38] mb-6">Add another season ticket package to share.</p>
-        <div className="rounded-lg border border-[#eceae5] bg-[#f5f4f2] p-6">
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-lg bg-[#2c2a2b] flex items-center justify-center shrink-0">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-              </svg>
-            </div>
-            <div className="flex-1">
-              <p className="font-medium text-[#2c2a2b]">Create another package</p>
-              <p className="text-sm text-[#3d3a38] mt-1">Share tickets from a different section or season.</p>
-              <a href="/dashboard/packages/new" className="inline-flex items-center mt-4 h-10 px-5 rounded-lg bg-[#2c2a2b] text-white text-sm font-medium hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors">
-                New Package
-              </a>
-            </div>
-          </div>
-        </div>
-      </>
-    );
-  }
 
   const sectionRenderers: Record<string, () => React.ReactNode> = {
     profile: renderProfile,
     payment: renderPayment,
     'seat-info': renderSeatInfo,
     subscription: renderSubscription,
-    package: renderPackage,
   };
 
   return (

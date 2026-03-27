@@ -481,23 +481,23 @@ function BatchActionBar({
 }) {
   return createPortal(
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#2c2a2b] shadow-[0_-4px_20px_rgba(0,0,0,0.15)] animate-slide-up">
-      <div className="max-w-[1024px] mx-auto px-4 md:px-10 py-3 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3 min-w-0">
-          <span className="text-sm font-medium text-white">
+      <div className="max-w-[1024px] mx-auto px-4 md:px-10 py-8 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4 min-w-0">
+          <span className="text-base font-medium text-white">
             {selectedCount === 0 ? 'No games selected' : `${selectedCount} game${selectedCount !== 1 ? 's' : ''} selected`}
           </span>
           {selectedCount < editableCount && (
-            <button onClick={onSelectAll} className="text-sm font-medium text-white/60 hover:text-white bg-transparent border-none cursor-pointer transition-colors whitespace-nowrap">
+            <button onClick={onSelectAll} className="text-base font-medium text-white/60 hover:text-white bg-transparent border-none cursor-pointer transition-colors whitespace-nowrap">
               Select all ({editableCount})
             </button>
           )}
         </div>
-        <div className="flex items-center gap-3">
-          <button onClick={onCancel} className="text-sm font-medium text-white/60 hover:text-white bg-transparent border-none cursor-pointer transition-colors">
+        <div className="flex items-center gap-4">
+          <button onClick={onCancel} className="h-11 px-5 rounded-lg border border-white/20 bg-transparent text-base font-medium text-white hover:bg-white/10 transition-colors cursor-pointer">
             {selectedCount > 0 ? 'Clear' : 'Cancel'}
           </button>
           {selectedCount > 0 && (
-            <button onClick={onSetStatus} className="h-9 px-4 rounded-lg bg-white text-sm font-semibold text-[#2c2a2b] hover:bg-[#f5f4f2] transition-colors cursor-pointer border-none">
+            <button onClick={onSetStatus} className="h-11 px-5 rounded-lg bg-white text-base font-medium text-[#2c2a2b] hover:bg-[#f5f4f2] transition-colors cursor-pointer border-none">
               Set Status &rarr;
             </button>
           )}
@@ -586,23 +586,32 @@ function SellerToolbar({
           {claimers.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
         </select>
       </div>
-      {/* Master checkbox */}
-      <div
+      {/* Select toggle */}
+      <button
         onClick={onSelectAllToggle}
-        className={`w-[18px] h-[18px] rounded-[4px] border-[1.5px] shrink-0 flex items-center justify-center transition-colors cursor-pointer ${
-          allSelected ? 'bg-[#2c2a2b] border-[#2c2a2b]' : someSelected ? 'bg-[#2c2a2b] border-[#2c2a2b]' : 'bg-white border-[#dcd7d4] hover:border-[#8e8985]'
+        className={`h-11 px-4 rounded-lg shrink-0 flex items-center gap-2.5 transition-all cursor-pointer border-none text-sm md:text-base font-medium ${
+          allSelected || someSelected
+            ? 'bg-[#2d6a4f] text-white'
+            : 'bg-[#f5f4f2] text-[#8e8985] hover:text-[#2c2a2b]'
         }`}
       >
-        {allSelected ? (
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
-            <path d="M5 13l4 4L19 7" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        ) : someSelected ? (
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
-            <line x1="5" y1="12" x2="19" y2="12" stroke="white" strokeWidth="3" strokeLinecap="round" />
-          </svg>
-        ) : null}
-      </div>
+        <div className={`w-[18px] h-[18px] rounded-[4px] flex items-center justify-center transition-colors ${
+          allSelected || someSelected
+            ? 'bg-[#1a1a1a] border-[1.5px] border-[#1a1a1a]'
+            : 'bg-white border-[1.5px] border-[#dcd7d4]'
+        }`}>
+          {allSelected ? (
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+              <path d="M5 13l4 4L19 7" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          ) : someSelected ? (
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+              <line x1="5" y1="12" x2="19" y2="12" stroke="white" strokeWidth="3" strokeLinecap="round" />
+            </svg>
+          ) : null}
+        </div>
+        Select
+      </button>
     </div>
   );
 }
