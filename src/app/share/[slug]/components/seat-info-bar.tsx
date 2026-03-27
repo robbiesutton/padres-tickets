@@ -68,9 +68,6 @@ export function SeatInfoBar({ pkg }: Props) {
   const panelRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
   const teamAbbr = getOpponentAbbr(pkg.team);
-  const priceDisplay = pkg.defaultPricePerTicket
-    ? `$${pkg.defaultPricePerTicket}`
-    : null;
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -171,10 +168,6 @@ export function SeatInfoBar({ pkg }: Props) {
                 <span className="font-bold text-black">Field Level</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="font-normal text-black">Price per seat</span>
-                <span className="font-bold text-black">{priceDisplay ?? 'Price varies'}</span>
-              </div>
-              <div className="flex items-center justify-between">
                 <span className="font-normal text-black">Ticket delivery</span>
                 <span className="font-bold text-black">MLB Ballpark App</span>
               </div>
@@ -250,10 +243,6 @@ export function SeatInfoBar({ pkg }: Props) {
                   <div className="flex items-center justify-between">
                     <span className="font-normal text-black">Level</span>
                     <span className="font-bold text-black">Field Level</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="font-normal text-black">Price per seat</span>
-                    <span className="font-bold text-black">{priceDisplay ?? 'Price varies'}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="font-normal text-black">Ticket delivery</span>

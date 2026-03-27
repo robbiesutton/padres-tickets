@@ -55,6 +55,11 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  if (DESIGN_MODE) {
+    const body = await request.json();
+    return jsonSuccess({ package: { ...mockPackage, ...body } });
+  }
+
   const user = await requireAuth();
   if (!user) return jsonError('Unauthorized', 401);
 
@@ -74,6 +79,9 @@ export async function PUT(
     defaultPricePerTicket,
     shareLinkSlug,
     status,
+    seatPhotoUrl,
+    description,
+    perks,
   } = body;
 
   const updateData: Record<string, unknown> = {};
@@ -88,6 +96,9 @@ export async function PUT(
       : null;
   }
   if (status !== undefined) updateData.status = status;
+  if (seatPhotoUrl !== undefined) updateData.seatPhotoUrl = seatPhotoUrl || null;
+  if (description !== undefined) updateData.description = description || null;
+  if (perks !== undefined) updateData.perks = Array.isArray(perks) ? perks : [];
 
   // Validate slug uniqueness if changing
   if (shareLinkSlug !== undefined && shareLinkSlug !== pkg.shareLinkSlug) {
