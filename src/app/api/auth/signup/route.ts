@@ -5,8 +5,12 @@ import { jsonError, jsonSuccess } from '@/lib/api-utils';
 import { createToken } from '@/lib/services/tokens';
 import { sendEmail } from '@/lib/services/email';
 import { getClientIp, rateLimit, rateLimitResponse } from '@/lib/rate-limit';
+import { DESIGN_MODE } from '@/lib/mock-data';
 
 export async function POST(request: NextRequest) {
+  if (DESIGN_MODE) {
+    return jsonSuccess({ message: 'Check your email to verify your account' });
+  }
   const ip = getClientIp(request);
   const { success } = rateLimit(`signup:${ip}`, 5, 60_000);
   if (!success) return rateLimitResponse();

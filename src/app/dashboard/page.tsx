@@ -354,6 +354,7 @@ function SellerGameCard({
   game,
   team,
   onStatusChange,
+  onPriceChange,
   onTap,
   selected,
   onToggleSelect,
@@ -361,6 +362,7 @@ function SellerGameCard({
   game: GameWithClaim;
   team: string;
   onStatusChange: (gameId: string, status: string) => void;
+  onPriceChange: (gameId: string, price: string) => void;
   onTap: () => void;
   selected: boolean;
   onToggleSelect: () => void;
@@ -368,6 +370,9 @@ function SellerGameCard({
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
   const [flashStatus, setFlashStatus] = useState<string | null>(null);
+  const [editingPrice, setEditingPrice] = useState(false);
+  const [priceValue, setPriceValue] = useState(game.pricePerTicket ? String(Number(game.pricePerTicket)) : '');
+  const priceInputRef = useRef<HTMLInputElement>(null);
   const pillRef = useRef<HTMLButtonElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
   const { dow, day, month } = formatShortDate(game.date);
@@ -379,7 +384,6 @@ function SellerGameCard({
 
   let borderColor = '#dcd7d4';
   if (selected) borderColor = '#2c2a2b';
-  else if (isClaimed) borderColor = '#0f6f57';
   else if (game.status === 'UNAVAILABLE') borderColor = '#DC2626';
 
   useEffect(() => {
@@ -471,7 +475,29 @@ function SellerGameCard({
             {formatTime(game.time)}
             {!isClaimed && <span className="md:hidden"> &bull; {chip.label}</span>}
             {hasClaim && game.claim && <span> &bull; {game.claim.claimer.firstName} {game.claim.claimer.lastName}</span>}
-            {game.pricePerTicket && <span className="hidden md:inline"> &bull; ${Number(game.pricePerTicket)}/ticket</span>}
+            <span className="hidden md:inline">
+              {editingPrice ? (
+                <span onClick={(e) => e.stopPropagation()}> &bull; $
+                  <input
+                    ref={priceInputRef}
+                    type="number"
+                    value={priceValue}
+                    onChange={(e) => setPriceValue(e.target.value)}
+                    onBlur={() => { onPriceChange(game.id, priceValue); setEditingPrice(false); }}
+                    onKeyDown={(e) => { if (e.key === 'Enter') { onPriceChange(game.id, priceValue); setEditingPrice(false); } if (e.key === 'Escape') { setPriceValue(game.pricePerTicket ? String(Number(game.pricePerTicket)) : ''); setEditingPrice(false); } }}
+                    className="w-[60px] bg-transparent border-b border-[#2c2a2b] outline-none text-[#2c2a2b] font-medium"
+                    autoFocus
+                  />/ticket
+                </span>
+              ) : (
+                <span
+                  className="cursor-pointer hover:text-[#2c2a2b] transition-colors"
+                  onClick={(e) => { e.stopPropagation(); setEditingPrice(true); }}
+                >
+                  {game.pricePerTicket ? ` \u00B7 $${Number(game.pricePerTicket)}/ticket` : ' \u00B7 Set price'}
+                </span>
+              )}
+            </span>
           </div>
         </div>
       </div>
@@ -548,10 +574,12 @@ function SellerListView({
   onSelectGame,
   selectedIds,
   onToggleSelect,
+  onPriceChange,
 }: {
   games: GameWithClaim[];
   team: string;
   onStatusChange: (gameId: string, status: string) => void;
+  onPriceChange: (gameId: string, price: string) => void;
   onSelectGame: (game: GameWithClaim) => void;
   selectedIds: Set<string>;
   onToggleSelect: (gameId: string) => void;
@@ -579,6 +607,7 @@ function SellerListView({
                 game={game}
                 team={team}
                 onStatusChange={onStatusChange}
+                onPriceChange={onPriceChange}
                 onTap={() => onSelectGame(game)}
                 selected={selectedIds.has(game.id)}
                 onToggleSelect={() => onToggleSelect(game.id)}
@@ -689,8 +718,8 @@ function SellerToolbar({
   hasActiveFilters, onClearFilters, teamPrimary,
 }: {
   opponents: string[];
-  opponentFilter: string;
-  onOpponentFilterChange: (value: string) => void;
+  opponentFilter: string[];
+  onOpponentFilterChange: (value: string[]) => void;
   monthFilter: string;
   onMonthFilterChange: (value: string) => void;
   months: { value: string; label: string }[];
@@ -705,6 +734,25 @@ function SellerToolbar({
   teamPrimary: string;
 }) {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [opponentDropdownOpen, setOpponentDropdownOpen] = useState(false);
+  const opponentDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!opponentDropdownOpen) return;
+    function handleClick(e: MouseEvent) {
+      if (opponentDropdownRef.current && !opponentDropdownRef.current.contains(e.target as Node)) setOpponentDropdownOpen(false);
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [opponentDropdownOpen]);
+
+  function toggleOpponent(opp: string) {
+    if (opponentFilter.includes(opp)) {
+      onOpponentFilterChange(opponentFilter.filter((o) => o !== opp));
+    } else {
+      onOpponentFilterChange([...opponentFilter, opp]);
+    }
+  }
 
   const desktopSelectClass =
     "flex-1 md:flex-none min-w-0 h-11 px-5 pr-10 rounded-lg border border-[#eceae5] bg-white hover:bg-[#f5f4f2] transition-colors text-base font-medium text-[#2c2a2b] cursor-pointer appearance-none overflow-hidden text-ellipsis whitespace-nowrap bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M6%209l6%206%206-6%22%20stroke%3D%22%238e8985%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_8px_center]";
@@ -747,22 +795,22 @@ function SellerToolbar({
               <div className="flex flex-col gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-[#8e8985] uppercase tracking-wider mb-2 pl-1">Opponent</label>
-                  <select className={sheetSelectClass} value={opponentFilter} onChange={(e) => onOpponentFilterChange(e.target.value)}>
-                    <option value="">All opponents</option>
+                  <select className={sheetSelectClass} value={opponentFilter[0] || ''} onChange={(e) => onOpponentFilterChange(e.target.value ? [e.target.value] : [])}>
+                    <option value="">Opponent</option>
                     {opponents.map((o) => <option key={o} value={o}>{o}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-[#8e8985] uppercase tracking-wider mb-2 pl-1">Month</label>
                   <select className={sheetSelectClass} value={monthFilter} onChange={(e) => onMonthFilterChange(e.target.value)}>
-                    <option value="">All months</option>
+                    <option value="">Month</option>
                     {months.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-[#8e8985] uppercase tracking-wider mb-2 pl-1">Claimer</label>
                   <select className={sheetSelectClass} value={claimerFilter} onChange={(e) => onClaimerFilterChange(e.target.value)}>
-                    <option value="">All claimers</option>
+                    <option value="">Person</option>
                     {claimers.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
                   </select>
                 </div>
@@ -791,20 +839,6 @@ function SellerToolbar({
 
       {/* ── Desktop: Inline dropdowns ── */}
       <div className="hidden md:flex md:items-center md:gap-4 mb-4 flex-wrap">
-        <div className="flex gap-4 flex-1 min-w-0 flex-wrap">
-          <select className={desktopSelectClass} value={opponentFilter} onChange={(e) => onOpponentFilterChange(e.target.value)}>
-            <option value="">All opponents</option>
-            {opponents.map((o) => <option key={o} value={o}>{o}</option>)}
-          </select>
-          <select className={desktopSelectClass} value={monthFilter} onChange={(e) => onMonthFilterChange(e.target.value)}>
-            <option value="">All months</option>
-            {months.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
-          </select>
-          <select className={desktopSelectClass} value={claimerFilter} onChange={(e) => onClaimerFilterChange(e.target.value)}>
-            <option value="">All claimers</option>
-            {claimers.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
-          </select>
-        </div>
         {/* Select toggle */}
         <button
           onClick={onSelectAllToggle}
@@ -829,8 +863,60 @@ function SellerToolbar({
               </svg>
             ) : null}
           </div>
-          Select
+          Select All
         </button>
+        <div className="flex gap-4 flex-1 min-w-0 flex-wrap">
+          <div className="relative" ref={opponentDropdownRef}>
+            <button
+              onClick={() => setOpponentDropdownOpen(!opponentDropdownOpen)}
+              className={`h-11 px-5 pr-10 rounded-lg border bg-white hover:bg-[#f5f4f2] transition-colors text-base font-medium text-[#2c2a2b] cursor-pointer text-left whitespace-nowrap ${
+                opponentFilter.length > 0 ? 'border-[#2c2a2b]' : 'border-[#eceae5]'
+              }`}
+              style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M6%209l6%206%206-6%22%20stroke%3D%22%238e8985%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')", backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center' }}
+            >
+              {opponentFilter.length === 0 ? 'Opponent' : `${opponentFilter.length} opponent${opponentFilter.length !== 1 ? 's' : ''}`}
+            </button>
+            {opponentDropdownOpen && (
+              <div className="absolute left-0 top-[calc(100%+4px)] z-50 bg-white rounded-xl shadow-[0_0_0_1px_#eceae5,0_8px_24px_rgba(0,0,0,0.12)] w-[240px] max-h-[320px] overflow-y-auto py-1">
+                {opponents.map((o) => {
+                  const checked = opponentFilter.includes(o);
+                  return (
+                    <button
+                      key={o}
+                      onClick={() => toggleOpponent(o)}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 border-none cursor-pointer text-left text-sm font-medium transition-colors hover:bg-[#f5f4f2] ${checked ? 'text-[#2c2a2b]' : 'text-[#8e8985]'}`}
+                    >
+                      <div className={`w-[16px] h-[16px] rounded-[3px] border-[1.5px] shrink-0 flex items-center justify-center ${checked ? 'bg-[#2c2a2b] border-[#2c2a2b]' : 'bg-white border-[#dcd7d4]'}`}>
+                        {checked && (
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
+                            <path d="M5 13l4 4L19 7" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        )}
+                      </div>
+                      {o}
+                    </button>
+                  );
+                })}
+                {opponentFilter.length > 0 && (
+                  <button
+                    onClick={() => onOpponentFilterChange([])}
+                    className="w-full px-3 py-2 border-t border-[#eceae5] text-sm font-medium text-[#8e8985] hover:text-[#2c2a2b] bg-transparent border-x-0 border-b-0 cursor-pointer text-left"
+                  >
+                    Clear selection
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+          <select className={desktopSelectClass} value={monthFilter} onChange={(e) => onMonthFilterChange(e.target.value)}>
+            <option value="">Month</option>
+            {months.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
+          </select>
+          <select className={desktopSelectClass} value={claimerFilter} onChange={(e) => onClaimerFilterChange(e.target.value)}>
+            <option value="">Person</option>
+            {claimers.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+          </select>
+        </div>
       </div>
     </>
   );
@@ -846,7 +932,7 @@ export default function DashboardPage() {
   // Filter state
   const [statusFilter, setStatusFilter] = useState('');
   const [monthFilter, setMonthFilter] = useState('');
-  const [opponentFilter, setOpponentFilter] = useState('');
+  const [opponentFilter, setOpponentFilter] = useState<string[]>([]);
   const [claimerFilter, setClaimerFilter] = useState('');
 
   // Selection state
@@ -891,13 +977,13 @@ export default function DashboardPage() {
     return c;
   }, [games]);
 
-  const hasActiveFilters = !!(statusFilter || monthFilter || opponentFilter || claimerFilter);
+  const hasActiveFilters = !!(statusFilter || monthFilter || opponentFilter.length > 0 || claimerFilter);
 
   const filteredGames = useMemo(() => {
     return games.filter((g) => {
       if (statusFilter && g.status !== statusFilter) return false;
       if (monthFilter) { const mi = parseInt(monthFilter) - 1; if (getGameMonthYear(g).month !== mi) return false; }
-      if (opponentFilter && g.opponent !== opponentFilter) return false;
+      if (opponentFilter.length > 0 && !opponentFilter.includes(g.opponent)) return false;
       if (claimerFilter) { if (!g.claim || g.claim.status === 'RELEASED') return false; const n = `${g.claim.claimer.firstName} ${g.claim.claimer.lastName}`; if (n !== claimerFilter) return false; }
       return true;
     });
@@ -917,6 +1003,18 @@ export default function DashboardPage() {
         if (newStatus !== 'CLAIMED' && newStatus !== 'TRANSFERRED') updated.claim = null;
         return updated;
       }));
+    }
+  }
+
+  async function updateGamePrice(gameId: string, price: string) {
+    const numPrice = price ? parseFloat(price) : null;
+    const res = await fetch(`/api/packages/${selectedPkgId}/games/${gameId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pricePerTicket: numPrice }),
+    });
+    if (res.ok) {
+      setGames((prev) => prev.map((g) => g.id === gameId ? { ...g, pricePerTicket: numPrice !== null ? String(numPrice) : null } : g));
     }
   }
 
@@ -969,7 +1067,7 @@ export default function DashboardPage() {
     });
   }
 
-  function clearFilters() { setStatusFilter(''); setMonthFilter(''); setOpponentFilter(''); setClaimerFilter(''); }
+  function clearFilters() { setStatusFilter(''); setMonthFilter(''); setOpponentFilter([]); setClaimerFilter(''); }
 
   if (loading) return <div className="flex flex-1 items-center justify-center"><p className="text-[#8e8985]">Loading dashboard...</p></div>;
 
@@ -1070,6 +1168,7 @@ export default function DashboardPage() {
             games={filteredGames}
             team={selectedPkg?.team || ''}
             onStatusChange={updateGameStatus}
+            onPriceChange={updateGamePrice}
             onSelectGame={(game) => setSelectedMobileGame(game)}
             selectedIds={selectedIds}
             onToggleSelect={handleToggleSelect}
