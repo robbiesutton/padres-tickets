@@ -63,7 +63,10 @@ export default function ProfilePage() {
   const { packages, selectedPkgId: ctxPkgId, setSelectedPkgId: ctxSetPkgId, loading } = useDashboardContext();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [selectedPkgId, setSelectedPkgId] = useState<string | null>(null);
-  const [activeSection, setActiveSection] = useState('profile');
+  const [activeSection, setActiveSection] = useState(() => {
+    if (typeof window !== 'undefined' && window.innerWidth < 768) return 'menu';
+    return 'profile';
+  });
   const [saving, setSaving] = useState(false);
   const [savingSeat, setSavingSeat] = useState(false);
   const [subLoading, setSubLoading] = useState(false);
@@ -191,7 +194,7 @@ export default function ProfilePage() {
             <label className="block text-sm font-medium text-[#2c2a2b] mb-2">Phone</label>
             <input type="tel" value={form.phone} onChange={(e) => update('phone', e.target.value)} placeholder="Optional" className={inputClass} />
           </div>
-          <button type="submit" disabled={saving} className="h-10 px-5 rounded-lg bg-[#2c2a2b] text-sm font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors disabled:opacity-50">
+          <button type="submit" disabled={saving} className="w-full md:w-auto h-12 md:h-10 px-5 rounded-lg bg-[#2c2a2b] text-sm font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors disabled:opacity-50">
             {saving ? 'Saving...' : 'Save Changes'}
           </button>
         </form>
@@ -213,7 +216,7 @@ export default function ProfilePage() {
             <label className="block text-sm font-medium text-[#2c2a2b] mb-2">Zelle Email / Phone</label>
             <input type="text" value={form.zelleInfo} onChange={(e) => update('zelleInfo', e.target.value)} placeholder="email or phone for Zelle" className={inputClass} />
           </div>
-          <button type="button" onClick={(e) => handleSave(e as unknown as React.FormEvent)} disabled={saving} className="h-10 px-5 rounded-lg bg-[#2c2a2b] text-sm font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors disabled:opacity-50">
+          <button type="button" onClick={(e) => handleSave(e as unknown as React.FormEvent)} disabled={saving} className="w-full md:w-auto h-12 md:h-10 px-5 rounded-lg bg-[#2c2a2b] text-sm font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors disabled:opacity-50">
             {saving ? 'Saving...' : 'Save Changes'}
           </button>
         </div>
@@ -237,7 +240,7 @@ export default function ProfilePage() {
           <div>
             <label className="block text-sm font-medium text-[#2c2a2b] mb-2">Seat Photo</label>
             <div
-              className="relative w-full h-[200px] rounded-lg border border-dashed border-[#eceae5] overflow-hidden cursor-pointer hover:border-[#8e8985] transition-colors group"
+              className="relative w-full h-[120px] md:h-[200px] rounded-lg border border-dashed border-[#eceae5] overflow-hidden cursor-pointer hover:border-[#8e8985] transition-colors group"
               onClick={() => fileInputRef.current?.click()}
             >
               {seatForm.seatPhotoUrl ? (
@@ -276,7 +279,7 @@ export default function ProfilePage() {
                 const selected = seatForm.perks.includes(perk);
                 return (
                   <button key={perk} type="button" onClick={() => togglePerk(perk)}
-                    className={`inline-flex items-center h-8 px-3 rounded-full text-xs font-medium border transition-colors cursor-pointer ${selected ? 'bg-[#E1F5EE] border-[#0F6E56] text-[#0F6E56]' : 'bg-white border-[#eceae5] text-[#8e8985] hover:border-[#2c2a2b] hover:text-[#2c2a2b]'}`}
+                    className={`inline-flex items-center h-8 px-3 rounded-full text-xs font-medium border transition-colors cursor-pointer ${selected ? 'bg-[#E1F5EE] border-[#0F6E56] text-[#0F6E56]' : 'bg-white border-[#dcd7d4] text-[#4a4745] hover:border-[#2c2a2b] hover:text-[#2c2a2b]'}`}
                   >
                     {selected && <svg className="w-3 h-3 mr-1.5" viewBox="0 0 16 16" fill="none"><path d="M3.5 8.5L6.5 11.5L12.5 4.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>}
                     {perk}
@@ -285,7 +288,7 @@ export default function ProfilePage() {
               })}
             </div>
           </div>
-          <button type="button" onClick={handleSaveSeatInfo} disabled={savingSeat} className="h-10 px-5 rounded-lg bg-[#2c2a2b] text-sm font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors disabled:opacity-50">
+          <button type="button" onClick={handleSaveSeatInfo} disabled={savingSeat} className="w-full md:w-auto h-12 md:h-10 px-5 rounded-lg bg-[#2c2a2b] text-sm font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors disabled:opacity-50">
             {savingSeat ? 'Saving...' : 'Save Seat Info'}
           </button>
         </div>
@@ -310,7 +313,7 @@ export default function ProfilePage() {
               <span className="rounded-full bg-[#FEE2E2] px-3 py-1 text-xs font-medium text-[#DC2626]">Past Due</span>
             </div>
             <p className="text-sm text-[#DC2626] mb-4">Please update your payment method.</p>
-            <button onClick={handleManageBilling} disabled={subLoading} className="w-full h-10 rounded-lg bg-[#DC2626] text-sm font-medium text-white hover:bg-[#b91c1c] disabled:opacity-50">
+            <button onClick={handleManageBilling} disabled={subLoading} className="w-full h-12 md:h-10 rounded-lg bg-[#DC2626] text-sm font-medium text-white hover:bg-[#b91c1c] disabled:opacity-50">
               {subLoading ? 'Loading...' : 'Update Payment Method'}
             </button>
           </div>
@@ -321,7 +324,7 @@ export default function ProfilePage() {
               <span className="rounded-full bg-[#FAEEDA] border border-[#FAC775] px-3 py-1 text-xs font-medium text-[#2c2a2b]">Cancelling</span>
             </div>
             <p className="text-sm text-[#2c2a2b] mb-4">Ends on {sub.currentPeriodEnd ? formatDate(sub.currentPeriodEnd) : 'end of period'}. You&apos;ll keep access until then.</p>
-            <button onClick={handleResubscribe} disabled={subLoading} className="w-full h-10 rounded-lg bg-[#2c2a2b] text-sm font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] disabled:opacity-50">
+            <button onClick={handleResubscribe} disabled={subLoading} className="w-full h-12 md:h-10 rounded-lg bg-[#2c2a2b] text-sm font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] disabled:opacity-50">
               {subLoading ? 'Loading...' : 'Keep My Subscription'}
             </button>
           </div>
@@ -339,8 +342,8 @@ export default function ProfilePage() {
               </span>
             </div>
             <div className="flex gap-3">
-              <button onClick={handleManageBilling} disabled={subLoading} className="flex-1 h-10 rounded-lg border border-[#eceae5] bg-white text-sm font-medium text-[#2c2a2b] hover:bg-[#f5f4f2] transition-colors disabled:opacity-50">Manage Billing</button>
-              <button onClick={handleCancel} disabled={subLoading} className="flex-1 h-10 rounded-lg border border-[#eceae5] bg-white text-sm font-medium text-[#2c2a2b] hover:bg-[#f5f4f2] transition-colors disabled:opacity-50">Cancel</button>
+              <button onClick={handleManageBilling} disabled={subLoading} className="flex-1 h-12 md:h-10 rounded-lg border border-[#eceae5] bg-white text-sm font-medium text-[#2c2a2b] hover:bg-[#f5f4f2] transition-colors disabled:opacity-50">Manage Billing</button>
+              <button onClick={handleCancel} disabled={subLoading} className="flex-1 h-12 md:h-10 rounded-lg border border-[#eceae5] bg-white text-sm font-medium text-[#2c2a2b] hover:bg-[#f5f4f2] transition-colors disabled:opacity-50">Cancel</button>
             </div>
           </div>
         ) : (
@@ -430,39 +433,82 @@ export default function ProfilePage() {
         </nav>
       </aside>
 
-      {/* ── Mobile nav ── */}
-      <div className="md:hidden fixed top-[60px] left-0 right-0 z-40 bg-[#fefefe] border-b border-[#eceae5] px-4 py-2 overflow-x-auto">
-        <div className="flex gap-1">
-          {NAV_ITEMS.map((item) => (
+      {/* ── Mobile ── */}
+      <div className="md:hidden flex-1 px-4 pt-4 pb-6">
+        {activeSection === 'menu' ? (
+          /* ── Menu list ── */
+          <div>
+            {message && (
+              <div className={`rounded-lg p-3 text-sm mb-4 ${message.type === 'success' ? 'bg-[#E1F5EE] text-[#0F6E56]' : 'bg-[#FEE2E2] text-[#DC2626]'}`}>
+                {message.text}
+              </div>
+            )}
+
+            {/* Nav items */}
+            <div className="flex flex-col">
+              {NAV_ITEMS.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveSection(item.id)}
+                  className="flex items-center gap-3 px-1 py-4 border-none bg-transparent cursor-pointer text-left border-b border-[#eceae5]"
+                  style={{ borderBottomWidth: 1, borderBottomStyle: 'solid', borderBottomColor: '#eceae5' }}
+                >
+                  <span className="text-[#8e8985]">{item.icon}</span>
+                  <span className="flex-1 text-base font-medium text-[#2c2a2b]">{item.label}</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8e8985" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M9 18l6-6-6-6" />
+                  </svg>
+                </button>
+              ))}
+
+              {/* Divider */}
+              <div className="my-2" />
+
+              {/* Sign out */}
+              <button
+                onClick={() => signOut({ callbackUrl: '/' })}
+                className="flex items-center gap-3 px-1 py-4 border-none bg-transparent cursor-pointer text-left"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#DC2626" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+                <span className="text-base font-medium text-[#DC2626]">Sign out</span>
+              </button>
+            </div>
+          </div>
+        ) : (
+          /* ── Section content ── */
+          <div>
+            {/* Back button */}
             <button
-              key={item.id}
-              onClick={() => setActiveSection(item.id)}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors border-none cursor-pointer ${
-                activeSection === item.id ? 'bg-[#f5f4f2] text-[#2c2a2b]' : 'bg-transparent text-[#8e8985]'
-              }`}
+              onClick={() => setActiveSection('menu')}
+              className="flex items-center gap-1.5 text-sm font-medium text-[#8e8985] bg-transparent border-none cursor-pointer mb-4 -ml-1"
             >
-              {item.icon}
-              {item.label}
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+              Back
             </button>
-          ))}
-        </div>
+
+            {message && (
+              <div className={`rounded-lg p-3 text-sm mb-6 ${message.type === 'success' ? 'bg-[#E1F5EE] text-[#0F6E56]' : 'bg-[#FEE2E2] text-[#DC2626]'}`}>
+                {message.text}
+              </div>
+            )}
+
+            {sectionRenderers[activeSection]?.()}
+          </div>
+        )}
       </div>
 
-      {/* ── Content Area ── */}
-      <main className="flex-1 min-w-0 px-4 pt-[72px] pb-6 md:px-12 md:py-8 md:pt-8 max-w-[720px]">
+      {/* ── Desktop Content Area ── */}
+      <main className="hidden md:block flex-1 min-w-0 px-12 py-8 max-w-[720px]">
         {message && (
           <div className={`rounded-lg p-3 text-sm mb-6 ${message.type === 'success' ? 'bg-[#E1F5EE] text-[#0F6E56]' : 'bg-[#FEE2E2] text-[#DC2626]'}`}>
             {message.text}
           </div>
         )}
         {sectionRenderers[activeSection]?.()}
-
-        {/* Mobile sign out */}
-        <div className="md:hidden mt-10 border-t border-[#eceae5] pt-6">
-          <button onClick={() => signOut({ callbackUrl: '/' })} className="w-full h-10 rounded-lg border border-[#eceae5] bg-white text-sm font-medium text-[#8e8985] hover:text-[#DC2626] hover:border-[#DC2626]/30 transition-colors">
-            Sign out
-          </button>
-        </div>
       </main>
     </div>
   );

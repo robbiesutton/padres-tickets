@@ -53,7 +53,15 @@ const STATUS_CHIPS: { value: string; label: string; dot: string; bg: string; tex
   { value: 'AVAILABLE',      label: 'Available',       dot: '#d4a017', bg: '#fdf6e3', text: '#2c2a2b' },
   { value: 'CLAIMED',        label: 'Claimed',         dot: '#2d6a4f', bg: '#e8f5e4', text: '#2d6a4f' },
   { value: 'TRANSFERRED',    label: 'Transferred',     dot: '#2c2a2b', bg: '#e8e5e0', text: '#2c2a2b' },
+  { value: 'SOLD_ELSEWHERE', label: 'Sold',            dot: '#8e8985', bg: '#f5f4f2', text: '#8e8985' },
   { value: 'UNAVAILABLE',    label: 'Unavailable',     dot: '#dc2626', bg: '#fce4ec', text: '#dc2626' },
+];
+
+const EDITABLE_STATUSES_WITH_HELP: { value: string; label: string; dot: string; help: string }[] = [
+  { value: 'GOING_MYSELF',   label: 'Going Myself',  dot: '#2c2a2b', help: '' },
+  { value: 'AVAILABLE',      label: 'Available',      dot: '#d4a017', help: 'Friends can claim' },
+  { value: 'SOLD_ELSEWHERE', label: 'Sold',           dot: '#8e8985', help: 'Sold outside app' },
+  { value: 'UNAVAILABLE',    label: 'Unavailable',    dot: '#dc2626', help: 'Not sharing' },
 ];
 
 const EDITABLE_STATUSES = STATUS_CHIPS.filter((s) => s.value !== 'CLAIMED' && s.value !== 'TRANSFERRED');
@@ -97,8 +105,8 @@ function StatusPicker({
   const content = (
     <div className="flex flex-col">
       <div className="flex items-center justify-between mb-4">
-        <p className="text-base font-semibold text-[#2c2a2b]">{title}</p>
-        <button className="w-11 h-11 -mr-2 flex items-center justify-center bg-transparent border-none cursor-pointer" onClick={onClose}>
+        <p className="text-base font-bold text-[#2c2a2b]">{title}</p>
+        <button className="hidden md:flex w-11 h-11 -mr-2 items-center justify-center bg-transparent border-none cursor-pointer" onClick={onClose}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
             <path d="M18 6L6 18" stroke="#8e8985" strokeWidth="2.5" strokeLinecap="round" />
             <path d="M6 6l12 12" stroke="#8e8985" strokeWidth="2.5" strokeLinecap="round" />
@@ -133,7 +141,44 @@ function StatusPicker({
       <div className="fixed inset-0 z-50">
         <div className="absolute inset-0 bg-black/30" onClick={onClose} />
         <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-[0_-8px_30px_rgba(0,0,0,0.12)] animate-slide-up">
-          <div className="px-4 pt-5 pb-8">{content}</div>
+          <div className="relative">
+            <button
+              className="absolute top-3 right-2 w-11 h-11 flex items-center justify-center bg-transparent border-none cursor-pointer z-10"
+              onClick={onClose}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M18 6L6 18" stroke="#8e8985" strokeWidth="2.5" strokeLinecap="round" />
+                <path d="M6 6l12 12" stroke="#8e8985" strokeWidth="2.5" strokeLinecap="round" />
+              </svg>
+            </button>
+            <div className="px-4 pt-5 pb-8">
+              <p className="text-base font-bold text-[#2c2a2b] mb-5">{title}</p>
+              <div className="flex flex-col gap-2.5">
+                {EDITABLE_STATUSES_WITH_HELP.map((s) => {
+                  const isSelected = currentStatus === s.value;
+                  return (
+                    <button
+                      key={s.value}
+                      onClick={() => onSelect(s.value)}
+                      className={`w-full flex items-center gap-3 px-4 h-12 rounded-xl border-none cursor-pointer text-left transition-all ${
+                        isSelected
+                          ? 'bg-white shadow-[0_0_0_2px_#2d6a4f,0_2px_8px_rgba(0,0,0,0.06)]'
+                          : 'bg-[#f5f4f2] hover:bg-[#eceae5]'
+                      }`}
+                    >
+                      <span className="w-[10px] h-[10px] rounded-full shrink-0" style={{ backgroundColor: s.dot }} />
+                      <span className="text-base font-bold text-[#2c2a2b]">{s.label}</span>
+                      {isSelected && (
+                        <svg className="shrink-0 ml-auto" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                          <path d="M5 13l4 4L19 7" stroke="#2d6a4f" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
         </div>
       </div>,
       document.body
@@ -163,56 +208,137 @@ function ProtectedStatusSheet({
     onClose();
   }
 
+  const fullDate = new Date(game.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+
   const content = (
     <div className="flex flex-col">
-      {/* Lock icon + close */}
-      <div className="flex items-center justify-between">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8e8985" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0110 0v4" />
-        </svg>
-        <button className="w-11 h-11 -mr-2 flex items-center justify-center bg-transparent border-none cursor-pointer" onClick={onClose}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M18 6L6 18" stroke="#8e8985" strokeWidth="2.5" strokeLinecap="round" />
-            <path d="M6 6l12 12" stroke="#8e8985" strokeWidth="2.5" strokeLinecap="round" />
+      {/* Game header + close */}
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <div
+            className="w-[42px] h-[42px] rounded-full flex items-center justify-center text-[13px] font-bold text-white shrink-0"
+            style={{ backgroundColor: getOpponentColor(game.opponent) }}
+          >
+            {getOpponentAbbr(game.opponent)}
+          </div>
+          <div>
+            <p className="text-base font-bold text-[#2c2a2b]">vs {game.opponent}</p>
+            <p className="text-sm font-medium text-[#8e8985]">{fullDate}</p>
+          </div>
+        </div>
+        <button className="w-11 h-11 -mr-2 -mt-2 flex items-center justify-center bg-transparent border-none cursor-pointer shrink-0" onClick={onClose}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M18 6L6 18" stroke="#8e8985" strokeWidth="2" strokeLinecap="round" />
+            <path d="M6 6l12 12" stroke="#8e8985" strokeWidth="2" strokeLinecap="round" />
           </svg>
         </button>
       </div>
 
-      {/* Warning text */}
-      <p className="text-sm text-[#2c2a2b] leading-relaxed mt-1">
-        {game.status === 'CLAIMED'
-          ? `This game was claimed${game.claim ? ` by ${game.claim.claimer.firstName} ${game.claim.claimer.lastName}` : ''}. Changing the status will release their claim.`
-          : 'This game was transferred through official channels. Changing the status may cause issues.'}
-      </p>
-
-      <div className="mt-5">
-        {showPicker ? (
-          <StatusPicker
-            title="Change Status"
-            currentStatus={game.status}
-            onSelect={handleSelect}
-            onClose={() => setShowPicker(false)}
-          />
-        ) : (
-          <div className="flex gap-3">
-            <button onClick={onClose} className="flex-1 h-11 rounded-lg border border-[#eceae5] bg-white text-sm font-medium text-[#2c2a2b] hover:bg-[#f5f4f2] transition-colors cursor-pointer">
-              Keep Status
-            </button>
-            <button onClick={() => setShowPicker(true)} className="flex-1 h-11 rounded-lg bg-[#2c2a2b] text-sm font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors cursor-pointer">
-              Change Anyway
-            </button>
-          </div>
+      {/* Details */}
+      <div className="flex flex-col gap-2 text-sm text-[#8e8985] mb-5">
+        {game.time && <p>{formatTime(game.time)}</p>}
+        {game.claim && (
+          <p className="text-[#2c2a2b] font-medium">
+            Claimed by {game.claim.claimer.firstName} {game.claim.claimer.lastName}
+          </p>
         )}
+        <p>
+          {game.status === 'CLAIMED'
+            ? 'Changing the status will release their claim.'
+            : 'This game was transferred. Changing the status may cause issues.'}
+        </p>
       </div>
+
+      {/* Actions */}
+      {showPicker ? (
+        <StatusPicker
+          title="Change Status"
+          currentStatus={game.status}
+          onSelect={handleSelect}
+          onClose={() => setShowPicker(false)}
+        />
+      ) : (
+        <div className="flex gap-3">
+          <button onClick={onClose} className="flex-1 h-10 rounded-lg border border-[#eceae5] bg-white text-sm font-medium text-[#2c2a2b] hover:bg-[#f5f4f2] transition-colors cursor-pointer">
+            Keep Status
+          </button>
+          <button onClick={() => setShowPicker(true)} className="flex-1 h-10 rounded-lg bg-[#2c2a2b] text-sm font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors cursor-pointer">
+            Change Anyway
+          </button>
+        </div>
+      )}
     </div>
   );
 
   if (isMobile) {
+    const { dow, day, month: mon } = formatShortDate(game.date);
+    const d = new Date(game.date);
+    const fullDate = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+
     return createPortal(
       <div className="fixed inset-0 z-50">
         <div className="absolute inset-0 bg-black/30" onClick={onClose} />
         <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-[0_-8px_30px_rgba(0,0,0,0.12)] animate-slide-up">
-          <div className="px-4 pt-5 pb-8">{content}</div>
+          <div className="relative">
+            <button
+              className="absolute top-3 right-2 w-11 h-11 flex items-center justify-center bg-transparent border-none cursor-pointer z-10"
+              onClick={onClose}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M18 6L6 18" stroke="#8e8985" strokeWidth="2.5" strokeLinecap="round" />
+                <path d="M6 6l12 12" stroke="#8e8985" strokeWidth="2.5" strokeLinecap="round" />
+              </svg>
+            </button>
+            <div className="px-4 pt-5 pb-8">
+              {/* Game header */}
+              <div className="flex items-center gap-3 mb-4">
+                <div
+                  className="w-[42px] h-[42px] rounded-full flex items-center justify-center text-[13px] font-bold text-white shrink-0"
+                  style={{ backgroundColor: getOpponentColor(game.opponent) }}
+                >
+                  {getOpponentAbbr(game.opponent)}
+                </div>
+                <div>
+                  <p className="text-base font-bold text-[#2c2a2b]">vs {game.opponent}</p>
+                  <p className="text-sm font-medium text-[#8e8985]">{fullDate}</p>
+                </div>
+              </div>
+
+              {/* Details */}
+              <div className="flex flex-col gap-2 text-sm text-[#8e8985] mb-5">
+                {game.time && <p>{formatTime(game.time)}</p>}
+                {game.claim && (
+                  <p className="text-[#2c2a2b] font-medium">
+                    Claimed by {game.claim.claimer.firstName} {game.claim.claimer.lastName}
+                  </p>
+                )}
+                <p>
+                  {game.status === 'CLAIMED'
+                    ? 'Changing the status will release their claim.'
+                    : 'This game was transferred. Changing the status may cause issues.'}
+                </p>
+              </div>
+
+              {/* Actions */}
+              {showPicker ? (
+                <StatusPicker
+                  title="Change Status"
+                  currentStatus={game.status}
+                  onSelect={handleSelect}
+                  onClose={() => setShowPicker(false)}
+                />
+              ) : (
+                <div className="flex flex-col gap-3">
+                  <button onClick={onClose} className="w-full h-12 rounded-lg border border-[#eceae5] bg-white text-base font-medium text-[#2c2a2b] hover:bg-[#f5f4f2] transition-colors cursor-pointer">
+                    Keep Status
+                  </button>
+                  <button onClick={() => setShowPicker(true)} className="w-full h-12 rounded-lg bg-[#2c2a2b] text-base font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors cursor-pointer">
+                    Change Anyway
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>,
       document.body
@@ -278,7 +404,13 @@ function SellerGameCard({
   const chip = getStatusChip(game.status);
 
   function handleCardClick() {
-    if (window.innerWidth < 768) onTap();
+    if (window.innerWidth < 768) {
+      if (editable) {
+        setPopoverOpen(true);
+      } else {
+        setInfoOpen(true);
+      }
+    }
   }
 
   function handlePillClick(e: React.MouseEvent) {
@@ -296,9 +428,9 @@ function SellerGameCard({
       style={{ borderColor }}
       onClick={handleCardClick}
     >
-      {/* Checkbox — always visible */}
+      {/* Checkbox — desktop only */}
       <div
-        className={`w-[18px] h-[18px] rounded-[4px] border-[1.5px] shrink-0 flex items-center justify-center transition-colors cursor-pointer ${
+        className={`hidden md:flex w-[18px] h-[18px] rounded-[4px] border-[1.5px] shrink-0 items-center justify-center transition-colors cursor-pointer ${
           selected ? 'bg-[#2c2a2b] border-[#2c2a2b]' : 'bg-white border-[#dcd7d4] hover:border-[#8e8985]'
         }`}
         onClick={(e) => { e.stopPropagation(); onToggleSelect(); }}
@@ -337,14 +469,15 @@ function SellerGameCard({
           </div>
           <div className="text-base md:text-sm font-medium text-[#8e8985]">
             {formatTime(game.time)}
+            {!isClaimed && <span className="md:hidden"> &bull; {chip.label}</span>}
             {hasClaim && game.claim && <span> &bull; {game.claim.claimer.firstName} {game.claim.claimer.lastName}</span>}
             {game.pricePerTicket && <span className="hidden md:inline"> &bull; ${Number(game.pricePerTicket)}/ticket</span>}
           </div>
         </div>
       </div>
 
-      {/* Status pill */}
-      <div className="relative shrink-0">
+      {/* Status pill — desktop only */}
+      <div className="relative shrink-0 hidden md:block">
         <button
           ref={pillRef}
           onClick={handlePillClick}
@@ -382,18 +515,13 @@ function SellerGameCard({
 
         {/* Read-only info (desktop) */}
         {infoOpen && (
-          <div ref={popoverRef} className="hidden md:block absolute right-0 top-[calc(100%+6px)] z-50 bg-white rounded-xl shadow-[0_0_0_1px_#eceae5,0_8px_24px_rgba(0,0,0,0.12)] w-[340px] p-5">
+          <div ref={popoverRef} className="absolute right-0 top-[calc(100%+6px)] z-50 bg-white rounded-xl shadow-[0_0_0_1px_#eceae5,0_8px_24px_rgba(0,0,0,0.12)] w-[340px] p-5">
             <ProtectedStatusSheet game={game} onStatusChange={onStatusChange} onClose={() => setInfoOpen(false)} />
           </div>
         )}
       </div>
 
-      {/* Protected status (mobile) */}
-      {infoOpen && typeof window !== 'undefined' && window.innerWidth < 768 && (
-        <ProtectedStatusSheet game={game} onStatusChange={onStatusChange} onClose={() => setInfoOpen(false)} />
-      )}
-
-      {/* Single-edit picker (mobile) */}
+      {/* Mobile: status picker bottom sheet */}
       {popoverOpen && typeof window !== 'undefined' && window.innerWidth < 768 && (
         <StatusPicker
           title="Set Status"
@@ -401,6 +529,11 @@ function SellerGameCard({
           onSelect={handleStatusSelect}
           onClose={() => setPopoverOpen(false)}
         />
+      )}
+
+      {/* Mobile: protected status sheet */}
+      {infoOpen && typeof window !== 'undefined' && window.innerWidth < 768 && (
+        <ProtectedStatusSheet game={game} onStatusChange={onStatusChange} onClose={() => setInfoOpen(false)} />
       )}
     </div>
   );
@@ -480,7 +613,7 @@ function BatchActionBar({
   onSetStatus: () => void;
 }) {
   return createPortal(
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-[#2c2a2b] shadow-[0_-4px_20px_rgba(0,0,0,0.15)] animate-slide-up">
+    <div className="hidden md:block fixed bottom-0 left-0 right-0 z-50 bg-[#2c2a2b] shadow-[0_-4px_20px_rgba(0,0,0,0.15)] animate-slide-up">
       <div className="max-w-[1024px] mx-auto px-4 md:px-10 py-8 flex items-center justify-between gap-4">
         <div className="flex items-center gap-4 min-w-0">
           <span className="text-base font-medium text-white">
@@ -520,7 +653,7 @@ function StatusChipBar({
   gameCounts: Record<string, number>;
 }) {
   return (
-    <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
+    <div className="flex gap-2 overflow-x-auto -mx-1 px-1 scrollbar-hide">
       {STATUS_CHIPS.map((chip) => {
         const isActive = statusFilter === chip.value;
         const count = gameCounts[chip.value] || 0;
@@ -553,6 +686,7 @@ function SellerToolbar({
   monthFilter, onMonthFilterChange, months,
   claimers, claimerFilter, onClaimerFilterChange,
   allSelected, someSelected, onSelectAllToggle,
+  hasActiveFilters, onClearFilters, teamPrimary,
 }: {
   opponents: string[];
   opponentFilter: string;
@@ -566,53 +700,139 @@ function SellerToolbar({
   allSelected: boolean;
   someSelected: boolean;
   onSelectAllToggle: () => void;
+  hasActiveFilters: boolean;
+  onClearFilters: () => void;
+  teamPrimary: string;
 }) {
-  const selectClass =
-    "flex-1 md:flex-none min-w-0 h-11 px-4 pr-9 md:px-5 md:pr-10 rounded-lg border border-[#eceae5] bg-white hover:bg-[#f5f4f2] transition-colors text-sm md:text-base font-medium text-[#2c2a2b] cursor-pointer appearance-none overflow-hidden text-ellipsis whitespace-nowrap bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M6%209l6%206%206-6%22%20stroke%3D%22%238e8985%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_6px_center] md:bg-[right_8px_center]";
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+
+  const desktopSelectClass =
+    "flex-1 md:flex-none min-w-0 h-11 px-5 pr-10 rounded-lg border border-[#eceae5] bg-white hover:bg-[#f5f4f2] transition-colors text-base font-medium text-[#2c2a2b] cursor-pointer appearance-none overflow-hidden text-ellipsis whitespace-nowrap bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M6%209l6%206%206-6%22%20stroke%3D%22%238e8985%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_8px_center]";
+
+  const sheetSelectClass =
+    "w-full h-12 px-4 pr-10 rounded-lg border border-[#eceae5] bg-white text-base font-medium text-[#2c2a2b] cursor-pointer appearance-none bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M6%209l6%206%206-6%22%20stroke%3D%22%238e8985%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_12px_center]";
 
   return (
-    <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-4 mb-4 flex-wrap">
-      <div className="flex gap-2 md:gap-4 w-full md:w-auto min-w-0 flex-wrap flex-1">
-        <select className={selectClass} value={opponentFilter} onChange={(e) => onOpponentFilterChange(e.target.value)}>
-          <option value="">All opponents</option>
-          {opponents.map((o) => <option key={o} value={o}>{o}</option>)}
-        </select>
-        <select className={selectClass} value={monthFilter} onChange={(e) => onMonthFilterChange(e.target.value)}>
-          <option value="">All months</option>
-          {months.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
-        </select>
-        <select className={selectClass} value={claimerFilter} onChange={(e) => onClaimerFilterChange(e.target.value)}>
-          <option value="">All claimers</option>
-          {claimers.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
-        </select>
+    <>
+      {/* ── Mobile: Filters button + Clear all ── */}
+      <div className="md:hidden flex items-center justify-between mb-4">
+        <button
+          onClick={() => setMobileFiltersOpen(true)}
+          className="h-11 px-4 rounded-lg border border-[#eceae5] bg-white text-sm font-medium text-[#2c2a2b] flex items-center gap-2 cursor-pointer"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="3" y1="6" x2="21" y2="6" /><line x1="6" y1="12" x2="18" y2="12" /><line x1="9" y1="18" x2="15" y2="18" />
+          </svg>
+          Filters
+        </button>
+        {hasActiveFilters && (
+          <button onClick={onClearFilters} className="text-sm font-medium text-[#8e8985] bg-transparent border-none cursor-pointer">
+            Clear all
+          </button>
+        )}
       </div>
-      {/* Select toggle */}
-      <button
-        onClick={onSelectAllToggle}
-        className={`h-11 px-4 rounded-lg shrink-0 flex items-center gap-2.5 transition-all cursor-pointer border-none text-sm md:text-base font-medium ${
-          allSelected || someSelected
-            ? 'bg-[#2d6a4f] text-white'
-            : 'bg-[#f5f4f2] text-[#8e8985] hover:text-[#2c2a2b]'
-        }`}
-      >
-        <div className={`w-[18px] h-[18px] rounded-[4px] flex items-center justify-center transition-colors ${
-          allSelected || someSelected
-            ? 'bg-[#1a1a1a] border-[1.5px] border-[#1a1a1a]'
-            : 'bg-white border-[1.5px] border-[#dcd7d4]'
-        }`}>
-          {allSelected ? (
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
-              <path d="M5 13l4 4L19 7" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          ) : someSelected ? (
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
-              <line x1="5" y1="12" x2="19" y2="12" stroke="white" strokeWidth="3" strokeLinecap="round" />
-            </svg>
-          ) : null}
+
+      {/* ── Mobile: Filter bottom sheet ── */}
+      {mobileFiltersOpen && createPortal(
+        <div className="md:hidden fixed inset-0 z-50">
+          <div className="absolute inset-0 bg-black/30" onClick={() => setMobileFiltersOpen(false)} />
+          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-[0_-8px_30px_rgba(0,0,0,0.12)] animate-slide-up">
+            {/* Handle */}
+            <div className="flex justify-center pt-3 pb-1">
+              <div className="w-10 h-1 rounded-full bg-[#dcd7d4]" />
+            </div>
+            <div className="px-4 pt-2 pb-8">
+              <h3 className="text-lg font-semibold text-[#2c2a2b] mb-6">Filters</h3>
+
+              <div className="flex flex-col gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-[#8e8985] uppercase tracking-wider mb-2 pl-1">Opponent</label>
+                  <select className={sheetSelectClass} value={opponentFilter} onChange={(e) => onOpponentFilterChange(e.target.value)}>
+                    <option value="">All opponents</option>
+                    {opponents.map((o) => <option key={o} value={o}>{o}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-[#8e8985] uppercase tracking-wider mb-2 pl-1">Month</label>
+                  <select className={sheetSelectClass} value={monthFilter} onChange={(e) => onMonthFilterChange(e.target.value)}>
+                    <option value="">All months</option>
+                    {months.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-[#8e8985] uppercase tracking-wider mb-2 pl-1">Claimer</label>
+                  <select className={sheetSelectClass} value={claimerFilter} onChange={(e) => onClaimerFilterChange(e.target.value)}>
+                    <option value="">All claimers</option>
+                    {claimers.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setMobileFiltersOpen(false)}
+                className="w-full h-12 mt-6 rounded-lg text-base font-semibold text-white cursor-pointer border-none transition-opacity hover:opacity-90"
+                style={{ backgroundColor: teamPrimary }}
+              >
+                Apply Filters
+              </button>
+              {hasActiveFilters && (
+                <button
+                  onClick={() => { onClearFilters(); setMobileFiltersOpen(false); }}
+                  className="w-full mt-3 text-sm font-medium text-[#8e8985] bg-transparent border-none cursor-pointer py-2"
+                >
+                  Reset all
+                </button>
+              )}
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* ── Desktop: Inline dropdowns ── */}
+      <div className="hidden md:flex md:items-center md:gap-4 mb-4 flex-wrap">
+        <div className="flex gap-4 flex-1 min-w-0 flex-wrap">
+          <select className={desktopSelectClass} value={opponentFilter} onChange={(e) => onOpponentFilterChange(e.target.value)}>
+            <option value="">All opponents</option>
+            {opponents.map((o) => <option key={o} value={o}>{o}</option>)}
+          </select>
+          <select className={desktopSelectClass} value={monthFilter} onChange={(e) => onMonthFilterChange(e.target.value)}>
+            <option value="">All months</option>
+            {months.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
+          </select>
+          <select className={desktopSelectClass} value={claimerFilter} onChange={(e) => onClaimerFilterChange(e.target.value)}>
+            <option value="">All claimers</option>
+            {claimers.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+          </select>
         </div>
-        Select
-      </button>
-    </div>
+        {/* Select toggle */}
+        <button
+          onClick={onSelectAllToggle}
+          className={`h-11 px-4 rounded-lg shrink-0 flex items-center gap-2.5 transition-all cursor-pointer border-none text-base font-medium ${
+            allSelected || someSelected
+              ? 'bg-[#2d6a4f] text-white'
+              : 'bg-[#f5f4f2] text-[#8e8985] hover:text-[#2c2a2b]'
+          }`}
+        >
+          <div className={`w-[18px] h-[18px] rounded-[4px] flex items-center justify-center transition-colors ${
+            allSelected || someSelected
+              ? 'bg-[#1a1a1a] border-[1.5px] border-[#1a1a1a]'
+              : 'bg-white border-[1.5px] border-[#dcd7d4]'
+          }`}>
+            {allSelected ? (
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+                <path d="M5 13l4 4L19 7" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            ) : someSelected ? (
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+                <line x1="5" y1="12" x2="19" y2="12" stroke="white" strokeWidth="3" strokeLinecap="round" />
+              </svg>
+            ) : null}
+          </div>
+          Select
+        </button>
+      </div>
+    </>
   );
 }
 
@@ -788,12 +1008,15 @@ export default function DashboardPage() {
             { label: 'Revenue', value: `$${summary.revenueCollected.toFixed(0)}`, highlight: true },
           ];
           return (
-            <div className="rounded-xl p-4 md:p-5 mb-6 md:mb-8 shadow-[0_4px_12px_rgba(0,0,0,0.15)]" style={{ backgroundColor: primary }}>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4">
+            <div
+              className="hidden md:block rounded-xl p-5 mb-8 shadow-[0_4px_12px_rgba(0,0,0,0.15)]"
+              style={{ backgroundColor: primary }}
+            >
+              <div className="grid sm:grid-cols-4 gap-4">
                 {stats.map((stat) => (
-                  <div key={stat.label} className="border rounded-[10px] px-4 py-3 md:py-4 text-center"
+                  <div key={stat.label} className="border rounded-[10px] px-4 py-4 text-center"
                     style={stat.highlight ? { backgroundColor: `${accent}18`, borderColor: `${accent}30` } : { backgroundColor: 'rgba(255,255,255,0.08)', borderColor: 'rgba(255,255,255,0.1)' }}>
-                    <p className="text-[26px] md:text-[30px] font-extrabold leading-none mb-1" style={{ color: stat.highlight ? accent : '#ffffff' }}>{stat.value}</p>
+                    <p className="text-[30px] font-extrabold leading-none mb-1" style={{ color: stat.highlight ? accent : '#ffffff' }}>{stat.value}</p>
                     <p className="text-[12px] font-semibold text-white/50 uppercase tracking-[1.2px]">{stat.label}</p>
                   </div>
                 ))}
@@ -814,12 +1037,15 @@ export default function DashboardPage() {
             allSelected={filteredGames.length > 0 && selectedIds.size === filteredGames.length}
             someSelected={selectedIds.size > 0 && selectedIds.size < filteredGames.length}
             onSelectAllToggle={handleSelectAllToggle}
+            hasActiveFilters={hasActiveFilters}
+            onClearFilters={clearFilters}
+            teamPrimary={selectedPkg ? getTeamColors(selectedPkg.team).primary : '#2c2a2b'}
           />
         </div>
 
-        {/* Clear filters */}
+        {/* Clear filters — desktop only (mobile has it in toolbar + sheet) */}
         {hasActiveFilters && (
-          <div className="mb-4 -mt-2">
+          <div className="hidden md:block mb-4 -mt-2">
             <button className="text-sm font-medium text-[#8e8985] hover:text-[#2c2a2b] bg-transparent border-none cursor-pointer transition-colors" onClick={clearFilters}>
               Clear all filters
             </button>

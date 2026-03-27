@@ -342,6 +342,7 @@ function SharePageInner({ packageInfo, games, opponents }: Props) {
               monthFilter={monthFilter}
               onMonthFilterChange={handleMonthFilterChange}
               months={monthOptions}
+              teamPrimary={getTeamColors(packageInfo.team).primary}
             />
 
             <AlsoPlaysIn

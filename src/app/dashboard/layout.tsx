@@ -707,17 +707,6 @@ export default function DashboardLayout({
           </div>
         </header>
 
-        {/* Mobile seat info pill — below header */}
-        {selectedPkg && (
-          <div className="md:hidden px-4 pt-4 pb-0">
-            <MobileSeatInfoDrawer
-              pkg={selectedPkg}
-              navColor={navColor}
-              teamAccent={teamAccent}
-              onPkgUpdate={handlePkgUpdate}
-            />
-          </div>
-        )}
 
         {children}
 
