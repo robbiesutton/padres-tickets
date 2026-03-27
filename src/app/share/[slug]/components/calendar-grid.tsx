@@ -40,7 +40,7 @@ export function CalendarGrid({
 }: Props) {
   return (
     <div className={className}>
-      <div className="text-base font-semibold text-foreground text-center mb-4">
+      <div className="text-base font-semibold text-foreground text-center mb-3">
         {month.label}
       </div>
       <div className="grid grid-cols-7 gap-1 md:gap-2">

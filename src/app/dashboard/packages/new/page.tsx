@@ -66,6 +66,65 @@ const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 // ─── Component ──────────────────────────────────────────
 
+const DESIGN = process.env.NEXT_PUBLIC_DESIGN_MODE === 'true';
+
+const MOCK_TEAMS: MlbTeam[] = [
+  { id: 135, name: 'San Diego Padres', abbreviation: 'SD', venue: 'Petco Park' },
+  { id: 119, name: 'Los Angeles Dodgers', abbreviation: 'LAD', venue: 'Dodger Stadium' },
+  { id: 137, name: 'San Francisco Giants', abbreviation: 'SF', venue: 'Oracle Park' },
+  { id: 109, name: 'Arizona Diamondbacks', abbreviation: 'AZ', venue: 'Chase Field' },
+  { id: 115, name: 'Colorado Rockies', abbreviation: 'COL', venue: 'Coors Field' },
+];
+
+const MOCK_PACKAGES: SeasonPackage[] = [
+  { id: 'full', name: 'Full Season', gameCount: 81, description: 'All 81 home games', gameFilter: { all: true } },
+  { id: 'half', name: 'Half Season', gameCount: 41, description: '41 selected home games' },
+  { id: 'weekend', name: 'Weekend Plan', tier: 'Popular', gameCount: 28, description: 'Friday, Saturday & Sunday games', gameFilter: { weekendsOnly: true } },
+  { id: 'friday', name: 'Friday Night Plan', gameCount: 12, description: 'All Friday night home games', gameFilter: { fridays: true } },
+];
+
+const MOCK_SECTIONS: StadiumSection[] = [
+  { id: 'sec-101', name: '101', level: 'Field Level', tags: ['Behind home plate', 'Premium'], rowCount: 20 },
+  { id: 'sec-203', name: '203', level: 'Field Level', tags: ['Shaded seats', 'Craft beer'], rowCount: 30 },
+  { id: 'sec-305', name: '305', level: 'Upper Level', tags: ['Great view', 'Easy access'], rowCount: 25 },
+  { id: 'sec-120', name: '120', level: 'Club Level', tags: ['Club access', 'Padded seats'], rowCount: 15 },
+];
+
+const MOCK_SCHEDULE: ScheduleGame[] = [
+  { date: '2026-04-02T02:10:00.000Z', time: '7:10 PM', gameDate: '2026-04-01', opponent: 'Los Angeles Dodgers' },
+  { date: '2026-04-04T02:10:00.000Z', time: '7:10 PM', gameDate: '2026-04-03', opponent: 'Los Angeles Dodgers' },
+  { date: '2026-04-05T00:40:00.000Z', time: '5:40 PM', gameDate: '2026-04-04', opponent: 'Los Angeles Dodgers' },
+  { date: '2026-04-08T02:10:00.000Z', time: '7:10 PM', gameDate: '2026-04-07', opponent: 'Colorado Rockies' },
+  { date: '2026-04-09T02:10:00.000Z', time: '7:10 PM', gameDate: '2026-04-08', opponent: 'Colorado Rockies' },
+  { date: '2026-04-12T00:40:00.000Z', time: '5:40 PM', gameDate: '2026-04-11', opponent: 'San Francisco Giants' },
+  { date: '2026-04-15T02:10:00.000Z', time: '7:10 PM', gameDate: '2026-04-14', opponent: 'Arizona Diamondbacks' },
+  { date: '2026-04-19T00:40:00.000Z', time: '5:40 PM', gameDate: '2026-04-18', opponent: 'Chicago Cubs' },
+  { date: '2026-04-22T02:10:00.000Z', time: '7:10 PM', gameDate: '2026-04-21', opponent: 'Pittsburgh Pirates' },
+  { date: '2026-04-26T00:10:00.000Z', time: '5:10 PM', gameDate: '2026-04-25', opponent: 'Atlanta Braves' },
+  { date: '2026-05-01T02:10:00.000Z', time: '7:10 PM', gameDate: '2026-04-30', opponent: 'New York Mets' },
+  { date: '2026-05-05T02:10:00.000Z', time: '7:10 PM', gameDate: '2026-05-04', opponent: 'Philadelphia Phillies' },
+  { date: '2026-05-09T00:40:00.000Z', time: '5:40 PM', gameDate: '2026-05-08', opponent: 'San Francisco Giants' },
+  { date: '2026-05-13T02:10:00.000Z', time: '7:10 PM', gameDate: '2026-05-12', opponent: 'Milwaukee Brewers' },
+  { date: '2026-05-17T00:10:00.000Z', time: '5:10 PM', gameDate: '2026-05-16', opponent: 'Los Angeles Dodgers' },
+  { date: '2026-05-22T02:10:00.000Z', time: '7:10 PM', gameDate: '2026-05-21', opponent: 'Cincinnati Reds' },
+  { date: '2026-06-02T02:10:00.000Z', time: '7:10 PM', gameDate: '2026-06-01', opponent: 'Arizona Diamondbacks' },
+  { date: '2026-06-06T00:40:00.000Z', time: '5:40 PM', gameDate: '2026-06-05', opponent: 'Texas Rangers' },
+  { date: '2026-06-13T00:10:00.000Z', time: '5:10 PM', gameDate: '2026-06-12', opponent: 'St. Louis Cardinals' },
+  { date: '2026-06-20T02:10:00.000Z', time: '7:10 PM', gameDate: '2026-06-19', opponent: 'Los Angeles Dodgers' },
+];
+
+function initAvailability() {
+  const avail: Record<number, 'available' | 'keeping'> = {};
+  MOCK_SCHEDULE.forEach((_, i) => { avail[i] = i === 0 || i === 9 ? 'keeping' : 'available'; });
+  return avail;
+}
+
+function initPrices() {
+  const pr: Record<number, number> = {};
+  MOCK_SCHEDULE.forEach((_, i) => { pr[i] = i === 0 || i === 9 ? 0 : 45; });
+  return pr;
+}
+
 export default function NewPackagePage() {
   const router = useRouter();
   const [step, setStep] = useState<Step>(1);
@@ -74,48 +133,48 @@ export default function NewPackagePage() {
   const [toast, setToast] = useState('');
 
   // Step 1: League
-  const [league, setLeague] = useState('');
+  const [league, setLeague] = useState(DESIGN ? 'MLB' : '');
 
   // Step 2: Team
-  const [teams, setTeams] = useState<MlbTeam[]>([]);
-  const [selectedTeam, setSelectedTeam] = useState<MlbTeam | null>(null);
+  const [teams, setTeams] = useState<MlbTeam[]>(DESIGN ? MOCK_TEAMS : []);
+  const [selectedTeam, setSelectedTeam] = useState<MlbTeam | null>(DESIGN ? MOCK_TEAMS[0] : null);
   const [season] = useState(new Date().getFullYear().toString());
 
   // Step 3: Package
-  const [packages, setPackages] = useState<SeasonPackage[]>([]);
-  const [selectedPackage, setSelectedPackage] = useState<SeasonPackage | null>(null);
+  const [packages, setPackages] = useState<SeasonPackage[]>(DESIGN ? MOCK_PACKAGES : []);
+  const [selectedPackage, setSelectedPackage] = useState<SeasonPackage | null>(DESIGN ? MOCK_PACKAGES[0] : null);
 
   // Step 4: Seats
-  const [sections, setSections] = useState<StadiumSection[]>([]);
+  const [sections, setSections] = useState<StadiumSection[]>(DESIGN ? MOCK_SECTIONS : []);
   const [sectionsLoading, setSectionsLoading] = useState(false);
-  const [selectedSection, setSelectedSection] = useState<StadiumSection | null>(null);
-  const [rows, setRows] = useState<string[]>([]);
+  const [selectedSection, setSelectedSection] = useState<StadiumSection | null>(DESIGN ? MOCK_SECTIONS[1] : null);
+  const [rows, setRows] = useState<string[]>(DESIGN ? ['1','2','3','4','5','6','7','8','9','10'] : []);
   const [rowsLoading, setRowsLoading] = useState(false);
-  const [sectionTags, setSectionTags] = useState<string[]>([]);
-  const [row, setRow] = useState('');
-  const [selectedSeats, setSelectedSeats] = useState<Set<number>>(new Set());
+  const [sectionTags, setSectionTags] = useState<string[]>(DESIGN ? ['Shaded seats', 'Craft beer'] : []);
+  const [row, setRow] = useState(DESIGN ? '5' : '');
+  const [selectedSeats, setSelectedSeats] = useState<Set<number>>(DESIGN ? new Set([1, 2]) : new Set());
 
   // Step 5: Schedule
-  const [schedule, setSchedule] = useState<ScheduleGame[]>([]);
-  const [selectedGames, setSelectedGames] = useState<Set<number>>(new Set());
+  const [schedule, setSchedule] = useState<ScheduleGame[]>(DESIGN ? MOCK_SCHEDULE : []);
+  const [selectedGames, setSelectedGames] = useState<Set<number>>(DESIGN ? new Set(MOCK_SCHEDULE.map((_, i) => i)) : new Set());
   const [scheduleLoading, setScheduleLoading] = useState(false);
 
   // Step 6: Availability
-  const [availability, setAvailability] = useState<Record<number, 'available' | 'keeping'>>({});
+  const [availability, setAvailability] = useState<Record<number, 'available' | 'keeping'>>(DESIGN ? initAvailability() : {});
 
   // Step 7: Pricing
-  const [prices, setPrices] = useState<Record<number, number>>({});
-  const [bulkPrice, setBulkPrice] = useState('');
+  const [prices, setPrices] = useState<Record<number, number>>(DESIGN ? initPrices() : {});
+  const [bulkPrice, setBulkPrice] = useState(DESIGN ? '45' : '');
 
   // Step 8: Payment
-  const [venmoHandle, setVenmoHandle] = useState('');
-  const [zelleInfo, setZelleInfo] = useState('');
+  const [venmoHandle, setVenmoHandle] = useState(DESIGN ? '@robbie-sutton' : '');
+  const [zelleInfo, setZelleInfo] = useState(DESIGN ? 'robbie@benchbuddy.app' : '');
   const [venmoExpanded, setVenmoExpanded] = useState(false);
   const [zelleExpanded, setZelleExpanded] = useState(false);
 
   // Step 9: Share link
-  const [linkSlug, setLinkSlug] = useState('');
-  const [slugAvailable, setSlugAvailable] = useState<boolean | null>(null);
+  const [linkSlug, setLinkSlug] = useState(DESIGN ? 'padres-section203' : '');
+  const [slugAvailable, setSlugAvailable] = useState<boolean | null>(DESIGN ? true : null);
   const [copied, setCopied] = useState(false);
   const [result, setResult] = useState<{ shareLink: string; gamesCreated: number } | null>(null);
 
@@ -124,6 +183,7 @@ export default function NewPackagePage() {
   const [subLoading, setSubLoading] = useState(false);
 
   useEffect(() => {
+    if (process.env.NEXT_PUBLIC_DESIGN_MODE === 'true') return;
     fetch('/api/users/me')
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
@@ -137,12 +197,14 @@ export default function NewPackagePage() {
   // ─── Data loading ───────────────────────────────────
 
   useEffect(() => {
+    if (process.env.NEXT_PUBLIC_DESIGN_MODE === 'true') return;
     fetch('/api/teams')
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => { if (data) setTeams(data.teams); });
   }, []);
 
   useEffect(() => {
+    if (process.env.NEXT_PUBLIC_DESIGN_MODE === 'true') return;
     if (!selectedTeam) return;
     setSectionsLoading(true);
     setSections([]);
@@ -162,6 +224,7 @@ export default function NewPackagePage() {
   }, [selectedTeam]);
 
   useEffect(() => {
+    if (process.env.NEXT_PUBLIC_DESIGN_MODE === 'true') return;
     if (!selectedTeam || !selectedSection) return;
     setRowsLoading(true);
     setRow('');
@@ -180,6 +243,7 @@ export default function NewPackagePage() {
   // ─── Schedule loading ─────────────────────────────────
 
   const loadSchedule = useCallback(async () => {
+    if (process.env.NEXT_PUBLIC_DESIGN_MODE === 'true') return;
     if (!selectedTeam) return;
     setScheduleLoading(true);
     try {

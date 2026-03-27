@@ -8,7 +8,9 @@ import {
   isGameAvailable,
   MONTH_NAMES,
   getGameMonthYear,
+  getOpponentAbbr,
 } from './utils';
+import { getTeamColors } from './team-colors';
 import { ShareHeader } from './components/share-header';
 import { SeatInfoBar } from './components/seat-info-bar';
 import { Toolbar } from './components/toolbar';
@@ -18,6 +20,126 @@ import { MyGamesTab } from './components/my-games-tab';
 import { ShareFooter } from './components/share-footer';
 import { EmptyState } from './components/empty-state';
 import { AlsoPlaysIn } from './components/also-plays-in';
+import { ScoreTicker } from '@/components/score-ticker';
+
+import { createPortal } from 'react-dom';
+import Image from 'next/image';
+
+function MobileSeatInfoPill({ pkg }: { pkg: PackageInfo }) {
+  const [open, setOpen] = useState(false);
+  const { primary, accent } = getTeamColors(pkg.team);
+  const abbr = getOpponentAbbr(pkg.team);
+  const priceDisplay = pkg.defaultPricePerTicket ? `$${pkg.defaultPricePerTicket}` : null;
+
+  return (
+    <div className="md:hidden">
+      {/* Pill trigger */}
+      <div
+        className="flex items-center gap-2.5 h-11 pl-2.5 pr-3 rounded-lg cursor-pointer active:opacity-90"
+        style={{ border: `1px solid ${primary}`, backgroundColor: `${primary}33` }}
+        onClick={() => setOpen(true)}
+      >
+        <div
+          className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0"
+          style={{ backgroundColor: accent, color: primary }}
+        >
+          {abbr}
+        </div>
+        <span className="text-base font-medium text-[#2c2a2b] flex-1">
+          Sec {pkg.section} &middot; Row {pkg.row} &middot; Seats {pkg.seats}
+        </span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="shrink-0">
+          <path d="M6 9l6 6 6-6" stroke="#8e8985" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </div>
+
+      {/* Drawer */}
+      {open && createPortal(
+        <div className="fixed inset-0 z-50">
+          <div className="absolute inset-0 bg-black/30" onClick={() => setOpen(false)} />
+          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-[0_-8px_30px_rgba(0,0,0,0.12)] animate-slide-up max-h-[85vh] overflow-y-auto">
+            <div className="relative">
+              <button
+                className="absolute top-3 right-2 w-11 h-11 flex items-center justify-center bg-transparent border-none cursor-pointer z-10"
+                onClick={() => setOpen(false)}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M18 6L6 18" stroke="#8e8985" strokeWidth="2.5" strokeLinecap="round" />
+                  <path d="M6 6l12 12" stroke="#8e8985" strokeWidth="2.5" strokeLinecap="round" />
+                </svg>
+              </button>
+              <div className="px-4 pt-5 pb-6 flex flex-col gap-4">
+                {/* Seat photo */}
+                <div className="w-full h-[180px] relative overflow-hidden rounded-lg">
+                  {pkg.seatPhotoUrl ? (
+                    <Image
+                      src={pkg.seatPhotoUrl}
+                      alt="View from seat"
+                      fill
+                      className="object-cover"
+                      sizes="100vw"
+                      unoptimized
+                    />
+                  ) : (
+                    <div className="w-full h-full relative" style={{ backgroundImage: 'linear-gradient(143deg, rgb(74,122,58) 0%, rgb(122,170,90) 50%, rgb(74,122,58) 100%)' }}>
+                      <div className="absolute bottom-0 left-0 right-0 h-[35%]" style={{ backgroundImage: 'linear-gradient(167deg, rgb(196,149,90) 0%, rgb(212,165,106) 100%)' }} />
+                      <div className="absolute bottom-[35%] left-[15%] w-[70%] h-[2px] bg-[#e8d8b8] rounded" />
+                    </div>
+                  )}
+                  <div className="absolute bottom-3 left-3 bg-[#2c2a2b]/80 text-white text-xs font-medium px-2.5 py-1 rounded-md">
+                    View from Section {pkg.section}
+                  </div>
+                </div>
+
+                {/* Description */}
+                {pkg.description && (
+                  <p className="text-base font-normal text-black leading-relaxed pb-4 border-b border-[#f5f4f2]">
+                    {pkg.description}
+                  </p>
+                )}
+
+                {/* Details table */}
+                <div className="flex flex-col gap-3 text-sm leading-6 pb-4 border-b border-[#f5f4f2]">
+                  <div className="flex items-center justify-between">
+                    <span className="font-normal text-black">Seats</span>
+                    <span className="font-bold text-black">Seats {pkg.seats}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="font-normal text-black">Level</span>
+                    <span className="font-bold text-black">Field Level</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="font-normal text-black">Price per seat</span>
+                    <span className="font-bold text-black">{priceDisplay ?? 'Price varies'}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="font-normal text-black">Ticket delivery</span>
+                    <span className="font-bold text-black">MLB Ballpark App</span>
+                  </div>
+                </div>
+
+                {/* Perks */}
+                {pkg.perks.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {pkg.perks.map((perk) => (
+                      <span
+                        key={perk}
+                        className="inline-flex items-center justify-center text-xs font-medium text-[#8e8985] h-8 px-3 border border-[#8e8985]/75 rounded-full whitespace-nowrap"
+                      >
+                        {perk}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+    </div>
+  );
+}
 
 interface Props {
   packageInfo: PackageInfo;
@@ -38,7 +160,7 @@ function SharePageInner({ packageInfo, games, opponents }: Props) {
   const [expandedGameId, setExpandedGameId] = useState<string | null>(null);
   const [reservedGames, setReservedGames] = useState<Map<string, string>>(new Map()); // gameId -> claimId
   const [cancelledGameIds, setCancelledGameIds] = useState<Set<string>>(new Set());
-  const [apiClaimCount, setApiClaimCount] = useState(0);
+  const [claimCount, setClaimCount] = useState(0);
   const currentUserId = session?.user?.id || null;
 
   // Handle ?reserved= URL param from magic link redirect
@@ -62,13 +184,12 @@ function SharePageInner({ packageInfo, games, opponents }: Props) {
     fetch(`/api/share/${packageInfo.slug}/my-reservations`)
       .then((res) => res.ok ? res.json() : null)
       .then((data) => {
-        if (data?.claims) setApiClaimCount(data.claims.length);
+        if (data?.claims) setClaimCount(data.claims.length);
       })
       .catch(() => {});
   }, [packageInfo.slug]);
 
-  // Count reserved games: API count + session claims - session cancellations
-  const reservedCount = apiClaimCount + reservedGames.size - cancelledGameIds.size;
+  const reservedCount = claimCount;
 
   // Derived set for components that only need game IDs
   const reservedGameIds = useMemo(() => new Set(reservedGames.keys()), [reservedGames]);
@@ -170,6 +291,7 @@ function SharePageInner({ packageInfo, games, opponents }: Props) {
       next.delete(gameId);
       return next;
     });
+    setClaimCount((prev) => prev + 1);
   }
 
   function handleCancelled(gameId: string) {
@@ -180,10 +302,11 @@ function SharePageInner({ packageInfo, games, opponents }: Props) {
     });
     setCancelledGameIds((prev) => new Set([...prev, gameId]));
     setExpandedGameId(null);
+    setClaimCount((prev) => Math.max(0, prev - 1));
   }
 
   const handleReservationCountChange = useCallback((count: number) => {
-    setApiClaimCount(count);
+    setClaimCount(count);
   }, []);
 
   return (
@@ -196,9 +319,18 @@ function SharePageInner({ packageInfo, games, opponents }: Props) {
         pkg={packageInfo}
       />
 
-      <div className="max-w-[880px] mx-auto w-full px-4 pt-4 pb-12 md:px-5 md:pt-6 md:pb-16 overflow-x-hidden flex-1">
+      {/* Mobile seat info pill */}
+      <div className="md:hidden px-4 pt-4 pb-0">
+        <MobileSeatInfoPill pkg={packageInfo} />
+      </div>
+
+      <div className="max-w-[1024px] mx-auto w-full px-4 pt-4 pb-6 md:px-10 md:pt-8 md:pb-10 overflow-x-hidden flex-1">
         {activeTab === 'available' ? (
           <>
+            {/* Welcome message */}
+            <p className="hidden md:block text-2xl text-[#2c2a2b] mb-6 md:mb-8 font-bold" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>
+              Welcome {session?.user?.name?.split(' ')[0] || 'Margo'}, select your games.
+            </p>
             <Toolbar
               viewMode={viewMode}
               onViewChange={(mode) => {
@@ -270,7 +402,7 @@ function SharePageInner({ packageInfo, games, opponents }: Props) {
             )}
           </>
         ) : (
-          <div className="pt-8 md:pt-18">
+          <div>
             <MyGamesTab
               pkg={packageInfo}
               claimerName={session?.user?.name?.split(' ')[0] || ''}
@@ -281,6 +413,9 @@ function SharePageInner({ packageInfo, games, opponents }: Props) {
         )}
       </div>
 
+      <div className="hidden md:block mt-8">
+        <ScoreTicker />
+      </div>
       <ShareFooter team={packageInfo.team} />
     </div>
   );

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { DM_Sans, Inter, Syne } from 'next/font/google';
 import Script from 'next/script';
 import Providers from './providers';
-import { ScoreTicker } from '@/components/score-ticker';
+import { ConditionalTicker } from '@/components/conditional-ticker';
 import { Analytics } from '@vercel/analytics/next';
 import './globals.css';
 
@@ -44,7 +44,7 @@ export default function RootLayout({
         <Script src="https://mcp.figma.com/mcp/html-to-design/capture.js" strategy="afterInteractive" />
         <Providers>
           <div className="flex-1 flex flex-col">{children}</div>
-          <ScoreTicker />
+          <ConditionalTicker />
           <Analytics />
         </Providers>
       </body>

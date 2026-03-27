@@ -1,8 +1,11 @@
 'use client';
 
+import { useState } from 'react';
 import type { Game, PackageInfo } from '../types';
 import { groupGamesByMonth, isGameAvailable } from '../utils';
+import { getTeamColors } from '../team-colors';
 import { GameCard } from './game-card';
+import { CalendarPopover } from './calendar-popover';
 
 interface Props {
   games: Game[];
@@ -23,8 +26,11 @@ export function ListView({
   onReserved,
   onCancelled,
 }: Props) {
+  const [selectedGameId, setSelectedGameId] = useState<string | null>(null);
   const availableGames = games.filter(isGameAvailable);
   const grouped = groupGamesByMonth(availableGames);
+  const { primary: teamPrimary } = getTeamColors(pkg.team);
+  const selectedGame = selectedGameId ? availableGames.find(g => g.id === selectedGameId) : null;
 
   async function handleReserve(gameId: string) {
     try {
@@ -63,11 +69,11 @@ export function ListView({
   return (
     <div>
       {Array.from(grouped.entries()).map(([monthLabel, monthGames]) => (
-        <div key={monthLabel} className="mb-6">
+        <div key={monthLabel} className="mb-6 md:mb-8">
           {/* Month header */}
           <div className="flex items-center gap-2 mb-4">
             <div className="flex items-center gap-2 pl-1">
-              <div className="w-[3px] h-4 bg-accent rounded-sm" />
+              <div className="w-[3px] h-4 rounded-sm" style={{ backgroundColor: getTeamColors(pkg.team).accent }} />
               <span className="text-xl font-semibold text-black">
                 {monthLabel}
               </span>
@@ -94,14 +100,53 @@ export function ListView({
                   isReservedByMe={!!isReservedByMe}
                   isTakenByOthers={isTakenByOthers}
                   seatCount={pkg.seatCount}
+                  teamColor={teamPrimary}
                   onReserve={() => handleReserve(game.id)}
                   onRelease={() => handleRelease(game.id)}
+                  onMobileTap={() => setSelectedGameId(game.id)}
                 />
               );
             })}
           </div>
         </div>
       ))}
+
+      {/* Scroll to top — mobile only */}
+      <div className="md:hidden flex justify-center py-6">
+        <button
+          className="flex items-center gap-1.5 text-sm font-medium text-[#8e8985] bg-transparent border-none cursor-pointer active:text-[#2c2a2b] transition-colors"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M18 15l-6-6-6 6" />
+          </svg>
+          Back to top
+        </button>
+      </div>
+
+      {/* Mobile game detail drawer */}
+      {selectedGame && (
+        <CalendarPopover
+          game={selectedGame}
+          pkg={pkg}
+          isReservedByMe={
+            !cancelledGameIds.has(selectedGame.id) && (
+              reservedGames.has(selectedGame.id) ||
+              (selectedGame.claim?.claimerUserId === currentUserId && selectedGame.claim?.status !== 'RELEASED')
+            )
+          }
+          anchorRect={null}
+          containerRect={null}
+          onClose={() => setSelectedGameId(null)}
+          onClaim={async () => {
+            await handleReserve(selectedGame.id);
+          }}
+          onRelease={async () => {
+            await handleRelease(selectedGame.id);
+            setSelectedGameId(null);
+          }}
+        />
+      )}
     </div>
   );
 }

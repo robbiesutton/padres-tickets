@@ -55,7 +55,7 @@ export const mockPackage = {
   defaultPricePerTicket: 45,
   description: 'Great seats behind home plate with shade after the 4th inning.',
   seatPhotoUrl: null,
-  perks: ['Shade after 4th inning', 'Near craft beer stand', 'Easy parking access'],
+  perks: ['Shaded seats', 'Craft beer', 'Easy parking'],
   createdAt: new Date('2026-02-01').toISOString(),
   updatedAt: new Date('2026-03-01').toISOString(),
   _count: { games: 20, invitations: 3 },

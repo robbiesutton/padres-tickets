@@ -25,6 +25,22 @@ const TEAM_ABBR: Record<number, string> = {
 };
 
 export async function GET() {
+  // Design mode: return mock scores
+  if (process.env.NEXT_PUBLIC_DESIGN_MODE === 'true') {
+    const mockGames = [
+      { homeTeam: 'San Diego Padres', homeAbbr: 'SD', homeScore: 5, awayTeam: 'Los Angeles Dodgers', awayAbbr: 'LAD', awayScore: 3, status: 'Final', gameDate: '2026-03-26' },
+      { homeTeam: 'San Francisco Giants', homeAbbr: 'SF', homeScore: 2, awayTeam: 'Arizona Diamondbacks', awayAbbr: 'AZ', awayScore: 4, status: 'Final', gameDate: '2026-03-26' },
+      { homeTeam: 'New York Yankees', homeAbbr: 'NYY', homeScore: 7, awayTeam: 'Boston Red Sox', awayAbbr: 'BOS', awayScore: 6, status: 'Bot 8', gameDate: '2026-03-26' },
+      { homeTeam: 'Chicago Cubs', homeAbbr: 'CHC', homeScore: 1, awayTeam: 'St. Louis Cardinals', awayAbbr: 'STL', awayScore: 0, status: 'Top 5', gameDate: '2026-03-26' },
+      { homeTeam: 'Atlanta Braves', homeAbbr: 'ATL', homeScore: null, awayTeam: 'Philadelphia Phillies', awayAbbr: 'PHI', awayScore: null, status: 'Preview', gameDate: '2026-03-26' },
+      { homeTeam: 'Houston Astros', homeAbbr: 'HOU', homeScore: 3, awayTeam: 'Texas Rangers', awayAbbr: 'TEX', awayScore: 3, status: 'Top 7', gameDate: '2026-03-26' },
+      { homeTeam: 'Colorado Rockies', homeAbbr: 'COL', homeScore: null, awayTeam: 'Milwaukee Brewers', awayAbbr: 'MIL', awayScore: null, status: 'Preview', gameDate: '2026-03-26' },
+      { homeTeam: 'Seattle Mariners', homeAbbr: 'SEA', homeScore: 2, awayTeam: 'Oakland Athletics', awayAbbr: 'OAK', awayScore: 1, status: 'Final', gameDate: '2026-03-26' },
+    ];
+    const featured = mockGames[0];
+    return NextResponse.json({ games: mockGames, featured });
+  }
+
   try {
     const today = new Date().toISOString().split('T')[0];
     const url = `https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${today}&hydrate=linescore,team`;
