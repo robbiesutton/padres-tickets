@@ -685,7 +685,7 @@ export default function DashboardLayout({
               </select>
             )}
 
-            {/* My Profile button */}
+            {/* My Account button */}
             <Link
               href="/dashboard/profile"
               className={`h-11 md:h-10 px-2.5 md:px-4 rounded-lg text-sm md:text-base font-medium border-none cursor-pointer transition-all flex items-center gap-2 ${
@@ -702,7 +702,7 @@ export default function DashboardLayout({
                 <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
                 <circle cx="12" cy="7" r="4" />
               </svg>
-              <span className="hidden md:inline">My Profile</span>
+              <span className="hidden md:inline">My Account</span>
             </Link>
           </div>
         </header>
