@@ -116,7 +116,7 @@ export function GameCard({
         </div>
 
         {/* Game info */}
-        <div className="flex flex-col gap-1 min-w-0">
+        <div className="flex flex-col gap-0.5 min-w-0">
           <div className="text-base font-bold text-[#2c2a2b]">
             <span className="md:hidden">vs {getShortName(game.opponent)}</span>
             <span className="hidden md:inline">vs {game.opponent}</span>

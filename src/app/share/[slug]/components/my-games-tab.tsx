@@ -146,17 +146,16 @@ export function MyGamesTab({ pkg, claimerName, onSwitchToAvailable, onReservatio
     .slice(0, 2);
 
   return (
-    <div className="flex flex-col gap-2 md:gap-6">
-      {/* Welcome — desktop only */}
-      <p className="hidden md:block text-2xl text-[#2c2a2b] mb-0 font-bold" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>
+    <div className="flex flex-col">
+      {/* Greeting */}
+      <p className="hidden md:block text-2xl text-[#2c2a2b] mb-8 font-bold" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>
         {claimerName || 'Margo'}, here are your games.
       </p>
 
-
-      {/* Section 4: Game cards grouped by month */}
+      {/* Game cards grouped by month */}
       {Array.from(grouped.entries()).map(([monthLabel, monthGames]) => (
-        <div key={monthLabel}>
-          {/* Month header */}
+        <div key={monthLabel} className="mb-6 md:mb-8">
+          {/* Month header — label → content = sm (16px) */}
           <div className="flex items-center gap-2 mb-4">
             <div className="flex items-center gap-2 pl-1">
               <div className="w-[3px] h-4 rounded-sm" style={{ backgroundColor: teamAccent }} />
@@ -169,7 +168,7 @@ export function MyGamesTab({ pkg, claimerName, onSwitchToAvailable, onReservatio
             </span>
           </div>
 
-          {/* Game cards */}
+          {/* Game cards — card → card = xs (8px) */}
           <div className="flex flex-col gap-2">
             {monthGames.map((game) => {
               const claimData = claimGames.find((c) => c.game.id === game.id);
@@ -192,8 +191,8 @@ export function MyGamesTab({ pkg, claimerName, onSwitchToAvailable, onReservatio
         </div>
       ))}
 
-      {/* Browse other games — desktop */}
-      <div className="hidden md:flex justify-end">
+      {/* Browse other games — desktop, mt = md/lg */}
+      <div className="hidden md:flex justify-end -mt-4">
         <button
           className="h-11 px-6 rounded-lg text-white text-base font-medium border-none cursor-pointer flex items-center justify-center hover:opacity-90 transition-opacity"
           style={{ backgroundColor: teamPrimary }}

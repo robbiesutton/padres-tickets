@@ -147,7 +147,7 @@ export function CalendarView({
     <div>
       {allTaken && <SoldOutBar />}
 
-      <div ref={containerRef} className="bg-card md:border md:border-border md:rounded-xl px-2 py-4 md:p-6 relative">
+      <div ref={containerRef} className="bg-card md:border md:border-border md:rounded-xl px-4 py-6 md:px-10 md:py-8 relative">
         {/* Side arrows */}
         <button
           className="absolute top-2 left-0 md:top-4 md:left-4 w-11 h-11 md:w-8 md:h-8 rounded-full border border-[#8e8985] bg-white cursor-pointer flex items-center justify-center disabled:opacity-30 disabled:cursor-default hover:bg-[#f5f4f2] transition-colors z-10"

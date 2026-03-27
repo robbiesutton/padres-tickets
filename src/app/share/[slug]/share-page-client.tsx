@@ -160,7 +160,7 @@ function SharePageInner({ packageInfo, games, opponents }: Props) {
   const [expandedGameId, setExpandedGameId] = useState<string | null>(null);
   const [reservedGames, setReservedGames] = useState<Map<string, string>>(new Map()); // gameId -> claimId
   const [cancelledGameIds, setCancelledGameIds] = useState<Set<string>>(new Set());
-  const [apiClaimCount, setApiClaimCount] = useState(0);
+  const [claimCount, setClaimCount] = useState(0);
   const currentUserId = session?.user?.id || null;
 
   // Handle ?reserved= URL param from magic link redirect
@@ -184,13 +184,12 @@ function SharePageInner({ packageInfo, games, opponents }: Props) {
     fetch(`/api/share/${packageInfo.slug}/my-reservations`)
       .then((res) => res.ok ? res.json() : null)
       .then((data) => {
-        if (data?.claims) setApiClaimCount(data.claims.length);
+        if (data?.claims) setClaimCount(data.claims.length);
       })
       .catch(() => {});
   }, [packageInfo.slug]);
 
-  // Count reserved games: API count + session claims - session cancellations
-  const reservedCount = apiClaimCount + reservedGames.size - cancelledGameIds.size;
+  const reservedCount = claimCount;
 
   // Derived set for components that only need game IDs
   const reservedGameIds = useMemo(() => new Set(reservedGames.keys()), [reservedGames]);
@@ -292,6 +291,7 @@ function SharePageInner({ packageInfo, games, opponents }: Props) {
       next.delete(gameId);
       return next;
     });
+    setClaimCount((prev) => prev + 1);
   }
 
   function handleCancelled(gameId: string) {
@@ -302,10 +302,11 @@ function SharePageInner({ packageInfo, games, opponents }: Props) {
     });
     setCancelledGameIds((prev) => new Set([...prev, gameId]));
     setExpandedGameId(null);
+    setClaimCount((prev) => Math.max(0, prev - 1));
   }
 
   const handleReservationCountChange = useCallback((count: number) => {
-    setApiClaimCount(count);
+    setClaimCount(count);
   }, []);
 
   return (
@@ -319,15 +320,15 @@ function SharePageInner({ packageInfo, games, opponents }: Props) {
       />
 
       {/* Mobile seat info pill */}
-      <div className="md:hidden px-4 pt-4">
+      <div className="md:hidden px-4 pt-4 pb-0">
         <MobileSeatInfoPill pkg={packageInfo} />
       </div>
 
-      <div className="max-w-[1024px] mx-auto w-full px-4 pt-4 pb-12 md:px-8 md:pt-14 md:pb-0 overflow-x-hidden flex-1">
+      <div className="max-w-[1024px] mx-auto w-full px-4 pt-4 pb-6 md:px-10 md:pt-8 md:pb-10 overflow-x-hidden flex-1">
         {activeTab === 'available' ? (
           <>
             {/* Welcome message */}
-            <p className="hidden md:block text-2xl text-[#2c2a2b] mb-4 font-bold" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>
+            <p className="hidden md:block text-2xl text-[#2c2a2b] mb-6 md:mb-8 font-bold" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>
               Welcome {session?.user?.name?.split(' ')[0] || 'Margo'}, select your games.
             </p>
             <Toolbar
@@ -401,7 +402,7 @@ function SharePageInner({ packageInfo, games, opponents }: Props) {
             )}
           </>
         ) : (
-          <div className="-mt-2 md:mt-0">
+          <div>
             <MyGamesTab
               pkg={packageInfo}
               claimerName={session?.user?.name?.split(' ')[0] || ''}
@@ -412,7 +413,7 @@ function SharePageInner({ packageInfo, games, opponents }: Props) {
         )}
       </div>
 
-      <div className="hidden md:block mt-12">
+      <div className="hidden md:block mt-8">
         <ScoreTicker />
       </div>
       <ShareFooter team={packageInfo.team} />
