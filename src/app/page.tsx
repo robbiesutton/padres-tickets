@@ -8,8 +8,6 @@ export default function Home() {
   const router = useRouter();
   const [showLinkInput, setShowLinkInput] = useState(false);
   const [sharedLink, setSharedLink] = useState('');
-  const [splashVisible, setSplashVisible] = useState(true);
-  const [splashFading, setSplashFading] = useState(false);
 
   const howItWorksRef = useRef<HTMLDivElement>(null);
   const [howItWorksVisible, setHowItWorksVisible] = useState(false);
@@ -17,15 +15,6 @@ export default function Home() {
   const [pricingVisible, setPricingVisible] = useState(false);
   const feedbackRef = useRef<HTMLDivElement>(null);
   const [feedbackVisible, setFeedbackVisible] = useState(false);
-
-  useEffect(() => {
-    const fadeTimer = setTimeout(() => setSplashFading(true), 100);
-    const removeTimer = setTimeout(() => setSplashVisible(false), 5100);
-    return () => {
-      clearTimeout(fadeTimer);
-      clearTimeout(removeTimer);
-    };
-  }, []);
 
   useEffect(() => {
     const options = { threshold: 0.3, rootMargin: '-50px 0px' };
@@ -82,33 +71,27 @@ export default function Home() {
 
   return (
     <div className="flex flex-1 flex-col bg-[#1B1716]">
-      {/* Splash Screen */}
-      {splashVisible && (
-        <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-[#810100] transition-opacity duration-[5000ms] ease-out"
-          style={{ opacity: splashFading ? 0 : 1 }}
-        >
-          <style>{`
-            @keyframes splashWave {
-              0% { transform: perspective(400px) rotateY(0deg) skewY(0deg); }
-              25% { transform: perspective(400px) rotateY(5deg) skewY(-2deg); }
-              50% { transform: perspective(400px) rotateY(0deg) skewY(0deg); }
-              75% { transform: perspective(400px) rotateY(-5deg) skewY(2deg); }
-              100% { transform: perspective(400px) rotateY(0deg) skewY(0deg); }
-            }
-          `}</style>
-          <img
-            src="/benchbuddy-mark-white.svg"
-            alt="BenchBuddy"
-            className="w-56 h-56 md:w-72 md:h-72"
-            style={{
-              animation: 'splashWave 3s ease-in-out infinite',
-              transformOrigin: 'center center',
-              opacity: 0.25,
-            }}
-          />
-        </div>
-      )}
+      <style>{`
+        @keyframes splashWave {
+          0% { transform: perspective(400px) rotateY(0deg) skewY(0deg); }
+          25% { transform: perspective(400px) rotateY(5deg) skewY(-2deg); }
+          50% { transform: perspective(400px) rotateY(0deg) skewY(0deg); }
+          75% { transform: perspective(400px) rotateY(-5deg) skewY(2deg); }
+          100% { transform: perspective(400px) rotateY(0deg) skewY(0deg); }
+        }
+        @keyframes splashFadeOut {
+          0% { opacity: 0; }
+          8% { opacity: 0.5; }
+          25% { opacity: 0.5; }
+          100% { opacity: 0.05; }
+        }
+        @keyframes stadiumFadeIn {
+          0% { opacity: 0; }
+          8% { opacity: 0.5; }
+          25% { opacity: 0.5; }
+          100% { opacity: 1; }
+        }
+      `}</style>
 
       <style>{`
         @keyframes waveFlag {
@@ -156,14 +139,32 @@ export default function Home() {
       </nav>
 
       {/* Hero */}
-      <section className="relative h-[calc(100vh-72px)] flex items-center overflow-hidden">
-        {/* Background image */}
+      <section className="relative h-[calc(100vh-72px)] max-h-[900px] flex items-center overflow-hidden">
+        {/* Red splash background layer — behind everything, fades to reveal stadium */}
+        {/* Red splash — starts at 50%, holds 1s, fades to 5% over 5s, stays permanently */}
         <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: 'url(/hero-stadium.jpg)' }}
+          className="absolute inset-0 z-0 bg-[#810100] flex items-center justify-center"
+          style={{ opacity: 0, animation: 'splashFadeOut 6s ease-out forwards' }}
+        >
+          <img
+            src="/benchbuddy-mark-white.svg"
+            alt=""
+            className="w-56 h-56 md:w-72 md:h-72"
+            style={{
+              animation: 'splashWave 3s ease-in-out infinite',
+              transformOrigin: 'center center',
+              opacity: 0.25,
+            }}
+          />
+        </div>
+
+        {/* Background image — starts at 50%, holds 1s, fades to 100% over 5s */}
+        <div
+          className="absolute inset-0 z-[1] bg-cover bg-center"
+          style={{ backgroundImage: 'url(/hero-stadium.jpg)', opacity: 0, animation: 'stadiumFadeIn 6s ease-out forwards' }}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+        <div className="absolute inset-0 z-[2] bg-gradient-to-r from-black/80 via-black/50 to-transparent" style={{ opacity: 0, animation: 'stadiumFadeIn 6s ease-out forwards' }} />
+        <div className="absolute inset-0 z-[2] bg-gradient-to-t from-black/70 via-black/30 to-transparent" style={{ opacity: 0, animation: 'stadiumFadeIn 6s ease-out forwards' }} />
 
         {/* Content */}
         <div className="relative z-10 px-6 md:px-12 w-full -mt-12">
@@ -248,10 +249,10 @@ export default function Home() {
       </section>
 
       {/* How it works */}
-      <section ref={howItWorksRef} className="px-6 md:px-12 pt-16 pb-[88px] md:pt-24 md:pb-[120px]">
+      <section ref={howItWorksRef} className="px-6 md:px-12 pt-16 pb-[88px] md:pt-24 md:pb-[120px] bg-[#2c2a2b]">
         <div className="max-w-5xl mx-auto">
           <p
-            className="text-[20px] font-semibold text-white/30 uppercase tracking-widest mb-4 transition-all duration-700"
+            className="text-[20px] font-semibold text-white/40 uppercase tracking-widest mb-4 transition-all duration-700"
             style={{
               opacity: howItWorksVisible ? 1 : 0,
               transform: howItWorksVisible ? 'translateY(0)' : 'translateY(24px)',
@@ -296,14 +297,14 @@ export default function Home() {
                   transitionDelay: `${300 + i * 150}ms`,
                 }}
               >
-                <span className="text-[20px] font-semibold text-white/20 mb-4 block">
+                <span className="text-[20px] font-semibold text-white/30 mb-4 block">
                   {item.step}
                 </span>
-                <div className="h-px bg-white/10 mb-6" />
+                <div className="h-px bg-white/15 mb-6" />
                 <h3 className="text-base font-semibold text-white mb-3">
                   {item.title}
                 </h3>
-                <p className="text-sm md:text-base text-white/50 leading-relaxed">
+                <p className="text-sm md:text-base text-white/60 leading-relaxed">
                   {item.desc}
                 </p>
               </div>
@@ -316,110 +317,102 @@ export default function Home() {
       <div className="mx-6 md:mx-12 h-px bg-white/10" />
 
       {/* Pricing */}
-      <section ref={pricingRef} className="px-6 md:px-12 py-16 md:py-24">
-        <div className="max-w-lg mx-auto text-center flex flex-col items-center">
-          {/* Header */}
-          <p
-            className="text-[20px] font-semibold text-white/30 uppercase tracking-widest mb-4 transition-all duration-700"
-            style={{
-              opacity: pricingVisible ? 1 : 0,
-              transform: pricingVisible ? 'translateY(0)' : 'translateY(24px)',
-            }}
-          >
-            Pricing
-          </p>
-          <h2
-            className="text-3xl md:text-4xl font-bold text-white mb-4 transition-all duration-700"
-            style={{
-              fontFamily: 'var(--font-syne), sans-serif',
-              opacity: pricingVisible ? 1 : 0,
-              transform: pricingVisible ? 'translateY(0)' : 'translateY(24px)',
-              transitionDelay: '150ms',
-            }}
-          >
-            Your first year is free
-          </h2>
-          <p
-            className="text-base text-white/50 leading-relaxed max-w-sm mb-10 transition-all duration-700"
-            style={{
-              opacity: pricingVisible ? 1 : 0,
-              transform: pricingVisible ? 'translateY(0)' : 'translateY(24px)',
-              transitionDelay: '300ms',
-            }}
-          >
-            Sign up during early access and get your entire first year on us — no credit card required.
-          </p>
+      <section ref={pricingRef} className="px-6 md:px-12 py-16 md:py-24 bg-[#f5f4f2]">
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row md:items-center md:gap-16">
+          {/* Left — text content */}
+          <div className="flex-1 mb-10 md:mb-0">
+            <p
+              className="text-[20px] font-semibold text-[#2c2a2b]/50 uppercase tracking-widest mb-4 transition-all duration-700"
+              style={{
+                opacity: pricingVisible ? 1 : 0,
+                transform: pricingVisible ? 'translateY(0)' : 'translateY(24px)',
+              }}
+            >
+              Pricing
+            </p>
+            <h2
+              className="text-3xl md:text-4xl font-bold text-[#2c2a2b] mb-4 transition-all duration-700"
+              style={{
+                fontFamily: 'var(--font-syne), sans-serif',
+                opacity: pricingVisible ? 1 : 0,
+                transform: pricingVisible ? 'translateY(0)' : 'translateY(24px)',
+                transitionDelay: '150ms',
+              }}
+            >
+              Your first year is free
+            </h2>
+            <p
+              className="text-base text-[#6b6764] leading-relaxed max-w-sm transition-all duration-700"
+              style={{
+                opacity: pricingVisible ? 1 : 0,
+                transform: pricingVisible ? 'translateY(0)' : 'translateY(24px)',
+                transitionDelay: '300ms',
+              }}
+            >
+              Sign up during early access and get your entire first year on us — no credit card required.
+            </p>
+          </div>
 
-          {/* Card */}
+          {/* Right — card */}
           <div
-            className="w-full rounded-2xl border border-white/10 bg-white/5 p-8 flex flex-col items-center transition-all duration-700"
+            className="w-full md:w-[420px] shrink-0 rounded-lg border border-[#eceae5] bg-white overflow-hidden text-left transition-all duration-700"
             style={{
               opacity: pricingVisible ? 1 : 0,
               transform: pricingVisible ? 'translateY(0)' : 'translateY(32px)',
               transitionDelay: '400ms',
             }}
           >
+            {/* Red accent bar */}
+            <div className="h-1 bg-[#810100]" />
+
+            <div className="p-8 md:p-10">
             {/* Badge */}
-            <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-[#0F6F57]/15 border border-[#0F6F57]/30 text-sm font-semibold text-[#0F6F57] uppercase tracking-wider mb-6">
-              Early Access
-            </span>
+            <div className="mb-6">
+              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#0F6E56]/20 bg-[#0F6E56]/10 text-sm font-medium text-[#0F6E56]">
+                <span className="relative flex w-2 h-2">
+                  <span className="absolute inset-0 rounded-full bg-[#0F6E56] animate-ping opacity-75" />
+                  <span className="relative w-2 h-2 rounded-full bg-[#0F6E56]" />
+                </span>
+                Early Access
+              </span>
+            </div>
 
             {/* Price */}
-            <div className="flex items-baseline gap-3 mb-1">
-              <p className="text-5xl font-bold text-white/30 line-through" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>$39.99</p>
-              <p className="text-5xl font-bold text-white" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>$0</p>
+            <div className="mb-8">
+              <div className="flex items-baseline gap-3">
+                <span className="text-4xl md:text-5xl font-bold text-[#8e8985] line-through leading-none" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>$39.99</span>
+                <span className="text-4xl md:text-5xl font-bold text-[#2c2a2b] leading-none" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>$0</span>
+              </div>
+              <p className="text-sm text-[#8e8985] mt-2">per year &middot; first year free</p>
             </div>
-            <p className="text-sm text-white/40 mb-8">per year &middot; first year free</p>
 
-            {/* Features */}
-            <ul className="w-full space-y-0 text-left mb-8">
+            {/* Benefits */}
+            <div className="flex flex-col gap-4 mb-8">
               {[
-                '1 ticket package',
-                'Unlimited games',
-                'Unlimited sharing',
-                'Transfer coordination',
-                'Payment tracking',
-              ].map((item) => (
-                <li key={item} className="flex items-center gap-3 py-3 border-b border-white/5 last:border-b-0">
-                  <span className="w-6 h-6 rounded-full bg-[#0F6F57]/15 flex items-center justify-center shrink-0">
-                    <span className="text-[#0F6F57] text-xs font-bold">&#10003;</span>
-                  </span>
-                  <span className="text-base text-white/70">{item}</span>
-                </li>
+                'Share games with unlimited friends',
+                'Track claims, revenue, and status in one place',
+                'Cancel anytime — no commitment',
+              ].map((benefit) => (
+                <div key={benefit} className="flex items-start gap-3">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="shrink-0 mt-0.5">
+                    <path d="M5 13l4 4L19 7" stroke="#0F6E56" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  <span className="text-sm text-[#2c2a2b]">{benefit}</span>
+                </div>
               ))}
-            </ul>
+            </div>
 
             {/* CTA */}
             <a
               href="/signup"
-              className="w-full h-12 rounded-lg bg-white text-[#2c2a2b] text-base font-bold flex items-center justify-center hover:bg-[#dcd7d4] transition-colors mb-3"
+              className="w-full h-12 rounded-lg bg-[#2c2a2b] text-white text-base font-semibold flex items-center justify-center hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors mb-3"
             >
               Start Free for a Year
             </a>
-            <p className="text-xs text-white/30">
-              No credit card required &middot; Set up in under 2 minutes
+            <p className="text-xs text-[#8e8985] text-center">
+              Cancel anytime. You won&apos;t be charged until your free month ends.
             </p>
-          </div>
-
-          {/* Stats */}
-          <div
-            className="flex items-center justify-center gap-8 md:gap-12 mt-12 transition-all duration-700"
-            style={{
-              opacity: pricingVisible ? 1 : 0,
-              transform: pricingVisible ? 'translateY(0)' : 'translateY(24px)',
-              transitionDelay: '550ms',
-            }}
-          >
-            {[
-              { value: '2,400+', label: 'Season ticket holders' },
-              { value: '12,000+', label: 'Games shared' },
-              { value: '4.9★', label: 'User rating' },
-            ].map((stat) => (
-              <div key={stat.label} className="text-center">
-                <p className="text-xl md:text-2xl font-bold text-white">{stat.value}</p>
-                <p className="text-xs text-white/40 mt-1">{stat.label}</p>
-              </div>
-            ))}
+            </div>
           </div>
         </div>
       </section>
@@ -494,19 +487,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <div className="mx-6 md:mx-12 h-px bg-white/10" />
-      <footer className="px-6 md:px-12 py-8 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <img src="/benchbuddy-mark-white.svg" alt="" className="w-5 h-5 opacity-40" />
-          <span className="text-xs text-white/30">
-            &copy; {new Date().getFullYear()} BenchBuddy
-          </span>
-        </div>
-        <span className="text-xs text-white/20">
-          Not affiliated with any sports league or team.
-        </span>
-      </footer>
     </div>
   );
 }

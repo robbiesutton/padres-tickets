@@ -164,8 +164,7 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
           </div>
         </div>
       </div>
-      <div className="flex items-center gap-4">
-        {/* Seat Info button + dropdown removed — preserved in git history as "seat info button dropdown" */}
+      <div className="flex items-center gap-2 md:gap-3">
         <button
           className={`h-11 md:h-10 px-2.5 md:px-4 rounded-lg text-sm md:text-base font-medium border-none cursor-pointer transition-all flex items-center gap-2 ${
             isDark ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-[#f5f4f2] text-black hover:bg-[#eceae5]'
@@ -179,6 +178,18 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
             </span>
           )}
         </button>
+        {/* Account icon */}
+        <a
+          href="/dashboard/profile"
+          className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all ${
+            isDark ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-[#f5f4f2] text-black hover:bg-[#eceae5]'
+          }`}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
+        </a>
       </div>
     </header>
   );

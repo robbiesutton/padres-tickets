@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { signOut } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useDashboardContext } from '../layout';
@@ -33,23 +33,18 @@ const AVAILABLE_PERKS = [
   'Easy parking', 'Club access', 'Great for kids', 'Aisle seats',
 ];
 
-const NAV_ITEMS = [
-  { id: 'profile', label: 'Profile', icon: (
+const ALL_NAV_ITEMS = [
+  { id: 'profile', label: 'Profile', holder: true, claimer: true, icon: (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" />
     </svg>
   )},
-  { id: 'payment', label: 'Payment', icon: (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="1" y="4" width="22" height="16" rx="2" /><line x1="1" y1="10" x2="23" y2="10" />
-    </svg>
-  )},
-  { id: 'seat-info', label: 'Seat Info', icon: (
+  { id: 'seat-info', label: 'Seat Info', holder: true, claimer: false, icon: (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" /><line x1="4" y1="22" x2="4" y2="15" />
     </svg>
   )},
-  { id: 'subscription', label: 'Subscription', icon: (
+  { id: 'subscription', label: 'Subscription', holder: true, claimer: false, icon: (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
     </svg>
@@ -164,6 +159,12 @@ export default function ProfilePage() {
   function formatDate(dateStr: string) {
     return new Date(dateStr).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
   }
+
+  const { data: session } = useSession();
+  const sessionRole = (session?.user as { role?: string })?.role;
+  const isHolder = sessionRole === 'HOLDER' || sessionRole === 'BOTH' || profile?.role === 'HOLDER' || profile?.role === 'BOTH';
+  const NAV_ITEMS = ALL_NAV_ITEMS.filter((item) => isHolder ? item.holder : item.claimer);
+
 
   if (loading) return <div className="flex flex-1 items-center justify-center"><p className="text-[#8e8985]">Loading...</p></div>;
 
@@ -397,7 +398,6 @@ export default function ProfilePage() {
 
   const sectionRenderers: Record<string, () => React.ReactNode> = {
     profile: renderProfile,
-    payment: renderPayment,
     'seat-info': renderSeatInfo,
     subscription: renderSubscription,
   };

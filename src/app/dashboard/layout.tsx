@@ -8,7 +8,6 @@ import { usePathname } from 'next/navigation';
 import { getTeamColors, isColorDark } from '@/lib/team-colors';
 import { getOpponentAbbr } from '@/lib/game-utils';
 import { ScoreTicker } from '@/components/score-ticker';
-import { ShareFooter } from '@/app/share/[slug]/components/share-footer';
 
 interface PackageForNav {
   id: string;
@@ -596,6 +595,7 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname();
   const isProfile = pathname === '/dashboard/profile';
+  const isDashboard = pathname === '/dashboard';
   const [packages, setPackages] = useState<PackageForNav[]>([]);
   const [selectedPkgId, setSelectedPkgId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -665,7 +665,7 @@ export default function DashboardLayout({
             )}
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 md:gap-3">
             {/* Package switcher (if multiple) */}
             {packages.length > 1 && (
               <select
@@ -685,24 +685,25 @@ export default function DashboardLayout({
               </select>
             )}
 
-            {/* My Account button */}
+            {/* Dashboard button */}
+            <Link
+              href="/dashboard"
+              className="h-10 px-4 rounded-lg text-sm font-medium cursor-pointer transition-all flex items-center text-white"
+              style={{ backgroundColor: isDashboard ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.1)' }}
+            >
+              Dashboard
+            </Link>
+
+            {/* Account icon */}
             <Link
               href="/dashboard/profile"
-              className={`h-11 md:h-10 px-2.5 md:px-4 rounded-lg text-sm md:text-base font-medium border-none cursor-pointer transition-all flex items-center gap-2 ${
-                isDark
-                  ? isProfile
-                    ? 'bg-white/20 text-white'
-                    : 'bg-white/10 text-white hover:bg-white/20'
-                  : isProfile
-                    ? 'bg-[#eceae5] text-black'
-                    : 'bg-[#f5f4f2] text-black hover:bg-[#eceae5]'
-              }`}
+              className="w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all text-white"
+              style={{ backgroundColor: isProfile ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.1)' }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
                 <circle cx="12" cy="7" r="4" />
               </svg>
-              <span className="hidden md:inline">My Account</span>
             </Link>
           </div>
         </header>
@@ -714,7 +715,6 @@ export default function DashboardLayout({
         <div className="hidden md:block mt-auto pt-12">
           <ScoreTicker bgColor={navColor} />
         </div>
-        <ShareFooter team={selectedPkg?.team || 'MLB'} />
       </div>
     </DashboardContext.Provider>
   );

@@ -52,7 +52,6 @@ const STATUS_CHIPS: { value: string; label: string; dot: string; bg: string; tex
   { value: 'GOING_MYSELF',   label: 'Going Myself',   dot: '#2c2a2b', bg: '#e8e5e0', text: '#2c2a2b' },
   { value: 'AVAILABLE',      label: 'Available',       dot: '#d4a017', bg: '#fdf6e3', text: '#2c2a2b' },
   { value: 'CLAIMED',        label: 'Claimed',         dot: '#2d6a4f', bg: '#e8f5e4', text: '#2d6a4f' },
-  { value: 'TRANSFERRED',    label: 'Transferred',     dot: '#2c2a2b', bg: '#e8e5e0', text: '#2c2a2b' },
   { value: 'SOLD_ELSEWHERE', label: 'Sold',            dot: '#8e8985', bg: '#f5f4f2', text: '#8e8985' },
   { value: 'UNAVAILABLE',    label: 'Unavailable',     dot: '#dc2626', bg: '#fce4ec', text: '#dc2626' },
 ];
@@ -64,7 +63,7 @@ const EDITABLE_STATUSES_WITH_HELP: { value: string; label: string; dot: string; 
   { value: 'UNAVAILABLE',    label: 'Unavailable',    dot: '#dc2626', help: 'Not sharing' },
 ];
 
-const EDITABLE_STATUSES = STATUS_CHIPS.filter((s) => s.value !== 'CLAIMED' && s.value !== 'TRANSFERRED');
+const EDITABLE_STATUSES = STATUS_CHIPS.filter((s) => s.value !== 'CLAIMED');
 
 function getStatusChip(status: string) {
   return STATUS_CHIPS.find((s) => s.value === status) || STATUS_CHIPS[0];
@@ -355,12 +354,14 @@ function SellerGameCard({
   team,
   onStatusChange,
   onPriceChange,
+  onRemoveGame,
   onTap,
 }: {
   game: GameWithClaim;
   team: string;
   onStatusChange: (gameId: string, status: string) => void;
   onPriceChange: (gameId: string, price: string) => void;
+  onRemoveGame?: (gameId: string) => void;
   onTap: () => void;
 }) {
   const [popoverOpen, setPopoverOpen] = useState(false);
@@ -368,14 +369,18 @@ function SellerGameCard({
   const [flashStatus, setFlashStatus] = useState<string | null>(null);
   const [editingPrice, setEditingPrice] = useState(false);
   const [priceValue, setPriceValue] = useState(game.pricePerTicket ? String(Number(game.pricePerTicket)) : '');
+  const [priceSaved, setPriceSaved] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [confirmRemove, setConfirmRemove] = useState(false);
   const priceInputRef = useRef<HTMLInputElement>(null);
   const pillRef = useRef<HTMLButtonElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const { dow, day, month } = formatShortDate(game.date);
   const abbr = getOpponentAbbr(game.opponent);
   const color = getOpponentColor(game.opponent);
   const hasClaim = game.claim && game.claim.status !== 'RELEASED';
-  const isClaimed = game.status === 'CLAIMED' || game.status === 'TRANSFERRED';
+  const isClaimed = game.status === 'CLAIMED';
   const editable = isEditable(game.status);
 
   let borderColor = '#dcd7d4';
@@ -393,11 +398,28 @@ function SellerGameCard({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [popoverOpen]);
 
+  // Close menu on outside click
+  useEffect(() => {
+    if (!menuOpen) return;
+    function handleClick(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) { setMenuOpen(false); setConfirmRemove(false); }
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [menuOpen]);
+
   function handleStatusSelect(newStatus: string) {
     onStatusChange(game.id, newStatus);
     setPopoverOpen(false);
     setFlashStatus(newStatus);
     setTimeout(() => setFlashStatus(null), 1500);
+  }
+
+  function handlePriceSave() {
+    onPriceChange(game.id, priceValue);
+    setEditingPrice(false);
+    setPriceSaved(true);
+    setTimeout(() => setPriceSaved(false), 1500);
   }
 
   const chip = getStatusChip(game.status);
@@ -423,8 +445,8 @@ function SellerGameCard({
 
   return (
     <div
-      className={`rounded-lg px-4 md:px-6 py-4 border border-solid flex items-center gap-2 md:gap-4 bg-white shadow-[0_2px_4px_rgba(0,0,0,0.08)] md:shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all md:cursor-default cursor-pointer ${flashStatus ? 'ring-2 ring-[#2d6a4f]/30' : ''}`}
-      style={{ borderColor }}
+      className={`rounded-[10px] px-4 md:px-5 py-4 border border-solid flex items-center gap-2 md:gap-4 shadow-[0_2px_4px_rgba(0,0,0,0.08)] md:shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all md:cursor-default cursor-pointer ${flashStatus ? 'ring-2 ring-[#2d6a4f]/30' : ''} ${priceSaved ? 'bg-[#f0fdf4] border-[#bbf7d0]' : 'bg-white'} ${editingPrice ? 'border-[#2c2a2b] border-2' : ''}`}
+      style={{ borderColor: editingPrice ? '#2c2a2b' : priceSaved ? '#bbf7d0' : borderColor }}
       onClick={handleCardClick}
     >
 
@@ -459,24 +481,28 @@ function SellerGameCard({
             {hasClaim && game.claim && <span> &bull; {game.claim.claimer.firstName} {game.claim.claimer.lastName}</span>}
             <span className="hidden md:inline">
               {editingPrice ? (
-                <span onClick={(e) => e.stopPropagation()}> &bull; $
-                  <input
-                    ref={priceInputRef}
-                    type="number"
-                    value={priceValue}
-                    onChange={(e) => setPriceValue(e.target.value)}
-                    onBlur={() => { onPriceChange(game.id, priceValue); setEditingPrice(false); }}
-                    onKeyDown={(e) => { if (e.key === 'Enter') { onPriceChange(game.id, priceValue); setEditingPrice(false); } if (e.key === 'Escape') { setPriceValue(game.pricePerTicket ? String(Number(game.pricePerTicket)) : ''); setEditingPrice(false); } }}
-                    className="w-[60px] bg-transparent border-b border-[#2c2a2b] outline-none text-[#2c2a2b] font-medium"
-                    autoFocus
-                  />/ticket
+                <span className="inline-flex items-center gap-2 ml-2" onClick={(e) => e.stopPropagation()}>
+                  <span className={`inline-flex items-center h-[30px] rounded-md border-[1.5px] overflow-hidden ${
+                    priceValue && isNaN(Number(priceValue)) ? 'border-[#dc2626] bg-[#fef2f2]' : 'border-[#2c2a2b] bg-[#f5f4f2]'
+                  }`}>
+                    <span className="text-sm text-[#8e8985] pl-2 pr-0.5">$</span>
+                    <input
+                      ref={priceInputRef}
+                      type="text"
+                      inputMode="numeric"
+                      value={priceValue}
+                      onChange={(e) => setPriceValue(e.target.value.replace(/[^0-9.]/g, ''))}
+                      onKeyDown={(e) => { if (e.key === 'Enter') handlePriceSave(); if (e.key === 'Escape') { setPriceValue(game.pricePerTicket ? String(Number(game.pricePerTicket)) : ''); setEditingPrice(false); } }}
+                      className="w-[40px] h-full bg-transparent border-none outline-none text-sm font-bold text-[#1a1a1a] text-right pr-2"
+                      autoFocus
+                    />
+                  </span>
+                  <button onClick={handlePriceSave} className="h-[30px] px-3 rounded-md bg-[#2d6a4f] text-white text-[11px] font-semibold border-none cursor-pointer hover:bg-[#245a43] transition-colors flex items-center">Save</button>
+                  <button onClick={() => { setPriceValue(game.pricePerTicket ? String(Number(game.pricePerTicket)) : ''); setEditingPrice(false); }} className="text-[#999] text-base font-bold bg-transparent border-none cursor-pointer hover:text-[#1a1a1a] transition-colors ml-0.5">✕</button>
                 </span>
               ) : (
-                <span
-                  className="cursor-pointer hover:text-[#2c2a2b] transition-colors"
-                  onClick={(e) => { e.stopPropagation(); setEditingPrice(true); }}
-                >
-                  {game.pricePerTicket ? ` \u00B7 $${Number(game.pricePerTicket)}/ticket` : ' \u00B7 Set price'}
+                <span className="text-[#999]">
+                  {game.pricePerTicket ? ` \u00B7 $${Number(game.pricePerTicket)}/ticket` : ''}
                 </span>
               )}
             </span>
@@ -529,6 +555,105 @@ function SellerGameCard({
         )}
       </div>
 
+      {/* Three-dot menu — desktop */}
+      <div className="relative shrink-0 hidden md:block" ref={menuRef}>
+        <button
+          onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen); setConfirmRemove(false); }}
+          className="w-7 h-7 rounded flex items-center justify-center text-[#8e8985] hover:bg-[#f3f4f6] hover:text-[#2c2a2b] transition-all cursor-pointer bg-transparent border-none text-base font-bold"
+        >
+          ⋯
+        </button>
+
+        {menuOpen && !confirmRemove && (
+          <div className="absolute right-0 top-[calc(100%+4px)] z-50 bg-white rounded-[10px] shadow-[0_8px_28px_rgba(0,0,0,0.14),0_0_0_1px_rgba(0,0,0,0.05)] p-1.5 w-[160px]">
+            <button
+              onClick={(e) => { e.stopPropagation(); setMenuOpen(false); setEditingPrice(true); }}
+              className="w-full text-left px-3.5 py-2.5 rounded-md text-[13px] font-medium text-[#1a1a1a] bg-transparent border-none cursor-pointer hover:bg-[#f7f5f2] transition-colors"
+            >
+              Edit Price
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); if (!isClaimed) setConfirmRemove(true); }}
+              className={`w-full text-left px-3.5 py-2.5 rounded-md text-[13px] font-medium bg-transparent border-none transition-colors ${
+                isClaimed ? 'text-[#ccc] cursor-not-allowed' : 'text-[#dc2626] cursor-pointer hover:bg-[#f7f5f2]'
+              }`}
+            >
+              Remove Game
+            </button>
+          </div>
+        )}
+
+        {menuOpen && confirmRemove && (
+          <div className="absolute right-0 top-[calc(100%+4px)] z-50 bg-white rounded-[10px] shadow-[0_8px_28px_rgba(0,0,0,0.14),0_0_0_1px_rgba(0,0,0,0.05)] p-4 w-[260px]">
+            <p className="text-sm font-semibold text-[#1a1a1a] mb-1">Remove this game?</p>
+            <p className="text-xs text-[#999] mb-4">vs {game.opponent} · {formatTime(game.time)}</p>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={(e) => { e.stopPropagation(); onRemoveGame?.(game.id); setMenuOpen(false); setConfirmRemove(false); }}
+                className="h-9 px-4 rounded-lg bg-[#dc2626] text-white text-sm font-semibold border-none cursor-pointer hover:bg-[#b91c1c] transition-colors"
+              >
+                Remove
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); setConfirmRemove(false); setMenuOpen(false); }}
+                className="text-sm font-medium text-[#6b7280] bg-transparent border-none cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Three-dot menu — mobile */}
+      <div className="relative shrink-0 md:hidden">
+        <button
+          onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen); setConfirmRemove(false); }}
+          className="w-6 h-6 rounded flex items-center justify-center text-[#8e8985] hover:bg-[#f3f4f6] hover:text-[#2c2a2b] transition-all cursor-pointer bg-transparent border-none text-sm font-bold"
+        >
+          ⋯
+        </button>
+      </div>
+
+      {/* Mobile menu bottom sheet */}
+      {menuOpen && typeof window !== 'undefined' && window.innerWidth < 768 && createPortal(
+        <div className="fixed inset-0 z-50">
+          <div className="absolute inset-0 bg-black/30" onClick={() => { setMenuOpen(false); setConfirmRemove(false); }} />
+          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-[0_-8px_30px_rgba(0,0,0,0.12)] animate-slide-up">
+            <div className="relative">
+              <button className="absolute top-3 right-2 w-11 h-11 flex items-center justify-center bg-transparent border-none cursor-pointer z-10" onClick={() => { setMenuOpen(false); setConfirmRemove(false); }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18" stroke="#8e8985" strokeWidth="2.5" strokeLinecap="round" /><path d="M6 6l12 12" stroke="#8e8985" strokeWidth="2.5" strokeLinecap="round" /></svg>
+              </button>
+              <div className="px-4 pt-5 pb-8">
+                {!confirmRemove ? (
+                  <div className="flex flex-col gap-1">
+                    <button onClick={() => { setMenuOpen(false); setEditingPrice(true); }} className="w-full text-left px-4 py-4 rounded-xl text-base font-medium text-[#1a1a1a] bg-[#f5f4f2] border-none cursor-pointer">
+                      Edit Price
+                    </button>
+                    <button
+                      onClick={() => { if (!isClaimed) setConfirmRemove(true); }}
+                      className={`w-full text-left px-4 py-4 rounded-xl text-base font-medium border-none ${isClaimed ? 'text-[#ccc] bg-[#f5f4f2] cursor-not-allowed' : 'text-[#dc2626] bg-[#f5f4f2] cursor-pointer'}`}
+                    >
+                      Remove Game
+                    </button>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="text-base font-semibold text-[#1a1a1a] mb-1">Remove this game?</p>
+                    <p className="text-sm text-[#999] mb-6">vs {game.opponent} · {formatTime(game.time)}</p>
+                    <div className="flex flex-col gap-3">
+                      <button onClick={() => { onRemoveGame?.(game.id); setMenuOpen(false); setConfirmRemove(false); }} className="w-full h-12 rounded-lg bg-[#dc2626] text-white text-base font-semibold border-none cursor-pointer">Remove</button>
+                      <button onClick={() => { setConfirmRemove(false); setMenuOpen(false); }} className="w-full text-sm font-medium text-[#6b7280] bg-transparent border-none cursor-pointer py-2">Cancel</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
       {/* Mobile: status picker bottom sheet */}
       {popoverOpen && typeof window !== 'undefined' && window.innerWidth < 768 && (
         <StatusPicker
@@ -555,11 +680,13 @@ function SellerListView({
   onStatusChange,
   onSelectGame,
   onPriceChange,
+  onRemoveGame,
 }: {
   games: GameWithClaim[];
   team: string;
   onStatusChange: (gameId: string, status: string) => void;
   onPriceChange: (gameId: string, price: string) => void;
+  onRemoveGame: (gameId: string) => void;
   onSelectGame: (game: GameWithClaim) => void;
 }) {
   const grouped = groupGamesByMonth(games);
@@ -586,6 +713,7 @@ function SellerListView({
                 team={team}
                 onStatusChange={onStatusChange}
                 onPriceChange={onPriceChange}
+                onRemoveGame={onRemoveGame}
                 onTap={() => onSelectGame(game)}
               />
             ))}
@@ -820,6 +948,12 @@ function SellerToolbar({
             <option value="">Person</option>
             {claimers.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
           </select>
+          {hasActiveFilters && (
+            <button onClick={onClearFilters} className="flex items-center gap-1.5 text-sm font-medium text-[#8e8985] hover:text-[#2c2a2b] bg-transparent border-none cursor-pointer transition-colors whitespace-nowrap">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18" /><path d="M6 6l12 12" /></svg>
+              Clear filters
+            </button>
+          )}
         </div>
       </div>
     </>
@@ -900,7 +1034,7 @@ export default function DashboardPage() {
       setGames((prev) => prev.map((g) => {
         if (g.id !== gameId) return g;
         const updated = { ...g, status: newStatus };
-        if (newStatus !== 'CLAIMED' && newStatus !== 'TRANSFERRED') updated.claim = null;
+        if (newStatus !== 'CLAIMED') updated.claim = null;
         return updated;
       }));
     }
@@ -916,6 +1050,10 @@ export default function DashboardPage() {
     if (res.ok) {
       setGames((prev) => prev.map((g) => g.id === gameId ? { ...g, pricePerTicket: numPrice !== null ? String(numPrice) : null } : g));
     }
+  }
+
+  function removeGame(gameId: string) {
+    setGames((prev) => prev.filter((g) => g.id !== gameId));
   }
 
   function handleCopyShareLink() {
@@ -934,7 +1072,7 @@ export default function DashboardPage() {
       <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8">
         <h1 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>Welcome to BenchBuddy</h1>
         <p className="text-[#8e8985]">Set up your first season ticket package to get started.</p>
-        <a href="/dashboard/packages/new" className="rounded-lg bg-[#2c2a2b] px-6 py-2.5 text-sm font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b]">Create Package</a>
+        <a href="/packages/new" className="rounded-lg bg-[#2c2a2b] px-6 py-2.5 text-sm font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b]">Create Package</a>
       </div>
     );
   }
@@ -945,7 +1083,10 @@ export default function DashboardPage() {
         {/* Header */}
         <div className="flex flex-wrap items-center justify-between gap-3 mb-3 md:mb-4">
           <h1 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>Dashboard</h1>
-          <button onClick={handleCopyShareLink} className="flex items-center gap-1.5 text-sm font-medium text-[#8e8985] hover:text-[#2c2a2b] transition-colors bg-transparent border-none cursor-pointer">
+          <button
+            onClick={handleCopyShareLink}
+            className="flex items-center gap-1.5 text-base font-medium text-[#2c2a2b] hover:text-[#1a1a1a] transition-colors bg-transparent border-none cursor-pointer"
+          >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" />
               <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" />
@@ -996,14 +1137,6 @@ export default function DashboardPage() {
           />
         </div>
 
-        {/* Clear filters — desktop only (mobile has it in toolbar + sheet) */}
-        {hasActiveFilters && (
-          <div className="hidden md:block mb-4 -mt-2">
-            <button className="text-sm font-medium text-[#8e8985] hover:text-[#2c2a2b] bg-transparent border-none cursor-pointer transition-colors" onClick={clearFilters}>
-              Clear all filters
-            </button>
-          </div>
-        )}
 
         {/* Game list */}
         {filteredGames.length === 0 && hasActiveFilters ? (
@@ -1017,6 +1150,7 @@ export default function DashboardPage() {
             team={selectedPkg?.team || ''}
             onStatusChange={updateGameStatus}
             onPriceChange={updateGamePrice}
+            onRemoveGame={removeGame}
             onSelectGame={(game) => setSelectedMobileGame(game)}
           />
         )}
