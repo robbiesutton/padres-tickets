@@ -29,7 +29,7 @@ function MobileSeatInfoPill({ pkg }: { pkg: PackageInfo }) {
   const [open, setOpen] = useState(false);
   const { primary, accent } = getTeamColors(pkg.team);
   const abbr = getOpponentAbbr(pkg.team);
-  const priceDisplay = pkg.defaultPricePerTicket ? `$${pkg.defaultPricePerTicket}` : null;
+
 
   return (
     <div className="md:hidden">
@@ -107,10 +107,6 @@ function MobileSeatInfoPill({ pkg }: { pkg: PackageInfo }) {
                   <div className="flex items-center justify-between">
                     <span className="font-normal text-black">Level</span>
                     <span className="font-bold text-black">Field Level</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="font-normal text-black">Price per seat</span>
-                    <span className="font-bold text-black">{priceDisplay ?? 'Price varies'}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="font-normal text-black">Ticket delivery</span>
@@ -346,6 +342,7 @@ function SharePageInner({ packageInfo, games, opponents }: Props) {
               monthFilter={monthFilter}
               onMonthFilterChange={handleMonthFilterChange}
               months={monthOptions}
+              teamPrimary={getTeamColors(packageInfo.team).primary}
             />
 
             <AlsoPlaysIn

@@ -4,8 +4,12 @@ import { createToken } from '@/lib/services/tokens';
 import { sendEmail } from '@/lib/services/email';
 import { jsonError, jsonSuccess } from '@/lib/api-utils';
 import { getClientIp, rateLimit, rateLimitResponse } from '@/lib/rate-limit';
+import { DESIGN_MODE } from '@/lib/mock-data';
 
 export async function POST(request: NextRequest) {
+  if (DESIGN_MODE) {
+    return jsonSuccess({ message: 'Magic link sent' });
+  }
   const ip = getClientIp(request);
   const { success } = rateLimit(`magic-link:${ip}`, 3, 60_000);
   if (!success) return rateLimitResponse();

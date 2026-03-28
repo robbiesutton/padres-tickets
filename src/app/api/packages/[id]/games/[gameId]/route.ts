@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/db';
 import { requireAuth, jsonError, jsonSuccess } from '@/lib/api-utils';
 import { GameStatus } from '@/generated/prisma/client';
+import { DESIGN_MODE } from '@/lib/mock-data';
 
 // Status transitions that require releasing a claim first
 const CLAIMED_STATUSES: GameStatus[] = ['CLAIMED', 'TRANSFERRED', 'COMPLETE'];
@@ -10,6 +11,11 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string; gameId: string }> }
 ) {
+  if (DESIGN_MODE) {
+    const body = await request.json();
+    return jsonSuccess({ game: { id: (await params).gameId, ...body } });
+  }
+
   const user = await requireAuth();
   if (!user) return jsonError('Unauthorized', 401);
 

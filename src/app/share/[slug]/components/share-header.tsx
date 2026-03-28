@@ -50,9 +50,6 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [seatInfoOpen, pillOpen]);
 
-  const priceDisplay = pkg.defaultPricePerTicket
-    ? `$${pkg.defaultPricePerTicket}`
-    : null;
 
   const { primary: navColor, accent: teamAccent } = getTeamColors(pkg.team);
   const isDark = isColorDark(navColor);
@@ -144,10 +141,6 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
                   <div className="flex items-center justify-between">
                     <span className="font-normal text-black">Level</span>
                     <span className="font-bold text-black">Field Level</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="font-normal text-black">Price per seat</span>
-                    <span className="font-bold text-black">{priceDisplay ?? 'Price varies'}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="font-normal text-black">Ticket delivery</span>

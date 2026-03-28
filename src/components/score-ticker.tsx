@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { isColorDark } from '@/lib/team-colors';
 
 interface MLBGame {
   homeTeam: string;
@@ -26,14 +27,14 @@ const TEAM_COLORS: Record<string, string> = {
   BAL: '#DF4601', TOR: '#134A8E', DET: '#0C2C56', MIN: '#002B5C',
   CWS: '#27251F', KC: '#004687', CLE: '#00385D', TEX: '#003278',
   OAK: '#003831', LAA: '#BA0021', WSH: '#AB0003', PIT: '#FDB827',
-  SD: '#D4A843', MIA: '#00A3E0',
+  SD: '#FFC425', MIA: '#00A3E0',
 };
 
 function getColor(abbr: string): string {
   return TEAM_COLORS[abbr] || '#555';
 }
 
-export function ScoreTicker() {
+export function ScoreTicker({ bgColor }: { bgColor?: string } = {}) {
   const [data, setData] = useState<ScoreData | null>(null);
 
   useEffect(() => {
@@ -55,7 +56,10 @@ export function ScoreTicker() {
   if (!data || data.games.length === 0) {
     // Show placeholder bar even with no data
     return (
-      <div className="bg-navy h-[128px] flex items-center justify-center">
+      <div
+        className={`h-[128px] flex items-center justify-center ${bgColor ? '' : 'bg-navy'}`}
+        style={bgColor ? { backgroundColor: bgColor } : undefined}
+      >
         <span className="text-xs text-white/30">No games today</span>
       </div>
     );
@@ -67,19 +71,22 @@ export function ScoreTicker() {
   const allScrollGames = [...scrollGames, ...scrollGames];
 
   return (
-    <div className="bg-navy flex items-stretch overflow-hidden h-[128px] relative">
+    <div
+      className={`flex items-stretch overflow-hidden h-[128px] relative p-4 ${bgColor ? '' : 'bg-navy'}`}
+      style={bgColor ? { backgroundColor: bgColor } : undefined}
+    >
       {/* Featured game */}
       {featured && (
-        <div className="flex items-center gap-4 px-5 bg-white/[0.06] border border-white/[0.08] rounded-[10px] m-6 shrink-0 z-[2]">
+        <div className="flex items-center gap-4 px-5 bg-white/[0.06] border border-white/[0.08] rounded-[10px] shrink-0 z-[2]">
           <div className="flex items-center gap-2.5">
-            <div className="flex flex-col items-center gap-0.5">
+            <div className="flex flex-col items-center gap-1">
               <div
                 className="w-7 h-7 rounded-full flex items-center justify-center text-[9px] font-bold text-white"
                 style={{ backgroundColor: getColor(featured.awayAbbr) }}
               >
                 {featured.awayAbbr}
               </div>
-              <span className="text-[9px] text-white/35">vs</span>
+              <span className={`text-[9px] ${bgColor && isColorDark(bgColor) ? 'text-white/60' : 'text-white/35'}`}>vs</span>
               <div
                 className="w-7 h-7 rounded-full flex items-center justify-center text-[9px] font-bold text-white"
                 style={{ backgroundColor: getColor(featured.homeAbbr) }}
@@ -113,27 +120,34 @@ export function ScoreTicker() {
               </span>
             </div>
           </div>
-          <div className="flex flex-col gap-px">
-            <div className="text-xs font-medium text-white/85">
-              {featured.status === 'Final'
-                ? (featured.homeAbbr === 'SD' || featured.awayAbbr === 'SD'
-                    ? (featured.homeAbbr === 'SD' && (featured.homeScore ?? 0) > (featured.awayScore ?? 0)) ||
-                      (featured.awayAbbr === 'SD' && (featured.awayScore ?? 0) > (featured.homeScore ?? 0))
-                      ? 'W'
-                      : 'L'
-                    : '')
-                : ''}{' '}
-              {featured.gameDate}
+          <div className="flex flex-col gap-0.5">
+            <div className="text-xs font-semibold text-white/85">
+              {featured.status}
             </div>
-            <div className="text-[11px] text-accent">{featured.status}</div>
+            <div className="text-[11px] text-white/50">
+              {(() => {
+                const d = new Date(featured.gameDate);
+                if (isNaN(d.getTime())) return featured.gameDate;
+                const dow = d.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
+                const mon = d.toLocaleDateString('en-US', { month: 'short' });
+                const day = d.getDate();
+                return `${dow}, ${mon} ${day}`;
+              })()}
+            </div>
           </div>
         </div>
       )}
 
       {/* Scrolling ticker */}
       <div className="flex-1 overflow-hidden flex items-center relative">
-        <div className="absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-navy to-transparent z-[1]" />
-        <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-navy to-transparent z-[1]" />
+        <div
+          className={`absolute left-0 top-0 bottom-0 w-10 z-[1] ${bgColor ? '' : 'bg-gradient-to-r from-navy to-transparent'}`}
+          style={bgColor ? { background: `linear-gradient(to right, ${bgColor}, transparent)` } : undefined}
+        />
+        <div
+          className={`absolute right-0 top-0 bottom-0 w-10 z-[1] ${bgColor ? '' : 'bg-gradient-to-l from-navy to-transparent'}`}
+          style={bgColor ? { background: `linear-gradient(to left, ${bgColor}, transparent)` } : undefined}
+        />
         <div
           className="flex gap-3 whitespace-nowrap"
           style={{
