@@ -15,6 +15,8 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [marketingOptIn, setMarketingOptIn] = useState(false);
 
   function update(field: string, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -28,7 +30,7 @@ export default function SignupPage() {
     const res = await fetch('/api/auth/signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
+      body: JSON.stringify({ ...form, agreedToTerms, marketingOptIn }),
     });
 
     const data = await res.json();
@@ -180,9 +182,43 @@ export default function SignupPage() {
               </label>
             </div>
           </div>
+          {/* Consent checkboxes */}
+          <div className="space-y-3">
+            <label className="flex items-start gap-2 text-sm cursor-pointer">
+              <input
+                type="checkbox"
+                checked={agreedToTerms}
+                onChange={(e) => setAgreedToTerms(e.target.checked)}
+                className="mt-0.5 shrink-0"
+              />
+              <span className="text-foreground/70">
+                I agree to the{' '}
+                <a href="/terms" target="_blank" className="text-[#2c2a2b] font-medium underline">
+                  Terms of Service
+                </a>{' '}
+                and{' '}
+                <a href="/privacy" target="_blank" className="text-[#2c2a2b] font-medium underline">
+                  Privacy Policy
+                </a>
+              </span>
+            </label>
+            <label className="flex items-start gap-2 text-sm cursor-pointer">
+              <input
+                type="checkbox"
+                checked={marketingOptIn}
+                onChange={(e) => setMarketingOptIn(e.target.checked)}
+                className="mt-0.5 shrink-0"
+              />
+              <span className="text-foreground/70">
+                I&apos;d like to receive updates, game-day tips, and news from
+                BenchBuddy via email. You can unsubscribe at any time.
+              </span>
+            </label>
+          </div>
+
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !agreedToTerms}
             className="w-full bg-[#2c2a2b] text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] h-10 rounded-lg text-base font-medium transition-colors disabled:opacity-50"
           >
             {loading ? 'Creating account...' : 'Create account'}

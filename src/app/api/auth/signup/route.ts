@@ -12,7 +12,11 @@ export async function POST(request: NextRequest) {
   if (!success) return rateLimitResponse();
 
   const body = await request.json();
-  const { firstName, lastName, email, password, role } = body;
+  const { firstName, lastName, email, password, role, agreedToTerms, marketingOptIn } = body;
+
+  if (!agreedToTerms) {
+    return jsonError('You must agree to the Terms of Service and Privacy Policy', 400);
+  }
 
   if (!firstName || !lastName || !email || !password) {
     return jsonError(
@@ -44,6 +48,7 @@ export async function POST(request: NextRequest) {
       email: normalizedEmail,
       passwordHash,
       role: role === 'HOLDER' ? 'HOLDER' : 'CLAIMER',
+      notificationPrefs: { marketingOptIn: !!marketingOptIn },
     },
   });
 

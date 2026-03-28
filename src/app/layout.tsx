@@ -3,7 +3,9 @@ import { DM_Sans, Inter, Syne } from 'next/font/google';
 import Script from 'next/script';
 import Providers from './providers';
 import { ConditionalTicker } from '@/components/conditional-ticker';
-import { Analytics } from '@vercel/analytics/next';
+import { ConditionalAnalytics } from '@/components/conditional-analytics';
+import { CookieConsent } from '@/components/cookie-consent';
+import { SiteFooter } from '@/components/site-footer';
 import './globals.css';
 
 const dmSans = DM_Sans({
@@ -28,6 +30,19 @@ export const metadata: Metadata = {
   title: 'BenchBuddy — Share Your Season Tickets',
   description:
     'The easiest way for season ticket holders to share games with friends and family.',
+  openGraph: {
+    title: 'BenchBuddy — Share Your Season Tickets',
+    description:
+      'The easiest way for season ticket holders to share games with friends and family.',
+    type: 'website',
+    siteName: 'BenchBuddy',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'BenchBuddy — Share Your Season Tickets',
+    description:
+      'The easiest way for season ticket holders to share games with friends and family.',
+  },
 };
 
 export default function RootLayout({
@@ -45,7 +60,9 @@ export default function RootLayout({
         <Providers>
           <div className="flex-1 flex flex-col">{children}</div>
           <ConditionalTicker />
-          <Analytics />
+          <SiteFooter />
+          <ConditionalAnalytics />
+          <CookieConsent />
         </Providers>
       </body>
     </html>
