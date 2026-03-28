@@ -566,10 +566,6 @@ export default function NewPackagePage() {
                 <p className="text-[32px] font-bold text-[#2c2a2b] tracking-tight">{selectedSeats.size}</p>
                 <p className="text-xs text-[#8e8985] mt-1">Seats per game</p>
               </div>
-              <div className="flex-1 bg-[#f5f4f2] rounded-xl p-5 text-center">
-                <p className="text-[32px] font-bold text-[#2c2a2b] tracking-tight">${bulkPrice || '0'}</p>
-                <p className="text-xs text-[#8e8985] mt-1">Default price</p>
-              </div>
             </div>
 
             {/* Share link */}
