@@ -52,7 +52,6 @@ const STATUS_CHIPS: { value: string; label: string; dot: string; bg: string; tex
   { value: 'GOING_MYSELF',   label: 'Going Myself',   dot: '#2c2a2b', bg: '#e8e5e0', text: '#2c2a2b' },
   { value: 'AVAILABLE',      label: 'Available',       dot: '#d4a017', bg: '#fdf6e3', text: '#2c2a2b' },
   { value: 'CLAIMED',        label: 'Claimed',         dot: '#2d6a4f', bg: '#e8f5e4', text: '#2d6a4f' },
-  { value: 'TRANSFERRED',    label: 'Transferred',     dot: '#2c2a2b', bg: '#e8e5e0', text: '#2c2a2b' },
   { value: 'SOLD_ELSEWHERE', label: 'Sold',            dot: '#8e8985', bg: '#f5f4f2', text: '#8e8985' },
   { value: 'UNAVAILABLE',    label: 'Unavailable',     dot: '#dc2626', bg: '#fce4ec', text: '#dc2626' },
 ];
@@ -64,7 +63,7 @@ const EDITABLE_STATUSES_WITH_HELP: { value: string; label: string; dot: string; 
   { value: 'UNAVAILABLE',    label: 'Unavailable',    dot: '#dc2626', help: 'Not sharing' },
 ];
 
-const EDITABLE_STATUSES = STATUS_CHIPS.filter((s) => s.value !== 'CLAIMED' && s.value !== 'TRANSFERRED');
+const EDITABLE_STATUSES = STATUS_CHIPS.filter((s) => s.value !== 'CLAIMED');
 
 function getStatusChip(status: string) {
   return STATUS_CHIPS.find((s) => s.value === status) || STATUS_CHIPS[0];
@@ -375,7 +374,7 @@ function SellerGameCard({
   const abbr = getOpponentAbbr(game.opponent);
   const color = getOpponentColor(game.opponent);
   const hasClaim = game.claim && game.claim.status !== 'RELEASED';
-  const isClaimed = game.status === 'CLAIMED' || game.status === 'TRANSFERRED';
+  const isClaimed = game.status === 'CLAIMED';
   const editable = isEditable(game.status);
 
   let borderColor = '#dcd7d4';
@@ -820,6 +819,12 @@ function SellerToolbar({
             <option value="">Person</option>
             {claimers.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
           </select>
+          {hasActiveFilters && (
+            <button onClick={onClearFilters} className="flex items-center gap-1.5 text-sm font-medium text-[#8e8985] hover:text-[#2c2a2b] bg-transparent border-none cursor-pointer transition-colors whitespace-nowrap">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18" /><path d="M6 6l12 12" /></svg>
+              Clear filters
+            </button>
+          )}
         </div>
       </div>
     </>
@@ -900,7 +905,7 @@ export default function DashboardPage() {
       setGames((prev) => prev.map((g) => {
         if (g.id !== gameId) return g;
         const updated = { ...g, status: newStatus };
-        if (newStatus !== 'CLAIMED' && newStatus !== 'TRANSFERRED') updated.claim = null;
+        if (newStatus !== 'CLAIMED') updated.claim = null;
         return updated;
       }));
     }
@@ -945,7 +950,10 @@ export default function DashboardPage() {
         {/* Header */}
         <div className="flex flex-wrap items-center justify-between gap-3 mb-3 md:mb-4">
           <h1 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>Dashboard</h1>
-          <button onClick={handleCopyShareLink} className="flex items-center gap-1.5 text-sm font-medium text-[#8e8985] hover:text-[#2c2a2b] transition-colors bg-transparent border-none cursor-pointer">
+          <button
+            onClick={handleCopyShareLink}
+            className="flex items-center gap-1.5 text-sm font-medium text-[#2c2a2b] hover:text-[#1a1a1a] transition-colors bg-transparent border-none cursor-pointer"
+          >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" />
               <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" />
@@ -996,14 +1004,6 @@ export default function DashboardPage() {
           />
         </div>
 
-        {/* Clear filters — desktop only (mobile has it in toolbar + sheet) */}
-        {hasActiveFilters && (
-          <div className="hidden md:block mb-4 -mt-2">
-            <button className="text-sm font-medium text-[#8e8985] hover:text-[#2c2a2b] bg-transparent border-none cursor-pointer transition-colors" onClick={clearFilters}>
-              Clear all filters
-            </button>
-          </div>
-        )}
 
         {/* Game list */}
         {filteredGames.length === 0 && hasActiveFilters ? (
