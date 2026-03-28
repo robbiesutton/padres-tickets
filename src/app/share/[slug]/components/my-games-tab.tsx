@@ -12,9 +12,10 @@ interface Props {
   claimerName: string;
   onSwitchToAvailable: () => void;
   onReservationCountChange: (count: number) => void;
+  onGameReleased: (gameId: string) => void;
 }
 
-export function MyGamesTab({ pkg, claimerName, onSwitchToAvailable, onReservationCountChange }: Props) {
+export function MyGamesTab({ pkg, claimerName, onSwitchToAvailable, onReservationCountChange, onGameReleased }: Props) {
   const [claims, setClaims] = useState<MyGameClaim[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [selectedGameId, setSelectedGameId] = useState<string | null>(null);
@@ -43,11 +44,14 @@ export function MyGamesTab({ pkg, claimerName, onSwitchToAvailable, onReservatio
   }, [fetchClaims]);
 
   async function handleRelease(claimId: string) {
+    const claim = claims?.find((c) => c.id === claimId);
+    if (!claim) return;
     try {
       const res = await fetch(`/api/claims/${claimId}`, { method: 'DELETE' });
       if (res.ok) {
         setClaims((prev) => prev?.filter((c) => c.id !== claimId) || null);
         onReservationCountChange((claims?.length ?? 1) - 1);
+        onGameReleased(claim.gameId);
         setSelectedGameId(null);
       }
     } catch {

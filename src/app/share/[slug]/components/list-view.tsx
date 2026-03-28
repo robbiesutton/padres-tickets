@@ -27,24 +27,35 @@ export function ListView({
   onCancelled,
 }: Props) {
   const [selectedGameId, setSelectedGameId] = useState<string | null>(null);
-  const availableGames = games.filter(isGameAvailable);
-  const grouped = groupGamesByMonth(availableGames);
+  const visibleGames = games.filter((g) => {
+    // Show available games
+    if (isGameAvailable(g)) return true;
+    // Hide games the user just cancelled
+    if (cancelledGameIds.has(g.id)) return false;
+    // Show games the user has claimed (optimistic or from SSR)
+    if (reservedGames.has(g.id)) return true;
+    if (g.claim?.claimerUserId === currentUserId && g.claim?.status !== 'RELEASED') return true;
+    return false;
+  });
+  const grouped = groupGamesByMonth(visibleGames);
   const { primary: teamPrimary } = getTeamColors(pkg.team);
-  const selectedGame = selectedGameId ? availableGames.find(g => g.id === selectedGameId) : null;
+  const selectedGame = selectedGameId ? visibleGames.find(g => g.id === selectedGameId) : null;
 
   async function handleReserve(gameId: string) {
+    // Optimistic update — flip UI to claimed state immediately
+    onReserved(gameId, '');
     try {
       const res = await fetch(`/api/share/${pkg.slug}/claim`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ gameId }),
       });
-      if (res.ok) {
-        const data = await res.json();
-        onReserved(gameId, data.claim?.id || '');
+      if (!res.ok) {
+        // Roll back optimistic update on failure
+        onCancelled(gameId);
       }
     } catch {
-      // ignore
+      onCancelled(gameId);
     }
   }
 
