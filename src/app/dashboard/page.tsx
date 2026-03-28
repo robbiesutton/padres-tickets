@@ -356,16 +356,12 @@ function SellerGameCard({
   onStatusChange,
   onPriceChange,
   onTap,
-  selected,
-  onToggleSelect,
 }: {
   game: GameWithClaim;
   team: string;
   onStatusChange: (gameId: string, status: string) => void;
   onPriceChange: (gameId: string, price: string) => void;
   onTap: () => void;
-  selected: boolean;
-  onToggleSelect: () => void;
 }) {
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
@@ -383,8 +379,7 @@ function SellerGameCard({
   const editable = isEditable(game.status);
 
   let borderColor = '#dcd7d4';
-  if (selected) borderColor = '#2c2a2b';
-  else if (game.status === 'UNAVAILABLE') borderColor = '#DC2626';
+  if (game.status === 'UNAVAILABLE') borderColor = '#DC2626';
 
   useEffect(() => {
     if (!popoverOpen) return;
@@ -428,23 +423,10 @@ function SellerGameCard({
 
   return (
     <div
-      className={`rounded-lg px-4 md:px-6 py-4 border border-solid flex items-center gap-2 md:gap-4 bg-white shadow-[0_2px_4px_rgba(0,0,0,0.08)] md:shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all md:cursor-default cursor-pointer ${selected ? 'bg-[#f5f4f2]' : ''} ${flashStatus ? 'ring-2 ring-[#2d6a4f]/30' : ''}`}
+      className={`rounded-lg px-4 md:px-6 py-4 border border-solid flex items-center gap-2 md:gap-4 bg-white shadow-[0_2px_4px_rgba(0,0,0,0.08)] md:shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all md:cursor-default cursor-pointer ${flashStatus ? 'ring-2 ring-[#2d6a4f]/30' : ''}`}
       style={{ borderColor }}
       onClick={handleCardClick}
     >
-      {/* Checkbox — desktop only */}
-      <div
-        className={`hidden md:flex w-[18px] h-[18px] rounded-[4px] border-[1.5px] shrink-0 items-center justify-center transition-colors cursor-pointer ${
-          selected ? 'bg-[#2c2a2b] border-[#2c2a2b]' : 'bg-white border-[#dcd7d4] hover:border-[#8e8985]'
-        }`}
-        onClick={(e) => { e.stopPropagation(); onToggleSelect(); }}
-      >
-        {selected && (
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
-            <path d="M5 13l4 4L19 7" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        )}
-      </div>
 
       <div className="flex-1 flex items-center gap-2 md:gap-4 min-w-0">
         <div className="flex items-center gap-2 md:gap-4 shrink-0">
@@ -572,8 +554,6 @@ function SellerListView({
   team,
   onStatusChange,
   onSelectGame,
-  selectedIds,
-  onToggleSelect,
   onPriceChange,
 }: {
   games: GameWithClaim[];
@@ -581,8 +561,6 @@ function SellerListView({
   onStatusChange: (gameId: string, status: string) => void;
   onPriceChange: (gameId: string, price: string) => void;
   onSelectGame: (game: GameWithClaim) => void;
-  selectedIds: Set<string>;
-  onToggleSelect: (gameId: string) => void;
 }) {
   const grouped = groupGamesByMonth(games);
   const { accent } = getTeamColors(team);
@@ -609,8 +587,6 @@ function SellerListView({
                 onStatusChange={onStatusChange}
                 onPriceChange={onPriceChange}
                 onTap={() => onSelectGame(game)}
-                selected={selectedIds.has(game.id)}
-                onToggleSelect={() => onToggleSelect(game.id)}
               />
             ))}
           </div>
@@ -627,48 +603,6 @@ function SellerListView({
 }
 
 // ─── Batch Action Bar ──────────────────────────────────
-
-function BatchActionBar({
-  selectedCount,
-  editableCount,
-  onSelectAll,
-  onCancel,
-  onSetStatus,
-}: {
-  selectedCount: number;
-  editableCount: number;
-  onSelectAll: () => void;
-  onCancel: () => void;
-  onSetStatus: () => void;
-}) {
-  return createPortal(
-    <div className="hidden md:block fixed bottom-0 left-0 right-0 z-50 bg-[#2c2a2b] shadow-[0_-4px_20px_rgba(0,0,0,0.15)] animate-slide-up">
-      <div className="max-w-[1024px] mx-auto px-4 md:px-10 py-8 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-4 min-w-0">
-          <span className="text-base font-medium text-white">
-            {selectedCount === 0 ? 'No games selected' : `${selectedCount} game${selectedCount !== 1 ? 's' : ''} selected`}
-          </span>
-          {selectedCount < editableCount && (
-            <button onClick={onSelectAll} className="text-base font-medium text-white/60 hover:text-white bg-transparent border-none cursor-pointer transition-colors whitespace-nowrap">
-              Select all ({editableCount})
-            </button>
-          )}
-        </div>
-        <div className="flex items-center gap-4">
-          <button onClick={onCancel} className="h-11 px-5 rounded-lg border border-white/20 bg-transparent text-base font-medium text-white hover:bg-white/10 transition-colors cursor-pointer">
-            {selectedCount > 0 ? 'Clear' : 'Cancel'}
-          </button>
-          {selectedCount > 0 && (
-            <button onClick={onSetStatus} className="h-11 px-5 rounded-lg bg-white text-base font-medium text-[#2c2a2b] hover:bg-[#f5f4f2] transition-colors cursor-pointer border-none">
-              Set Status &rarr;
-            </button>
-          )}
-        </div>
-      </div>
-    </div>,
-    document.body
-  );
-}
 
 // ─── Status Chip Bar ───────────────────────────────────
 
@@ -714,7 +648,6 @@ function SellerToolbar({
   opponents, opponentFilter, onOpponentFilterChange,
   monthFilter, onMonthFilterChange, months,
   claimers, claimerFilter, onClaimerFilterChange,
-  allSelected, someSelected, onSelectAllToggle,
   hasActiveFilters, onClearFilters, teamPrimary,
 }: {
   opponents: string[];
@@ -726,9 +659,6 @@ function SellerToolbar({
   claimers: { value: string; label: string }[];
   claimerFilter: string;
   onClaimerFilterChange: (value: string) => void;
-  allSelected: boolean;
-  someSelected: boolean;
-  onSelectAllToggle: () => void;
   hasActiveFilters: boolean;
   onClearFilters: () => void;
   teamPrimary: string;
@@ -839,32 +769,6 @@ function SellerToolbar({
 
       {/* ── Desktop: Inline dropdowns ── */}
       <div className="hidden md:flex md:items-center md:gap-4 mb-4 flex-wrap">
-        {/* Select toggle */}
-        <button
-          onClick={onSelectAllToggle}
-          className={`h-11 px-4 rounded-lg shrink-0 flex items-center gap-2.5 transition-all cursor-pointer border-none text-base font-medium ${
-            allSelected || someSelected
-              ? 'bg-[#2d6a4f] text-white'
-              : 'bg-[#f5f4f2] text-[#8e8985] hover:text-[#2c2a2b]'
-          }`}
-        >
-          <div className={`w-[18px] h-[18px] rounded-[4px] flex items-center justify-center transition-colors ${
-            allSelected || someSelected
-              ? 'bg-[#1a1a1a] border-[1.5px] border-[#1a1a1a]'
-              : 'bg-white border-[1.5px] border-[#dcd7d4]'
-          }`}>
-            {allSelected ? (
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
-                <path d="M5 13l4 4L19 7" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            ) : someSelected ? (
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
-                <line x1="5" y1="12" x2="19" y2="12" stroke="white" strokeWidth="3" strokeLinecap="round" />
-              </svg>
-            ) : null}
-          </div>
-          Select All
-        </button>
         <div className="flex gap-4 flex-1 min-w-0 flex-wrap">
           <div className="relative" ref={opponentDropdownRef}>
             <button
@@ -935,10 +839,6 @@ export default function DashboardPage() {
   const [opponentFilter, setOpponentFilter] = useState<string[]>([]);
   const [claimerFilter, setClaimerFilter] = useState('');
 
-  // Selection state
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [batchPickerOpen, setBatchPickerOpen] = useState(false);
-  const [batchConfirm, setBatchConfirm] = useState<string | null>(null);
 
   const [selectedMobileGame, setSelectedMobileGame] = useState<GameWithClaim | null>(null);
   const [copied, setCopied] = useState(false);
@@ -1018,48 +918,6 @@ export default function DashboardPage() {
     }
   }
 
-  async function handleBatchStatusChange(newStatus: string) {
-    const ids = [...selectedIds];
-    setBatchPickerOpen(false);
-
-    // Fire all updates
-    await Promise.all(ids.map((id) =>
-      fetch(`/api/packages/${selectedPkgId}/games/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus }),
-      })
-    ));
-
-    setGames((prev) => prev.map((g) => {
-      if (!ids.includes(g.id)) return g;
-      const updated = { ...g, status: newStatus };
-      if (newStatus !== 'CLAIMED' && newStatus !== 'TRANSFERRED') updated.claim = null;
-      return updated;
-    }));
-
-    const chipLabel = getStatusChip(newStatus).label;
-    setBatchConfirm(`${ids.length} game${ids.length !== 1 ? 's' : ''} updated to ${chipLabel}`);
-    setTimeout(() => setBatchConfirm(null), 3000);
-    setSelectedIds(new Set());
-  }
-
-  function handleToggleSelect(gameId: string) {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(gameId)) next.delete(gameId); else next.add(gameId);
-      return next;
-    });
-  }
-
-  function handleSelectAllToggle() {
-    if (selectedIds.size === filteredGames.length && filteredGames.length > 0) {
-      setSelectedIds(new Set());
-    } else {
-      setSelectedIds(new Set(filteredGames.map((g) => g.id)));
-    }
-  }
-
   function handleCopyShareLink() {
     if (!selectedPkg?.shareLinkSlug) return;
     navigator.clipboard.writeText(`${window.location.origin}/share/${selectedPkg.shareLinkSlug}`).then(() => {
@@ -1083,7 +941,7 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-1 flex-col bg-[#fefefe]">
-      <div className={`max-w-[1024px] mx-auto w-full px-4 pt-4 md:px-10 md:pt-8 overflow-x-hidden flex-1 ${selectedIds.size > 0 ? 'pb-20' : 'pb-6 md:pb-10'}`}>
+      <div className="max-w-[1024px] mx-auto w-full px-4 pt-4 pb-6 md:px-10 md:pt-8 md:pb-10 overflow-x-hidden flex-1">
         {/* Header */}
         <div className="flex flex-wrap items-center justify-between gap-3 mb-3 md:mb-4">
           <h1 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>Dashboard</h1>
@@ -1132,9 +990,6 @@ export default function DashboardPage() {
             opponents={opponents} opponentFilter={opponentFilter} onOpponentFilterChange={setOpponentFilter}
             monthFilter={monthFilter} onMonthFilterChange={setMonthFilter} months={monthOptions}
             claimers={claimerOptions} claimerFilter={claimerFilter} onClaimerFilterChange={setClaimerFilter}
-            allSelected={filteredGames.length > 0 && selectedIds.size === filteredGames.length}
-            someSelected={selectedIds.size > 0 && selectedIds.size < filteredGames.length}
-            onSelectAllToggle={handleSelectAllToggle}
             hasActiveFilters={hasActiveFilters}
             onClearFilters={clearFilters}
             teamPrimary={selectedPkg ? getTeamColors(selectedPkg.team).primary : '#2c2a2b'}
@@ -1147,13 +1002,6 @@ export default function DashboardPage() {
             <button className="text-sm font-medium text-[#8e8985] hover:text-[#2c2a2b] bg-transparent border-none cursor-pointer transition-colors" onClick={clearFilters}>
               Clear all filters
             </button>
-          </div>
-        )}
-
-        {/* Batch confirm toast */}
-        {batchConfirm && (
-          <div className="mb-4 rounded-lg bg-[#E1F5EE] text-[#0F6E56] px-4 py-3 text-sm font-medium animate-fade-in">
-            {batchConfirm}
           </div>
         )}
 
@@ -1170,8 +1018,6 @@ export default function DashboardPage() {
             onStatusChange={updateGameStatus}
             onPriceChange={updateGamePrice}
             onSelectGame={(game) => setSelectedMobileGame(game)}
-            selectedIds={selectedIds}
-            onToggleSelect={handleToggleSelect}
           />
         )}
 
@@ -1196,25 +1042,6 @@ export default function DashboardPage() {
         )}
       </div>
 
-      {/* Batch action bar */}
-      {selectedIds.size > 0 && (
-        <BatchActionBar
-          selectedCount={selectedIds.size}
-          editableCount={filteredGames.length}
-          onSelectAll={handleSelectAllToggle}
-          onCancel={() => setSelectedIds(new Set())}
-          onSetStatus={() => setBatchPickerOpen(true)}
-        />
-      )}
-
-      {/* Batch status picker */}
-      {batchPickerOpen && (
-        <StatusPicker
-          title={`Set Status for ${selectedIds.size} Game${selectedIds.size !== 1 ? 's' : ''}`}
-          onSelect={handleBatchStatusChange}
-          onClose={() => setBatchPickerOpen(false)}
-        />
-      )}
     </div>
   );
 }
