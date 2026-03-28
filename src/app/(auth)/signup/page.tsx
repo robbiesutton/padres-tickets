@@ -35,7 +35,7 @@ export default function SignupPage() {
   if (success) {
     return (
       <SetupLayout showSidebar={false}>
-        <a href="/" className="fixed top-6 left-6 flex items-center gap-1.5 text-base font-medium text-[#2c2a2b] hover:text-[#1a1a1a] no-underline transition-colors z-10">
+        <a href="/" className="fixed top-6 left-6 flex items-center gap-1.5 text-sm font-medium text-[#8e8985] hover:text-[#2c2a2b] no-underline transition-colors z-10">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
           Back
         </a>
@@ -52,7 +52,7 @@ export default function SignupPage() {
 
   return (
     <SetupLayout showSidebar={false}>
-      <a href="/" className="fixed top-6 left-6 flex items-center gap-1.5 text-base font-medium text-[#2c2a2b] hover:text-[#1a1a1a] no-underline transition-colors z-10">
+      <a href="/" className="fixed top-6 left-6 flex items-center gap-1.5 text-sm font-medium text-[#8e8985] hover:text-[#2c2a2b] no-underline transition-colors z-10">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
         Back
       </a>

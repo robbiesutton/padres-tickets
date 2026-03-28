@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { signOut } from 'next-auth/react';
 import Image from 'next/image';
 import {
   SetupLayout,
@@ -58,7 +59,7 @@ interface ScheduleGame {
   opponent: string;
 }
 
-type Step = 1 | 2 | 3 | 4 | 5;
+type Step = 1 | 2 | 3;
 
 // ─── Constants ──────────────────────────────────────────
 
@@ -80,9 +81,7 @@ const MONTH_NAMES = [
 const STEPS = [
   { label: 'Your Tickets' },
   { label: 'Your Seats' },
-  { label: 'Your Games' },
-  { label: 'Pricing' },
-  { label: 'Get Paid' },
+  { label: 'Customize' },
 ];
 
 const AVAILABLE_PERKS = [
@@ -149,6 +148,185 @@ function initPrices() {
   const pr: Record<number, number> = {};
   MOCK_SCHEDULE.forEach((_, i) => { pr[i] = i === 0 || i === 9 ? 0 : 45; });
   return pr;
+}
+
+// ─── Wizard Game Card ──────────────────────────────────
+
+function WizardGameCard({
+  game,
+  index,
+  isAvail,
+  price,
+  onToggleAvailability,
+  onPriceChange,
+  onRemove,
+}: {
+  game: ScheduleGame;
+  index: number;
+  isAvail: boolean;
+  price: number;
+  onToggleAvailability: () => void;
+  onPriceChange: (price: number) => void;
+  onRemove: () => void;
+}) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [confirmRemove, setConfirmRemove] = useState(false);
+  const [editingPrice, setEditingPrice] = useState(false);
+  const [priceValue, setPriceValue] = useState(String(price));
+  const [priceSaved, setPriceSaved] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const priceInputRef = useRef<HTMLInputElement>(null);
+
+  const d = new Date(game.date);
+  const dow = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d.getDay()];
+  const day = d.getDate();
+  const mon = MONTH_NAMES[d.getMonth()].slice(0, 3);
+  const abbr = getOpponentAbbr(game.opponent);
+  const color = getOpponentColor(game.opponent);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    function handleClick(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) { setMenuOpen(false); setConfirmRemove(false); }
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [menuOpen]);
+
+  function handlePriceSave() {
+    const v = parseInt(priceValue) || 0;
+    onPriceChange(v);
+    setEditingPrice(false);
+    setPriceSaved(true);
+    setTimeout(() => setPriceSaved(false), 1500);
+  }
+
+  return (
+    <div
+      className={`rounded-[10px] px-4 md:px-5 py-4 border border-solid flex items-center gap-2 md:gap-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all ${priceSaved ? 'bg-[#f0fdf4] border-[#bbf7d0]' : 'bg-white'} ${editingPrice ? 'border-[#2c2a2b] border-2' : ''}`}
+      style={{ borderColor: editingPrice ? '#2c2a2b' : priceSaved ? '#bbf7d0' : '#dcd7d4' }}
+    >
+      <div className="flex-1 flex items-center gap-2 md:gap-4 min-w-0">
+        <div className="flex items-center gap-2 md:gap-4 shrink-0">
+          <div className="text-center w-[30px] flex flex-col items-center gap-px">
+            <div className="text-sm font-medium text-[#8e8985] uppercase">{dow}</div>
+            <div className="text-base font-extrabold text-[#2c2a2b] leading-tight">{day}</div>
+            <div className="text-sm font-medium text-[#8e8985]">{mon}</div>
+          </div>
+          <div className="w-px h-[57px] bg-[#dcd7d4]" />
+          <div className="w-[32px] h-[32px] md:w-[42px] md:h-[42px] rounded-full flex items-center justify-center text-[9px] md:text-[13px] font-bold text-white shrink-0" style={{ backgroundColor: color }}>
+            {abbr}
+          </div>
+        </div>
+        <div className="flex flex-col gap-0.5 min-w-0">
+          <div className="text-base font-bold text-[#2c2a2b]">
+            <span className="md:hidden">vs {game.opponent.split(' ').pop()}</span>
+            <span className="hidden md:inline">vs {game.opponent}</span>
+          </div>
+          <div className="text-base md:text-sm font-medium text-[#8e8985]">
+            {game.time}
+            <span className="hidden md:inline">
+              {editingPrice ? (
+                <span className="inline-flex items-center gap-2 ml-2" onClick={(e) => e.stopPropagation()}>
+                  <span className="inline-flex items-center h-[30px] rounded-md border-[1.5px] border-[#2c2a2b] bg-[#f5f4f2] overflow-hidden">
+                    <span className="text-sm text-[#8e8985] pl-2 pr-0.5">$</span>
+                    <input
+                      ref={priceInputRef}
+                      type="text"
+                      inputMode="numeric"
+                      value={priceValue}
+                      onChange={(e) => setPriceValue(e.target.value.replace(/[^0-9]/g, ''))}
+                      onKeyDown={(e) => { if (e.key === 'Enter') handlePriceSave(); if (e.key === 'Escape') { setPriceValue(String(price)); setEditingPrice(false); } }}
+                      className="w-[40px] h-full bg-transparent border-none outline-none text-sm font-bold text-[#1a1a1a] text-right pr-2"
+                      autoFocus
+                    />
+                  </span>
+                  <button onClick={handlePriceSave} className="h-[30px] px-3 rounded-md bg-[#2d6a4f] text-white text-[11px] font-semibold border-none cursor-pointer hover:bg-[#245a43] transition-colors flex items-center">Save</button>
+                  <button onClick={() => { setPriceValue(String(price)); setEditingPrice(false); }} className="text-[#999] text-base font-bold bg-transparent border-none cursor-pointer hover:text-[#1a1a1a] transition-colors ml-0.5">✕</button>
+                </span>
+              ) : (
+                <span className="text-[#999]">
+                  {price > 0 ? ` \u00B7 $${price}/ticket` : ''}
+                </span>
+              )}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Status toggle pill */}
+      <button
+        onClick={onToggleAvailability}
+        className="inline-flex items-center gap-2 h-11 px-4 rounded-full text-sm font-medium transition-all cursor-pointer shrink-0 hidden md:inline-flex"
+        style={{
+          backgroundColor: isAvail ? '#d1fae5' : '#f3e8ff',
+          color: isAvail ? '#2d6a4f' : '#7c3aed',
+          border: '2px solid transparent',
+        }}
+      >
+        <span className="w-[7px] h-[7px] rounded-full shrink-0" style={{ backgroundColor: isAvail ? '#2d6a4f' : '#7c3aed' }} />
+        {isAvail ? 'Available' : 'Going'}
+      </button>
+
+      {/* Three-dot menu — desktop */}
+      <div className="relative shrink-0 hidden md:block" ref={menuRef}>
+        <button
+          onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen); setConfirmRemove(false); }}
+          className="w-7 h-7 rounded flex items-center justify-center text-[#8e8985] hover:bg-[#f3f4f6] hover:text-[#2c2a2b] transition-all cursor-pointer bg-transparent border-none text-base font-bold"
+        >
+          ⋯
+        </button>
+
+        {menuOpen && !confirmRemove && (
+          <div className="absolute right-0 top-[calc(100%+4px)] z-50 bg-white rounded-[10px] shadow-[0_8px_28px_rgba(0,0,0,0.14),0_0_0_1px_rgba(0,0,0,0.05)] p-1.5 w-[160px]">
+            <button
+              onClick={(e) => { e.stopPropagation(); setMenuOpen(false); setEditingPrice(true); }}
+              className="w-full text-left px-3.5 py-2.5 rounded-md text-[13px] font-medium text-[#1a1a1a] bg-transparent border-none cursor-pointer hover:bg-[#f7f5f2] transition-colors"
+            >
+              Edit Price
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); setConfirmRemove(true); }}
+              className="w-full text-left px-3.5 py-2.5 rounded-md text-[13px] font-medium text-[#dc2626] bg-transparent border-none cursor-pointer hover:bg-[#f7f5f2] transition-colors"
+            >
+              Remove Game
+            </button>
+          </div>
+        )}
+
+        {menuOpen && confirmRemove && (
+          <div className="absolute right-0 top-[calc(100%+4px)] z-50 bg-white rounded-[10px] shadow-[0_8px_28px_rgba(0,0,0,0.14),0_0_0_1px_rgba(0,0,0,0.05)] p-4 w-[260px]">
+            <p className="text-sm font-semibold text-[#1a1a1a] mb-1">Remove this game?</p>
+            <p className="text-xs text-[#999] mb-4">vs {game.opponent} · {game.time}</p>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={(e) => { e.stopPropagation(); onRemove(); setMenuOpen(false); setConfirmRemove(false); }}
+                className="h-9 px-4 rounded-lg bg-[#dc2626] text-white text-sm font-semibold border-none cursor-pointer hover:bg-[#b91c1c] transition-colors"
+              >
+                Remove
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); setConfirmRemove(false); setMenuOpen(false); }}
+                className="text-sm font-medium text-[#6b7280] bg-transparent border-none cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Three-dot menu — mobile */}
+      <div className="relative shrink-0 md:hidden">
+        <button
+          onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen); setConfirmRemove(false); }}
+          className="w-6 h-6 rounded flex items-center justify-center text-[#8e8985] hover:bg-[#f3f4f6] hover:text-[#2c2a2b] transition-all cursor-pointer bg-transparent border-none text-sm font-bold"
+        >
+          ⋯
+        </button>
+      </div>
+    </div>
+  );
 }
 
 // ─── Main Component ─────────────────────────────────────
@@ -430,10 +608,60 @@ export default function NewPackagePage() {
 
   // ─── Wizard Steps ──────────────────────────────────────
 
-  const totalSteps = 5;
+  const totalSteps = 3;
 
   return (
-    <SetupLayout steps={STEPS} currentStep={step}>
+    <SetupLayout steps={STEPS} currentStep={step} showSidebar={false}>
+      {/* Back button */}
+      <button
+        onClick={() => { if (step > 1) goToStep((step - 1) as Step); else router.push('/dashboard'); }}
+        className="fixed top-6 left-6 flex items-center gap-1.5 text-sm font-medium text-[#8e8985] hover:text-[#2c2a2b] bg-transparent border-none cursor-pointer transition-colors z-10"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
+        Back
+      </button>
+
+      {/* Logout button */}
+      <button
+        onClick={() => signOut({ callbackUrl: '/' })}
+        className="fixed top-6 right-6 flex items-center gap-1.5 text-sm font-medium text-[#8e8985] hover:text-[#DC2626] bg-transparent border-none cursor-pointer transition-colors z-10"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+          <polyline points="16 17 21 12 16 7" />
+          <line x1="21" y1="12" x2="9" y2="12" />
+        </svg>
+        Sign out
+      </button>
+
+      {/* Horizontal step tracker */}
+      <div className="flex items-center justify-center gap-2 mb-14">
+        {STEPS.map((s, i) => {
+          const stepNum = i + 1;
+          const isDone = stepNum < step;
+          const isActive = stepNum === step;
+          return (
+            <div key={i} className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${
+                  isDone ? 'bg-[#8B2500] text-white' : isActive ? 'bg-[#2c2a2b] text-white' : 'bg-[#eceae5] text-[#b0a89e]'
+                }`}>
+                  {isDone ? (
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                  ) : stepNum}
+                </div>
+                <span className={`text-xs font-semibold hidden sm:inline ${
+                  isDone ? 'text-[#8B2500]' : isActive ? 'text-[#2c2a2b]' : 'text-[#b0a89e]'
+                }`}>{s.label}</span>
+              </div>
+              {i < STEPS.length - 1 && (
+                <div className={`w-6 h-[2px] ${isDone ? 'bg-[#8B2500]' : 'bg-[#eceae5]'}`} />
+              )}
+            </div>
+          );
+        })}
+      </div>
+
       {/* Toast */}
       {toast && (
         <div className="fixed bottom-6 left-6 z-50 bg-[#2c2a2b] text-white text-sm font-medium px-4 py-3 rounded-lg shadow-lg animate-slide-up">
@@ -509,7 +737,7 @@ export default function NewPackagePage() {
           {/* Seat chips */}
           <div className="mb-5">
             <FormLabel>Which seats are yours?</FormLabel>
-            <div className="grid grid-cols-6 gap-2 max-w-[340px]">
+            <div className="grid grid-cols-12 gap-2">
               {Array.from({ length: 12 }, (_, i) => i + 1).map((num) => (
                 <button
                   key={num}
@@ -526,259 +754,58 @@ export default function NewPackagePage() {
             </div>
           </div>
 
-          {selectedSeats.size > 0 && (
-            <InlineNote>{selectedSeats.size} seat{selectedSeats.size !== 1 ? 's' : ''} selected. Friends will be able to claim any combination of these.</InlineNote>
-          )}
-
-          {/* Seat photo */}
-          <div className="mb-4">
-            <FormLabel>Seat Photo (optional)</FormLabel>
-            <div
-              className="relative w-full h-[120px] rounded-lg border border-dashed border-[#eceae5] overflow-hidden cursor-pointer hover:border-[#8e8985] transition-colors"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              {seatPhotoUrl ? (
-                <Image src={seatPhotoUrl} alt="Seat view" fill className="object-cover" sizes="100vw" unoptimized />
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full gap-1 text-[#8e8985]">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="M21 15l-5-5L5 21" /></svg>
-                  <span className="text-xs font-medium">Add a photo of your view</span>
-                </div>
-              )}
-            </div>
-            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
-          </div>
-
-          {/* Description */}
-          <div className="mb-4">
-            <FormLabel>Description (optional)</FormLabel>
-            <textarea
-              value={seatDescription}
-              onChange={(e) => setSeatDescription(e.target.value)}
-              placeholder="Great view behind home plate, shaded after 4th inning..."
-              rows={2}
-              className="w-full px-4 py-3 bg-white border-[1.5px] border-[#eceae5] rounded-lg text-sm outline-none focus:border-[#2c2a2b] focus:ring-[3px] focus:ring-[#2c2a2b]/10 resize-none"
-            />
-          </div>
-
-          {/* Perks */}
-          <div className="mb-4">
-            <FormLabel>Perks (optional)</FormLabel>
-            <div className="flex flex-wrap gap-2">
-              {AVAILABLE_PERKS.map((perk) => {
-                const selected = seatPerks.includes(perk);
-                return (
-                  <button key={perk} onClick={() => togglePerk(perk)}
-                    className={`inline-flex items-center h-8 px-3 rounded-full text-xs font-medium border cursor-pointer transition-colors ${
-                      selected ? 'bg-[#E1F5EE] border-[#0F6E56] text-[#0F6E56]' : 'bg-white border-[#eceae5] text-[#8e8985] hover:border-[#2c2a2b]'
-                    }`}
-                  >
-                    {selected && <svg className="w-3 h-3 mr-1" viewBox="0 0 16 16" fill="none"><path d="M3.5 8.5L6.5 11.5L12.5 4.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>}
-                    {perk}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
           <StepActions>
             <PrimaryButton onClick={() => goToStep(3)} disabled={!selectedSection || !row || selectedSeats.size === 0}>
               Continue →
             </PrimaryButton>
-            <GhostButton onClick={() => goToStep(1)}>← Back</GhostButton>
           </StepActions>
         </div>
       )}
 
-      {/* ── Step 3: Your Games ── */}
+      {/* ── Step 3: Customize ── */}
       {step === 3 && (
         <div className="flex flex-col flex-1">
           <StepIndicator current={3} total={totalSteps} />
-          <StepHeadline>Here are your games</StepHeadline>
-          <StepSubhead>Everything defaults to Available — toggle any you&apos;re keeping.</StepSubhead>
+          <StepHeadline>Customize your tickets</StepHeadline>
+          <StepSubhead>Here are all of your tickets. Choose which games you want to go to and which games you would like share. You can always change this later.</StepSubhead>
 
-          <div className="flex items-center justify-between mb-3">
-            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#d4a017] bg-[#d4a017]/10 px-3 py-1 rounded-full">
-              🏟️ {schedule.length} games loaded
-            </span>
-          </div>
-
-          {/* Bulk actions */}
-          <div className="flex items-center gap-3 px-4 py-2.5 bg-[#f5f4f2] rounded-lg mb-4">
-            <span className="text-xs font-semibold text-[#8e8985]">Quick set:</span>
-            <button onClick={() => setAllAvailability('available')} className="text-[11px] font-bold px-3 py-1 rounded-full border-[1.5px] cursor-pointer transition-colors bg-[#d1fae5] border-[#2d6a4f] text-[#2d6a4f]">All available</button>
-            <button onClick={() => setAllAvailability('keeping')} className="text-[11px] font-bold px-3 py-1 rounded-full border-[1.5px] cursor-pointer transition-colors bg-white border-[#eceae5] text-[#6b7280]">All keeping</button>
-          </div>
-
-          {/* Game list */}
-          <div className="max-h-[350px] overflow-y-auto -mx-2 px-2 mb-2">
+          {/* Game list — mirrors dashboard SellerListView */}
+          <div>
             {Object.entries(gamesByMonth).map(([month, games]) => (
-              <div key={month}>
-                <p className="text-xs font-bold text-[#8e8985] uppercase tracking-wider mb-2 mt-4">{month}</p>
-                {games.map(({ game, index }) => {
-                  const d = new Date(game.date);
-                  const dayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d.getDay()];
-                  const included = selectedGames.has(index);
-                  const isAvail = availability[index] === 'available';
-                  return (
-                    <div key={index} className={`flex items-center gap-3 py-3 border-b border-[#f0ede8] ${!included ? 'opacity-30' : ''}`}>
-                      <input type="checkbox" checked={included} onChange={() => toggleGame(index)} className="w-4 h-4 accent-[#2c2a2b]" />
-                      <div className="w-[3px] h-8 rounded-sm shrink-0" style={{ backgroundColor: getOpponentColor(game.opponent) }} />
-                      <div className="flex-1">
-                        <p className="text-sm font-bold text-[#1a1a1a]">vs {game.opponent.split(' ').pop()}</p>
-                        <p className="text-xs text-[#8e8985]">{dayName}, {MONTH_NAMES[d.getMonth()].slice(0, 3)} {d.getDate()} · {game.time}</p>
-                      </div>
-                      {included && (
-                        <button
-                          onClick={() => toggleAvailability(index)}
-                          className={`text-[11px] font-bold uppercase tracking-[0.5px] px-3 py-1.5 rounded-full cursor-pointer transition-colors ${
-                            isAvail ? 'bg-[#d1fae5] text-[#2d6a4f]' : 'bg-[#f3f4f6] text-[#6b7280]'
-                          }`}
-                        >
-                          {isAvail ? 'Available' : 'Keeping'}
-                        </button>
-                      )}
-                    </div>
-                  );
-                })}
+              <div key={month} className="mb-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="flex items-center gap-2 pl-1">
+                    <div className="w-[3px] h-4 rounded-sm bg-[#2c2a2b]" />
+                    <span className="text-xl font-semibold text-black">{month}</span>
+                  </div>
+                  <span className="text-sm font-medium text-[#8e8985] leading-5">
+                    &bull; {games.length} game{games.length !== 1 ? 's' : ''}
+                  </span>
+                </div>
+                <div className="flex flex-col gap-2">
+                  {games.map(({ game, index }) => (
+                    <WizardGameCard
+                      key={index}
+                      game={game}
+                      index={index}
+                      isAvail={availability[index] === 'available'}
+                      price={prices[index] || 0}
+                      onToggleAvailability={() => toggleAvailability(index)}
+                      onPriceChange={(p) => setPrices((prev) => ({ ...prev, [index]: p }))}
+                      onRemove={() => { setSelectedGames((prev) => { const next = new Set(prev); next.delete(index); return next; }); }}
+                    />
+                  ))}
+                </div>
               </div>
             ))}
           </div>
-          <p className="text-center text-[11px] font-semibold text-[#d4a017] mb-2">↓ Scroll for more games</p>
 
           <StepActions>
-            <PrimaryButton onClick={() => goToStep(4)}>
-              Continue with {availableCount} available →
-            </PrimaryButton>
-            <GhostButton onClick={() => goToStep(2)}>← Back</GhostButton>
+            <PrimaryButton onClick={() => { applyBulkPrice(); createPackage(); }} disabled={loading}>{loading ? 'Creating...' : 'Finish Setup →'}</PrimaryButton>
           </StepActions>
         </div>
       )}
 
-      {/* ── Step 4: Pricing ── */}
-      {step === 4 && (
-        <div className="flex flex-col flex-1">
-          <StepIndicator current={4} total={totalSteps} />
-          <StepHeadline>Set your price</StepHeadline>
-          <StepSubhead>This applies to all {availableCount} available games. You can always change individual prices later from your dashboard.</StepSubhead>
-
-          {/* Big price input */}
-          <div className="flex items-center gap-5 mb-6">
-            <input
-              type="text"
-              value={bulkPrice ? `$${bulkPrice}` : ''}
-              onChange={(e) => { const v = e.target.value.replace(/[^0-9]/g, ''); setBulkPrice(v); }}
-              onBlur={applyBulkPrice}
-              placeholder="$0"
-              className="w-[180px] h-16 px-5 border-2 border-[#eceae5] rounded-xl text-[28px] font-bold text-[#1a1a1a] text-center bg-white outline-none focus:border-[#2c2a2b]"
-            />
-            <div>
-              <p className="text-sm text-[#8e8985]">Per ticket across all games</p>
-              <p className="text-sm text-[#8e8985]">{selectedSeats.size} seats × {availableCount} games = <span className="font-bold text-[#2d6a4f]">${(parseInt(bulkPrice) || 0) * selectedSeats.size * availableCount} potential</span></p>
-              <button onClick={() => setShowPerGame(!showPerGame)} className="text-[13px] font-semibold text-[#d4a017] bg-transparent border-none cursor-pointer mt-1">
-                {showPerGame ? 'Hide per-game pricing ↑' : 'Customize per game ↓'}
-              </button>
-            </div>
-          </div>
-
-          <InlineNote>Most holders charge the same for all games. You can bump up rivalry matchups from your dashboard anytime.</InlineNote>
-
-          {/* Per-game pricing */}
-          {showPerGame && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 max-h-[280px] overflow-y-auto mb-4">
-              {Object.entries(gamesByMonth).map(([month, games]) =>
-                games.filter(({ index }) => selectedGames.has(index) && availability[index] === 'available').map(({ game, index }) => {
-                  const d = new Date(game.date);
-                  const isDefault = prices[index] === (parseInt(bulkPrice) || 0);
-                  return (
-                    <div key={index} className="flex items-center gap-3 py-2.5 border-b border-[#f0ede8]">
-                      <div className="w-[3px] h-7 rounded-sm shrink-0" style={{ backgroundColor: getOpponentColor(game.opponent) }} />
-                      <div className="flex-1">
-                        <p className="text-[13px] font-bold text-[#1a1a1a]">vs {game.opponent.split(' ').pop()}</p>
-                        <p className="text-[11px] text-[#8e8985]">{MONTH_NAMES[d.getMonth()].slice(0, 3)} {d.getDate()}</p>
-                      </div>
-                      <input
-                        type="text"
-                        value={`$${prices[index] || 0}`}
-                        onChange={(e) => { const v = parseInt(e.target.value.replace(/[^0-9]/g, '')) || 0; setPrices((prev) => ({ ...prev, [index]: v })); }}
-                        className={`w-[72px] h-9 px-2.5 border-[1.5px] border-[#eceae5] rounded-lg text-sm font-bold text-right bg-white outline-none focus:border-[#2c2a2b] ${isDefault ? 'text-[#ccc]' : 'text-[#1a1a1a]'}`}
-                      />
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          )}
-
-          <StepActions>
-            <PrimaryButton onClick={() => { applyBulkPrice(); goToStep(5); }}>Continue →</PrimaryButton>
-            <GhostButton onClick={() => goToStep(3)}>← Back</GhostButton>
-            <SkipLink onClick={() => goToStep(5)}>I&apos;ll set prices later →</SkipLink>
-          </StepActions>
-        </div>
-      )}
-
-      {/* ── Step 5: Get Paid ── */}
-      {step === 5 && (
-        <div className="flex flex-col flex-1">
-          <StepIndicator current={5} total={totalSteps} />
-          <StepHeadline>How should friends pay you?</StepHeadline>
-          <StepSubhead>We&apos;ll show this on your share page so friends know where to send payment.</StepSubhead>
-
-          <div className="flex flex-col gap-3 mb-6">
-            {/* Venmo */}
-            <div className={`rounded-xl border-[1.5px] p-5 cursor-pointer transition-all ${venmoHandle ? 'border-[#2d6a4f] bg-[#f0fdf4]' : 'border-[#eceae5] bg-white'}`}>
-              <div className="flex items-center gap-3">
-                <div className="w-[42px] h-[42px] rounded-lg bg-[#e0f2fe] flex items-center justify-center text-lg font-bold text-[#0369a1]">V</div>
-                <div className="flex-1">
-                  <p className="text-[15px] font-bold text-[#1a1a1a]">Venmo</p>
-                  <input
-                    value={venmoHandle}
-                    onChange={(e) => setVenmoHandle(e.target.value)}
-                    placeholder="@your-handle"
-                    className="mt-1 w-full text-sm bg-transparent border-none outline-none text-[#1a1a1a] placeholder:text-[#ccc]"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Zelle */}
-            <div className={`rounded-xl border-[1.5px] p-5 cursor-pointer transition-all ${zelleInfo ? 'border-[#2d6a4f] bg-[#f0fdf4]' : 'border-[#eceae5] bg-white'}`}>
-              <div className="flex items-center gap-3">
-                <div className="w-[42px] h-[42px] rounded-lg bg-[#f3e8ff] flex items-center justify-center text-lg font-bold text-[#7c3aed]">Z</div>
-                <div className="flex-1">
-                  <p className="text-[15px] font-bold text-[#1a1a1a]">Zelle</p>
-                  <input
-                    value={zelleInfo}
-                    onChange={(e) => setZelleInfo(e.target.value)}
-                    placeholder="Phone or email"
-                    className="mt-1 w-full text-sm bg-transparent border-none outline-none text-[#1a1a1a] placeholder:text-[#ccc]"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Cash */}
-            <div className="rounded-xl border-[1.5px] border-[#eceae5] bg-white p-5">
-              <div className="flex items-center gap-3">
-                <div className="w-[42px] h-[42px] rounded-lg bg-[#f3f4f6] flex items-center justify-center text-lg font-bold text-[#6b7280]">$</div>
-                <div>
-                  <p className="text-[15px] font-bold text-[#1a1a1a]">Cash / Other</p>
-                  <p className="text-xs text-[#8e8985] mt-0.5">Handle payments yourself</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <StepActions>
-            <PrimaryButton onClick={createPackage} disabled={loading}>
-              {loading ? 'Creating...' : 'Finish Setup →'}
-            </PrimaryButton>
-            <GhostButton onClick={() => goToStep(4)}>← Back</GhostButton>
-            <SkipLink onClick={createPackage}>I&apos;ll add this later →</SkipLink>
-          </StepActions>
-        </div>
-      )}
     </SetupLayout>
   );
 }

@@ -500,16 +500,9 @@ function SellerGameCard({
                   <button onClick={handlePriceSave} className="h-[30px] px-3 rounded-md bg-[#2d6a4f] text-white text-[11px] font-semibold border-none cursor-pointer hover:bg-[#245a43] transition-colors flex items-center">Save</button>
                   <button onClick={() => { setPriceValue(game.pricePerTicket ? String(Number(game.pricePerTicket)) : ''); setEditingPrice(false); }} className="text-[#999] text-base font-bold bg-transparent border-none cursor-pointer hover:text-[#1a1a1a] transition-colors ml-0.5">✕</button>
                 </span>
-              ) : isClaimed ? (
+              ) : (
                 <span className="text-[#999]">
                   {game.pricePerTicket ? ` \u00B7 $${Number(game.pricePerTicket)}/ticket` : ''}
-                </span>
-              ) : (
-                <span
-                  className="cursor-pointer font-bold text-[#1a1a1a] border-b border-dashed border-[#ddd] hover:text-[#2c2a2b] hover:border-[#2c2a2b] transition-all"
-                  onClick={(e) => { e.stopPropagation(); setEditingPrice(true); }}
-                >
-                  {game.pricePerTicket ? ` \u00B7 $${Number(game.pricePerTicket)}/ticket` : ' \u00B7 Set price'}
                 </span>
               )}
             </span>
@@ -1079,7 +1072,7 @@ export default function DashboardPage() {
       <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8">
         <h1 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>Welcome to BenchBuddy</h1>
         <p className="text-[#8e8985]">Set up your first season ticket package to get started.</p>
-        <a href="/dashboard/packages/new" className="rounded-lg bg-[#2c2a2b] px-6 py-2.5 text-sm font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b]">Create Package</a>
+        <a href="/packages/new" className="rounded-lg bg-[#2c2a2b] px-6 py-2.5 text-sm font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b]">Create Package</a>
       </div>
     );
   }

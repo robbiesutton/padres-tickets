@@ -103,14 +103,14 @@ export function SetupLayout({ steps, currentStep = 1, children, showSidebar = tr
               className="h-full transition-all duration-500"
               style={{
                 width: `${progress}%`,
-                background: 'linear-gradient(90deg, #2c2a2b, #d4a017)',
+                background: 'linear-gradient(90deg, #2c2a2b, #8B2500)',
               }}
             />
           </div>
         )}
 
         {/* Content area */}
-        <div className="flex-1 flex flex-col mx-auto w-full max-w-[600px] px-5 py-8 md:py-12">
+        <div className="flex-1 flex flex-col mx-auto w-full max-w-[600px] px-5 py-8 md:py-24">
           {children}
         </div>
       </main>
@@ -146,7 +146,7 @@ export function StepSubhead({ children }: { children: React.ReactNode }) {
 
 export function StepActions({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mt-auto flex items-center gap-4 pt-6">
+    <div className="mt-6 flex items-center justify-end gap-4">
       {children}
     </div>
   );
