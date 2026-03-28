@@ -1,13 +1,31 @@
-// Email service — logs in development, sends via Resend in production.
-// Full Resend integration will be wired up in Phase 4 (P4-E-04).
-
 interface SendEmailOptions {
   to: string;
   subject: string;
   html: string;
+  isMarketing?: boolean;
 }
 
-export async function sendEmail({ to, subject, html }: SendEmailOptions) {
+function getUnsubscribeUrl(email: string): string {
+  const token = Buffer.from(email + (process.env.NEXTAUTH_SECRET || ''))
+    .toString('base64')
+    .slice(0, 20);
+  return `${process.env.NEXTAUTH_URL}/api/email/unsubscribe?email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`;
+}
+
+function wrapWithFooter(html: string, to: string, isMarketing: boolean): string {
+  const footer = `
+    <div style="margin-top:32px;padding-top:16px;border-top:1px solid #eee;font-size:12px;color:#999">
+      <p>BenchBuddy — Your seats. Your friends. Your price.</p>
+      ${isMarketing ? `<p><a href="${getUnsubscribeUrl(to)}" style="color:#999">Unsubscribe</a> from marketing emails</p>` : ''}
+      <p style="margin-top:8px">BenchBuddy is not affiliated with any sports team, league, or ticketing provider.</p>
+    </div>
+  `;
+  return html + footer;
+}
+
+export async function sendEmail({ to, subject, html, isMarketing = false }: SendEmailOptions) {
+  const wrappedHtml = wrapWithFooter(html, to, isMarketing);
+
   if (process.env.NODE_ENV === 'production' && process.env.RESEND_API_KEY) {
     const { Resend } = await import('resend');
     const resend = new Resend(process.env.RESEND_API_KEY);
@@ -15,7 +33,7 @@ export async function sendEmail({ to, subject, html }: SendEmailOptions) {
       from: 'BenchBuddy <notifications@getbenchbuddy.com>',
       to,
       subject,
-      html,
+      html: wrappedHtml,
     });
     if (error) {
       console.error('Email send error:', error);
@@ -23,7 +41,7 @@ export async function sendEmail({ to, subject, html }: SendEmailOptions) {
     }
   } else {
     console.log(
-      `\n📧 EMAIL (dev mode)\n  To: ${to}\n  Subject: ${subject}\n  Body: ${html}\n`
+      `\n📧 EMAIL (dev mode)\n  To: ${to}\n  Subject: ${subject}\n  Body: ${wrappedHtml}\n`
     );
   }
 }
