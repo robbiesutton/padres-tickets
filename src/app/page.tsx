@@ -8,8 +8,6 @@ export default function Home() {
   const router = useRouter();
   const [showLinkInput, setShowLinkInput] = useState(false);
   const [sharedLink, setSharedLink] = useState('');
-  const [splashVisible, setSplashVisible] = useState(true);
-  const [splashFading, setSplashFading] = useState(false);
 
   const howItWorksRef = useRef<HTMLDivElement>(null);
   const [howItWorksVisible, setHowItWorksVisible] = useState(false);
@@ -17,15 +15,6 @@ export default function Home() {
   const [pricingVisible, setPricingVisible] = useState(false);
   const feedbackRef = useRef<HTMLDivElement>(null);
   const [feedbackVisible, setFeedbackVisible] = useState(false);
-
-  useEffect(() => {
-    const fadeTimer = setTimeout(() => setSplashFading(true), 100);
-    const removeTimer = setTimeout(() => setSplashVisible(false), 5100);
-    return () => {
-      clearTimeout(fadeTimer);
-      clearTimeout(removeTimer);
-    };
-  }, []);
 
   useEffect(() => {
     const options = { threshold: 0.3, rootMargin: '-50px 0px' };
@@ -66,33 +55,27 @@ export default function Home() {
 
   return (
     <div className="flex flex-1 flex-col bg-[#1B1716]">
-      {/* Splash Screen */}
-      {splashVisible && (
-        <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-[#810100] transition-opacity duration-[5000ms] ease-out"
-          style={{ opacity: splashFading ? 0 : 1 }}
-        >
-          <style>{`
-            @keyframes splashWave {
-              0% { transform: perspective(400px) rotateY(0deg) skewY(0deg); }
-              25% { transform: perspective(400px) rotateY(5deg) skewY(-2deg); }
-              50% { transform: perspective(400px) rotateY(0deg) skewY(0deg); }
-              75% { transform: perspective(400px) rotateY(-5deg) skewY(2deg); }
-              100% { transform: perspective(400px) rotateY(0deg) skewY(0deg); }
-            }
-          `}</style>
-          <img
-            src="/benchbuddy-mark-white.svg"
-            alt="BenchBuddy"
-            className="w-56 h-56 md:w-72 md:h-72"
-            style={{
-              animation: 'splashWave 3s ease-in-out infinite',
-              transformOrigin: 'center center',
-              opacity: 0.25,
-            }}
-          />
-        </div>
-      )}
+      <style>{`
+        @keyframes splashWave {
+          0% { transform: perspective(400px) rotateY(0deg) skewY(0deg); }
+          25% { transform: perspective(400px) rotateY(5deg) skewY(-2deg); }
+          50% { transform: perspective(400px) rotateY(0deg) skewY(0deg); }
+          75% { transform: perspective(400px) rotateY(-5deg) skewY(2deg); }
+          100% { transform: perspective(400px) rotateY(0deg) skewY(0deg); }
+        }
+        @keyframes splashFadeOut {
+          0% { opacity: 0; }
+          8% { opacity: 0.5; }
+          25% { opacity: 0.5; }
+          100% { opacity: 0.05; }
+        }
+        @keyframes stadiumFadeIn {
+          0% { opacity: 0; }
+          8% { opacity: 0.5; }
+          25% { opacity: 0.5; }
+          100% { opacity: 1; }
+        }
+      `}</style>
 
       <style>{`
         @keyframes waveFlag {
@@ -141,13 +124,31 @@ export default function Home() {
 
       {/* Hero */}
       <section className="relative h-[calc(100vh-72px)] flex items-center overflow-hidden">
-        {/* Background image */}
+        {/* Red splash background layer — behind everything, fades to reveal stadium */}
+        {/* Red splash — starts at 50%, holds 1s, fades to 5% over 5s, stays permanently */}
         <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: 'url(/hero-stadium.jpg)' }}
+          className="absolute inset-0 z-0 bg-[#810100] flex items-center justify-center"
+          style={{ opacity: 0, animation: 'splashFadeOut 6s ease-out forwards' }}
+        >
+          <img
+            src="/benchbuddy-mark-white.svg"
+            alt=""
+            className="w-56 h-56 md:w-72 md:h-72"
+            style={{
+              animation: 'splashWave 3s ease-in-out infinite',
+              transformOrigin: 'center center',
+              opacity: 0.25,
+            }}
+          />
+        </div>
+
+        {/* Background image — starts at 50%, holds 1s, fades to 100% over 5s */}
+        <div
+          className="absolute inset-0 z-[1] bg-cover bg-center"
+          style={{ backgroundImage: 'url(/hero-stadium.jpg)', opacity: 0, animation: 'stadiumFadeIn 6s ease-out forwards' }}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+        <div className="absolute inset-0 z-[2] bg-gradient-to-r from-black/80 via-black/50 to-transparent" style={{ opacity: 0, animation: 'stadiumFadeIn 6s ease-out forwards' }} />
+        <div className="absolute inset-0 z-[2] bg-gradient-to-t from-black/70 via-black/30 to-transparent" style={{ opacity: 0, animation: 'stadiumFadeIn 6s ease-out forwards' }} />
 
         {/* Content */}
         <div className="relative z-10 px-6 md:px-12 w-full -mt-12">

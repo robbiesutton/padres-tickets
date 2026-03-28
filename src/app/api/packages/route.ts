@@ -31,6 +31,15 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  if (DESIGN_MODE) {
+    const body = await request.json();
+    return jsonSuccess({
+      package: { ...mockPackage, ...body },
+      shareLink: body.shareLinkSlug || 'margo-padres',
+      gamesCreated: 20,
+    });
+  }
+
   const user = await requireAuth();
   if (!user) return jsonError('Unauthorized', 401);
 
