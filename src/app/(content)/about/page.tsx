@@ -22,24 +22,22 @@ export default function AboutPage() {
         <div className="space-y-6 text-sm text-foreground/70 leading-relaxed">
           <p>
             BenchBuddy was born out of a simple frustration: managing season
-            tickets with friends shouldn&apos;t require a spreadsheet, a group
-            chat, and a prayer.
-          </p>
-
-          <p>
-            As a season ticket holder, you know the drill. You&apos;ve got 81
-            home games, a handful of friends who want to go, and no clean way to
-            figure out who&apos;s going to which game, who owes what, and when
-            tickets need to be transferred. Every season, it&apos;s the same
-            chaos — texts flying, Venmo requests piling up, and that one friend
-            who always forgets to accept the transfer.
+            tickets with friends shouldn&apos;t require a spreadsheet. Numerous
+            group chats, frustration from leaving seats empty or paying crazy
+            fees to sell tickets you can&apos;t go to as a season ticket holder.
+            You can&apos;t go to as many games as you have season tickets for, a
+            handful of friends who want to go, and no clean way to figure out
+            who&apos;s going to which game, who owes what, and when tickets need
+            to be transferred. Every season is the same chaos: text flying,
+            buddy request piling up, and that one friend who always forgets to
+            accept the transfer.
           </p>
 
           <p>
             BenchBuddy fixes that. It&apos;s the coordination layer between
             you and your people. Share a link with your circle, let them browse
-            and claim games, and BenchBuddy handles the rest — reminders,
-            cost tracking, transfer instructions, everything.
+            and claim games, and BenchBuddy makes it easy — helping remind you
+            how much and who&apos;s going to anything.
           </p>
 
           <h2 className="text-lg font-semibold text-foreground mt-8">

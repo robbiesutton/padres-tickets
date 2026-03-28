@@ -40,7 +40,8 @@ export function ScoreTicker({ bgColor }: { bgColor?: string } = {}) {
   useEffect(() => {
     async function fetchScores() {
       try {
-        const res = await fetch('/api/scores');
+        const localDate = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+        const res = await fetch(`/api/scores?date=${localDate}`);
         if (res.ok) {
           setData(await res.json());
         }
@@ -49,7 +50,7 @@ export function ScoreTicker({ bgColor }: { bgColor?: string } = {}) {
       }
     }
     fetchScores();
-    const interval = setInterval(fetchScores, 60000);
+    const interval = setInterval(fetchScores, 30000);
     return () => clearInterval(interval);
   }, []);
 

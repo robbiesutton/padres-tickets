@@ -48,7 +48,21 @@ export async function GET(
   if (!pkg) return jsonError('Package not found', 404);
   if (pkg.userId !== user.id) return jsonError('Forbidden', 403);
 
-  return jsonSuccess({ package: pkg });
+  // Remap CLAIMED → GOING_MYSELF when the claimer is the holder
+  const holderEmail = user.email;
+  const games = pkg.games.map((g) => {
+    if (
+      g.status === 'CLAIMED' &&
+      g.claim &&
+      g.claim.status !== 'RELEASED' &&
+      g.claim.claimer.email === holderEmail
+    ) {
+      return { ...g, status: 'GOING_MYSELF' };
+    }
+    return g;
+  });
+
+  return jsonSuccess({ package: { ...pkg, games } });
 }
 
 export async function PUT(

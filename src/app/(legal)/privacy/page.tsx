@@ -147,7 +147,7 @@ export default function PrivacyPolicy() {
         <li>Request correction of inaccurate personal information</li>
         <li>Request deletion of your personal information (subject to certain exceptions)</li>
         <li>Opt out of marketing communications at any time</li>
-        <li>Close your account by contacting us at privacy@benchbuddy.com</li>
+        <li>Close your account by contacting us at hello@getbenchbuddy.com</li>
       </ul>
 
       <h3>California Residents (CCPA/CPRA)</h3>
@@ -180,7 +180,7 @@ export default function PrivacyPolicy() {
         </li>
       </ul>
       <p>
-        To exercise any of these rights, please contact us at privacy@benchbuddy.com. We will
+        To exercise any of these rights, please contact us at hello@getbenchbuddy.com. We will
         verify your identity before processing your request.
       </p>
 
@@ -214,7 +214,7 @@ export default function PrivacyPolicy() {
         personal information from children under 18. If we become aware that we have collected
         personal information from a child under 18, we will take steps to delete that information
         promptly. If you believe we may have collected information from a child under 18, please
-        contact us at privacy@benchbuddy.com.
+        contact us at hello@getbenchbuddy.com.
       </p>
 
       <h2>10. Third-Party Links and Services</h2>
@@ -242,9 +242,9 @@ export default function PrivacyPolicy() {
       <p>
         BenchBuddy
         <br />
-        Email: privacy@benchbuddy.com
+        Email: hello@getbenchbuddy.com
         <br />
-        Website: www.benchbuddy.com
+        Website: www.getbenchbuddy.com
       </p>
     </>
   );

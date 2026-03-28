@@ -45,7 +45,8 @@ export default function Home() {
     return () => observers.forEach((o) => o.disconnect());
   }, []);
   const [linkError, setLinkError] = useState('');
-  function handleGoToLink() {
+  const [validating, setValidating] = useState(false);
+  async function handleGoToLink() {
     setLinkError('');
     try {
       let slug = sharedLink.trim();
@@ -58,6 +59,21 @@ export default function Home() {
         setLinkError('Please paste a valid BenchBuddy link');
         return;
       }
+
+      setValidating(true);
+      try {
+        const res = await fetch(`/api/share/${slug}/check`);
+        if (!res.ok) {
+          setLinkError("We couldn't find that link. Double-check it and try again.");
+          return;
+        }
+      } catch {
+        setLinkError('Something went wrong. Please try again.');
+        return;
+      } finally {
+        setValidating(false);
+      }
+
       router.push(`/share/${slug}`);
     } catch {
       setLinkError('Please paste a valid BenchBuddy link');
@@ -106,7 +122,7 @@ export default function Home() {
 
       {/* Nav */}
       <nav className="flex items-center justify-between px-6 md:px-12 py-6">
-        <div className="flex items-center gap-2">
+        <a href="/" className="flex items-center gap-2">
           <img
             src="/benchbuddy-mark-white.svg"
             alt="BenchBuddy"
@@ -122,7 +138,7 @@ export default function Home() {
           >
             BenchBuddy
           </span>
-        </div>
+        </a>
         <div className="flex items-center gap-4">
           <a
             href="/login"
@@ -158,7 +174,7 @@ export default function Home() {
                 <span className="absolute inset-0 rounded-full bg-[#E41837] animate-ping opacity-75" />
                 <span className="relative w-2 h-2 rounded-full bg-[#E41837]" />
               </span>
-              Free during early access
+              First year free during early access
             </span>
 
             {/* Headline */}
@@ -175,8 +191,7 @@ export default function Home() {
 
             {/* Subtitle */}
             <p className="-mt-0 max-w-lg text-base md:text-lg text-white/50 leading-relaxed">
-              Set up once, share a link, and let friends and family claim the
-              games they want. No more back-and-forth texts.
+              Ditch the spreadsheets and group text. Share a link with your circle and let them claim the games they want - no wasted tickets, no crazy fees, just that simple.
             </p>
 
             {/* CTA */}
@@ -208,16 +223,18 @@ export default function Home() {
                     type="text"
                     value={sharedLink}
                     onChange={(e) => setSharedLink(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleGoToLink()}
+                    onKeyDown={(e) => e.key === 'Enter' && !validating && handleGoToLink()}
+                    disabled={validating}
                     placeholder="e.g. benchbuddy.com/share/mark-rockies"
                     className="flex-1 h-11 px-3 rounded-lg border border-white/20 bg-white/10 text-white text-sm outline-none placeholder:text-white/30 focus:border-white/40"
                     autoFocus
                   />
                   <button
                     onClick={handleGoToLink}
-                    className="h-10 px-4 rounded-lg bg-white text-[#2c2a2b] text-base font-medium hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors"
+                    disabled={validating}
+                    className="h-10 px-4 rounded-lg bg-white text-[#2c2a2b] text-base font-medium hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Go
+                    {validating ? 'Checking...' : 'Go'}
                   </button>
                 </div>
                 {linkError && (
@@ -256,7 +273,7 @@ export default function Home() {
             {[
               {
                 step: '01',
-                title: 'Set Up Your Package',
+                title: 'Set Up Your Tickets',
                 desc: 'Select your team, enter your seat details, and your full season schedule loads automatically.',
               },
               {
@@ -320,7 +337,7 @@ export default function Home() {
               transitionDelay: '150ms',
             }}
           >
-            Free during early access
+            Your first year is free
           </h2>
           <p
             className="text-base text-white/50 leading-relaxed max-w-sm mb-10 transition-all duration-700"
@@ -330,8 +347,7 @@ export default function Home() {
               transitionDelay: '300ms',
             }}
           >
-            We&apos;re building BenchBuddy for the community. Get full access
-            while we&apos;re in beta — no credit card required.
+            Sign up during early access and get your entire first year on us — no credit card required.
           </p>
 
           {/* Card */}
@@ -345,12 +361,15 @@ export default function Home() {
           >
             {/* Badge */}
             <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-[#0F6F57]/15 border border-[#0F6F57]/30 text-sm font-semibold text-[#0F6F57] uppercase tracking-wider mb-6">
-              Early Access — Free
+              Early Access
             </span>
 
             {/* Price */}
-            <p className="text-5xl font-bold text-white mb-1" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>$0</p>
-            <p className="text-sm text-white/40 mb-8">forever during early access</p>
+            <div className="flex items-baseline gap-3 mb-1">
+              <p className="text-5xl font-bold text-white/30 line-through" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>$39.99</p>
+              <p className="text-5xl font-bold text-white" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>$0</p>
+            </div>
+            <p className="text-sm text-white/40 mb-8">per year &middot; first year free</p>
 
             {/* Features */}
             <ul className="w-full space-y-0 text-left mb-8">
@@ -375,7 +394,7 @@ export default function Home() {
               href="/signup"
               className="w-full h-12 rounded-lg bg-white text-[#2c2a2b] text-base font-bold flex items-center justify-center hover:bg-[#dcd7d4] transition-colors mb-3"
             >
-              Share My Tickets — It&apos;s Free
+              Start Free for a Year
             </a>
             <p className="text-xs text-white/30">
               No credit card required &middot; Set up in under 2 minutes
@@ -462,7 +481,7 @@ export default function Home() {
             a bug, or want to tell us what&apos;s working?
           </p>
           <a
-            href="mailto:feedback@benchbuddy.app"
+            href="mailto:hello@getbenchbuddy.com"
             className="inline-flex h-10 items-center justify-center rounded-lg border border-white bg-transparent px-4 text-base font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] hover:border-[#2c2a2b] transition-colors transition-all duration-700"
             style={{
               opacity: feedbackVisible ? 1 : 0,

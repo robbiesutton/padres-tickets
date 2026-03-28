@@ -26,20 +26,11 @@ export default function ContactPage() {
         <div className="space-y-8">
           <section>
             <h2 className="text-lg font-semibold mb-3">Get in Touch</h2>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {[
-                { label: 'General support', email: 'support@benchbuddy.com' },
-                { label: 'Privacy questions or data requests', email: 'privacy@benchbuddy.com' },
-                { label: 'Legal inquiries', email: 'legal@benchbuddy.com' },
-                { label: 'Press and partnerships', email: 'hello@benchbuddy.com' },
-              ].map((item) => (
-                <div key={item.email} className="rounded-lg border border-foreground/10 p-4">
-                  <p className="text-sm text-foreground/60">{item.label}</p>
-                  <a href={`mailto:${item.email}`} className="font-medium text-brand-600 hover:underline">
-                    {item.email}
-                  </a>
-                </div>
-              ))}
+            <div className="rounded-lg border border-foreground/10 p-4 max-w-sm">
+              <p className="text-sm text-foreground/60">For anything at all</p>
+              <a href="mailto:hello@getbenchbuddy.com" className="font-medium text-brand-600 hover:underline">
+                hello@getbenchbuddy.com
+              </a>
             </div>
           </section>
 
@@ -66,8 +57,8 @@ export default function ContactPage() {
             <h2 className="text-lg font-semibold mb-2">Bug Reports</h2>
             <p className="text-sm text-foreground/70 mb-2">
               Found something broken? Let us know at{' '}
-              <a href="mailto:support@benchbuddy.com" className="text-brand-600 hover:underline">
-                support@benchbuddy.com
+              <a href="mailto:hello@getbenchbuddy.com" className="text-brand-600 hover:underline">
+                hello@getbenchbuddy.com
               </a>{' '}
               and include:
             </p>

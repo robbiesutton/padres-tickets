@@ -100,9 +100,9 @@ export default function CookiePolicy() {
       <p>
         BenchBuddy
         <br />
-        Email: privacy@benchbuddy.com
+        Email: hello@getbenchbuddy.com
         <br />
-        Website: www.benchbuddy.com
+        Website: www.getbenchbuddy.com
       </p>
     </>
   );

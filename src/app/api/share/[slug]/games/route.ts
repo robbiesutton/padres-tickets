@@ -63,6 +63,11 @@ export async function GET(
       status: true,
       pricePerTicket: true,
       notes: true,
+      ...(showAll ? {
+        claim: {
+          select: { id: true, claimerUserId: true, status: true },
+        },
+      } : {}),
     },
   });
 
@@ -73,8 +78,15 @@ export async function GET(
     games = games.filter((g) => new Date(g.date).getMonth() + 1 === monthNum);
   }
 
+  // Serialize consistently with SSR data (date as ISO string, price as number)
+  const serialized = games.map((g) => ({
+    ...g,
+    date: g.date instanceof Date ? g.date.toISOString() : g.date,
+    pricePerTicket: g.pricePerTicket ? Number(g.pricePerTicket) : null,
+  }));
+
   return jsonSuccess({
-    games,
-    total: games.length,
+    games: serialized,
+    total: serialized.length,
   });
 }

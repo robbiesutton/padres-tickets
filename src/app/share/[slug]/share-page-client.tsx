@@ -143,21 +143,64 @@ interface Props {
   opponents: string[];
 }
 
-function SharePageInner({ packageInfo, games, opponents }: Props) {
+function SharePageInner({ packageInfo, games: initialGames, opponents }: Props) {
   const { data: session } = useSession();
   const searchParams = useSearchParams();
 
   // State
   const [activeTab, setActiveTab] = useState<ActiveTab>('available');
   const [viewMode, setViewMode] = useState<ViewMode>('calendar');
-  const [monthFilter, setMonthFilter] = useState('');
-  const [opponentFilter, setOpponentFilter] = useState('');
+  const [monthFilter, setMonthFilter] = useState<string[]>([]);
+  const [opponentFilter, setOpponentFilter] = useState<string[]>([]);
   const [calendarStartIndex, setCalendarStartIndex] = useState(0);
   const [expandedGameId, setExpandedGameId] = useState<string | null>(null);
+  const [games, setGames] = useState<Game[]>(initialGames);
   const [reservedGames, setReservedGames] = useState<Map<string, string>>(new Map()); // gameId -> claimId
   const [cancelledGameIds, setCancelledGameIds] = useState<Set<string>>(new Set());
   const [claimCount, setClaimCount] = useState(0);
   const currentUserId = session?.user?.id || null;
+
+  // Seed reservedGames from SSR data when session resolves
+  useEffect(() => {
+    if (!currentUserId) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setReservedGames((prev) => {
+      const seeded = new Map(prev);
+      let changed = false;
+      for (const game of games) {
+        if (
+          game.claim?.claimerUserId === currentUserId &&
+          game.claim?.status !== 'RELEASED' &&
+          !cancelledGameIds.has(game.id) &&
+          !seeded.has(game.id)
+        ) {
+          seeded.set(game.id, game.claim.id);
+          changed = true;
+        }
+      }
+      return changed ? seeded : prev;
+    });
+  }, [currentUserId, games, cancelledGameIds]);
+
+  // Refresh games from server to get fresh statuses and claim data
+  const refreshGames = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/share/${packageInfo.slug}/games?showAll=true`);
+      if (!res.ok) return;
+      const data = await res.json();
+      setGames(data.games);
+      setCancelledGameIds(new Set()); // server is now source of truth
+      if (currentUserId) {
+        const fresh = new Map<string, string>();
+        for (const g of data.games) {
+          if (g.claim?.claimerUserId === currentUserId && g.claim?.status !== 'RELEASED') {
+            fresh.set(g.id, g.claim.id);
+          }
+        }
+        setReservedGames(fresh);
+      }
+    } catch { /* ignore */ }
+  }, [packageInfo.slug, currentUserId]);
 
   // Handle ?reserved= URL param from magic link redirect
   useEffect(() => {
@@ -193,12 +236,11 @@ function SharePageInner({ packageInfo, games, opponents }: Props) {
   // Filter games
   const filteredGames = useMemo(() => {
     return games.filter((g) => {
-      if (monthFilter) {
-        const monthIndex = parseInt(monthFilter) - 1;
+      if (monthFilter.length > 0) {
         const { month } = getGameMonthYear(g);
-        if (month !== monthIndex) return false;
+        if (!monthFilter.some((mf) => parseInt(mf) - 1 === month)) return false;
       }
-      if (opponentFilter && g.opponent !== opponentFilter) return false;
+      if (opponentFilter.length > 0 && !opponentFilter.includes(g.opponent)) return false;
       return true;
     });
   }, [games, monthFilter, opponentFilter]);
@@ -262,21 +304,21 @@ function SharePageInner({ packageInfo, games, opponents }: Props) {
     }
 
     setExpandedGameId(null);
-    setMonthFilter(String(monthIndex + 1));
+    setMonthFilter([String(monthIndex + 1)]);
   }
 
   function handleClearFilters() {
-    setMonthFilter('');
-    setOpponentFilter('');
+    setMonthFilter([]);
+    setOpponentFilter([]);
     setCalendarStartIndex(0);
     setExpandedGameId(null);
   }
 
-  function handleMonthFilterChange(value: string) {
+  function handleMonthFilterChange(value: string[]) {
     setMonthFilter(value);
     setExpandedGameId(null);
-    if (value) {
-      handleJumpToMonth(parseInt(value) - 1);
+    if (value.length === 1) {
+      handleJumpToMonth(parseInt(value[0]) - 1);
     }
   }
 
@@ -310,7 +352,10 @@ function SharePageInner({ packageInfo, games, opponents }: Props) {
       <ShareHeader
         holderName={packageInfo.holderName}
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={(tab: ActiveTab) => {
+          setActiveTab(tab);
+          if (tab === 'available') refreshGames();
+        }}
         reservedCount={reservedCount}
         pkg={packageInfo}
       />
@@ -335,7 +380,7 @@ function SharePageInner({ packageInfo, games, opponents }: Props) {
               }}
               opponents={opponents}
               opponentFilter={opponentFilter}
-              onOpponentFilterChange={(v) => {
+              onOpponentFilterChange={(v: string[]) => {
                 setOpponentFilter(v);
                 setExpandedGameId(null);
               }}
@@ -374,7 +419,7 @@ function SharePageInner({ packageInfo, games, opponents }: Props) {
             ) : (
               <>
                 {filteredGames.length === 0 &&
-                (opponentFilter || monthFilter) ? (
+                (opponentFilter.length > 0 || monthFilter.length > 0) ? (
                   <EmptyState
                     games={games}
                     opponentFilter={opponentFilter}
@@ -403,8 +448,12 @@ function SharePageInner({ packageInfo, games, opponents }: Props) {
             <MyGamesTab
               pkg={packageInfo}
               claimerName={session?.user?.name?.split(' ')[0] || ''}
-              onSwitchToAvailable={() => setActiveTab('available')}
+              onSwitchToAvailable={() => {
+                setActiveTab('available');
+                refreshGames();
+              }}
               onReservationCountChange={handleReservationCountChange}
+              onGameReleased={handleCancelled}
             />
           </div>
         )}
