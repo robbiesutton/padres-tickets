@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     siteName: 'BenchBuddy',
   },
   twitter: {
-    card: 'summary',
+    card: 'summary_large_image',
     title: 'BenchBuddy — Share Your Season Tickets',
     description:
       'The easiest way for season ticket holders to share games with friends and family.',

@@ -212,21 +212,13 @@ function LoginForm() {
             >
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
-            <div className="flex justify-between text-sm">
+            <div className="text-sm">
               <button
                 type="button"
                 onClick={() => { setStep('email'); setPassword(''); setError(''); }}
                 className="text-[#8e8985] hover:text-foreground"
               >
                 &larr; Back
-              </button>
-              <button
-                type="button"
-                onClick={handleSendMagicLink}
-                disabled={loading}
-                className="text-[#2c2a2b] font-medium underline"
-              >
-                Email me a sign-in link instead
               </button>
             </div>
           </form>

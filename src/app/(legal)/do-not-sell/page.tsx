@@ -59,7 +59,7 @@ export default function DoNotSell() {
         may contact us at:
       </p>
       <p>
-        Email: privacy@benchbuddy.com
+        Email: hello@getbenchbuddy.com
       </p>
       <p>
         When you submit a request, we will verify your identity by confirming information

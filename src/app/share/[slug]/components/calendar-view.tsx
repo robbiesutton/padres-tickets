@@ -24,8 +24,8 @@ interface Props {
   currentUserId: string | null;
   onReserved: (gameId: string) => void;
   onCancelled: (gameId: string) => void;
-  opponentFilter: string;
-  monthFilter: string;
+  opponentFilter: string[];
+  monthFilter: string[];
   onClearFilters: () => void;
 }
 
@@ -74,7 +74,7 @@ export function CalendarView({
   // Empty state when filters produce zero results
   if (
     games.length === 0 &&
-    (opponentFilter || monthFilter)
+    (opponentFilter.length > 0 || monthFilter.length > 0)
   ) {
     return (
       <div className="bg-card border border-border rounded-xl">

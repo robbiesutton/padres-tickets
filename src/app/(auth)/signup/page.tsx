@@ -14,7 +14,6 @@ export default function SignupPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [success, setSuccess] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [marketingOptIn, setMarketingOptIn] = useState(false);
 
@@ -41,22 +40,11 @@ export default function SignupPage() {
       return;
     }
 
-    setSuccess(true);
-  }
-
-  if (success) {
-    return (
-      <div className="flex flex-1 items-center justify-center p-8">
-        <div className="w-full max-w-sm space-y-4 text-center">
-          <h1 className="text-2xl font-bold">Check your email</h1>
-          <p className="text-sm text-[#8e8985]">
-            We sent a confirmation link to <strong>{form.email}</strong>.
-            Click the link to verify your email and you&apos;ll be signed in
-            automatically.
-          </p>
-        </div>
-      </div>
-    );
+    // Set session cookie and redirect to dashboard
+    if (data.data?.sessionToken) {
+      document.cookie = `next-auth.session-token=${data.data.sessionToken}; path=/; max-age=${30 * 24 * 60 * 60}; samesite=lax; secure`;
+    }
+    window.location.href = '/dashboard';
   }
 
   return (

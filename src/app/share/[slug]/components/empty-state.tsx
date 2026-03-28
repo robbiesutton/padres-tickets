@@ -6,8 +6,8 @@ import { PrimaryButton } from '@/components/primary-button';
 
 interface Props {
   games: Game[];
-  opponentFilter: string;
-  monthFilter: string;
+  opponentFilter: string[];
+  monthFilter: string[];
   onJumpToMonth: (monthIndex: number) => void;
   onClearFilters: () => void;
 }
@@ -19,17 +19,19 @@ export function EmptyState({
   onJumpToMonth,
   onClearFilters,
 }: Props) {
-  const monthIndex = monthFilter ? parseInt(monthFilter) - 1 : -1;
-  const monthName = monthIndex >= 0 ? MONTH_NAMES[monthIndex] : null;
+  const monthIndices = monthFilter.map((m) => parseInt(m) - 1);
+  const monthNames = monthIndices.map((i) => MONTH_NAMES[i]).filter(Boolean);
+  const monthName = monthNames.length > 0 ? monthNames.join(', ') : null;
 
   let title = 'No games match your filters';
   let alsoPlaysLabel = '';
   let pills: { month: number; count: number }[] = [];
 
-  if (opponentFilter && monthName) {
-    title = `No ${opponentFilter} games in ${monthName}`;
+  if (opponentFilter.length > 0 && monthName) {
+    const oppLabel = opponentFilter.length === 1 ? opponentFilter[0] : `${opponentFilter.length} opponents`;
+    title = `No ${oppLabel} games in ${monthName}`;
     const oppGames = games.filter(
-      (g) => g.opponent === opponentFilter && isGameAvailable(g)
+      (g) => opponentFilter.includes(g.opponent) && isGameAvailable(g)
     );
     if (oppGames.length > 0) {
       alsoPlaysLabel = `Also play in:`;
@@ -42,8 +44,9 @@ export function EmptyState({
         .sort(([a], [b]) => a - b)
         .map(([month, count]) => ({ month, count }));
     }
-  } else if (opponentFilter) {
-    title = `No ${opponentFilter} games available`;
+  } else if (opponentFilter.length > 0) {
+    const oppLabel = opponentFilter.length === 1 ? opponentFilter[0] : `${opponentFilter.length} opponents`;
+    title = `No ${oppLabel} games available`;
   } else if (monthName) {
     title = `No games in ${monthName}`;
     const availableGames = games.filter(isGameAvailable);

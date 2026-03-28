@@ -34,6 +34,7 @@ interface SeasonPackage {
     sundays?: boolean;
     dayOfWeek?: number[];
   };
+  gameDates?: string[];
 }
 
 interface ScheduleGame {
@@ -49,12 +50,6 @@ type Step = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 
 const LEAGUES = [
   { value: 'MLB', label: 'MLB', available: true },
-  { value: 'NBA', label: 'NBA', available: false },
-  { value: 'NFL', label: 'NFL', available: false },
-  { value: 'NHL', label: 'NHL', available: false },
-  { value: 'MLS', label: 'MLS', available: false },
-  { value: 'WNBA', label: 'WNBA', available: false },
-  { value: 'NWSL', label: 'NWSL', available: false },
 ];
 
 const MONTH_NAMES = [
@@ -253,7 +248,13 @@ export default function NewPackagePage() {
         setSchedule(data.games);
 
         const selected = new Set<number>();
-        if (selectedPackage?.gameFilter) {
+        if (selectedPackage?.gameDates) {
+          const dateSet = new Set(selectedPackage.gameDates);
+          data.games.forEach((game: ScheduleGame, i: number) => {
+            if (dateSet.has(game.date)) selected.add(i);
+          });
+          if (selected.size === 0) data.games.forEach((_: unknown, i: number) => selected.add(i));
+        } else if (selectedPackage?.gameFilter) {
           const filter = selectedPackage.gameFilter;
           data.games.forEach((game: ScheduleGame, i: number) => {
             if (filter.all) { selected.add(i); return; }
@@ -746,7 +747,7 @@ export default function NewPackagePage() {
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium text-[#1A1A1A]">Seats</label>
                   <div className="flex flex-col gap-1">
-                    {Array.from({ length: 12 }, (_, i) => i + 1).map((seatNum) => (
+                    {Array.from({ length: 80 }, (_, i) => i + 1).map((seatNum) => (
                       <label
                         key={seatNum}
                         className="flex cursor-pointer items-center gap-1.5 rounded-md border border-[#ECEAE5] px-2 py-2 transition-all hover:bg-[#F0EEEA]"

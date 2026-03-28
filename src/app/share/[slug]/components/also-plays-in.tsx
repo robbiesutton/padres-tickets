@@ -5,16 +5,16 @@ import { MONTH_NAMES, getGameMonthYear, isGameAvailable } from '../utils';
 
 interface Props {
   games: Game[];
-  opponentFilter: string;
-  monthFilter: string;
+  opponentFilter: string[];
+  monthFilter: string[];
   onJumpToMonth: (monthIndex: number) => void;
 }
 
 export function AlsoPlaysIn({ games, opponentFilter, monthFilter, onJumpToMonth }: Props) {
-  if (!opponentFilter) return null;
+  if (opponentFilter.length === 0) return null;
 
   const oppGames = games.filter(
-    (g) => g.opponent === opponentFilter && isGameAvailable(g)
+    (g) => opponentFilter.includes(g.opponent) && isGameAvailable(g)
   );
   const monthCounts = new Map<number, number>();
   for (const g of oppGames) {
@@ -25,7 +25,7 @@ export function AlsoPlaysIn({ games, opponentFilter, monthFilter, onJumpToMonth 
   if (monthCounts.size <= 1) return null;
 
   const sortedMonths = [...monthCounts.entries()].sort(([a], [b]) => a - b);
-  const selectedMonth = monthFilter ? parseInt(monthFilter) - 1 : -1;
+  const selectedMonths = new Set(monthFilter.map((m) => parseInt(m) - 1));
 
   return (
     <div className="flex items-center gap-2 mb-4 flex-wrap">
@@ -33,7 +33,7 @@ export function AlsoPlaysIn({ games, opponentFilter, monthFilter, onJumpToMonth 
         Also play in:
       </span>
       {sortedMonths.map(([month, count]) => {
-        const isSelected = month === selectedMonth;
+        const isSelected = selectedMonths.has(month);
         return (
           <button
             key={month}

@@ -4,7 +4,7 @@ export interface SeasonPackage {
   tier?: string;
   gameCount: number;
   description: string;
-  gameSelection: 'all' | 'day_of_week' | 'curated' | 'flexible' | 'opponents';
+  gameSelection: 'all' | 'day_of_week' | 'curated' | 'flexible' | 'opponents' | 'explicit_dates';
   gameFilter?: {
     all?: boolean;
     weekendsOnly?: boolean;
@@ -13,6 +13,7 @@ export interface SeasonPackage {
     sundays?: boolean;
     dayOfWeek?: number[]; // 0=Sun, 1=Mon, ..., 6=Sat
   };
+  gameDates?: string[]; // ISO date strings for explicit_dates selection (e.g. '2026-03-26')
 }
 
 // ─── Helper factories ──────────────────────────────────
@@ -1238,63 +1239,103 @@ const ladPackages: SeasonPackage[] = [
 const sdPackages: SeasonPackage[] = [
   {
     ...fullSeason('SD'),
-    name: 'Platinum Membership',
+    name: 'Platinum - All',
     tier: 'Platinum',
     description: 'All 81 home games at Petco Park',
   },
   {
     id: 'sd-gold-a',
-    name: 'Gold A Membership',
+    name: 'Gold A - Wed,Fri,Sun',
     tier: 'Gold',
     gameCount: 41,
-    description: '~41 home games on Mon/Wed/Fri/Sun',
-    gameSelection: 'day_of_week',
-    gameFilter: { dayOfWeek: [0, 1, 3, 5] },
+    description: '41 home games',
+    gameSelection: 'explicit_dates',
+    gameDates: [
+      '2026-03-26', '2026-03-27', '2026-04-01', '2026-04-09', '2026-04-10',
+      '2026-04-12', '2026-04-15', '2026-04-29', '2026-05-01', '2026-05-03',
+      '2026-05-08', '2026-05-10', '2026-05-20', '2026-05-22', '2026-05-24',
+      '2026-05-27', '2026-06-05', '2026-06-07', '2026-06-10', '2026-06-24',
+      '2026-06-26', '2026-06-28', '2026-07-08', '2026-07-10', '2026-07-12',
+      '2026-07-29', '2026-07-31', '2026-08-02', '2026-08-07', '2026-08-09',
+      '2026-08-12', '2026-08-21', '2026-08-23', '2026-08-26', '2026-09-04',
+      '2026-09-06', '2026-09-09', '2026-09-18', '2026-09-20', '2026-09-25',
+      '2026-09-27',
+    ],
   },
   {
     id: 'sd-gold-b',
-    name: 'Gold B Membership',
+    name: 'Gold B - Mon,Tue,Sat',
     tier: 'Gold',
-    gameCount: 41,
-    description: '~41 home games on Mon/Tue/Thu/Sat',
-    gameSelection: 'day_of_week',
-    gameFilter: { dayOfWeek: [1, 2, 4, 6] },
+    gameCount: 40,
+    description: '40 home games',
+    gameSelection: 'explicit_dates',
+    gameDates: [
+      '2026-03-26', '2026-03-28', '2026-03-30', '2026-03-31', '2026-04-11',
+      '2026-04-14', '2026-04-16', '2026-04-27', '2026-04-28', '2026-05-02',
+      '2026-05-07', '2026-05-09', '2026-05-18', '2026-05-19', '2026-05-23',
+      '2026-05-25', '2026-05-26', '2026-06-06', '2026-06-08', '2026-06-09',
+      '2026-06-22', '2026-06-23', '2026-06-27', '2026-07-06', '2026-07-07',
+      '2026-07-09', '2026-07-11', '2026-07-28', '2026-07-30', '2026-08-01',
+      '2026-08-08', '2026-08-10', '2026-08-11', '2026-08-22', '2026-08-24',
+      '2026-08-25', '2026-09-05', '2026-09-07', '2026-09-08', '2026-09-19',
+      '2026-09-26',
+    ],
   },
   {
     id: 'sd-blue-w',
-    name: 'Blue W Membership',
+    name: 'Blue W - Wed,Sun',
     tier: 'Blue',
     gameCount: 20,
-    description: '~20 home games on Wed/Sun',
-    gameSelection: 'day_of_week',
-    gameFilter: { dayOfWeek: [0, 3] },
+    description: '20 home games',
+    gameSelection: 'explicit_dates',
+    gameDates: [
+      '2026-04-09', '2026-04-12', '2026-04-29', '2026-05-03', '2026-05-10',
+      '2026-05-20', '2026-05-24', '2026-05-27', '2026-06-07', '2026-06-24',
+      '2026-06-28', '2026-07-12', '2026-07-29', '2026-08-02', '2026-08-09',
+      '2026-08-23', '2026-08-26', '2026-09-06', '2026-09-20', '2026-09-27',
+    ],
   },
   {
     id: 'sd-blue-x',
-    name: 'Blue X Membership',
+    name: 'Blue X - Wed,Fri',
     tier: 'Blue',
     gameCount: 20,
-    description: '~20 home games on Mon/Wed/Fri',
-    gameSelection: 'day_of_week',
-    gameFilter: { dayOfWeek: [1, 3, 5] },
+    description: '20 home games',
+    gameSelection: 'explicit_dates',
+    gameDates: [
+      '2026-03-27', '2026-04-01', '2026-04-10', '2026-04-15', '2026-05-01',
+      '2026-05-08', '2026-05-22', '2026-06-05', '2026-06-10', '2026-06-26',
+      '2026-07-08', '2026-07-10', '2026-07-31', '2026-08-07', '2026-08-12',
+      '2026-08-21', '2026-09-04', '2026-09-09', '2026-09-18', '2026-09-25',
+    ],
   },
   {
     id: 'sd-blue-y',
-    name: 'Blue Y Membership',
+    name: 'Blue Y - Tue,Sat',
     tier: 'Blue',
     gameCount: 20,
-    description: '~20 home games on Sat/Tue',
-    gameSelection: 'day_of_week',
-    gameFilter: { dayOfWeek: [2, 6] },
+    description: '20 home games',
+    gameSelection: 'explicit_dates',
+    gameDates: [
+      '2026-03-28', '2026-03-31', '2026-04-14', '2026-04-28', '2026-05-09',
+      '2026-05-19', '2026-05-26', '2026-06-09', '2026-06-23', '2026-06-27',
+      '2026-07-07', '2026-07-09', '2026-07-28', '2026-07-30', '2026-08-01',
+      '2026-08-11', '2026-08-22', '2026-08-25', '2026-09-08', '2026-09-26',
+    ],
   },
   {
     id: 'sd-blue-z',
-    name: 'Blue Z Membership',
+    name: 'Blue Z - Mon,Sat',
     tier: 'Blue',
     gameCount: 20,
-    description: '~20 home games on Mon/Sat/Thu',
-    gameSelection: 'day_of_week',
-    gameFilter: { dayOfWeek: [1, 4, 6] },
+    description: '20 home games',
+    gameSelection: 'explicit_dates',
+    gameDates: [
+      '2026-03-30', '2026-04-11', '2026-04-16', '2026-04-27', '2026-05-02',
+      '2026-05-07', '2026-05-18', '2026-05-23', '2026-05-25', '2026-06-06',
+      '2026-06-08', '2026-06-22', '2026-07-06', '2026-07-11', '2026-08-08',
+      '2026-08-10', '2026-08-24', '2026-09-05', '2026-09-07', '2026-09-19',
+    ],
   },
 ];
 
