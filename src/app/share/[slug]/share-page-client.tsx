@@ -17,7 +17,6 @@ import { Toolbar } from './components/toolbar';
 import { ListView } from './components/list-view';
 import { CalendarView } from './components/calendar-view';
 import { MyGamesTab } from './components/my-games-tab';
-import { ShareFooter } from './components/share-footer';
 import { EmptyState } from './components/empty-state';
 import { AlsoPlaysIn } from './components/also-plays-in';
 import { ScoreTicker } from '@/components/score-ticker';
@@ -413,7 +412,6 @@ function SharePageInner({ packageInfo, games, opponents }: Props) {
       <div className="hidden md:block mt-8">
         <ScoreTicker />
       </div>
-      <ShareFooter team={packageInfo.team} />
     </div>
   );
 }

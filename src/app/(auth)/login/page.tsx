@@ -63,7 +63,7 @@ function LoginForm() {
   // Magic link sent
   if (step === 'magic-link-sent') {
     return (
-      <SetupLayout>
+      <SetupLayout showSidebar={false}>
         <div className="flex flex-col items-center justify-center flex-1 text-center">
           <div className="w-14 h-14 rounded-full bg-[#E1F5EE] flex items-center justify-center mb-5">
             <svg width="28" height="28" viewBox="0 0 16 16" fill="none">
@@ -84,8 +84,17 @@ function LoginForm() {
   }
 
   return (
-    <SetupLayout>
-      <div className="flex flex-col flex-1">
+    <SetupLayout showSidebar={false}>
+      <button
+        onClick={() => { if (step === 'password') { setStep('email'); setPassword(''); setError(''); } else { window.location.href = '/'; } }}
+        className="fixed top-6 left-6 flex items-center gap-1.5 text-base font-medium text-[#2c2a2b] hover:text-[#1a1a1a] bg-transparent border-none cursor-pointer transition-colors z-10"
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M15 18l-6-6 6-6" />
+        </svg>
+        Back
+      </button>
+      <div className="flex flex-col flex-1 justify-center max-w-[380px] mx-auto w-full">
         <StepHeadline>Sign in to BenchBuddy</StepHeadline>
         <StepSubhead>
           {step === 'email' ? 'Enter your email to get started' : `Signing in as ${email}`}
@@ -128,12 +137,9 @@ function LoginForm() {
             <PrimaryButton disabled={loading}>
               {loading ? 'Signing in...' : 'Sign in'}
             </PrimaryButton>
-            <div className="flex justify-between text-sm">
-              <GhostButton onClick={() => { setStep('email'); setPassword(''); setError(''); }}>← Back</GhostButton>
-              <button type="button" onClick={handleSendMagicLink} disabled={loading} className="text-[#2c2a2b] font-medium underline text-sm bg-transparent border-none cursor-pointer">
-                Email me a sign-in link instead
-              </button>
-            </div>
+            <button type="button" onClick={handleSendMagicLink} disabled={loading} className="text-[#2c2a2b] font-medium underline text-sm bg-transparent border-none cursor-pointer self-center">
+              Email me a sign-in link instead
+            </button>
           </form>
         )}
 

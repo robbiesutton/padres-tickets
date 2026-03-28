@@ -34,7 +34,11 @@ export default function SignupPage() {
 
   if (success) {
     return (
-      <SetupLayout>
+      <SetupLayout showSidebar={false}>
+        <a href="/" className="fixed top-6 left-6 flex items-center gap-1.5 text-base font-medium text-[#2c2a2b] hover:text-[#1a1a1a] no-underline transition-colors z-10">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
+          Back
+        </a>
         <div className="flex flex-col items-center justify-center flex-1 text-center">
           <div className="text-5xl mb-5">✉️</div>
           <StepHeadline>Check your email</StepHeadline>
@@ -47,8 +51,12 @@ export default function SignupPage() {
   }
 
   return (
-    <SetupLayout>
-      <div className="flex flex-col flex-1">
+    <SetupLayout showSidebar={false}>
+      <a href="/" className="fixed top-6 left-6 flex items-center gap-1.5 text-base font-medium text-[#2c2a2b] hover:text-[#1a1a1a] no-underline transition-colors z-10">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
+        Back
+      </a>
+      <div className="flex flex-col flex-1 justify-center max-w-[380px] mx-auto w-full">
         <StepHeadline>Create your account</StepHeadline>
         <StepSubhead>Start sharing your season tickets with friends and family.</StepSubhead>
 
@@ -83,17 +91,17 @@ export default function SignupPage() {
                 {showPassword ? 'Hide' : 'Show'}
               </button>
             </div>
-            <p className="mt-1.5 text-xs text-[#8e8985]">Minimum 8 characters</p>
+            <p className="mt-1.5 text-xs text-[#2c2a2b]">Minimum 8 characters</p>
           </div>
 
           <div>
             <FormLabel>I am a...</FormLabel>
             <div className="flex gap-3 mt-1">
-              <label className={`flex-1 cursor-pointer rounded-xl border-[1.5px] px-4 py-3.5 text-sm text-center font-medium transition-all ${form.role === 'HOLDER' ? 'border-[#2c2a2b] bg-[#f5f4f2]' : 'border-[#eceae5] bg-white hover:border-[#b5b1ab]'}`}>
+              <label className={`flex-1 cursor-pointer rounded-lg h-11 flex items-center justify-center text-sm font-medium transition-all ${form.role === 'HOLDER' ? 'bg-[#2c2a2b] text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b]' : 'border border-[#eceae5] bg-white text-[#2c2a2b] hover:bg-[#f5f4f2]'}`}>
                 <input type="radio" name="role" value="HOLDER" checked={form.role === 'HOLDER'} onChange={(e) => update('role', e.target.value)} className="sr-only" />
                 Season ticket holder
               </label>
-              <label className={`flex-1 cursor-pointer rounded-xl border-[1.5px] px-4 py-3.5 text-sm text-center font-medium transition-all ${form.role === 'CLAIMER' ? 'border-[#2c2a2b] bg-[#f5f4f2]' : 'border-[#eceae5] bg-white hover:border-[#b5b1ab]'}`}>
+              <label className={`flex-1 cursor-pointer rounded-lg h-11 flex items-center justify-center text-sm font-medium transition-all ${form.role === 'CLAIMER' ? 'bg-[#2c2a2b] text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b]' : 'border border-[#eceae5] bg-white text-[#2c2a2b] hover:bg-[#f5f4f2]'}`}>
                 <input type="radio" name="role" value="CLAIMER" checked={form.role === 'CLAIMER'} onChange={(e) => update('role', e.target.value)} className="sr-only" />
                 Friend / claimer
               </label>
@@ -104,13 +112,13 @@ export default function SignupPage() {
           <div className="flex flex-col gap-3">
             <label className="flex items-start gap-2.5 text-sm cursor-pointer">
               <input type="checkbox" checked={agreedToTerms} onChange={(e) => setAgreedToTerms(e.target.checked)} className="mt-0.5 w-4 h-4 accent-[#2c2a2b] shrink-0" />
-              <span className="text-[#6b7280] leading-relaxed">
+              <span className="text-[#2c2a2b] leading-relaxed">
                 I agree to the <a href="/terms" target="_blank" className="text-[#2c2a2b] font-medium underline">Terms of Service</a> and <a href="/privacy" target="_blank" className="text-[#2c2a2b] font-medium underline">Privacy Policy</a>
               </span>
             </label>
             <label className="flex items-start gap-2.5 text-sm cursor-pointer">
               <input type="checkbox" checked={marketingOptIn} onChange={(e) => setMarketingOptIn(e.target.checked)} className="mt-0.5 w-4 h-4 accent-[#2c2a2b] shrink-0" />
-              <span className="text-[#6b7280] leading-relaxed">
+              <span className="text-[#2c2a2b] leading-relaxed">
                 I&apos;d like to receive updates and game-day tips from BenchBuddy
               </span>
             </label>
