@@ -122,7 +122,7 @@ export function SetupLayout({ steps, currentStep = 1, children, showSidebar = tr
 
 export function StepIndicator({ current, total }: { current: number; total: number }) {
   return (
-    <p className="text-[11px] font-bold text-[#b0a89e] uppercase tracking-[1px] mb-2">
+    <p className="text-[11px] font-bold text-[#8B2500] uppercase tracking-[1px] mb-2">
       Step {current} of {total}
     </p>
   );
@@ -138,7 +138,7 @@ export function StepHeadline({ children }: { children: React.ReactNode }) {
 
 export function StepSubhead({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-sm text-[#8e8985] leading-relaxed mb-8 max-w-[440px]">
+    <p className="text-sm text-[#8e8985] leading-relaxed mb-6 md:mb-8">
       {children}
     </p>
   );
@@ -146,9 +146,13 @@ export function StepSubhead({ children }: { children: React.ReactNode }) {
 
 export function StepActions({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mt-6 flex items-center justify-end gap-4">
-      {children}
-    </div>
+    <>
+      {/* Spacer so content doesn't hide behind fixed button on mobile */}
+      <div className="h-20 md:hidden" />
+      <div className="fixed bottom-0 left-0 right-0 z-40 px-5 pb-6 pt-3 bg-[#faf8f5] md:static md:p-0 md:bg-transparent md:mt-8 flex items-center justify-end gap-4">
+        {children}
+      </div>
+    </>
   );
 }
 
@@ -157,7 +161,7 @@ export function PrimaryButton({ children, onClick, disabled }: { children: React
     <button
       onClick={onClick}
       disabled={disabled}
-      className="h-11 px-7 rounded-lg bg-[#2c2a2b] text-white text-base font-semibold cursor-pointer border-none transition-all hover:bg-[#dcd7d4] hover:text-[#2c2a2b] disabled:opacity-50 disabled:cursor-not-allowed"
+      className="h-11 w-full md:w-auto px-7 rounded-lg bg-[#2c2a2b] text-white text-sm font-bold cursor-pointer border-none transition-all hover:bg-[#dcd7d4] hover:text-[#2c2a2b] disabled:opacity-50 disabled:cursor-not-allowed"
     >
       {children}
     </button>
@@ -197,7 +201,7 @@ export function InlineNote({ children }: { children: React.ReactNode }) {
 
 export function FormLabel({ children }: { children: React.ReactNode }) {
   return (
-    <label className="block text-xs font-bold text-[#6b7280] uppercase tracking-[0.5px] mb-1.5">
+    <label className="block text-xs font-medium text-[#8e8985] uppercase tracking-[0.5px] mb-2">
       {children}
     </label>
   );

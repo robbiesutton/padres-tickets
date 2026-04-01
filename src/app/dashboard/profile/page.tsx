@@ -53,6 +53,112 @@ const ALL_NAV_ITEMS = [
 
 const inputClass = "block w-full px-3 py-2.5 rounded-lg border border-[#eceae5] bg-white text-sm outline-none focus:border-[#2c2a2b] transition-colors";
 
+const boneStyle = {
+  background: 'linear-gradient(90deg, #e8e4df 25%, #f5f2ef 50%, #e8e4df 75%)',
+  backgroundSize: '400px 100%',
+  animation: 'shimmer 1.5s ease-in-out infinite',
+};
+
+function Bone({ w, h, r = 4, delay = 0, className = '' }: { w: string; h: string; r?: number | string; delay?: number; className?: string }) {
+  return (
+    <div
+      className={className}
+      style={{
+        ...boneStyle,
+        width: w,
+        height: h,
+        borderRadius: typeof r === 'number' ? `${r}px` : r,
+        animationDelay: `${delay}s`,
+        flexShrink: 0,
+      }}
+    />
+  );
+}
+
+function ProfileSkeleton() {
+  return (
+    <>
+      <style>{`@keyframes shimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }`}</style>
+      <div className="flex flex-1 bg-[#fefefe]">
+        {/* Desktop sidebar skeleton */}
+        <aside className="hidden md:flex md:flex-col w-[220px] shrink-0 border-r border-[#eceae5] pt-8 pl-8 pr-4 sticky top-[77px] self-start h-[calc(100vh-77px)]">
+          <Bone w="120px" h="14px" delay={0} className="mb-6" />
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-2.5 px-3 py-2">
+              <Bone w="18px" h="18px" r="50%" delay={0} />
+              <Bone w="60px" h="14px" delay={0.15} />
+            </div>
+            <div className="flex items-center gap-2.5 px-3 py-2">
+              <Bone w="18px" h="18px" r="50%" delay={0.3} />
+              <Bone w="72px" h="14px" delay={0.45} />
+            </div>
+            <div className="flex items-center gap-2.5 px-3 py-2">
+              <Bone w="18px" h="18px" r="50%" delay={0.6} />
+              <Bone w="88px" h="14px" delay={0.75} />
+            </div>
+            <div className="my-1 mx-3 border-t border-[#eceae5]" style={{ marginTop: 4, marginBottom: 4 }} />
+            <div className="flex items-center gap-2.5 px-3 py-2">
+              <Bone w="18px" h="18px" r="50%" delay={0.9} />
+              <Bone w="56px" h="14px" delay={1.05} />
+            </div>
+          </div>
+        </aside>
+
+        {/* Mobile menu skeleton */}
+        <div className="md:hidden flex-1 px-4 pt-4 pb-6 min-h-screen bg-white">
+          <div className="flex flex-col">
+            {[0, 1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="flex items-center gap-3 px-1 py-4"
+                style={{ borderBottomWidth: 1, borderBottomStyle: 'solid', borderBottomColor: '#eceae5' }}
+              >
+                <Bone w="18px" h="18px" r="50%" delay={i * 0.15} />
+                <Bone w={['100px', '60px', '72px', '88px'][i]} h="16px" delay={i * 0.15 + 0.1} />
+                <div className="ml-auto">
+                  <Bone w="16px" h="16px" r="50%" delay={i * 0.15 + 0.2} />
+                </div>
+              </div>
+            ))}
+            <div className="my-2" />
+            <div className="flex items-center gap-3 px-1 py-4">
+              <Bone w="18px" h="18px" r="50%" delay={0.75} />
+              <Bone w="64px" h="16px" delay={0.9} />
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop content skeleton */}
+        <main className="hidden md:block flex-1 min-w-0 px-12 py-8 max-w-[720px]">
+          <Bone w="80px" h="18px" delay={0} className="mb-2" />
+          <Bone w="200px" h="14px" delay={0.15} className="mb-6" />
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <Bone w="72px" h="14px" delay={0.3} className="mb-2" />
+                <Bone w="100%" h="38px" r={8} delay={0.45} />
+              </div>
+              <div>
+                <Bone w="68px" h="14px" delay={0.6} className="mb-2" />
+                <Bone w="100%" h="38px" r={8} delay={0.75} />
+              </div>
+            </div>
+            <div>
+              <Bone w="40px" h="14px" delay={0.9} className="mb-2" />
+              <Bone w="100%" h="38px" r={8} delay={1.05} />
+            </div>
+            <div>
+              <Bone w="48px" h="14px" delay={1.2} className="mb-2" />
+              <Bone w="100%" h="38px" r={8} delay={1.35} />
+            </div>
+            <Bone w="120px" h="40px" r={8} delay={1.5} />
+          </div>
+        </main>
+      </div>
+    </>
+  );
+}
+
 export default function ProfilePage() {
   const searchParams = useSearchParams();
   const { packages, selectedPkgId: ctxPkgId, setSelectedPkgId: ctxSetPkgId, loading } = useDashboardContext();
@@ -163,10 +269,14 @@ export default function ProfilePage() {
   const { data: session } = useSession();
   const sessionRole = (session?.user as { role?: string })?.role;
   const isHolder = sessionRole === 'HOLDER' || sessionRole === 'BOTH' || profile?.role === 'HOLDER' || profile?.role === 'BOTH';
+  const [cameFromShare, setCameFromShare] = useState(false);
+  useEffect(() => {
+    if (typeof document !== 'undefined' && document.referrer.includes('/share/')) setCameFromShare(true);
+  }, []);
   const NAV_ITEMS = ALL_NAV_ITEMS.filter((item) => isHolder ? item.holder : item.claimer);
 
 
-  if (loading) return <div className="flex flex-1 items-center justify-center"><p className="text-[#8e8985]">Loading...</p></div>;
+  if (loading) return <ProfileSkeleton />;
 
   // ─── Section Renderers ───────────────────────────────
 
@@ -434,7 +544,7 @@ export default function ProfilePage() {
       </aside>
 
       {/* ── Mobile ── */}
-      <div className="md:hidden flex-1 px-4 pt-4 pb-6">
+      <div className="md:hidden flex-1 px-4 pt-4 pb-6 min-h-screen bg-white">
         {activeSection === 'menu' ? (
           /* ── Menu list ── */
           <div>
@@ -446,6 +556,51 @@ export default function ProfilePage() {
 
             {/* Nav items */}
             <div className="flex flex-col">
+              {/* Dashboard link — when coming from seller dashboard */}
+              {!cameFromShare && (
+                <Link
+                  href="/dashboard"
+                  className="flex items-center gap-3 px-1 py-4 no-underline border-b border-[#eceae5]"
+                  style={{ borderBottomWidth: 1, borderBottomStyle: 'solid', borderBottomColor: '#eceae5' }}
+                >
+                  <span className="text-[#8e8985]">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" />
+                    </svg>
+                  </span>
+                  <span className="flex-1 text-base font-medium text-[#2c2a2b]">Dashboard</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8e8985" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M9 18l6-6-6-6" />
+                  </svg>
+                </Link>
+              )}
+              {/* My Games link — when coming from share/claimer page */}
+              {cameFromShare && (
+                <button
+                  onClick={() => {
+                    const ref = document.referrer;
+                    if (ref && ref.includes('/share/')) {
+                      const url = new URL(ref);
+                      url.searchParams.set('tab', 'my-games');
+                      window.location.href = url.toString();
+                    } else {
+                      window.history.back();
+                    }
+                  }}
+                  className="flex items-center gap-3 px-1 py-4 border-none bg-transparent cursor-pointer text-left border-b border-[#eceae5] w-full"
+                  style={{ borderBottomWidth: 1, borderBottomStyle: 'solid', borderBottomColor: '#eceae5' }}
+                >
+                  <span className="text-[#8e8985]">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10" /><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" /><path d="M2 12h20" />
+                    </svg>
+                  </span>
+                  <span className="flex-1 text-base font-medium text-[#2c2a2b]">My Games</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8e8985" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M9 18l6-6-6-6" />
+                </svg>
+              </button>
+              )}
               {NAV_ITEMS.map((item) => (
                 <button
                   key={item.id}

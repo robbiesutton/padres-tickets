@@ -154,6 +154,16 @@ export function GameCard({
           )
         )}
       </div>
+
+      {/* Three-dot menu — mobile only */}
+      <div className="relative shrink-0 md:hidden">
+        <button
+          onClick={(e) => { e.stopPropagation(); if (onMobileTap) onMobileTap(); }}
+          className="w-6 h-6 rounded flex items-center justify-center text-[#8e8985] hover:bg-[#f3f4f6] hover:text-[#2c2a2b] transition-all cursor-pointer bg-transparent border-none text-sm font-bold"
+        >
+          ⋯
+        </button>
+      </div>
     </div>
   );
 }

@@ -93,11 +93,22 @@ function StatusPicker({
   currentStatus,
   onSelect,
   onClose,
+  gameInfo,
 }: {
   title: string;
   currentStatus?: string;
   onSelect: (status: string) => void;
   onClose: () => void;
+  gameInfo?: {
+    opponent: string;
+    date: string;
+    time: string | null;
+    section?: string;
+    row?: string | null;
+    seats?: string;
+    seatCount?: number;
+    pricePerTicket?: string | null;
+  };
 }) {
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
@@ -151,6 +162,34 @@ function StatusPicker({
               </svg>
             </button>
             <div className="px-4 pt-5 pb-8">
+              {gameInfo && (() => {
+                const d = new Date(gameInfo.date);
+                const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                const fullDate = `${dayNames[d.getDay()]}, ${MONTH_NAMES[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+                const color = getOpponentColor(gameInfo.opponent);
+                const abbr = getOpponentAbbr(gameInfo.opponent);
+                const totalPrice = gameInfo.pricePerTicket && gameInfo.seatCount ? Number(gameInfo.pricePerTicket) * gameInfo.seatCount : null;
+                return (
+                  <div className="mb-5 pb-5 border-b border-[#eceae5]">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-[42px] h-[42px] rounded-full flex items-center justify-center text-[13px] font-bold text-white shrink-0" style={{ backgroundColor: color }}>
+                        {abbr}
+                      </div>
+                      <div>
+                        <p className="text-base font-bold text-[#2c2a2b]">vs {gameInfo.opponent}</p>
+                        <p className="text-sm font-medium text-[#8e8985]">{fullDate}</p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-[#8e8985] mb-1">{formatTime(gameInfo.time)} &bull; Petco Park</p>
+                    {gameInfo.section && (
+                      <p className="text-sm text-[#8e8985] mb-1">Section {gameInfo.section}{gameInfo.row ? ` · Row ${gameInfo.row}` : ''}{gameInfo.seats ? ` · Seats ${gameInfo.seats}` : ''}</p>
+                    )}
+                    {totalPrice !== null && gameInfo.seatCount && (
+                      <p className="text-sm font-medium text-[#2c2a2b]">{gameInfo.seatCount} ticket{gameInfo.seatCount !== 1 ? 's' : ''} · ${totalPrice} total</p>
+                    )}
+                  </div>
+                );
+              })()}
               <p className="text-base font-bold text-[#2c2a2b] mb-5">{title}</p>
               <div className="flex flex-col gap-2.5">
                 {EDITABLE_STATUSES_WITH_HELP.map((s) => {
@@ -275,7 +314,7 @@ function ProtectedStatusSheet({
     const fullDate = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 
     return createPortal(
-      <div className="fixed inset-0 z-50">
+      <div className="fixed inset-0 z-50" onClick={(e) => e.stopPropagation()}>
         <div className="absolute inset-0 bg-black/30" onClick={onClose} />
         <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-[0_-8px_30px_rgba(0,0,0,0.12)] animate-slide-up">
           <div className="relative">
@@ -356,6 +395,7 @@ function SellerGameCard({
   onPriceChange,
   onRemoveGame,
   onTap,
+  packageInfo,
 }: {
   game: GameWithClaim;
   team: string;
@@ -363,9 +403,14 @@ function SellerGameCard({
   onPriceChange: (gameId: string, price: string) => void;
   onRemoveGame?: (gameId: string) => void;
   onTap: () => void;
+  packageInfo?: { section: string; row: string | null; seats: string; seatCount: number };
 }) {
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  const [mobileEditingPrice, setMobileEditingPrice] = useState(false);
+  const [mobilePriceValue, setMobilePriceValue] = useState(game.pricePerTicket ? String(Number(game.pricePerTicket)) : '');
+  const [mobileConfirmRemove, setMobileConfirmRemove] = useState(false);
   const [flashStatus, setFlashStatus] = useState<string | null>(null);
   const [editingPrice, setEditingPrice] = useState(false);
   const [priceValue, setPriceValue] = useState(game.pricePerTicket ? String(Number(game.pricePerTicket)) : '');
@@ -427,7 +472,10 @@ function SellerGameCard({
   function handleCardClick() {
     if (window.innerWidth < 768) {
       if (editable) {
-        setPopoverOpen(true);
+        setMobileDrawerOpen(true);
+        setMobileEditingPrice(true);
+        setMobileConfirmRemove(false);
+        setMobilePriceValue(game.pricePerTicket ? String(Number(game.pricePerTicket)) : '50');
       } else {
         setInfoOpen(true);
       }
@@ -608,60 +656,154 @@ function SellerGameCard({
       {/* Three-dot menu — mobile */}
       <div className="relative shrink-0 md:hidden">
         <button
-          onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen); setConfirmRemove(false); }}
+          onClick={(e) => { e.stopPropagation(); handleCardClick(); }}
           className="w-6 h-6 rounded flex items-center justify-center text-[#8e8985] hover:bg-[#f3f4f6] hover:text-[#2c2a2b] transition-all cursor-pointer bg-transparent border-none text-sm font-bold"
         >
           ⋯
         </button>
       </div>
 
-      {/* Mobile menu bottom sheet */}
-      {menuOpen && typeof window !== 'undefined' && window.innerWidth < 768 && createPortal(
-        <div className="fixed inset-0 z-50">
-          <div className="absolute inset-0 bg-black/30" onClick={() => { setMenuOpen(false); setConfirmRemove(false); }} />
+      {/* Unified mobile drawer */}
+      {mobileDrawerOpen && typeof window !== 'undefined' && window.innerWidth < 768 && createPortal(
+        <div className="fixed inset-0 z-50" onClick={(e) => e.stopPropagation()}>
+          <div className="absolute inset-0 bg-black/30" onClick={() => setMobileDrawerOpen(false)} />
           <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-[0_-8px_30px_rgba(0,0,0,0.12)] animate-slide-up">
             <div className="relative">
-              <button className="absolute top-3 right-2 w-11 h-11 flex items-center justify-center bg-transparent border-none cursor-pointer z-10" onClick={() => { setMenuOpen(false); setConfirmRemove(false); }}>
+              {/* Drag handle */}
+              <div className="flex justify-center pt-3 pb-1">
+                <div className="w-10 h-1 rounded-full bg-[#dcd7d4]" />
+              </div>
+              <button className="absolute top-3 right-2 w-11 h-11 flex items-center justify-center bg-transparent border-none cursor-pointer z-10" onClick={() => setMobileDrawerOpen(false)}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18" stroke="#8e8985" strokeWidth="2.5" strokeLinecap="round" /><path d="M6 6l12 12" stroke="#8e8985" strokeWidth="2.5" strokeLinecap="round" /></svg>
               </button>
-              <div className="px-4 pt-5 pb-8">
-                {!confirmRemove ? (
-                  <div className="flex flex-col gap-1">
-                    <button onClick={() => { setMenuOpen(false); setEditingPrice(true); }} className="w-full text-left px-4 py-4 rounded-xl text-base font-medium text-[#1a1a1a] bg-[#f5f4f2] border-none cursor-pointer">
-                      Edit Price
-                    </button>
-                    <button
-                      onClick={() => { if (!isClaimed) setConfirmRemove(true); }}
-                      className={`w-full text-left px-4 py-4 rounded-xl text-base font-medium border-none ${isClaimed ? 'text-[#ccc] bg-[#f5f4f2] cursor-not-allowed' : 'text-[#dc2626] bg-[#f5f4f2] cursor-pointer'}`}
-                    >
-                      Remove Game
-                    </button>
-                  </div>
-                ) : (
-                  <div>
-                    <p className="text-base font-semibold text-[#1a1a1a] mb-1">Remove this game?</p>
-                    <p className="text-sm text-[#999] mb-6">vs {game.opponent} · {formatTime(game.time)}</p>
-                    <div className="flex flex-col gap-3">
-                      <button onClick={() => { onRemoveGame?.(game.id); setMenuOpen(false); setConfirmRemove(false); }} className="w-full h-12 rounded-lg bg-[#dc2626] text-white text-base font-semibold border-none cursor-pointer">Remove</button>
-                      <button onClick={() => { setConfirmRemove(false); setMenuOpen(false); }} className="w-full text-sm font-medium text-[#6b7280] bg-transparent border-none cursor-pointer py-2">Cancel</button>
+
+              <div className="px-5 pt-2 pb-8">
+                {mobileConfirmRemove ? (() => {
+                  const rd = new Date(game.date);
+                  const rDayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                  const rFullDate = `${rDayNames[rd.getDay()]}, ${MONTH_NAMES[rd.getMonth()]} ${rd.getDate()}, ${rd.getFullYear()}`;
+                  const rShortDate = `${rDayNames[rd.getDay()].slice(0, 3)}, ${MONTH_NAMES[rd.getMonth()].slice(0, 3)} ${rd.getDate()}`;
+                  const rColor = getOpponentColor(game.opponent);
+                  const rAbbr = getOpponentAbbr(game.opponent);
+                  const rShortName = game.opponent.split(' ').pop();
+                  return (
+                    <div>
+                      {/* Game info header */}
+                      <div className="flex items-center gap-3 mb-4 pb-4 border-b border-[#eceae5]">
+                        <div className="w-[42px] h-[42px] rounded-full flex items-center justify-center text-[13px] font-bold text-white shrink-0" style={{ backgroundColor: rColor }}>
+                          {rAbbr}
+                        </div>
+                        <div>
+                          <p className="text-base font-bold text-[#2c2a2b]">vs {game.opponent}</p>
+                          <p className="text-sm font-medium text-[#8e8985]">{rFullDate}</p>
+                        </div>
+                      </div>
+
+                      <p className="text-lg font-bold text-[#1a1a1a] mb-2">Remove this game?</p>
+                      <p className="text-sm text-[#8e8985] leading-relaxed mb-6">
+                        This will permanently remove vs {rShortName} on {rShortDate} from your schedule. Friends won&apos;t be able to claim it.
+                      </p>
+                      <div className="flex gap-3">
+                        <button onClick={() => { onRemoveGame?.(game.id); setMobileDrawerOpen(false); setMobileConfirmRemove(false); }} className="flex-1 h-12 rounded-lg bg-[#dc2626] text-white text-base font-semibold border-none cursor-pointer hover:bg-[#b91c1c] transition-colors">
+                          Remove
+                        </button>
+                        <button onClick={() => setMobileConfirmRemove(false)} className="flex-1 h-12 rounded-lg border border-[#eceae5] bg-white text-base font-medium text-[#2c2a2b] cursor-pointer hover:bg-[#f5f4f2] transition-colors">
+                          Cancel
+                        </button>
+                      </div>
                     </div>
-                  </div>
+                  );
+                })() : (
+                  <>
+                    {/* Game info header */}
+                    {(() => {
+                      const d = new Date(game.date);
+                      const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                      const fullDate = `${dayNames[d.getDay()]}, ${MONTH_NAMES[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+                      const gameColor = getOpponentColor(game.opponent);
+                      const gameAbbr = getOpponentAbbr(game.opponent);
+                      return (
+                        <div className="mb-4 pb-4 border-b border-[#eceae5]">
+                          <div className="flex items-center gap-3 mb-3">
+                            <div className="w-[42px] h-[42px] rounded-full flex items-center justify-center text-[13px] font-bold text-white shrink-0" style={{ backgroundColor: gameColor }}>
+                              {gameAbbr}
+                            </div>
+                            <div>
+                              <p className="text-base font-bold text-[#2c2a2b]">vs {game.opponent}</p>
+                              <p className="text-sm font-medium text-[#8e8985]">{fullDate}</p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()}
+
+                    {/* Status section */}
+                    <p className="text-[11px] font-bold text-[#8e8985] uppercase tracking-[1.5px] mb-1">Status</p>
+                    <div className="flex flex-col">
+                      {EDITABLE_STATUSES_WITH_HELP.map((s) => {
+                        const isSelected = game.status === s.value;
+                        return (
+                          <button
+                            key={s.value}
+                            onClick={() => { handleStatusSelect(s.value); }}
+                            className="w-full flex items-center gap-3 px-0 py-4 border-none cursor-pointer text-left bg-transparent border-b border-solid border-[#eceae5]"
+                            style={{ borderBottomWidth: '1px', borderBottomColor: '#eceae5' }}
+                          >
+                            <span className="w-[7px] h-[7px] rounded-full shrink-0" style={{ backgroundColor: s.dot }} />
+                            <span className={`text-sm flex-1 ${isSelected ? 'font-semibold' : 'font-medium'} text-[#2c2a2b]`}>{s.label}</span>
+                            {isSelected && (
+                              <svg className="shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                                <path d="M5 13l4 4L19 7" stroke="#2c2a2b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                              </svg>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Actions */}
+                    <div>
+                      {/* Edit Price — always open */}
+                      <div className="flex items-end py-4 border-b border-[#eceae5]">
+                        <span className="text-[24px] font-bold text-[#1a1a1a]">$</span>
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          value={mobilePriceValue}
+                          placeholder="0"
+                          onChange={(e) => setMobilePriceValue(e.target.value.replace(/[^0-9]/g, ''))}
+                          onBlur={() => { if (!mobilePriceValue) setMobilePriceValue('50'); }}
+                          onKeyDown={(e) => { if (e.key === 'Enter') { onPriceChange(game.id, mobilePriceValue || '50'); setMobileDrawerOpen(false); setPriceSaved(true); setTimeout(() => setPriceSaved(false), 1500); } }}
+                          style={{ width: `${Math.max(1, mobilePriceValue.length || 1)}ch` }}
+                          className="bg-transparent border-none outline-none text-[24px] font-bold text-[#1a1a1a] p-0"
+                        />
+                        <span className="text-sm text-[#8e8985] ml-2">/ ticket</span>
+                        <button
+                          onClick={() => { onPriceChange(game.id, mobilePriceValue || '50'); setMobileDrawerOpen(false); setPriceSaved(true); setTimeout(() => setPriceSaved(false), 1500); }}
+                          className="ml-auto h-[38px] px-5 rounded-lg bg-[#2d6a4f] text-white text-sm font-semibold border-none cursor-pointer"
+                        >
+                          Save
+                        </button>
+                      </div>
+
+                      {/* Remove Game */}
+                      <button
+                        onClick={(e) => { e.stopPropagation(); if (!isClaimed) setMobileConfirmRemove(true); }}
+                        className={`w-full flex items-center gap-2 py-4 border-none bg-transparent text-left ${isClaimed ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={isClaimed ? '#ccc' : '#dc2626'} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M18 6L6 18" /><path d="M6 6l12 12" />
+                        </svg>
+                        <span className={`text-sm font-medium ${isClaimed ? 'text-[#ccc]' : 'text-[#dc2626]'}`}>Remove Game</span>
+                      </button>
+                    </div>
+                  </>
                 )}
               </div>
             </div>
           </div>
         </div>,
         document.body
-      )}
-
-      {/* Mobile: status picker bottom sheet */}
-      {popoverOpen && typeof window !== 'undefined' && window.innerWidth < 768 && (
-        <StatusPicker
-          title="Set Status"
-          currentStatus={game.status}
-          onSelect={handleStatusSelect}
-          onClose={() => setPopoverOpen(false)}
-        />
       )}
 
       {/* Mobile: protected status sheet */}
@@ -681,6 +823,7 @@ function SellerListView({
   onSelectGame,
   onPriceChange,
   onRemoveGame,
+  packageInfo,
 }: {
   games: GameWithClaim[];
   team: string;
@@ -688,6 +831,7 @@ function SellerListView({
   onPriceChange: (gameId: string, price: string) => void;
   onRemoveGame: (gameId: string) => void;
   onSelectGame: (game: GameWithClaim) => void;
+  packageInfo?: { section: string; row: string | null; seats: string; seatCount: number };
 }) {
   const grouped = groupGamesByMonth(games);
   const { accent } = getTeamColors(team);
@@ -715,6 +859,7 @@ function SellerListView({
                 onPriceChange={onPriceChange}
                 onRemoveGame={onRemoveGame}
                 onTap={() => onSelectGame(game)}
+                packageInfo={packageInfo}
               />
             ))}
           </div>
@@ -1152,6 +1297,7 @@ export default function DashboardPage() {
             onPriceChange={updateGamePrice}
             onRemoveGame={removeGame}
             onSelectGame={(game) => setSelectedMobileGame(game)}
+            packageInfo={selectedPkg ? { section: selectedPkg.section, row: selectedPkg.row, seats: selectedPkg.seats, seatCount: selectedPkg.seatCount } : undefined}
           />
         )}
 

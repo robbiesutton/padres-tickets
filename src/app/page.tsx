@@ -17,7 +17,7 @@ export default function Home() {
   const [feedbackVisible, setFeedbackVisible] = useState(false);
 
   useEffect(() => {
-    const options = { threshold: 0.3, rootMargin: '-50px 0px' };
+    const options = { threshold: 0.1, rootMargin: '0px 0px' };
     const refs = [
       { ref: howItWorksRef, set: setHowItWorksVisible },
       { ref: pricingRef, set: setPricingVisible },
@@ -33,6 +33,7 @@ export default function Home() {
     });
     return () => observers.forEach((o) => o.disconnect());
   }, []);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [linkError, setLinkError] = useState('');
   const [validating, setValidating] = useState(false);
   async function handleGoToLink() {
@@ -122,7 +123,8 @@ export default function Home() {
             BenchBuddy
           </span>
         </a>
-        <div className="flex items-center gap-4">
+        {/* Desktop nav links */}
+        <div className="hidden md:flex items-center gap-4">
           <a
             href="/login"
             className="text-base font-medium text-white/60 hover:text-white transition-colors"
@@ -136,7 +138,41 @@ export default function Home() {
             Get Started
           </a>
         </div>
+
+        {/* Mobile hamburger */}
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="md:hidden w-10 h-10 flex items-center justify-center bg-transparent border-none cursor-pointer"
+        >
+          {mobileMenuOpen ? (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 6L6 18" /><path d="M6 6l12 12" />
+            </svg>
+          ) : (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 12h18M3 6h18M3 18h18" />
+            </svg>
+          )}
+        </button>
       </nav>
+
+      {/* Mobile menu dropdown */}
+      {mobileMenuOpen && (
+        <div className="md:hidden px-6 pb-4 flex flex-col gap-3 bg-[#1B1716]">
+          <a
+            href="/login"
+            className="h-11 flex items-center justify-center rounded-lg text-sm font-medium text-white/70 hover:text-white transition-colors"
+          >
+            Log in
+          </a>
+          <a
+            href="/signup"
+            className="h-11 flex items-center justify-center rounded-lg border border-white text-white text-sm font-medium hover:bg-[#dcd7d4] hover:text-[#2c2a2b] hover:border-[#2c2a2b] transition-colors"
+          >
+            Get Started
+          </a>
+        </div>
+      )}
 
       {/* Hero */}
       <section className="relative h-[calc(100vh-72px)] max-h-[900px] flex items-center overflow-hidden">

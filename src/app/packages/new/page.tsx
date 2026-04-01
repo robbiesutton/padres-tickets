@@ -6,7 +6,7 @@ import { signOut } from 'next-auth/react';
 import Image from 'next/image';
 import {
   SetupLayout,
-  StepIndicator,
+
   StepHeadline,
   StepSubhead,
   StepActions,
@@ -18,6 +18,7 @@ import {
   FormSelect,
 } from '@/components/setup-layout';
 import { getOpponentColor, getOpponentAbbr } from '@/lib/game-utils';
+import { getTeamColors } from '@/lib/team-colors';
 
 // ─── Types ──────────────────────────────────────────────
 
@@ -82,7 +83,7 @@ const MONTH_NAMES = [
 const STEPS = [
   { label: 'Your Tickets' },
   { label: 'Your Seats' },
-  { label: 'Customize' },
+  { label: 'Confirmation' },
 ];
 
 const AVAILABLE_PERKS = [
@@ -141,13 +142,13 @@ const MOCK_SCHEDULE: ScheduleGame[] = [
 
 function initAvailability() {
   const avail: Record<number, 'available' | 'keeping'> = {};
-  MOCK_SCHEDULE.forEach((_, i) => { avail[i] = i === 0 || i === 9 ? 'keeping' : 'available'; });
+  MOCK_SCHEDULE.forEach((_, i) => { avail[i] = 'available'; });
   return avail;
 }
 
 function initPrices() {
   const pr: Record<number, number> = {};
-  MOCK_SCHEDULE.forEach((_, i) => { pr[i] = i === 0 || i === 9 ? 0 : 45; });
+  MOCK_SCHEDULE.forEach((_, i) => { pr[i] = 45; });
   return pr;
 }
 
@@ -260,13 +261,13 @@ function WizardGameCard({
         onClick={onToggleAvailability}
         className="inline-flex items-center gap-2 h-11 px-4 rounded-full text-sm font-medium transition-all cursor-pointer shrink-0 hidden md:inline-flex"
         style={{
-          backgroundColor: isAvail ? '#d1fae5' : '#f3e8ff',
-          color: isAvail ? '#2d6a4f' : '#7c3aed',
+          backgroundColor: isAvail ? '#fdf6e3' : '#e8e5e0',
+          color: '#2c2a2b',
           border: '2px solid transparent',
         }}
       >
-        <span className="w-[7px] h-[7px] rounded-full shrink-0" style={{ backgroundColor: isAvail ? '#2d6a4f' : '#7c3aed' }} />
-        {isAvail ? 'Available' : 'Going'}
+        <span className="w-[7px] h-[7px] rounded-full shrink-0" style={{ backgroundColor: isAvail ? '#d4a017' : '#2c2a2b' }} />
+        {isAvail ? 'Available' : 'Going Myself'}
       </button>
 
       {/* Three-dot menu — desktop */}
@@ -371,6 +372,7 @@ export default function NewPackagePage() {
   const [prices, setPrices] = useState<Record<number, number>>(DESIGN ? initPrices() : {});
   const [bulkPrice, setBulkPrice] = useState(DESIGN ? '45' : '');
   const [showPerGame, setShowPerGame] = useState(false);
+  const [defaultPrice, setDefaultPrice] = useState('45');
 
   // Step 5: Payment
   const [venmoHandle, setVenmoHandle] = useState(DESIGN ? '@robbie-sutton' : '');
@@ -381,6 +383,7 @@ export default function NewPackagePage() {
   const [slugAvailable, setSlugAvailable] = useState<boolean | null>(DESIGN ? true : null);
   const [copied, setCopied] = useState(false);
   const [result, setResult] = useState<{ shareLink: string; gamesCreated: number } | null>(null);
+  const [firstName, setFirstName] = useState(DESIGN ? 'Robbie' : '');
   const [subscribed, setSubscribed] = useState(true);
   const [subLoading, setSubLoading] = useState(false);
 
@@ -390,6 +393,7 @@ export default function NewPackagePage() {
     if (DESIGN) return;
     fetch('/api/users/me').then((r) => (r.ok ? r.json() : null)).then((data) => {
       if (!data) return;
+      if (data.firstName) setFirstName(data.firstName);
       const status = data.subscription?.status;
       setSubscribed(status === 'ACTIVE' || status === 'TRIALING');
     }).catch(() => {});
@@ -549,61 +553,154 @@ export default function NewPackagePage() {
 
   if (result) {
     return (
-      <div className="min-h-screen bg-[#faf8f5]">
-        {/* Gold accent bar */}
-        <div className="h-[3px]" style={{ background: 'linear-gradient(90deg, #2c2a2b, #d4a017)' }} />
+      <div className="min-h-screen bg-[#faf8f5] relative">
+        {/* Close button */}
+        <button
+          onClick={() => router.push('/dashboard')}
+          className="hidden md:flex fixed top-6 right-6 w-11 h-11 items-center justify-center bg-transparent border-none cursor-pointer text-[#8e8985] hover:text-[#2c2a2b] transition-colors z-10"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M18 6L6 18" />
+            <path d="M6 6l12 12" />
+          </svg>
+        </button>
 
-        <div className="flex items-center justify-center min-h-[calc(100vh-3px)]">
-          <div className="text-center max-w-[480px] px-6 py-12">
-            <div className="text-6xl mb-5">⚾</div>
-            <h2 className="text-[30px] font-bold text-[#1a1a1a] tracking-tight mb-2" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>
-              You&apos;re all set{selectedTeam ? `, ${selectedTeam.name} fan` : ''}!
+        <div className="max-w-[480px] mx-auto px-5 pt-6 pb-12 md:py-16">
+          {/* Header */}
+          <div className="text-center mb-4">
+            <div className="hidden md:block text-6xl mb-5">⚾</div>
+            <h2 className="text-[28px] font-bold text-[#1a1a1a] tracking-tight mb-2" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>
+              You&apos;re all set{firstName ? `, ${firstName}` : ''}!
             </h2>
-            <p className="text-sm text-[#8e8985] leading-relaxed mb-8">
-              Your season is loaded and ready to share. Here&apos;s what we set up:
+            <p className="text-sm text-[#8e8985] leading-relaxed md:hidden">
+              Head to your dashboard to customize games and prices before sharing.
             </p>
+            <p className="text-sm text-[#8e8985] leading-relaxed hidden md:block">
+              Here&apos;s what your friends will see when you share your link. Head to your dashboard to customize games and prices first.
+            </p>
+          </div>
 
-            {/* Stats */}
-            <div className="flex gap-4 mb-8">
-              <div className="flex-1 bg-[#f5f4f2] rounded-xl p-5 text-center">
-                <p className="text-[32px] font-bold text-[#2c2a2b] tracking-tight">{availableCount}</p>
-                <p className="text-xs text-[#8e8985] mt-1">Games available</p>
+          {/* Preview — what friends will see */}
+          <div className="mb-4">
+            <p className="text-xs font-medium text-[#8e8985] uppercase tracking-[0.5px] text-center mb-4">What your friends will see</p>
+
+            <div className="rounded-xl border border-[#dcd7d4] overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.08)] bg-[#fefefe]">
+              {/* Mobile nav bar */}
+              {(() => {
+                const { primary: teamPrimary, accent: teamAccent } = getTeamColors(selectedTeam?.name || 'San Diego Padres');
+                return (
+                  <div className="h-[48px] flex items-center justify-between px-3 shadow-[0_1px_3px_rgba(0,0,0,0.06)]" style={{ backgroundColor: teamPrimary }}>
+                    <div className="flex items-center gap-1.5">
+                      <img src="/benchbuddy-mark-white.svg" alt="BenchBuddy" width={18} height={18} />
+                      <span className="text-sm font-bold text-white" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>BenchBuddy</span>
+                    </div>
+                    <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Mobile seat info pill */}
+              {(() => {
+                const { primary: teamPrimary, accent: teamAccent } = getTeamColors(selectedTeam?.name || 'San Diego Padres');
+                return (
+                  <div className="px-3 pt-3 pb-2">
+                    <div className="flex items-center gap-2 h-9 pl-2 pr-2.5 rounded-lg" style={{ border: `1px solid ${teamPrimary}30`, backgroundColor: `${teamPrimary}08` }}>
+                      <div className="w-6 h-6 rounded-full flex items-center justify-center text-[7px] font-bold shrink-0" style={{ backgroundColor: teamAccent, color: teamPrimary }}>
+                        {selectedTeam?.abbreviation || 'SD'}
+                      </div>
+                      <span className="text-xs font-medium text-[#2c2a2b]">Sec {selectedSection?.name || '203'} &middot; Row {row || '5'} &middot; Seats {Array.from(selectedSeats).sort((a, b) => a - b).join('–')}</span>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="ml-auto shrink-0"><path d="M6 9l6 6 6-6" stroke="#8e8985" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Game cards — mobile style */}
+              <div className="px-3 pb-3">
+                {/* Month header */}
+                {schedule.length > 0 && (
+                  <div className="flex items-center gap-1.5 mb-2.5">
+                    {(() => {
+                      const { accent: teamAccent } = getTeamColors(selectedTeam?.name || 'San Diego Padres');
+                      return <div className="w-[3px] h-3 rounded-sm" style={{ backgroundColor: teamAccent }} />;
+                    })()}
+                    <span className="text-sm font-semibold text-black">
+                      {(() => { const d = new Date(schedule[0].date); return `${MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}`; })()}
+                    </span>
+                    <span className="text-[11px] font-medium text-[#8e8985]">&bull; {schedule.length} games</span>
+                  </div>
+                )}
+
+                <div className="flex flex-col gap-1.5">
+                  {schedule.slice(0, 3).map((game, i) => {
+                    const d = new Date(game.date);
+                    const dow = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()];
+                    const day = d.getDate();
+                    const mon = MONTH_NAMES[d.getMonth()].slice(0, 3);
+                    const color = getOpponentColor(game.opponent);
+                    const abbr = getOpponentAbbr(game.opponent);
+                    const shortName = game.opponent.split(' ').pop();
+                    return (
+                      <div key={i} className="rounded-lg px-3 py-3 border border-[#dcd7d4] bg-white shadow-[0_2px_4px_rgba(0,0,0,0.08)] flex items-center gap-2">
+                        <div className="flex items-center gap-2 shrink-0">
+                          <div className="text-center w-[24px] flex flex-col items-center gap-px">
+                            <div className="text-[10px] font-medium text-[#8e8985] uppercase">{dow}</div>
+                            <div className="text-sm font-extrabold text-[#2c2a2b] leading-tight">{day}</div>
+                            <div className="text-[10px] font-medium text-[#8e8985]">{mon}</div>
+                          </div>
+                          <div className="w-px h-[40px] bg-[#dcd7d4]" />
+                          <div className="w-[28px] h-[28px] rounded-full flex items-center justify-center text-[8px] font-bold text-white shrink-0" style={{ backgroundColor: color }}>
+                            {abbr}
+                          </div>
+                        </div>
+                        <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+                          <div className="text-sm font-bold text-[#2c2a2b]">vs {shortName}</div>
+                          <div className="text-xs font-medium text-[#8e8985]">{game.time} &bull; Petco Park</div>
+                        </div>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8e8985" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0"><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /><circle cx="5" cy="12" r="1" /></svg>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-              <div className="flex-1 bg-[#f5f4f2] rounded-xl p-5 text-center">
-                <p className="text-[32px] font-bold text-[#2c2a2b] tracking-tight">{selectedSeats.size}</p>
-                <p className="text-xs text-[#8e8985] mt-1">Seats per game</p>
-              </div>
-            </div>
-
-            {/* Share link */}
-            <div className="rounded-lg border border-[#eceae5] bg-white px-4 py-3 mb-4 flex items-center gap-2">
-              <span className="text-sm text-[#8e8985] flex-1 text-left truncate">benchbuddy.com/share/{result.shareLink || linkSlug}</span>
-              <button
-                onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/share/${result.shareLink || linkSlug}`); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
-                className="text-sm font-semibold text-[#d4a017] bg-transparent border-none cursor-pointer"
-              >
-                {copied ? 'Copied!' : 'Copy'}
-              </button>
-            </div>
-
-            {/* Subscription upsell */}
-            {!subscribed && (
-              <div className="rounded-xl border border-[#eceae5] bg-[#f5f4f2] p-5 mb-6 text-left">
-                <p className="text-sm font-semibold text-[#2c2a2b] mb-1">Subscribe to share your tickets</p>
-                <p className="text-xs text-[#8e8985] mb-3">$39.99/year · First month free</p>
-                <button onClick={handleSubscribe} disabled={subLoading} className="w-full h-10 rounded-lg bg-[#d4a017] text-white text-sm font-semibold border-none cursor-pointer hover:opacity-90 disabled:opacity-50">
-                  {subLoading ? 'Loading...' : 'Subscribe Now'}
-                </button>
-              </div>
-            )}
-
-            {/* Actions */}
-            <div className="flex gap-3 justify-center">
-              <button onClick={() => router.push('/dashboard')} className="h-11 px-7 rounded-lg bg-[#2c2a2b] text-white text-base font-semibold border-none cursor-pointer hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors">
-                Go to My Dashboard →
-              </button>
             </div>
           </div>
+
+          {/* Share link */}
+          <div className="rounded-lg border border-[#eceae5] bg-white px-4 py-3 mb-6 flex items-center gap-2">
+            <span className="text-sm text-[#2c2a2b] flex-1 text-left truncate">benchbuddy.com/{result.shareLink || linkSlug}</span>
+            <button
+              onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/share/${result.shareLink || linkSlug}`); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
+              className="text-sm font-bold text-[#2c2a2b] bg-transparent border-none cursor-pointer shrink-0"
+            >
+              {copied ? 'Copied!' : '🔗 Copy'}
+            </button>
+          </div>
+
+          {/* Primary action — desktop inline */}
+          <div className="hidden md:block">
+            <button
+              onClick={() => router.push('/dashboard')}
+              className="h-12 w-full rounded-lg bg-[#2c2a2b] text-white text-sm font-bold border-none cursor-pointer hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors mb-4"
+            >
+              Go to My Dashboard →
+            </button>
+          </div>
+
+          {/* Spacer for sticky button on mobile */}
+          <div className="h-20 md:hidden" />
+        </div>
+
+        {/* Primary action — mobile sticky */}
+        <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 px-5 pb-6 pt-3 bg-[#faf8f5]">
+          <button
+            onClick={() => router.push('/dashboard')}
+            className="h-12 w-full rounded-lg bg-[#2c2a2b] text-white text-sm font-bold border-none cursor-pointer hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors"
+          >
+            Go to My Dashboard →
+          </button>
         </div>
       </div>
     );
@@ -620,14 +717,14 @@ export default function NewPackagePage() {
         onClick={() => { if (step > 1) goToStep((step - 1) as Step); else router.push('/dashboard'); }}
         className="fixed top-6 left-6 flex items-center gap-1.5 text-sm font-medium text-[#8e8985] hover:text-[#2c2a2b] bg-transparent border-none cursor-pointer transition-colors z-10"
       >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
-        Back
+        <svg className="md:w-[18px] md:h-[18px] w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
+        <span className="hidden md:inline">Back</span>
       </button>
 
-      {/* Logout button */}
+      {/* Logout button — desktop only */}
       <button
         onClick={() => signOut({ callbackUrl: '/' })}
-        className="fixed top-6 right-6 flex items-center gap-1.5 text-sm font-medium text-[#8e8985] hover:text-[#DC2626] bg-transparent border-none cursor-pointer transition-colors z-10"
+        className="hidden md:flex fixed top-6 right-6 items-center gap-1.5 text-sm font-medium text-[#8e8985] hover:text-[#DC2626] bg-transparent border-none cursor-pointer transition-colors z-10"
       >
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
           <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
@@ -638,7 +735,7 @@ export default function NewPackagePage() {
       </button>
 
       {/* Horizontal step tracker */}
-      <div className="flex items-center justify-center gap-2 mb-14">
+      <div className="flex items-center justify-center gap-2 mt-[12px] md:mt-0 mb-4 md:mb-14">
         {STEPS.map((s, i) => {
           const stepNum = i + 1;
           const isDone = stepNum < step;
@@ -681,9 +778,10 @@ export default function NewPackagePage() {
       {/* ── Step 1: Your Tickets ── */}
       {step === 1 && (
         <div className="flex flex-col flex-1">
-          <StepIndicator current={1} total={totalSteps} />
-          <StepHeadline>Let&apos;s get your tickets set up</StepHeadline>
-          <StepSubhead>Three quick ones and we&apos;ll get to the fun stuff.</StepSubhead>
+
+
+          <StepHeadline><span className="md:hidden">Your tickets</span><span className="hidden md:inline">Which tickets do you have?</span></StepHeadline>
+          <StepSubhead>We&apos;ll pull in your game schedule based on what you select here.</StepSubhead>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <div>
@@ -707,6 +805,12 @@ export default function NewPackagePage() {
             </FormSelect>
           </div>
 
+          {selectedPackage && (
+            <div className="rounded-lg bg-[#FEF3CD] text-[#856D10] px-4 py-3 text-sm font-medium mt-4 leading-relaxed">
+              ⚠️ We&apos;ll load your games based on this selection. Make sure it matches your ticket package — you can remove games but can&apos;t add new ones.
+            </div>
+          )}
+
           <StepActions>
             <PrimaryButton onClick={() => { loadSchedule(); goToStep(2); }} disabled={!league || !selectedTeam || !selectedPackage}>
               Continue →
@@ -718,9 +822,10 @@ export default function NewPackagePage() {
       {/* ── Step 2: Your Seats ── */}
       {step === 2 && (
         <div className="flex flex-col flex-1">
-          <StepIndicator current={2} total={totalSteps} />
-          <StepHeadline>Where do you sit?</StepHeadline>
-          <StepSubhead>We&apos;ll use this to set up your share page for friends.</StepSubhead>
+
+
+          <StepHeadline><span className="md:hidden">Your seats</span><span className="hidden md:inline">Where do you sit?</span></StepHeadline>
+          <StepSubhead>We&apos;ll show this to friends so they know the seats they&apos;re getting.</StepSubhead>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <div>
@@ -740,7 +845,7 @@ export default function NewPackagePage() {
           {/* Seat chips */}
           <div className="mb-5">
             <FormLabel>Which seats are yours?</FormLabel>
-            <div className="grid grid-cols-12 gap-2">
+            <div className="grid grid-cols-5 md:grid-cols-12 gap-2">
               {Array.from({ length: 12 }, (_, i) => i + 1).map((num) => (
                 <button
                   key={num}
@@ -768,39 +873,96 @@ export default function NewPackagePage() {
       {/* ── Step 3: Customize ── */}
       {step === 3 && (
         <div className="flex flex-col flex-1">
-          <StepIndicator current={3} total={totalSteps} />
-          <StepHeadline>Customize your tickets</StepHeadline>
-          <StepSubhead>Here are all of your tickets. Choose which games you want to go to and which games you would like share. You can always change this later.</StepSubhead>
 
-          {/* Game list — mirrors dashboard SellerListView */}
-          <div>
-            {Object.entries(gamesByMonth).map(([month, games]) => (
-              <div key={month} className="mb-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="flex items-center gap-2 pl-1">
-                    <div className="w-[3px] h-4 rounded-sm bg-[#2c2a2b]" />
-                    <span className="text-xl font-semibold text-black">{month}</span>
+
+          <StepHeadline>Confirm your setup</StepHeadline>
+          <p className="hidden md:block text-sm text-[#8e8985] leading-relaxed mb-4">Make sure everything looks right, then set your default ticket price.</p>
+          <div className="md:hidden mb-[10px]" />
+
+          {/* Summary card */}
+          <div className="rounded-xl border border-[#dcd7d4] overflow-hidden mb-6">
+            {/* Team header */}
+            {(() => {
+              const { primary: teamPrimary, accent: teamAccent } = getTeamColors(selectedTeam?.name || 'San Diego Padres');
+              return (
+                <div className="px-4 py-3 flex items-center gap-2.5" style={{ backgroundColor: teamPrimary }}>
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0" style={{ backgroundColor: teamAccent, color: teamPrimary }}>
+                    {selectedTeam?.abbreviation || 'SD'}
                   </div>
-                  <span className="text-sm font-medium text-[#8e8985] leading-5">
-                    &bull; {games.length} game{games.length !== 1 ? 's' : ''}
+                  <span className="text-sm text-white">
+                    <strong>{selectedTeam?.name || 'San Diego Padres'}</strong> &middot; {season} Season
                   </span>
                 </div>
-                <div className="flex flex-col gap-2">
-                  {games.map(({ game, index }) => (
-                    <WizardGameCard
-                      key={index}
-                      game={game}
-                      index={index}
-                      isAvail={availability[index] === 'available'}
-                      price={prices[index] || 0}
-                      onToggleAvailability={() => toggleAvailability(index)}
-                      onPriceChange={(p) => setPrices((prev) => ({ ...prev, [index]: p }))}
-                      onRemove={() => { setSelectedGames((prev) => { const next = new Set(prev); next.delete(index); return next; }); }}
-                    />
-                  ))}
-                </div>
+              );
+            })()}
+            {/* Details rows */}
+            <div className="bg-white divide-y divide-[#f5f4f2]">
+              <div className="flex items-center justify-between px-5 py-3.5">
+                <span className="text-sm text-[#8e8985]">Package</span>
+                <span className="text-sm font-bold text-[#2c2a2b]">{selectedPackage?.name || 'Full Season'} &middot; {selectedPackage?.gameCount || 81} Games</span>
               </div>
-            ))}
+              <div className="flex items-center justify-between px-5 py-3.5">
+                <span className="text-sm text-[#8e8985]">Section &amp; Row</span>
+                <span className="text-sm font-bold text-[#2c2a2b]">Sec {selectedSection?.name || '203'} &middot; Row {row || '5'}</span>
+              </div>
+              <div className="flex items-center justify-between px-5 py-3.5">
+                <span className="text-sm text-[#8e8985]">Seats</span>
+                <span className="text-sm font-bold text-[#2c2a2b]">Seats {Array.from(selectedSeats).sort((a, b) => a - b).join('–')}</span>
+              </div>
+              {schedule.length > 0 && (
+                <div className="flex items-center justify-between px-5 py-3.5">
+                  <span className="text-sm text-[#8e8985]">Schedule</span>
+                  <span className="text-sm font-bold text-[#2c2a2b]">
+                    {(() => {
+                      const first = new Date(schedule[0].date);
+                      const last = new Date(schedule[schedule.length - 1].date);
+                      const fmt = (d: Date) => `${MONTH_NAMES[d.getMonth()].slice(0, 3)} ${d.getDate()}`;
+                      return `${fmt(first)} – ${fmt(last)}`;
+                    })()}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Default price */}
+          <div className="mb-6">
+            <FormLabel>Default price per ticket</FormLabel>
+            <div className="flex items-center gap-2 mt-1">
+              <div className="flex items-center h-[44px] rounded-lg border-[1.5px] border-[#eceae5] bg-white px-3 focus-within:border-[#2c2a2b] focus-within:ring-[3px] focus-within:ring-[#2c2a2b]/10 transition-all">
+                <span className="text-sm font-bold text-[#1a1a1a]">$</span>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={defaultPrice}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/[^0-9]/g, '');
+                    setDefaultPrice(val);
+                    const num = parseInt(val) || 0;
+                    setPrices((prev) => {
+                      const next = { ...prev };
+                      Object.keys(next).forEach((k) => { next[Number(k)] = num; });
+                      return next;
+                    });
+                  }}
+                  onBlur={() => { if (!defaultPrice) setDefaultPrice('0'); }}
+                  style={{ width: `${Math.max(2, defaultPrice.length || 1)}ch` }}
+                  className="bg-transparent border-none outline-none text-sm font-bold text-[#1a1a1a] p-0 ml-0.5"
+                />
+              </div>
+              <span className="text-sm text-[#8e8985]">/ ticket</span>
+            </div>
+            <p className="text-xs text-[#8e8985] mt-2 leading-relaxed">
+              Applied to all {selectedPackage?.gameCount || 81} games. You can edit individual game prices from your dashboard.
+            </p>
+          </div>
+
+          {/* Info callout */}
+          <div className="rounded-lg bg-[#e8f5e4] text-[#2d6a4f] px-4 py-3 text-sm font-medium leading-relaxed">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#2d6a4f" className="inline-block align-[-1px] mr-1.5">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+            </svg>
+            All {selectedPackage?.gameCount || 81} games will be set to <strong>Available</strong> at ${defaultPrice || '0'}/ticket. You can change statuses and prices anytime from your dashboard.
           </div>
 
           <StepActions>
