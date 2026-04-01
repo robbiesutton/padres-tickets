@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-export const revalidate = 60; // Cache for 60 seconds
+export const dynamic = 'force-dynamic';
 
 interface MLBGame {
   homeTeam: string;
@@ -24,7 +24,7 @@ const TEAM_ABBR: Record<number, string> = {
   144: 'ATL', 145: 'CWS', 146: 'MIA', 147: 'NYY', 158: 'MIL',
 };
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   // Design mode: return mock scores
   if (process.env.NEXT_PUBLIC_DESIGN_MODE === 'true') {
     const mockGames = [
@@ -42,10 +42,13 @@ export async function GET() {
   }
 
   try {
-    const today = new Date().toISOString().split('T')[0];
+    const dateParam = req.nextUrl.searchParams.get('date');
+    const today = dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam)
+      ? dateParam
+      : new Date().toISOString().split('T')[0];
     const url = `https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${today}&hydrate=linescore,team`;
 
-    const response = await fetch(url, { next: { revalidate: 60 } });
+    const response = await fetch(url, { next: { revalidate: 30 } });
 
     if (!response.ok) {
       return NextResponse.json({ games: [], featured: null });
@@ -74,7 +77,15 @@ export async function GET() {
           const half = linescore?.inningHalf;
           status = `${half === 'Top' ? 'Top' : 'Bot'} ${inning}`;
         } else {
-          status = detailedState || 'Preview';
+          // Show start time for scheduled games (e.g. "1:10 PM")
+          const startTime = game.gameDate
+            ? new Date(game.gameDate).toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                timeZone: 'America/Los_Angeles',
+              })
+            : null;
+          status = startTime || detailedState || 'Preview';
         }
 
         games.push({
@@ -85,7 +96,7 @@ export async function GET() {
           awayAbbr: TEAM_ABBR[awayId] || away?.team?.abbreviation || '???',
           awayScore: abstractState !== 'Preview' ? (away?.score ?? null) : null,
           status,
-          gameDate: today,
+          gameDate: game.gameDate || today,
         });
       }
     }

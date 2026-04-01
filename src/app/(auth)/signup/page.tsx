@@ -16,7 +16,6 @@ export default function SignupPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [success, setSuccess] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [marketingOptIn, setMarketingOptIn] = useState(false);
 
@@ -27,28 +26,14 @@ export default function SignupPage() {
     const res = await fetch('/api/auth/signup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...form, agreedToTerms, marketingOptIn }) });
     const data = await res.json(); setLoading(false);
     if (!res.ok) { setError(data.error); return; }
-    setSuccess(true);
+    // Set session cookie and redirect to dashboard
+    if (data.data?.sessionToken) {
+      document.cookie = `next-auth.session-token=${data.data.sessionToken}; path=/; max-age=${30 * 24 * 60 * 60}; samesite=lax; secure`;
+    }
+    window.location.href = '/dashboard';
   }
 
   const inputClass = "block w-full h-12 px-4 bg-white border-[1.5px] border-[#eceae5] rounded-lg text-[15px] font-medium text-[#1a1a1a] outline-none transition-all hover:border-[#b5b1ab] focus:border-[#2c2a2b] focus:ring-[3px] focus:ring-[#2c2a2b]/10";
-
-  if (success) {
-    return (
-      <SetupLayout showSidebar={false}>
-        <a href="/" className="fixed top-6 left-6 flex items-center gap-1.5 text-sm font-medium text-[#8e8985] hover:text-[#2c2a2b] no-underline transition-colors z-10">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
-          Back
-        </a>
-        <div className="flex flex-col items-center justify-center flex-1 text-center">
-          <div className="text-5xl mb-5">✉️</div>
-          <StepHeadline>Check your email</StepHeadline>
-          <p className="text-sm text-[#8e8985] leading-relaxed max-w-[360px]">
-            We sent a confirmation link to <strong className="text-[#2c2a2b]">{form.email}</strong>. Click the link to verify your email and you&apos;ll be signed in automatically.
-          </p>
-        </div>
-      </SetupLayout>
-    );
-  }
 
   return (
     <SetupLayout showSidebar={false}>

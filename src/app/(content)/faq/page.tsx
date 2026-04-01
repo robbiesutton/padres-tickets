@@ -88,7 +88,7 @@ export default function FAQPage() {
             We&apos;re here to help.
           </p>
           <a
-            href="mailto:support@benchbuddy.com"
+            href="mailto:hello@getbenchbuddy.com"
             className="inline-block rounded-lg bg-brand-600 px-6 py-2 text-sm font-medium text-white hover:bg-brand-700"
           >
             Contact Support

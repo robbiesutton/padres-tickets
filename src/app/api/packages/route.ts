@@ -4,6 +4,7 @@ import { requireAuth, jsonError, jsonSuccess } from '@/lib/api-utils';
 import { generateUniqueSlug } from '@/lib/services/slug';
 import { getTeamById } from '@/lib/data/mlb-teams';
 import { getHomeSchedule } from '@/lib/services/schedule';
+import { getSeatViewPhotos, getBestSeatViewUrl } from '@/lib/services/seat-views';
 import { DESIGN_MODE, mockPackage } from '@/lib/mock-data';
 
 export async function GET() {
@@ -144,6 +145,23 @@ export async function POST(request: NextRequest) {
       description: description || null,
     },
   });
+
+  // Auto-fetch seat photo if not provided
+  if (!seatPhotoUrl) {
+    try {
+      const photos = await getSeatViewPhotos(team.venue, section);
+      const bestUrl = getBestSeatViewUrl(photos);
+      if (bestUrl) {
+        await prisma.package.update({
+          where: { id: pkg.id },
+          data: { seatPhotoUrl: bestUrl },
+        });
+        pkg.seatPhotoUrl = bestUrl;
+      }
+    } catch (error) {
+      console.error('Failed to auto-fetch seat photo:', error);
+    }
+  }
 
   // Auto-load schedule if requested
   let gamesCreated = 0;

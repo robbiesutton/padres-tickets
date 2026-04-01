@@ -41,10 +41,8 @@ export async function createClaim(
         throw new Error('Game is no longer available');
       }
 
-      // Prevent holders from claiming their own games
-      if (game.package.userId === claimerUserId) {
-        throw new Error('You cannot claim your own game');
-      }
+      // If holder claims their own game, mark as GOING_MYSELF
+      const isHolder = game.package.userId === claimerUserId;
 
       // Check if claimer already has an active claim on this game
       const existingClaim = await tx.claim.findUnique({
@@ -56,7 +54,7 @@ export async function createClaim(
       }
 
       // Determine payment status based on price
-      const isFree = !game.pricePerTicket || Number(game.pricePerTicket) === 0;
+      const isFree = isHolder || !game.pricePerTicket || Number(game.pricePerTicket) === 0;
       const paymentStatus = isFree ? 'WAIVED' : 'UNPAID';
 
       // Create the claim
@@ -66,14 +64,14 @@ export async function createClaim(
           claimerUserId,
           status: 'CONFIRMED',
           paymentStatus,
-          transferStatus: 'NOT_STARTED',
+          transferStatus: isHolder ? 'ACCEPTED' : 'NOT_STARTED',
         },
       });
 
-      // Update game status to CLAIMED
+      // Update game status — holder self-claims are GOING_MYSELF
       await tx.game.update({
         where: { id: gameId },
-        data: { status: 'CLAIMED' },
+        data: { status: isHolder ? 'GOING_MYSELF' : 'CLAIMED' },
       });
 
       // Create invitation linking claimer to package (if not exists)
@@ -91,45 +89,52 @@ export async function createClaim(
         },
       });
 
-      return claim;
+      return { claim, isHolder };
     });
 
-    // Log activity (best-effort, outside transaction)
-    const game = await prisma.game.findUnique({
-      where: { id: gameId },
-      include: {
-        package: { select: { id: true } },
-        claim: {
-          include: { claimer: { select: { firstName: true, lastName: true } } },
-        },
-      },
-    });
-    if (game) {
-      const claimerName = game.claim
-        ? `${game.claim.claimer.firstName} ${game.claim.claimer.lastName}`
-        : 'Someone';
-      logActivity(
-        game.package.id,
-        'CLAIM_CREATED',
-        `${claimerName} claimed ${game.opponent} on ${game.date.toLocaleDateString()}`,
-        { gameId, claimId: result.id } as Prisma.InputJsonValue
-      ).catch(() => {});
+    // Log activity (best-effort, non-blocking)
+    void (async () => {
+      try {
+        const game = await prisma.game.findUnique({
+          where: { id: gameId },
+          include: {
+            package: { select: { id: true } },
+            claim: {
+              include: { claimer: { select: { firstName: true, lastName: true } } },
+            },
+          },
+        });
+        if (game) {
+          const claimerName = game.claim
+            ? `${game.claim.claimer.firstName} ${game.claim.claimer.lastName}`
+            : 'Someone';
+          const action = result.isHolder ? 'marked Going Myself for' : 'claimed';
+          await logActivity(
+            game.package.id,
+            'CLAIM_CREATED',
+            `${claimerName} ${action} ${game.opponent} on ${game.date.toLocaleDateString()}`,
+            { gameId, claimId: result.claim.id } as Prisma.InputJsonValue
+          );
+        }
+      } catch { /* best-effort */ }
+    })();
+
+    // Send claim notification emails only for non-holder claims
+    if (!result.isHolder) {
+      sendClaimNotifications(result.claim.id).catch((err) =>
+        console.error('Failed to send claim notifications:', err)
+      );
     }
-
-    // Send claim notification emails (best-effort, async)
-    sendClaimNotifications(result.id).catch((err) =>
-      console.error('Failed to send claim notifications:', err)
-    );
 
     return {
       success: true,
       claim: {
-        id: result.id,
-        gameId: result.gameId,
-        claimerUserId: result.claimerUserId,
-        status: result.status,
-        paymentStatus: result.paymentStatus,
-        transferStatus: result.transferStatus,
+        id: result.claim.id,
+        gameId: result.claim.gameId,
+        claimerUserId: result.claim.claimerUserId,
+        status: result.claim.status,
+        paymentStatus: result.claim.paymentStatus,
+        transferStatus: result.claim.transferStatus,
       },
     };
   } catch (error) {
@@ -180,23 +185,27 @@ export async function releaseClaim(
       return claim;
     });
 
-    // Log activity (best-effort)
-    const claimer = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { firstName: true, lastName: true },
-    });
-    const game = await prisma.game.findUnique({
-      where: { id: txResult.gameId },
-      select: { opponent: true, date: true, packageId: true },
-    });
-    if (game && claimer) {
-      logActivity(
-        game.packageId,
-        'CLAIM_RELEASED',
-        `${claimer.firstName} ${claimer.lastName} released ${game.opponent} on ${game.date.toLocaleDateString()}`,
-        { gameId: txResult.gameId, claimId } as Prisma.InputJsonValue
-      ).catch(() => {});
-    }
+    // Log activity (best-effort, non-blocking)
+    void (async () => {
+      try {
+        const claimer = await prisma.user.findUnique({
+          where: { id: userId },
+          select: { firstName: true, lastName: true },
+        });
+        const game = await prisma.game.findUnique({
+          where: { id: txResult.gameId },
+          select: { opponent: true, date: true, packageId: true },
+        });
+        if (game && claimer) {
+          await logActivity(
+            game.packageId,
+            'CLAIM_RELEASED',
+            `${claimer.firstName} ${claimer.lastName} released ${game.opponent} on ${game.date.toLocaleDateString()}`,
+            { gameId: txResult.gameId, claimId } as Prisma.InputJsonValue
+          );
+        }
+      } catch { /* best-effort */ }
+    })();
 
     return { success: true };
   } catch (error) {

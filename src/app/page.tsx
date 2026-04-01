@@ -35,7 +35,8 @@ export default function Home() {
   }, []);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [linkError, setLinkError] = useState('');
-  function handleGoToLink() {
+  const [validating, setValidating] = useState(false);
+  async function handleGoToLink() {
     setLinkError('');
     try {
       let slug = sharedLink.trim();
@@ -48,6 +49,21 @@ export default function Home() {
         setLinkError('Please paste a valid BenchBuddy link');
         return;
       }
+
+      setValidating(true);
+      try {
+        const res = await fetch(`/api/share/${slug}/check`);
+        if (!res.ok) {
+          setLinkError("We couldn't find that link. Double-check it and try again.");
+          return;
+        }
+      } catch {
+        setLinkError('Something went wrong. Please try again.');
+        return;
+      } finally {
+        setValidating(false);
+      }
+
       router.push(`/share/${slug}`);
     } catch {
       setLinkError('Please paste a valid BenchBuddy link');
@@ -90,7 +106,7 @@ export default function Home() {
 
       {/* Nav */}
       <nav className="flex items-center justify-between px-6 md:px-12 py-6">
-        <div className="flex items-center gap-2">
+        <a href="/" className="flex items-center gap-2">
           <img
             src="/benchbuddy-mark-white.svg"
             alt="BenchBuddy"
@@ -195,7 +211,7 @@ export default function Home() {
                 <span className="absolute inset-0 rounded-full bg-[#E41837] animate-ping opacity-75" />
                 <span className="relative w-2 h-2 rounded-full bg-[#E41837]" />
               </span>
-              Free for early adopters
+              First year free during early access
             </span>
 
             {/* Headline */}
@@ -212,8 +228,7 @@ export default function Home() {
 
             {/* Subtitle */}
             <p className="-mt-0 max-w-lg text-base md:text-lg text-white/50 leading-relaxed">
-              Set up once, share a link, and let friends and family claim the
-              games they want. No more back-and-forth texts.
+              Ditch the spreadsheets and group text. Share a link with your circle and let them claim the games they want - no wasted tickets, no crazy fees, just that simple.
             </p>
 
             {/* CTA */}
@@ -245,16 +260,18 @@ export default function Home() {
                     type="text"
                     value={sharedLink}
                     onChange={(e) => setSharedLink(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleGoToLink()}
+                    onKeyDown={(e) => e.key === 'Enter' && !validating && handleGoToLink()}
+                    disabled={validating}
                     placeholder="e.g. benchbuddy.com/share/mark-rockies"
                     className="flex-1 h-11 px-3 rounded-lg border border-white/20 bg-white/10 text-white text-sm outline-none placeholder:text-white/30 focus:border-white/40"
                     autoFocus
                   />
                   <button
                     onClick={handleGoToLink}
-                    className="h-10 px-4 rounded-lg bg-white text-[#2c2a2b] text-base font-medium hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors"
+                    disabled={validating}
+                    className="h-10 px-4 rounded-lg bg-white text-[#2c2a2b] text-base font-medium hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Go
+                    {validating ? 'Checking...' : 'Go'}
                   </button>
                 </div>
                 {linkError && (
@@ -293,7 +310,7 @@ export default function Home() {
             {[
               {
                 step: '01',
-                title: 'Set Up Your Package',
+                title: 'Set Up Your Tickets',
                 desc: 'Select your team, enter your seat details, and your full season schedule loads automatically.',
               },
               {
@@ -358,7 +375,7 @@ export default function Home() {
                 transitionDelay: '150ms',
               }}
             >
-              BenchBuddy Season Pass
+              Your first year is free
             </h2>
             <p
               className="text-base text-[#6b6764] leading-relaxed max-w-sm transition-all duration-700"
@@ -368,8 +385,7 @@ export default function Home() {
                 transitionDelay: '300ms',
               }}
             >
-              We&apos;re building BenchBuddy for the community. Get full access
-              while we&apos;re in beta — no credit card required.
+              Sign up during early access and get your entire first year on us — no credit card required.
             </p>
           </div>
 
@@ -393,17 +409,17 @@ export default function Home() {
                   <span className="absolute inset-0 rounded-full bg-[#0F6E56] animate-ping opacity-75" />
                   <span className="relative w-2 h-2 rounded-full bg-[#0F6E56]" />
                 </span>
-                Free for early adopters
+                Early Access
               </span>
             </div>
 
             {/* Price */}
             <div className="mb-8">
-              <div className="flex items-baseline gap-1.5">
-                <span className="text-4xl md:text-5xl font-bold text-[#2c2a2b] leading-none" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>$39.99</span>
-                <span className="text-sm text-[#8e8985] font-medium">/ year</span>
+              <div className="flex items-baseline gap-3">
+                <span className="text-4xl md:text-5xl font-bold text-[#8e8985] line-through leading-none" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>$39.99</span>
+                <span className="text-4xl md:text-5xl font-bold text-[#2c2a2b] leading-none" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>$0</span>
               </div>
-              <p className="text-sm text-[#8e8985] mt-2">That&apos;s $3.33/mo to manage your entire season.</p>
+              <p className="text-sm text-[#8e8985] mt-2">per year &middot; first year free</p>
             </div>
 
             {/* Benefits */}
@@ -427,7 +443,7 @@ export default function Home() {
               href="/signup"
               className="w-full h-12 rounded-lg bg-[#2c2a2b] text-white text-base font-semibold flex items-center justify-center hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors mb-3"
             >
-              Subscribe Now
+              Start Free for a Year
             </a>
             <p className="text-xs text-[#8e8985] text-center">
               Cancel anytime. You won&apos;t be charged until your free month ends.
@@ -494,7 +510,7 @@ export default function Home() {
             a bug, or want to tell us what&apos;s working?
           </p>
           <a
-            href="mailto:feedback@benchbuddy.app"
+            href="mailto:hello@getbenchbuddy.com"
             className="inline-flex h-10 items-center justify-center rounded-lg border border-white bg-transparent px-4 text-base font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] hover:border-[#2c2a2b] transition-colors transition-all duration-700"
             style={{
               opacity: feedbackVisible ? 1 : 0,

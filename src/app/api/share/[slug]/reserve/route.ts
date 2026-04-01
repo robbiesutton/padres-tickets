@@ -4,6 +4,7 @@ import { jsonError, jsonSuccess } from '@/lib/api-utils';
 import { createToken } from '@/lib/services/tokens';
 import { sendEmail } from '@/lib/services/email';
 import { getClientIp, rateLimit, rateLimitResponse } from '@/lib/rate-limit';
+import { buildReserveMagicLinkEmail } from '@/lib/emails/auth-email';
 
 export async function POST(
   request: NextRequest,
@@ -84,22 +85,12 @@ export async function POST(
   });
   const magicUrl = `${process.env.NEXTAUTH_URL}/api/auth/magic-link/verify?${callbackParams.toString()}`;
 
-  const gameDate = new Date(game.date).toLocaleDateString('en-US', {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-  });
+  const reserveEmail = buildReserveMagicLinkEmail(user.firstName, magicUrl, pkg.team, game.opponent);
 
   await sendEmail({
     to: user.email,
-    subject: `Confirm your reservation — ${pkg.team} vs ${game.opponent}`,
-    html: `
-      <p>Hi ${user.firstName},</p>
-      <p>Click the link below to confirm your reservation for:</p>
-      <p><strong>${pkg.team} vs ${game.opponent}</strong><br>${gameDate}${game.time ? ` at ${game.time}` : ''}</p>
-      <p><a href="${magicUrl}" style="display:inline-block;padding:12px 24px;background:#1B2A4A;color:#fff;text-decoration:none;border-radius:8px;font-weight:500">Confirm Reservation</a></p>
-      <p style="color:#8C8984;font-size:14px">This link expires in 15 minutes.</p>
-    `,
+    subject: reserveEmail.subject,
+    html: reserveEmail.html,
   });
 
   return jsonSuccess({

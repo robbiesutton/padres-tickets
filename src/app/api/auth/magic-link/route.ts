@@ -4,6 +4,7 @@ import { createToken } from '@/lib/services/tokens';
 import { sendEmail } from '@/lib/services/email';
 import { jsonError, jsonSuccess } from '@/lib/api-utils';
 import { getClientIp, rateLimit, rateLimitResponse } from '@/lib/rate-limit';
+import { buildMagicLinkEmail } from '@/lib/emails/auth-email';
 import { DESIGN_MODE } from '@/lib/mock-data';
 
 export async function POST(request: NextRequest) {
@@ -48,11 +49,12 @@ export async function POST(request: NextRequest) {
 
   const tokenRecord = await createToken(user.id, 'MAGIC_LINK');
   const magicUrl = `${process.env.NEXTAUTH_URL}/api/auth/magic-link/verify?token=${tokenRecord.token}`;
+  const magicEmail = buildMagicLinkEmail(user.firstName, magicUrl);
 
   await sendEmail({
     to: user.email,
-    subject: 'Your BenchBuddy sign-in link',
-    html: `<p>Hi ${user.firstName},</p><p>Click <a href="${magicUrl}">here</a> to sign in to BenchBuddy. This link expires in 15 minutes.</p>`,
+    subject: magicEmail.subject,
+    html: magicEmail.html,
   });
 
   return jsonSuccess({

@@ -306,7 +306,7 @@ export default function TermsOfService() {
       <p>
         BenchBuddy may suspend or terminate your access to the Service at any time, with or without
         cause, and with or without notice. You may terminate your account at any time by contacting
-        us at support@benchbuddy.com.
+        us at hello@getbenchbuddy.com.
       </p>
       <p>
         Upon termination, your right to use the Service ceases immediately. Sections that by their
@@ -327,9 +327,9 @@ export default function TermsOfService() {
       <p>
         BenchBuddy
         <br />
-        Email: legal@benchbuddy.com
+        Email: hello@getbenchbuddy.com
         <br />
-        Website: www.benchbuddy.com
+        Website: www.getbenchbuddy.com
       </p>
     </>
   );

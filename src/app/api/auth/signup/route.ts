@@ -2,10 +2,9 @@ import { NextRequest } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/db';
 import { jsonError, jsonSuccess } from '@/lib/api-utils';
-import { createToken } from '@/lib/services/tokens';
-import { sendEmail } from '@/lib/services/email';
 import { getClientIp, rateLimit, rateLimitResponse } from '@/lib/rate-limit';
 import { DESIGN_MODE } from '@/lib/mock-data';
+import { encode } from 'next-auth/jwt';
 
 export async function POST(request: NextRequest) {
   if (DESIGN_MODE) {
@@ -52,18 +51,22 @@ export async function POST(request: NextRequest) {
       email: normalizedEmail,
       passwordHash,
       role: role === 'HOLDER' ? 'HOLDER' : 'CLAIMER',
+      emailVerified: new Date(),
       notificationPrefs: { marketingOptIn: !!marketingOptIn },
     },
   });
 
-  // Send verification email
-  const tokenRecord = await createToken(user.id, 'EMAIL_VERIFY');
-  const verifyUrl = `${process.env.NEXTAUTH_URL}/api/auth/verify-email?token=${tokenRecord.token}`;
-
-  await sendEmail({
-    to: user.email,
-    subject: 'Verify your BenchBuddy email',
-    html: `<p>Hi ${user.firstName},</p><p>Click <a href="${verifyUrl}">here</a> to verify your email.</p>`,
+  // Create session token to auto-sign in
+  const sessionToken = await encode({
+    token: {
+      id: user.id,
+      email: user.email,
+      name: `${user.firstName} ${user.lastName}`,
+      role: user.role,
+      sub: user.id,
+    },
+    secret: process.env.NEXTAUTH_SECRET!,
+    maxAge: 30 * 24 * 60 * 60,
   });
 
   return jsonSuccess(
@@ -73,6 +76,7 @@ export async function POST(request: NextRequest) {
       firstName: user.firstName,
       lastName: user.lastName,
       role: user.role,
+      sessionToken,
     },
     201
   );

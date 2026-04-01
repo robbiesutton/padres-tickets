@@ -120,9 +120,9 @@ export default function AcceptableUsePolicy() {
       <p>
         BenchBuddy
         <br />
-        Email: support@benchbuddy.com
+        Email: hello@getbenchbuddy.com
         <br />
-        Website: www.benchbuddy.com
+        Website: www.getbenchbuddy.com
       </p>
     </>
   );

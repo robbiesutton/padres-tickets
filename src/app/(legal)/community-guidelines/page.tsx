@@ -108,7 +108,7 @@ export default function CommunityGuidelines() {
       </ol>
       <p>
         If you see behavior that violates these guidelines, please report it to us at
-        support@benchbuddy.com.
+        hello@getbenchbuddy.com.
       </p>
     </>
   );

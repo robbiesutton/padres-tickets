@@ -51,6 +51,7 @@ interface SeasonPackage {
     sundays?: boolean;
     dayOfWeek?: number[];
   };
+  gameDates?: string[];
 }
 
 interface ScheduleGame {
@@ -428,7 +429,13 @@ export default function NewPackagePage() {
         const data = await res.json();
         setSchedule(data.games);
         const selected = new Set<number>();
-        if (selectedPackage?.gameFilter) {
+        if (selectedPackage?.gameDates) {
+          const dateSet = new Set(selectedPackage.gameDates);
+          data.games.forEach((game: ScheduleGame, i: number) => {
+            if (dateSet.has(game.date)) selected.add(i);
+          });
+          if (selected.size === 0) data.games.forEach((_: unknown, i: number) => selected.add(i));
+        } else if (selectedPackage?.gameFilter) {
           const filter = selectedPackage.gameFilter;
           data.games.forEach((game: ScheduleGame, i: number) => {
             if (filter.all) { selected.add(i); return; }
