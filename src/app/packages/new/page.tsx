@@ -546,49 +546,154 @@ export default function NewPackagePage() {
 
   if (result) {
     return (
-      <div className="min-h-screen bg-[#faf8f5]">
-        {/* Gold accent bar */}
-        <div className="h-[3px]" style={{ background: 'linear-gradient(90deg, #2c2a2b, #d4a017)' }} />
+      <div className="min-h-screen bg-[#faf8f5] relative">
+        {/* Close button */}
+        <button
+          onClick={() => router.push('/dashboard')}
+          className="hidden md:flex fixed top-6 right-6 w-11 h-11 items-center justify-center bg-transparent border-none cursor-pointer text-[#8e8985] hover:text-[#2c2a2b] transition-colors z-10"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M18 6L6 18" />
+            <path d="M6 6l12 12" />
+          </svg>
+        </button>
 
-        <div className="flex items-center justify-center min-h-[calc(100vh-3px)]">
-          <div className="text-center max-w-[480px] px-6 py-12">
-            <div className="text-6xl mb-5">⚾</div>
-            <h2 className="text-[30px] font-bold text-[#1a1a1a] tracking-tight mb-2" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>
+        <div className="max-w-[480px] mx-auto px-5 pt-6 pb-12 md:py-16">
+          {/* Header */}
+          <div className="text-center mb-4">
+            <div className="hidden md:block text-6xl mb-5">⚾</div>
+            <h2 className="text-[28px] font-bold text-[#1a1a1a] tracking-tight mb-2" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>
               You&apos;re all set{firstName ? `, ${firstName}` : ''}!
             </h2>
-            <p className="text-sm text-[#8e8985] leading-relaxed mb-8">
-              Your tickets are ready to share. Send this link to anyone and they will be able to reserve your available tickets.
+            <p className="text-sm text-[#8e8985] leading-relaxed md:hidden">
+              Head to your dashboard to customize games and prices before sharing.
             </p>
+            <p className="text-sm text-[#8e8985] leading-relaxed hidden md:block">
+              Here&apos;s what your friends will see when you share your link. Head to your dashboard to customize games and prices first.
+            </p>
+          </div>
 
-            {/* Share link */}
-            <div className="rounded-lg border border-[#eceae5] bg-white px-4 py-3 mb-4 flex items-center gap-2">
-              <span className="text-sm text-[#8e8985] flex-1 text-left truncate">benchbuddy.com/share/{result.shareLink || linkSlug}</span>
-              <button
-                onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/share/${result.shareLink || linkSlug}`); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
-                className="text-sm font-semibold text-[#2c2a2b] bg-transparent border-none cursor-pointer"
-              >
-                {copied ? 'Copied!' : '🔗 Copy'}
-              </button>
-            </div>
+          {/* Preview — what friends will see */}
+          <div className="mb-4">
+            <p className="text-xs font-medium text-[#8e8985] uppercase tracking-[0.5px] text-center mb-4">What your friends will see</p>
 
-            {/* Subscription upsell */}
-            {!subscribed && (
-              <div className="rounded-xl border border-[#eceae5] bg-[#f5f4f2] p-5 mb-6 text-left">
-                <p className="text-sm font-semibold text-[#2c2a2b] mb-1">Subscribe to share your tickets</p>
-                <p className="text-xs text-[#8e8985] mb-3">$39.99/year · First month free</p>
-                <button onClick={handleSubscribe} disabled={subLoading} className="w-full h-10 rounded-lg bg-[#d4a017] text-white text-sm font-semibold border-none cursor-pointer hover:opacity-90 disabled:opacity-50">
-                  {subLoading ? 'Loading...' : 'Subscribe Now'}
-                </button>
+            <div className="rounded-xl border border-[#dcd7d4] overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.08)] bg-[#fefefe]">
+              {/* Mobile nav bar */}
+              {(() => {
+                const { primary: teamPrimary, accent: teamAccent } = getTeamColors(selectedTeam?.name || 'San Diego Padres');
+                return (
+                  <div className="h-[48px] flex items-center justify-between px-3 shadow-[0_1px_3px_rgba(0,0,0,0.06)]" style={{ backgroundColor: teamPrimary }}>
+                    <div className="flex items-center gap-1.5">
+                      <img src="/benchbuddy-mark-white.svg" alt="BenchBuddy" width={18} height={18} />
+                      <span className="text-sm font-bold text-white" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>BenchBuddy</span>
+                    </div>
+                    <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Mobile seat info pill */}
+              {(() => {
+                const { primary: teamPrimary, accent: teamAccent } = getTeamColors(selectedTeam?.name || 'San Diego Padres');
+                return (
+                  <div className="px-3 pt-3 pb-2">
+                    <div className="flex items-center gap-2 h-9 pl-2 pr-2.5 rounded-lg" style={{ border: `1px solid ${teamPrimary}30`, backgroundColor: `${teamPrimary}08` }}>
+                      <div className="w-6 h-6 rounded-full flex items-center justify-center text-[7px] font-bold shrink-0" style={{ backgroundColor: teamAccent, color: teamPrimary }}>
+                        {selectedTeam?.abbreviation || 'SD'}
+                      </div>
+                      <span className="text-xs font-medium text-[#2c2a2b]">Sec {selectedSection?.name || '203'} &middot; Row {row || '5'} &middot; Seats {Array.from(selectedSeats).sort((a, b) => a - b).join('–')}</span>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="ml-auto shrink-0"><path d="M6 9l6 6 6-6" stroke="#8e8985" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Game cards — mobile style */}
+              <div className="px-3 pb-3">
+                {/* Month header */}
+                {schedule.length > 0 && (
+                  <div className="flex items-center gap-1.5 mb-2.5">
+                    {(() => {
+                      const { accent: teamAccent } = getTeamColors(selectedTeam?.name || 'San Diego Padres');
+                      return <div className="w-[3px] h-3 rounded-sm" style={{ backgroundColor: teamAccent }} />;
+                    })()}
+                    <span className="text-sm font-semibold text-black">
+                      {(() => { const d = new Date(schedule[0].date); return `${MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}`; })()}
+                    </span>
+                    <span className="text-[11px] font-medium text-[#8e8985]">&bull; {schedule.length} games</span>
+                  </div>
+                )}
+
+                <div className="flex flex-col gap-1.5">
+                  {schedule.slice(0, 3).map((game, i) => {
+                    const d = new Date(game.date);
+                    const dow = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()];
+                    const day = d.getDate();
+                    const mon = MONTH_NAMES[d.getMonth()].slice(0, 3);
+                    const color = getOpponentColor(game.opponent);
+                    const abbr = getOpponentAbbr(game.opponent);
+                    const shortName = game.opponent.split(' ').pop();
+                    return (
+                      <div key={i} className="rounded-lg px-3 py-3 border border-[#dcd7d4] bg-white shadow-[0_2px_4px_rgba(0,0,0,0.08)] flex items-center gap-2">
+                        <div className="flex items-center gap-2 shrink-0">
+                          <div className="text-center w-[24px] flex flex-col items-center gap-px">
+                            <div className="text-[10px] font-medium text-[#8e8985] uppercase">{dow}</div>
+                            <div className="text-sm font-extrabold text-[#2c2a2b] leading-tight">{day}</div>
+                            <div className="text-[10px] font-medium text-[#8e8985]">{mon}</div>
+                          </div>
+                          <div className="w-px h-[40px] bg-[#dcd7d4]" />
+                          <div className="w-[28px] h-[28px] rounded-full flex items-center justify-center text-[8px] font-bold text-white shrink-0" style={{ backgroundColor: color }}>
+                            {abbr}
+                          </div>
+                        </div>
+                        <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+                          <div className="text-sm font-bold text-[#2c2a2b]">vs {shortName}</div>
+                          <div className="text-xs font-medium text-[#8e8985]">{game.time} &bull; Petco Park</div>
+                        </div>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8e8985" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0"><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /><circle cx="5" cy="12" r="1" /></svg>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            )}
-
-            {/* Actions */}
-            <div className="flex gap-3 justify-center">
-              <button onClick={() => router.push('/dashboard')} className="h-11 px-7 rounded-lg bg-[#2c2a2b] text-white text-base font-semibold border-none cursor-pointer hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors">
-                Go to My Dashboard →
-              </button>
             </div>
           </div>
+
+          {/* Share link */}
+          <div className="rounded-lg border border-[#eceae5] bg-white px-4 py-3 mb-6 flex items-center gap-2">
+            <span className="text-sm text-[#2c2a2b] flex-1 text-left truncate">benchbuddy.com/{result.shareLink || linkSlug}</span>
+            <button
+              onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/share/${result.shareLink || linkSlug}`); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
+              className="text-sm font-bold text-[#2c2a2b] bg-transparent border-none cursor-pointer shrink-0"
+            >
+              {copied ? 'Copied!' : '🔗 Copy'}
+            </button>
+          </div>
+
+          {/* Primary action — desktop inline */}
+          <div className="hidden md:block">
+            <button
+              onClick={() => router.push('/dashboard')}
+              className="h-12 w-full rounded-lg bg-[#2c2a2b] text-white text-sm font-bold border-none cursor-pointer hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors mb-4"
+            >
+              Go to My Dashboard →
+            </button>
+          </div>
+
+          {/* Spacer for sticky button on mobile */}
+          <div className="h-20 md:hidden" />
+        </div>
+
+        {/* Primary action — mobile sticky */}
+        <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 px-5 pb-6 pt-3 bg-[#faf8f5]">
+          <button
+            onClick={() => router.push('/dashboard')}
+            className="h-12 w-full rounded-lg bg-[#2c2a2b] text-white text-sm font-bold border-none cursor-pointer hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors"
+          >
+            Go to My Dashboard →
+          </button>
         </div>
       </div>
     );

@@ -71,6 +71,7 @@ body {
   transform-origin: left center;
 }
 
+
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
