@@ -764,7 +764,7 @@ function SellerGameCard({
                     {/* Actions */}
                     <div>
                       {/* Edit Price — always open */}
-                      <div className="flex items-baseline py-4 border-b border-[#eceae5]">
+                      <div className="flex items-end py-4 border-b border-[#eceae5]">
                         <span className="text-[24px] font-bold text-[#1a1a1a]">$</span>
                         <input
                           type="text"

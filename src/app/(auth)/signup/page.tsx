@@ -56,9 +56,11 @@ export default function SignupPage() {
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
         Back
       </a>
-      <div className="flex flex-col flex-1 justify-center max-w-[380px] mx-auto w-full">
-        <StepHeadline>Create your account</StepHeadline>
-        <StepSubhead>Start sharing your season tickets with friends and family.</StepSubhead>
+      <div className="flex flex-col flex-1 md:justify-center max-w-[380px] mx-auto w-full pt-12 md:pt-0">
+        <div className="text-center">
+          <StepHeadline>Create your account</StepHeadline>
+          <StepSubhead>Start sharing your season tickets with friends and family.</StepSubhead>
+        </div>
 
         {error && (
           <div className="rounded-lg bg-[#FEE2E2] text-[#DC2626] px-4 py-3 text-sm font-medium mb-4">
@@ -67,7 +69,7 @@ export default function SignupPage() {
         )}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             <div>
               <FormLabel>First name</FormLabel>
               <input type="text" required value={form.firstName} onChange={(e) => update('firstName', e.target.value)} className={inputClass} />
@@ -91,46 +93,37 @@ export default function SignupPage() {
                 {showPassword ? 'Hide' : 'Show'}
               </button>
             </div>
-            <p className="mt-1.5 text-xs text-[#2c2a2b]">Minimum 8 characters</p>
+            <p className="mt-1.5 text-xs text-[#8e8985]">Minimum 8 characters</p>
           </div>
 
-          <div>
-            <FormLabel>I am a...</FormLabel>
-            <div className="flex gap-3 mt-1">
-              <label className={`flex-1 cursor-pointer rounded-lg h-11 flex items-center justify-center text-sm font-medium transition-all ${form.role === 'HOLDER' ? 'bg-[#2c2a2b] text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b]' : 'border border-[#eceae5] bg-white text-[#2c2a2b] hover:bg-[#f5f4f2]'}`}>
-                <input type="radio" name="role" value="HOLDER" checked={form.role === 'HOLDER'} onChange={(e) => update('role', e.target.value)} className="sr-only" />
-                Season ticket holder
-              </label>
-              <label className={`flex-1 cursor-pointer rounded-lg h-11 flex items-center justify-center text-sm font-medium transition-all ${form.role === 'CLAIMER' ? 'bg-[#2c2a2b] text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b]' : 'border border-[#eceae5] bg-white text-[#2c2a2b] hover:bg-[#f5f4f2]'}`}>
-                <input type="radio" name="role" value="CLAIMER" checked={form.role === 'CLAIMER'} onChange={(e) => update('role', e.target.value)} className="sr-only" />
-                Friend / claimer
-              </label>
-            </div>
-          </div>
 
           {/* Consent */}
           <div className="flex flex-col gap-3">
             <label className="flex items-start gap-2.5 text-sm cursor-pointer">
-              <input type="checkbox" checked={agreedToTerms} onChange={(e) => setAgreedToTerms(e.target.checked)} className="mt-0.5 w-4 h-4 accent-[#2c2a2b] shrink-0" />
-              <span className="text-[#2c2a2b] leading-relaxed">
-                I agree to the <a href="/terms" target="_blank" className="text-[#2c2a2b] font-medium underline">Terms of Service</a> and <a href="/privacy" target="_blank" className="text-[#2c2a2b] font-medium underline">Privacy Policy</a>
+              <input type="checkbox" checked={agreedToTerms} onChange={(e) => setAgreedToTerms(e.target.checked)} className="mt-0.5 w-5 h-5 accent-[#2c2a2b] shrink-0" />
+              <span className="text-[#8e8985] leading-relaxed">
+                I agree to the <a href="/terms" target="_blank" className="text-[#8e8985] underline">Terms of Service</a> and <a href="/privacy" target="_blank" className="text-[#8e8985] underline">Privacy Policy</a>
               </span>
             </label>
             <label className="flex items-start gap-2.5 text-sm cursor-pointer">
-              <input type="checkbox" checked={marketingOptIn} onChange={(e) => setMarketingOptIn(e.target.checked)} className="mt-0.5 w-4 h-4 accent-[#2c2a2b] shrink-0" />
-              <span className="text-[#2c2a2b] leading-relaxed">
-                I&apos;d like to receive updates and game-day tips from BenchBuddy
+              <input type="checkbox" checked={marketingOptIn} onChange={(e) => setMarketingOptIn(e.target.checked)} className="mt-0.5 w-5 h-5 accent-[#2c2a2b] shrink-0" />
+              <span className="text-[#8e8985] leading-relaxed">
+                I&apos;d like to receive updates from BenchBuddy
               </span>
             </label>
           </div>
 
-          <PrimaryButton disabled={loading || !agreedToTerms}>
+          <button
+            type="submit"
+            disabled={loading || !agreedToTerms}
+            className="w-full h-12 rounded-lg bg-[#2c2a2b] text-white text-sm font-medium cursor-pointer border-none transition-all hover:bg-[#dcd7d4] hover:text-[#2c2a2b] disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             {loading ? 'Creating account...' : 'Create account'}
-          </PrimaryButton>
+          </button>
         </form>
 
-        <p className="text-center text-sm text-[#8e8985] mt-6">
-          Already have an account? <a href="/login" className="text-[#2c2a2b] font-medium underline">Sign in</a>
+        <p className="text-center text-sm text-[#8e8985] mt-6 pb-8">
+          Already have an account? <a href="/login" className="text-[#8e8985] underline">Sign in</a>
         </p>
       </div>
     </SetupLayout>

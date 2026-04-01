@@ -6,7 +6,7 @@ import { signOut } from 'next-auth/react';
 import Image from 'next/image';
 import {
   SetupLayout,
-  StepIndicator,
+
   StepHeadline,
   StepSubhead,
   StepActions,
@@ -18,6 +18,7 @@ import {
   FormSelect,
 } from '@/components/setup-layout';
 import { getOpponentColor, getOpponentAbbr } from '@/lib/game-utils';
+import { getTeamColors } from '@/lib/team-colors';
 
 // ─── Types ──────────────────────────────────────────────
 
@@ -81,7 +82,7 @@ const MONTH_NAMES = [
 const STEPS = [
   { label: 'Your Tickets' },
   { label: 'Your Seats' },
-  { label: 'Customize' },
+  { label: 'Confirmation' },
 ];
 
 const AVAILABLE_PERKS = [
@@ -370,6 +371,7 @@ export default function NewPackagePage() {
   const [prices, setPrices] = useState<Record<number, number>>(DESIGN ? initPrices() : {});
   const [bulkPrice, setBulkPrice] = useState(DESIGN ? '45' : '');
   const [showPerGame, setShowPerGame] = useState(false);
+  const [defaultPrice, setDefaultPrice] = useState('45');
 
   // Step 5: Payment
   const [venmoHandle, setVenmoHandle] = useState(DESIGN ? '@robbie-sutton' : '');
@@ -603,14 +605,14 @@ export default function NewPackagePage() {
         onClick={() => { if (step > 1) goToStep((step - 1) as Step); else router.push('/dashboard'); }}
         className="fixed top-6 left-6 flex items-center gap-1.5 text-sm font-medium text-[#8e8985] hover:text-[#2c2a2b] bg-transparent border-none cursor-pointer transition-colors z-10"
       >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
-        Back
+        <svg className="md:w-[18px] md:h-[18px] w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
+        <span className="hidden md:inline">Back</span>
       </button>
 
-      {/* Logout button */}
+      {/* Logout button — desktop only */}
       <button
         onClick={() => signOut({ callbackUrl: '/' })}
-        className="fixed top-6 right-6 flex items-center gap-1.5 text-sm font-medium text-[#8e8985] hover:text-[#DC2626] bg-transparent border-none cursor-pointer transition-colors z-10"
+        className="hidden md:flex fixed top-6 right-6 items-center gap-1.5 text-sm font-medium text-[#8e8985] hover:text-[#DC2626] bg-transparent border-none cursor-pointer transition-colors z-10"
       >
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
           <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
@@ -621,7 +623,7 @@ export default function NewPackagePage() {
       </button>
 
       {/* Horizontal step tracker */}
-      <div className="flex items-center justify-center gap-2 mb-14">
+      <div className="flex items-center justify-center gap-2 mt-[12px] md:mt-0 mb-4 md:mb-14">
         {STEPS.map((s, i) => {
           const stepNum = i + 1;
           const isDone = stepNum < step;
@@ -664,9 +666,10 @@ export default function NewPackagePage() {
       {/* ── Step 1: Your Tickets ── */}
       {step === 1 && (
         <div className="flex flex-col flex-1">
-          <StepIndicator current={1} total={totalSteps} />
-          <StepHeadline>Let&apos;s get your tickets set up</StepHeadline>
-          <StepSubhead>Three quick ones and we&apos;ll get to the fun stuff.</StepSubhead>
+
+
+          <StepHeadline><span className="md:hidden">Your tickets</span><span className="hidden md:inline">Which tickets do you have?</span></StepHeadline>
+          <StepSubhead>We&apos;ll pull in your game schedule based on what you select here.</StepSubhead>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <div>
@@ -690,6 +693,12 @@ export default function NewPackagePage() {
             </FormSelect>
           </div>
 
+          {selectedPackage && (
+            <div className="rounded-lg bg-[#FEF3CD] text-[#856D10] px-4 py-3 text-sm font-medium mt-4 leading-relaxed">
+              ⚠️ We&apos;ll load your games based on this selection. Make sure it matches your ticket package — you can remove games but can&apos;t add new ones.
+            </div>
+          )}
+
           <StepActions>
             <PrimaryButton onClick={() => { loadSchedule(); goToStep(2); }} disabled={!league || !selectedTeam || !selectedPackage}>
               Continue →
@@ -701,9 +710,10 @@ export default function NewPackagePage() {
       {/* ── Step 2: Your Seats ── */}
       {step === 2 && (
         <div className="flex flex-col flex-1">
-          <StepIndicator current={2} total={totalSteps} />
-          <StepHeadline>Where do you sit?</StepHeadline>
-          <StepSubhead>We&apos;ll use this to set up your share page for friends.</StepSubhead>
+
+
+          <StepHeadline><span className="md:hidden">Your seats</span><span className="hidden md:inline">Where do you sit?</span></StepHeadline>
+          <StepSubhead>We&apos;ll show this to friends so they know the seats they&apos;re getting.</StepSubhead>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <div>
@@ -723,7 +733,7 @@ export default function NewPackagePage() {
           {/* Seat chips */}
           <div className="mb-5">
             <FormLabel>Which seats are yours?</FormLabel>
-            <div className="grid grid-cols-12 gap-2">
+            <div className="grid grid-cols-5 md:grid-cols-12 gap-2">
               {Array.from({ length: 12 }, (_, i) => i + 1).map((num) => (
                 <button
                   key={num}
@@ -751,39 +761,96 @@ export default function NewPackagePage() {
       {/* ── Step 3: Customize ── */}
       {step === 3 && (
         <div className="flex flex-col flex-1">
-          <StepIndicator current={3} total={totalSteps} />
-          <StepHeadline>Customize your tickets</StepHeadline>
-          <p className="text-sm text-[#8e8985] leading-relaxed mb-8">Here are all of your tickets. Choose which games you want to go to and which games you would like share. You can always change this later.</p>
 
-          {/* Game list — mirrors dashboard SellerListView */}
-          <div className="max-h-[calc(100vh-380px)] overflow-y-auto -mx-1 px-1">
-            {Object.entries(gamesByMonth).map(([month, games]) => (
-              <div key={month} className="mb-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="flex items-center gap-2 pl-1">
-                    <div className="w-[3px] h-4 rounded-sm bg-[#2c2a2b]" />
-                    <span className="text-xl font-semibold text-black">{month}</span>
+
+          <StepHeadline>Confirm your setup</StepHeadline>
+          <StepSubhead>Make sure everything looks right, then set your default ticket price.</StepSubhead>
+
+          {/* Summary card */}
+          <div className="rounded-xl border border-[#dcd7d4] overflow-hidden mb-6">
+            {/* Team header */}
+            {(() => {
+              const { primary: teamPrimary, accent: teamAccent } = getTeamColors(selectedTeam?.name || 'San Diego Padres');
+              return (
+                <div className="px-5 py-4 flex items-center gap-3" style={{ backgroundColor: teamPrimary }}>
+                  <div className="w-11 h-11 rounded-full flex items-center justify-center text-xs font-bold shrink-0" style={{ backgroundColor: teamAccent, color: teamPrimary }}>
+                    {selectedTeam?.abbreviation || 'SD'}
                   </div>
-                  <span className="text-sm font-medium text-[#8e8985] leading-5">
-                    &bull; {games.length} game{games.length !== 1 ? 's' : ''}
+                  <div>
+                    <div className="text-base font-bold text-white">{selectedTeam?.name || 'San Diego Padres'}</div>
+                    <div className="text-sm text-white/50">{season} Season</div>
+                  </div>
+                </div>
+              );
+            })()}
+            {/* Details rows */}
+            <div className="bg-white divide-y divide-[#f5f4f2]">
+              <div className="flex items-center justify-between px-5 py-3.5">
+                <span className="text-sm text-[#8e8985]">Package</span>
+                <span className="text-sm font-bold text-[#2c2a2b]">{selectedPackage?.name || 'Full Season'} &middot; {selectedPackage?.gameCount || 81} Games</span>
+              </div>
+              <div className="flex items-center justify-between px-5 py-3.5">
+                <span className="text-sm text-[#8e8985]">Section &amp; Row</span>
+                <span className="text-sm font-bold text-[#2c2a2b]">Sec {selectedSection?.name || '203'} &middot; Row {row || '5'}</span>
+              </div>
+              <div className="flex items-center justify-between px-5 py-3.5">
+                <span className="text-sm text-[#8e8985]">Seats</span>
+                <span className="text-sm font-bold text-[#2c2a2b]">Seats {Array.from(selectedSeats).sort((a, b) => a - b).join('–')}</span>
+              </div>
+              {schedule.length > 0 && (
+                <div className="flex items-center justify-between px-5 py-3.5">
+                  <span className="text-sm text-[#8e8985]">Schedule</span>
+                  <span className="text-sm font-bold text-[#2c2a2b]">
+                    {(() => {
+                      const first = new Date(schedule[0].date);
+                      const last = new Date(schedule[schedule.length - 1].date);
+                      const fmt = (d: Date) => `${MONTH_NAMES[d.getMonth()].slice(0, 3)} ${d.getDate()}`;
+                      return `${fmt(first)} – ${fmt(last)}`;
+                    })()}
                   </span>
                 </div>
-                <div className="flex flex-col gap-2">
-                  {games.map(({ game, index }) => (
-                    <WizardGameCard
-                      key={index}
-                      game={game}
-                      index={index}
-                      isAvail={availability[index] === 'available'}
-                      price={prices[index] || 0}
-                      onToggleAvailability={() => toggleAvailability(index)}
-                      onPriceChange={(p) => setPrices((prev) => ({ ...prev, [index]: p }))}
-                      onRemove={() => { setSelectedGames((prev) => { const next = new Set(prev); next.delete(index); return next; }); }}
-                    />
-                  ))}
-                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Default price */}
+          <div className="mb-6">
+            <FormLabel>Default price per ticket</FormLabel>
+            <div className="flex items-center gap-2 mt-1">
+              <div className="flex items-center h-[48px] rounded-lg border-[1.5px] border-[#eceae5] bg-white px-3 focus-within:border-[#2c2a2b] focus-within:ring-[3px] focus-within:ring-[#2c2a2b]/10 transition-all">
+                <span className="text-[24px] font-bold text-[#1a1a1a]">$</span>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={defaultPrice}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/[^0-9]/g, '');
+                    setDefaultPrice(val);
+                    const num = parseInt(val) || 0;
+                    setPrices((prev) => {
+                      const next = { ...prev };
+                      Object.keys(next).forEach((k) => { next[Number(k)] = num; });
+                      return next;
+                    });
+                  }}
+                  onBlur={() => { if (!defaultPrice) setDefaultPrice('0'); }}
+                  style={{ width: `${Math.max(2, defaultPrice.length || 1)}ch` }}
+                  className="bg-transparent border-none outline-none text-[24px] font-bold text-[#1a1a1a] p-0 ml-0.5"
+                />
               </div>
-            ))}
+              <span className="text-sm text-[#8e8985]">/ ticket</span>
+            </div>
+            <p className="text-xs text-[#8e8985] mt-2 leading-relaxed">
+              Applied to all {selectedPackage?.gameCount || 81} games. You can edit individual game prices from your dashboard.
+            </p>
+          </div>
+
+          {/* Info callout */}
+          <div className="rounded-lg bg-[#E1F5EE] px-4 py-3.5 flex items-start gap-3">
+            <span className="text-base mt-0.5">&#9989;</span>
+            <p className="text-sm text-[#0F6E56] leading-relaxed">
+              All games will be set to <strong>Available</strong> at your default price. You can change statuses and prices for individual games anytime from your dashboard.
+            </p>
           </div>
 
           <StepActions>
