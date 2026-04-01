@@ -147,7 +147,7 @@ function SharePageInner({ packageInfo, games, opponents }: Props) {
   const searchParams = useSearchParams();
 
   // State
-  const [activeTab, setActiveTab] = useState<ActiveTab>('available');
+  const [activeTab, setActiveTab] = useState<ActiveTab>(searchParams.get('tab') === 'my-games' ? 'my-games' : 'available');
   const [viewMode, setViewMode] = useState<ViewMode>('calendar');
   const [monthFilter, setMonthFilter] = useState('');
   const [opponentFilter, setOpponentFilter] = useState('');

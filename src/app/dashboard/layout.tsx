@@ -685,14 +685,16 @@ export default function DashboardLayout({
               </select>
             )}
 
-            {/* Dashboard button */}
-            <Link
-              href="/dashboard"
-              className="h-10 px-4 rounded-lg text-sm font-medium cursor-pointer transition-all flex items-center text-white"
-              style={{ backgroundColor: isDashboard ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.1)' }}
-            >
-              Dashboard
-            </Link>
+            {/* Dashboard button — desktop only */}
+            <div className="hidden md:block">
+              <Link
+                href="/dashboard"
+                className="h-10 px-4 rounded-lg text-sm font-medium cursor-pointer transition-all flex items-center text-white"
+                style={{ backgroundColor: isDashboard ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.1)' }}
+              >
+                Dashboard
+              </Link>
+            </div>
 
             {/* Account icon */}
             <Link

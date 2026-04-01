@@ -165,19 +165,21 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
         </div>
       </div>
       <div className="flex items-center gap-2 md:gap-3">
-        <button
-          className={`h-11 md:h-10 px-2.5 md:px-4 rounded-lg text-sm md:text-base font-medium border-none cursor-pointer transition-all flex items-center gap-2 ${
-            isDark ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-[#f5f4f2] text-black hover:bg-[#eceae5]'
-          }`}
-          onClick={() => onTabChange('my-games')}
-        >
-          My Games
-          {reservedCount > 0 && (
-            <span className="w-5 h-5 rounded-full bg-[#0F6F57] text-white text-xs font-semibold flex items-center justify-center">
-              {reservedCount}
-            </span>
-          )}
-        </button>
+        <div className="hidden md:block">
+          <button
+            className={`h-10 px-4 rounded-lg text-base font-medium border-none cursor-pointer transition-all flex items-center gap-2 ${
+              isDark ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-[#f5f4f2] text-black hover:bg-[#eceae5]'
+            }`}
+            onClick={() => onTabChange('my-games')}
+          >
+            My Games
+            {reservedCount > 0 && (
+              <span className="w-5 h-5 rounded-full bg-[#0F6F57] text-white text-xs font-semibold flex items-center justify-center">
+                {reservedCount}
+              </span>
+            )}
+          </button>
+        </div>
         {/* Account icon */}
         <a
           href="/dashboard/profile"

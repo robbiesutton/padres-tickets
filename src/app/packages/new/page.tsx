@@ -140,13 +140,13 @@ const MOCK_SCHEDULE: ScheduleGame[] = [
 
 function initAvailability() {
   const avail: Record<number, 'available' | 'keeping'> = {};
-  MOCK_SCHEDULE.forEach((_, i) => { avail[i] = i === 0 || i === 9 ? 'keeping' : 'available'; });
+  MOCK_SCHEDULE.forEach((_, i) => { avail[i] = 'available'; });
   return avail;
 }
 
 function initPrices() {
   const pr: Record<number, number> = {};
-  MOCK_SCHEDULE.forEach((_, i) => { pr[i] = i === 0 || i === 9 ? 0 : 45; });
+  MOCK_SCHEDULE.forEach((_, i) => { pr[i] = 45; });
   return pr;
 }
 
@@ -259,13 +259,13 @@ function WizardGameCard({
         onClick={onToggleAvailability}
         className="inline-flex items-center gap-2 h-11 px-4 rounded-full text-sm font-medium transition-all cursor-pointer shrink-0 hidden md:inline-flex"
         style={{
-          backgroundColor: isAvail ? '#d1fae5' : '#f3e8ff',
-          color: isAvail ? '#2d6a4f' : '#7c3aed',
+          backgroundColor: isAvail ? '#fdf6e3' : '#e8e5e0',
+          color: '#2c2a2b',
           border: '2px solid transparent',
         }}
       >
-        <span className="w-[7px] h-[7px] rounded-full shrink-0" style={{ backgroundColor: isAvail ? '#2d6a4f' : '#7c3aed' }} />
-        {isAvail ? 'Available' : 'Going'}
+        <span className="w-[7px] h-[7px] rounded-full shrink-0" style={{ backgroundColor: isAvail ? '#d4a017' : '#2c2a2b' }} />
+        {isAvail ? 'Available' : 'Going Myself'}
       </button>
 
       {/* Three-dot menu — desktop */}
@@ -380,6 +380,7 @@ export default function NewPackagePage() {
   const [slugAvailable, setSlugAvailable] = useState<boolean | null>(DESIGN ? true : null);
   const [copied, setCopied] = useState(false);
   const [result, setResult] = useState<{ shareLink: string; gamesCreated: number } | null>(null);
+  const [firstName, setFirstName] = useState(DESIGN ? 'Robbie' : '');
   const [subscribed, setSubscribed] = useState(true);
   const [subLoading, setSubLoading] = useState(false);
 
@@ -389,6 +390,7 @@ export default function NewPackagePage() {
     if (DESIGN) return;
     fetch('/api/users/me').then((r) => (r.ok ? r.json() : null)).then((data) => {
       if (!data) return;
+      if (data.firstName) setFirstName(data.firstName);
       const status = data.subscription?.status;
       setSubscribed(status === 'ACTIVE' || status === 'TRIALING');
     }).catch(() => {});
@@ -550,32 +552,20 @@ export default function NewPackagePage() {
           <div className="text-center max-w-[480px] px-6 py-12">
             <div className="text-6xl mb-5">⚾</div>
             <h2 className="text-[30px] font-bold text-[#1a1a1a] tracking-tight mb-2" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>
-              You&apos;re all set{selectedTeam ? `, ${selectedTeam.name} fan` : ''}!
+              You&apos;re all set{firstName ? `, ${firstName}` : ''}!
             </h2>
             <p className="text-sm text-[#8e8985] leading-relaxed mb-8">
-              Your season is loaded and ready to share. Here&apos;s what we set up:
+              Your tickets are ready to share. Send this link to anyone and they will be able to reserve your available tickets.
             </p>
-
-            {/* Stats */}
-            <div className="flex gap-4 mb-8">
-              <div className="flex-1 bg-[#f5f4f2] rounded-xl p-5 text-center">
-                <p className="text-[32px] font-bold text-[#2c2a2b] tracking-tight">{availableCount}</p>
-                <p className="text-xs text-[#8e8985] mt-1">Games available</p>
-              </div>
-              <div className="flex-1 bg-[#f5f4f2] rounded-xl p-5 text-center">
-                <p className="text-[32px] font-bold text-[#2c2a2b] tracking-tight">{selectedSeats.size}</p>
-                <p className="text-xs text-[#8e8985] mt-1">Seats per game</p>
-              </div>
-            </div>
 
             {/* Share link */}
             <div className="rounded-lg border border-[#eceae5] bg-white px-4 py-3 mb-4 flex items-center gap-2">
               <span className="text-sm text-[#8e8985] flex-1 text-left truncate">benchbuddy.com/share/{result.shareLink || linkSlug}</span>
               <button
                 onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/share/${result.shareLink || linkSlug}`); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
-                className="text-sm font-semibold text-[#d4a017] bg-transparent border-none cursor-pointer"
+                className="text-sm font-semibold text-[#2c2a2b] bg-transparent border-none cursor-pointer"
               >
-                {copied ? 'Copied!' : 'Copy'}
+                {copied ? 'Copied!' : '🔗 Copy'}
               </button>
             </div>
 
@@ -763,10 +753,10 @@ export default function NewPackagePage() {
         <div className="flex flex-col flex-1">
           <StepIndicator current={3} total={totalSteps} />
           <StepHeadline>Customize your tickets</StepHeadline>
-          <StepSubhead>Here are all of your tickets. Choose which games you want to go to and which games you would like share. You can always change this later.</StepSubhead>
+          <p className="text-sm text-[#8e8985] leading-relaxed mb-8">Here are all of your tickets. Choose which games you want to go to and which games you would like share. You can always change this later.</p>
 
           {/* Game list — mirrors dashboard SellerListView */}
-          <div>
+          <div className="max-h-[calc(100vh-380px)] overflow-y-auto -mx-1 px-1">
             {Object.entries(gamesByMonth).map(([month, games]) => (
               <div key={month} className="mb-6">
                 <div className="flex items-center gap-2 mb-4">
