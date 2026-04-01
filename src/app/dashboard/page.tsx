@@ -750,7 +750,7 @@ function SellerGameCard({
                             style={{ borderBottomWidth: '1px', borderBottomColor: '#eceae5' }}
                           >
                             <span className="w-[7px] h-[7px] rounded-full shrink-0" style={{ backgroundColor: s.dot }} />
-                            <span className={`text-sm flex-1 ${isSelected ? 'font-semibold' : 'font-medium'}`} style={{ color: s.text }}>{s.label}</span>
+                            <span className={`text-sm flex-1 ${isSelected ? 'font-semibold' : 'font-medium'} text-[#2c2a2b]`}>{s.label}</span>
                             {isSelected && (
                               <svg className="shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none">
                                 <path d="M5 13l4 4L19 7" stroke="#2c2a2b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
