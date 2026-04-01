@@ -764,7 +764,8 @@ export default function NewPackagePage() {
 
 
           <StepHeadline>Confirm your setup</StepHeadline>
-          <StepSubhead>Make sure everything looks right, then set your default ticket price.</StepSubhead>
+          <p className="hidden md:block text-sm text-[#8e8985] leading-relaxed mb-4">Make sure everything looks right, then set your default ticket price.</p>
+          <div className="md:hidden mb-[10px]" />
 
           {/* Summary card */}
           <div className="rounded-xl border border-[#dcd7d4] overflow-hidden mb-6">
@@ -772,14 +773,13 @@ export default function NewPackagePage() {
             {(() => {
               const { primary: teamPrimary, accent: teamAccent } = getTeamColors(selectedTeam?.name || 'San Diego Padres');
               return (
-                <div className="px-5 py-4 flex items-center gap-3" style={{ backgroundColor: teamPrimary }}>
-                  <div className="w-11 h-11 rounded-full flex items-center justify-center text-xs font-bold shrink-0" style={{ backgroundColor: teamAccent, color: teamPrimary }}>
+                <div className="px-4 py-3 flex items-center gap-2.5" style={{ backgroundColor: teamPrimary }}>
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0" style={{ backgroundColor: teamAccent, color: teamPrimary }}>
                     {selectedTeam?.abbreviation || 'SD'}
                   </div>
-                  <div>
-                    <div className="text-base font-bold text-white">{selectedTeam?.name || 'San Diego Padres'}</div>
-                    <div className="text-sm text-white/50">{season} Season</div>
-                  </div>
+                  <span className="text-sm text-white">
+                    <strong>{selectedTeam?.name || 'San Diego Padres'}</strong> &middot; {season} Season
+                  </span>
                 </div>
               );
             })()}
@@ -817,8 +817,8 @@ export default function NewPackagePage() {
           <div className="mb-6">
             <FormLabel>Default price per ticket</FormLabel>
             <div className="flex items-center gap-2 mt-1">
-              <div className="flex items-center h-[48px] rounded-lg border-[1.5px] border-[#eceae5] bg-white px-3 focus-within:border-[#2c2a2b] focus-within:ring-[3px] focus-within:ring-[#2c2a2b]/10 transition-all">
-                <span className="text-[24px] font-bold text-[#1a1a1a]">$</span>
+              <div className="flex items-center h-[44px] rounded-lg border-[1.5px] border-[#eceae5] bg-white px-3 focus-within:border-[#2c2a2b] focus-within:ring-[3px] focus-within:ring-[#2c2a2b]/10 transition-all">
+                <span className="text-sm font-bold text-[#1a1a1a]">$</span>
                 <input
                   type="text"
                   inputMode="numeric"
@@ -835,7 +835,7 @@ export default function NewPackagePage() {
                   }}
                   onBlur={() => { if (!defaultPrice) setDefaultPrice('0'); }}
                   style={{ width: `${Math.max(2, defaultPrice.length || 1)}ch` }}
-                  className="bg-transparent border-none outline-none text-[24px] font-bold text-[#1a1a1a] p-0 ml-0.5"
+                  className="bg-transparent border-none outline-none text-sm font-bold text-[#1a1a1a] p-0 ml-0.5"
                 />
               </div>
               <span className="text-sm text-[#8e8985]">/ ticket</span>
@@ -846,11 +846,11 @@ export default function NewPackagePage() {
           </div>
 
           {/* Info callout */}
-          <div className="rounded-lg bg-[#E1F5EE] px-4 py-3.5 flex items-start gap-3">
-            <span className="text-base mt-0.5">&#9989;</span>
-            <p className="text-sm text-[#0F6E56] leading-relaxed">
-              All games will be set to <strong>Available</strong> at your default price. You can change statuses and prices for individual games anytime from your dashboard.
-            </p>
+          <div className="rounded-lg bg-[#e8f5e4] text-[#2d6a4f] px-4 py-3 text-sm font-medium leading-relaxed">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#2d6a4f" className="inline-block align-[-1px] mr-1.5">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+            </svg>
+            All {selectedPackage?.gameCount || 81} games will be set to <strong>Available</strong> at ${defaultPrice || '0'}/ticket. You can change statuses and prices anytime from your dashboard.
           </div>
 
           <StepActions>

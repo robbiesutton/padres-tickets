@@ -161,7 +161,7 @@ export function PrimaryButton({ children, onClick, disabled }: { children: React
     <button
       onClick={onClick}
       disabled={disabled}
-      className="h-11 w-full md:w-auto px-7 rounded-lg bg-[#2c2a2b] text-white text-base font-semibold cursor-pointer border-none transition-all hover:bg-[#dcd7d4] hover:text-[#2c2a2b] disabled:opacity-50 disabled:cursor-not-allowed"
+      className="h-11 w-full md:w-auto px-7 rounded-lg bg-[#2c2a2b] text-white text-sm font-bold cursor-pointer border-none transition-all hover:bg-[#dcd7d4] hover:text-[#2c2a2b] disabled:opacity-50 disabled:cursor-not-allowed"
     >
       {children}
     </button>
@@ -201,7 +201,7 @@ export function InlineNote({ children }: { children: React.ReactNode }) {
 
 export function FormLabel({ children }: { children: React.ReactNode }) {
   return (
-    <label className="block text-xs font-bold text-[#8e8985] uppercase tracking-[0.5px] mb-2">
+    <label className="block text-xs font-medium text-[#8e8985] uppercase tracking-[0.5px] mb-2">
       {children}
     </label>
   );
