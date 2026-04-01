@@ -122,7 +122,7 @@ export default function Home() {
           >
             BenchBuddy
           </span>
-        </div>
+        </a>
         {/* Desktop nav links */}
         <div className="hidden md:flex items-center gap-4">
           <a
