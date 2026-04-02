@@ -17,6 +17,7 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const verified = searchParams.get('verified');
+  const from = searchParams.get('from');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -27,7 +28,7 @@ function LoginForm() {
     const result = await signIn('credentials', { email, password, redirect: false });
     setLoading(false);
     if (result?.error) setError('Invalid email or password');
-    else router.push('/dashboard');
+    else router.push(from ? `/share/${from}` : '/dashboard');
   }
 
   return (

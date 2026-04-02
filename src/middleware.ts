@@ -10,6 +10,17 @@ export async function middleware(request: NextRequest) {
 
   const token = await getToken({ req: request });
   if (!token) {
+    const pathname = request.nextUrl.pathname;
+
+    // Share pages → redirect to claimer signup with slug
+    if (pathname.startsWith('/share/')) {
+      const slug = pathname.split('/share/')[1]?.split('/')[0] || '';
+      const joinUrl = new URL('/join', request.url);
+      if (slug) joinUrl.searchParams.set('from', slug);
+      return NextResponse.redirect(joinUrl);
+    }
+
+    // Dashboard → redirect to login
     const loginUrl = new URL('/login', request.url);
     return NextResponse.redirect(loginUrl);
   }
@@ -18,5 +29,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*'],
+  matcher: ['/dashboard/:path*', '/share/:path*'],
 };

@@ -122,7 +122,7 @@ function JoinForm() {
         </form>
 
         <p className="text-center text-sm text-[#8e8985] mt-6 pb-8">
-          Already have an account? <a href="/login" className="text-[#8e8985] underline">Sign in</a>
+          Already have an account? <a href={from ? `/login?from=${from}` : '/login'} className="text-[#8e8985] underline">Sign in</a>
         </p>
       </div>
     </SetupLayout>
