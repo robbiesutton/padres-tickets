@@ -237,7 +237,7 @@ export default function Home() {
                 href="/signup"
                 className="group inline-flex items-center gap-2 h-10 px-4 rounded-lg bg-white text-[#2c2a2b] text-base font-bold hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors"
               >
-                Share My Tickets
+                Get Started
                 <span className="text-[#2c2a2b] transition-transform duration-200 group-hover:translate-x-0.5">&rarr;</span>
               </a>
             </div>

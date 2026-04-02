@@ -584,7 +584,7 @@ export default function NewPackagePage() {
           <div className="mb-4">
             <p className="text-xs font-medium text-[#8e8985] uppercase tracking-[0.5px] text-center mb-4">What your friends will see</p>
 
-            <div className="rounded-xl border border-[#dcd7d4] overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.08)] bg-[#fefefe]">
+            <div className="rounded-xl border border-[#dcd7d4] overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.04)] bg-[#fefefe]">
               {/* Mobile nav bar */}
               {(() => {
                 const { primary: teamPrimary, accent: teamAccent } = getTeamColors(selectedTeam?.name || 'San Diego Padres');
@@ -926,7 +926,7 @@ export default function NewPackagePage() {
           </div>
 
           {/* Default price */}
-          <div className="mb-6">
+          <div className="mb-2">
             <FormLabel>Default price per ticket</FormLabel>
             <div className="flex items-center gap-2 mt-1">
               <div className="flex items-center h-[44px] rounded-lg border-[1.5px] border-[#eceae5] bg-white px-3 focus-within:border-[#2c2a2b] focus-within:ring-[3px] focus-within:ring-[#2c2a2b]/10 transition-all">
@@ -952,9 +952,6 @@ export default function NewPackagePage() {
               </div>
               <span className="text-sm text-[#8e8985]">/ ticket</span>
             </div>
-            <p className="text-xs text-[#8e8985] mt-2 leading-relaxed">
-              Applied to all {selectedPackage?.gameCount || 81} games. You can edit individual game prices from your dashboard.
-            </p>
           </div>
 
           {/* Info callout */}
@@ -962,7 +959,7 @@ export default function NewPackagePage() {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="#2d6a4f" className="inline-block align-[-1px] mr-1.5">
               <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
             </svg>
-            All {selectedPackage?.gameCount || 81} games will be set to <strong>Available</strong> at ${defaultPrice || '0'}/ticket. You can change statuses and prices anytime from your dashboard.
+            <strong>${defaultPrice || '0'}/ticket</strong> applied to all {selectedPackage?.gameCount || 81} games. You can adjust prices for each game from your dashboard.
           </div>
 
           <StepActions>
