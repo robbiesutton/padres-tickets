@@ -1212,15 +1212,6 @@ export default function DashboardPage() {
 
   if (loading) return <div className="flex flex-1 items-center justify-center"><p className="text-[#8e8985]">Loading dashboard...</p></div>;
 
-  if (packages.length === 0) {
-    return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8">
-        <h1 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>Welcome to BenchBuddy</h1>
-        <p className="text-[#8e8985]">Set up your first season ticket package to get started.</p>
-        <a href="/packages/new" className="rounded-lg bg-[#2c2a2b] px-6 py-2.5 text-sm font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b]">Create Package</a>
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-1 flex-col bg-[#fefefe]">

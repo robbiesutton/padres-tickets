@@ -268,12 +268,14 @@ export default function ProfilePage() {
 
   const { data: session } = useSession();
   const sessionRole = (session?.user as { role?: string })?.role;
-  const isHolder = sessionRole === 'HOLDER' || sessionRole === 'BOTH' || profile?.role === 'HOLDER' || profile?.role === 'BOTH';
+  const isHolderRole = sessionRole === 'HOLDER' || sessionRole === 'BOTH' || profile?.role === 'HOLDER' || profile?.role === 'BOTH';
   const [cameFromShare, setCameFromShare] = useState(false);
   useEffect(() => {
     if (typeof document !== 'undefined' && document.referrer.includes('/share/')) setCameFromShare(true);
   }, []);
-  const NAV_ITEMS = ALL_NAV_ITEMS.filter((item) => isHolder ? item.holder : item.claimer);
+  // If user navigated from share page, show claimer view even if they're a holder
+  const showAsHolder = isHolderRole && !cameFromShare;
+  const NAV_ITEMS = ALL_NAV_ITEMS.filter((item) => showAsHolder ? item.holder : item.claimer);
 
 
   if (loading) return <ProfileSkeleton />;
