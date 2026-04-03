@@ -510,7 +510,7 @@ export default function Home() {
             a bug, or want to tell us what&apos;s working?
           </p>
           <a
-            href="mailto:hello@getbenchbuddy.com"
+            href="/contact"
             className="inline-flex h-10 items-center justify-center rounded-lg border border-white bg-transparent px-4 text-base font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] hover:border-[#2c2a2b] transition-colors transition-all duration-700"
             style={{
               opacity: feedbackVisible ? 1 : 0,
