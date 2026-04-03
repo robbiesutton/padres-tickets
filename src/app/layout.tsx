@@ -4,7 +4,6 @@ import Script from 'next/script';
 import Providers from './providers';
 import { ConditionalTicker } from '@/components/conditional-ticker';
 import { ConditionalAnalytics } from '@/components/conditional-analytics';
-import { CookieConsent } from '@/components/cookie-consent';
 import { SiteFooter } from '@/components/site-footer';
 import './globals.css';
 
@@ -62,7 +61,6 @@ export default function RootLayout({
           <ConditionalTicker />
           <SiteFooter />
           <ConditionalAnalytics />
-          <CookieConsent />
         </Providers>
       </body>
     </html>
