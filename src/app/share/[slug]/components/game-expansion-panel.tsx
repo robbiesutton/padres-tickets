@@ -116,7 +116,12 @@ export function GameExpansionPanel({
         localStorage.setItem('bb_claimer_email', email);
         if (firstName) localStorage.setItem('bb_claimer_firstName', firstName);
         if (lastName) localStorage.setItem('bb_claimer_lastName', lastName);
-        setStep({ step: 'check-email', email });
+        // Set session cookie from returned token and mark as confirmed
+        if (data.data?.sessionToken) {
+          document.cookie = `next-auth.session-token=${data.data.sessionToken}; path=/; max-age=${30 * 24 * 60 * 60}; samesite=lax; secure`;
+        }
+        onReserved(game.id);
+        setStep({ step: 'confirmed' });
       } else {
         setStep({
           step: 'error',
@@ -224,26 +229,6 @@ export function GameExpansionPanel({
             Seller will contact you about payment details
           </div>
         </>
-      ) : step.step === 'check-email' ? (
-        /* Check email state */
-        <div className="p-8 text-center">
-          <div className="mx-auto mb-3 w-10 h-10 rounded-full bg-green-light flex items-center justify-center">
-            <svg width="20" height="20" viewBox="0 0 16 16" fill="none">
-              <rect x="1.5" y="3" width="13" height="10" rx="1.5" stroke="#0F6E56" strokeWidth="1.2" />
-              <path d="M2 4l6 4.5L14 4" stroke="#0F6E56" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
-          <div className="text-base font-medium text-foreground mb-1">
-            Check your email
-          </div>
-          <div className="text-sm text-muted mb-2">
-            We sent a confirmation link to <strong>{step.email}</strong>
-          </div>
-          <div className="text-xs text-muted">
-            Click the link in your email to complete your reservation. The link
-            expires in 15 minutes.
-          </div>
-        </div>
       ) : step.step === 'error' ? (
         /* Error state */
         <div className="p-8 text-center">
@@ -323,10 +308,10 @@ export function GameExpansionPanel({
                   onClick={handleReserve}
                   disabled={loading || !email.includes('@')}
                 >
-                  {loading ? 'Sending...' : 'Confirm reservation'}
+                  {loading ? 'Reserving...' : 'Confirm reservation'}
                 </button>
                 <div className="text-center text-sm text-muted mt-[5px]">
-                  We&apos;ll send a confirmation email
+                  You won&apos;t be charged yet
                 </div>
               </>
             ) : (

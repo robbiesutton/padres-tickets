@@ -16,7 +16,6 @@ const inputClass = "block w-full h-12 px-4 bg-white border-[1.5px] border-[#ecea
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const verified = searchParams.get('verified');
   const from = searchParams.get('from');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -47,12 +46,6 @@ function LoginForm() {
           <StepHeadline>Sign in</StepHeadline>
           <StepSubhead>Welcome back to BenchBuddy</StepSubhead>
         </div>
-
-        {verified && (
-          <div className="rounded-lg bg-[#E1F5EE] text-[#0F6E56] px-4 py-3 text-sm font-medium mb-4">
-            Email verified! You can now sign in.
-          </div>
-        )}
 
         {error && (
           <div className="rounded-lg bg-[#FEE2E2] text-[#DC2626] px-4 py-3 text-sm font-medium mb-4">
