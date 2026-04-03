@@ -9,12 +9,6 @@ datasource db {
 
 // ─── Enums ───────────────────────────────────────────────
 
-enum UserRole {
-  HOLDER
-  CLAIMER
-  BOTH
-}
-
 enum PackageStatus {
   ACTIVE
   PAUSED
@@ -92,7 +86,8 @@ model User {
   email         String    @unique
   phone         String?
   passwordHash  String?
-  role          UserRole  @default(CLAIMER)
+  isHolder      Boolean   @default(false)
+  isClaimer     Boolean   @default(true)
   venmoHandle       String?
   zelleInfo         String?
   emailVerified     DateTime?

@@ -611,15 +611,17 @@ export default function DashboardLayout({
     ]).then(([pkgData, userData]) => {
         if (cancelled) return;
         if (pkgData.packages.length === 0) {
-          const role = userData?.role || '';
-          if (role === 'CLAIMER') {
-            // Claimers don't create packages — send them back
-            window.location.href = '/';
+          if (!userData?.isHolder) {
+            // Non-holders can access their profile but not the rest of the dashboard
+            if (pathname !== '/dashboard/profile') {
+              window.location.href = '/';
+              return;
+            }
+          } else {
+            // Holders → setup wizard
+            window.location.href = '/packages/new';
             return;
           }
-          // Holders/BOTH → setup wizard
-          window.location.href = '/packages/new';
-          return;
         }
         setPackages(pkgData.packages);
         if (pkgData.packages.length > 0) {
@@ -629,7 +631,7 @@ export default function DashboardLayout({
       })
       .catch(() => !cancelled && setLoading(false));
     return () => { cancelled = true; };
-  }, []);
+  }, [pathname]);
 
   const selectedPkg = packages.find((p) => p.id === selectedPkgId) || null;
   const { primary: navColor, accent: teamAccent } = selectedPkg

@@ -44,18 +44,14 @@ export async function POST(request: NextRequest) {
   const user = await requireAuth();
   if (!user) return jsonError('Unauthorized', 401);
 
-  // Ensure user is a holder
+  // Ensure user is a holder — upgrade if not already
   const dbUser = await prisma.user.findUnique({ where: { id: user.id } });
-  if (!dbUser || (dbUser.role !== 'HOLDER' && dbUser.role !== 'BOTH')) {
-    // Upgrade role to BOTH if they're a claimer creating a package
-    if (dbUser?.role === 'CLAIMER') {
-      await prisma.user.update({
-        where: { id: user.id },
-        data: { role: 'BOTH' },
-      });
-    } else {
-      return jsonError('Only holders can create packages', 403);
-    }
+  if (!dbUser) return jsonError('User not found', 404);
+  if (!dbUser.isHolder) {
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { isHolder: true },
+    });
   }
 
   const body = await request.json();

@@ -17,7 +17,7 @@ function JoinForm() {
   const holderName = searchParams.get('holder') || 'your friend';
 
   const [form, setForm] = useState({
-    firstName: '', lastName: '', email: '', password: '', role: 'CLAIMER',
+    firstName: '', lastName: '', email: '', password: '',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);

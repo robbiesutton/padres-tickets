@@ -22,7 +22,8 @@ interface UserProfile {
   lastName: string;
   email: string;
   phone: string | null;
-  role: string;
+  isHolder: boolean;
+  isClaimer: boolean;
   venmoHandle: string | null;
   zelleInfo: string | null;
   subscription: SubscriptionInfo | null;
@@ -267,8 +268,7 @@ export default function ProfilePage() {
   }
 
   const { data: session } = useSession();
-  const sessionRole = (session?.user as { role?: string })?.role;
-  const isHolderRole = sessionRole === 'HOLDER' || sessionRole === 'BOTH' || profile?.role === 'HOLDER' || profile?.role === 'BOTH';
+  const isHolderRole = (session?.user as { isHolder?: boolean })?.isHolder || profile?.isHolder;
   const fromShare = searchParams.get('from') === 'share';
   const shareSlug = searchParams.get('slug') || '';
   const [cameFromShare, setCameFromShare] = useState(fromShare);

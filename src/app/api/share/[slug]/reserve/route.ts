@@ -3,7 +3,7 @@ import { prisma } from '@/lib/db';
 import { jsonError } from '@/lib/api-utils';
 import { getClientIp, rateLimit, rateLimitResponse } from '@/lib/rate-limit';
 import { createClaim } from '@/lib/services/claim';
-import { encode } from 'next-auth/jwt';
+import { setSessionCookie } from '@/lib/session';
 
 export async function POST(
   request: NextRequest,
@@ -69,7 +69,6 @@ export async function POST(
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         email: normalizedEmail,
-        role: 'CLAIMER',
         emailVerified: new Date(),
       },
     });
@@ -81,37 +80,12 @@ export async function POST(
     return jsonError(result.error || 'Failed to reserve', 409);
   }
 
-  // Create a session token so the user is signed in
-  const sessionToken = await encode({
-    token: {
-      id: user.id,
-      email: user.email,
-      name: `${user.firstName} ${user.lastName}`,
-      role: user.role,
-      sub: user.id,
-    },
-    secret: process.env.NEXTAUTH_SECRET!,
-    maxAge: 30 * 24 * 60 * 60,
-  });
-
   const response = NextResponse.json(
     { ok: true, data: { status: 'reserved' } },
     { status: 200 }
   );
 
-  const isSecure = request.headers.get('x-forwarded-proto') === 'https' ||
-                   process.env.NEXTAUTH_URL?.startsWith('https');
-  const cookieName = isSecure
-    ? '__Secure-next-auth.session-token'
-    : 'next-auth.session-token';
-
-  response.cookies.set(cookieName, sessionToken, {
-    path: '/',
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: !!isSecure,
-    maxAge: 30 * 24 * 60 * 60,
-  });
+  await setSessionCookie(user, request, response);
 
   return response;
 }
