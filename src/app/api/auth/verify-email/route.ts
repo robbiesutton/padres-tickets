@@ -39,11 +39,17 @@ export async function GET(request: NextRequest) {
     `${process.env.NEXTAUTH_URL}/dashboard`
   );
 
-  response.cookies.set('next-auth.session-token', sessionToken, {
+  const isSecure = request.headers.get('x-forwarded-proto') === 'https' ||
+                   process.env.NEXTAUTH_URL?.startsWith('https');
+  const cookieName = isSecure
+    ? '__Secure-next-auth.session-token'
+    : 'next-auth.session-token';
+
+  response.cookies.set(cookieName, sessionToken, {
     path: '/',
     httpOnly: true,
     sameSite: 'lax',
-    secure: true,
+    secure: !!isSecure,
     maxAge: 30 * 24 * 60 * 60,
   });
 

@@ -32,12 +32,7 @@ function JoinForm() {
     const res = await fetch('/api/auth/signup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...form, agreedToTerms, marketingOptIn }) });
     const data = await res.json(); setLoading(false);
     if (!res.ok) { setError(data.error); return; }
-    // Auto-sign in with the returned session token and redirect
-    if (data.data?.sessionToken) {
-      const isSecure = window.location.protocol === 'https:';
-      const cookieName = isSecure ? '__Secure-next-auth.session-token' : 'next-auth.session-token';
-      document.cookie = `${cookieName}=${data.data.sessionToken}; path=/; max-age=${30 * 24 * 60 * 60}; samesite=lax${isSecure ? '; secure' : ''}`;
-    }
+    // Cookie is set server-side by the API route — just redirect
     window.location.href = from ? `/share/${from}` : '/dashboard';
   }
 
