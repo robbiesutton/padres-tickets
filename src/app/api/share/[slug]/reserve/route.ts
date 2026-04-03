@@ -1,6 +1,6 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { jsonError, jsonSuccess } from '@/lib/api-utils';
+import { jsonError } from '@/lib/api-utils';
 import { getClientIp, rateLimit, rateLimitResponse } from '@/lib/rate-limit';
 import { createClaim } from '@/lib/services/claim';
 import { encode } from 'next-auth/jwt';
@@ -94,8 +94,24 @@ export async function POST(
     maxAge: 30 * 24 * 60 * 60,
   });
 
-  return jsonSuccess({
-    status: 'reserved',
-    sessionToken,
+  const response = NextResponse.json(
+    { ok: true, data: { status: 'reserved' } },
+    { status: 200 }
+  );
+
+  const isSecure = request.headers.get('x-forwarded-proto') === 'https' ||
+                   process.env.NEXTAUTH_URL?.startsWith('https');
+  const cookieName = isSecure
+    ? '__Secure-next-auth.session-token'
+    : 'next-auth.session-token';
+
+  response.cookies.set(cookieName, sessionToken, {
+    path: '/',
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: !!isSecure,
+    maxAge: 30 * 24 * 60 * 60,
   });
+
+  return response;
 }

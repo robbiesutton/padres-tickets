@@ -185,7 +185,7 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
         </div>
         {/* Account avatar */}
         <a
-          href="/dashboard/profile"
+          href={`/dashboard/profile?from=share&slug=${pkg.slug}`}
           className="w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all text-sm font-semibold"
           style={{ backgroundColor: teamAccent, color: navColor }}
         >

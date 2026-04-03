@@ -27,7 +27,7 @@ function LoginForm() {
     const result = await signIn('credentials', { email, password, redirect: false });
     setLoading(false);
     if (result?.error) setError('Invalid email or password');
-    else router.push(from ? `/share/${from}` : '/dashboard');
+    else router.push(from ? (from.startsWith('/') ? from : `/share/${from}`) : '/dashboard');
   }
 
   return (

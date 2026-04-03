@@ -269,10 +269,13 @@ export default function ProfilePage() {
   const { data: session } = useSession();
   const sessionRole = (session?.user as { role?: string })?.role;
   const isHolderRole = sessionRole === 'HOLDER' || sessionRole === 'BOTH' || profile?.role === 'HOLDER' || profile?.role === 'BOTH';
-  const [cameFromShare, setCameFromShare] = useState(false);
+  const fromShare = searchParams.get('from') === 'share';
+  const shareSlug = searchParams.get('slug') || '';
+  const [cameFromShare, setCameFromShare] = useState(fromShare);
   useEffect(() => {
-    if (typeof document !== 'undefined' && document.referrer.includes('/share/')) setCameFromShare(true);
-  }, []);
+    // Fallback: detect via referrer if no query param
+    if (!fromShare && typeof document !== 'undefined' && document.referrer.includes('/share/')) setCameFromShare(true);
+  }, [fromShare]);
   // If user navigated from share page, show claimer view even if they're a holder
   const showAsHolder = isHolderRole && !cameFromShare;
   const NAV_ITEMS = ALL_NAV_ITEMS.filter((item) => showAsHolder ? item.holder : item.claimer);
@@ -518,9 +521,9 @@ export default function ProfilePage() {
     <div className="flex flex-1 bg-[#fefefe]">
       {/* ── Sidebar Nav (desktop) ── */}
       <aside className="hidden md:flex md:flex-col w-[220px] shrink-0 border-r border-[#eceae5] pt-8 pl-8 pr-4 sticky top-[77px] self-start h-[calc(100vh-77px)]">
-        <Link href="/dashboard" className="flex items-center gap-1.5 text-sm text-[#8e8985] hover:text-[#2c2a2b] transition-colors mb-6">
+        <Link href={cameFromShare && shareSlug ? `/share/${shareSlug}` : '/dashboard'} className="flex items-center gap-1.5 text-sm text-[#8e8985] hover:text-[#2c2a2b] transition-colors mb-6">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
-          Back to Dashboard
+          {cameFromShare ? 'Back to Games' : 'Back to Dashboard'}
         </Link>
         <nav className="flex flex-col gap-1">
           {NAV_ITEMS.map((item) => (
@@ -580,13 +583,17 @@ export default function ProfilePage() {
               {cameFromShare && (
                 <button
                   onClick={() => {
-                    const ref = document.referrer;
-                    if (ref && ref.includes('/share/')) {
-                      const url = new URL(ref);
-                      url.searchParams.set('tab', 'my-games');
-                      window.location.href = url.toString();
+                    if (shareSlug) {
+                      window.location.href = `/share/${shareSlug}?tab=my-games`;
                     } else {
-                      window.history.back();
+                      const ref = document.referrer;
+                      if (ref && ref.includes('/share/')) {
+                        const url = new URL(ref);
+                        url.searchParams.set('tab', 'my-games');
+                        window.location.href = url.toString();
+                      } else {
+                        window.history.back();
+                      }
                     }
                   }}
                   className="flex items-center gap-3 px-1 py-4 border-none bg-transparent cursor-pointer text-left border-b border-[#eceae5] w-full"
