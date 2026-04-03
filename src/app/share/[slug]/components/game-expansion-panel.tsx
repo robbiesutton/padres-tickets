@@ -118,7 +118,9 @@ export function GameExpansionPanel({
         if (lastName) localStorage.setItem('bb_claimer_lastName', lastName);
         // Set session cookie from returned token and mark as confirmed
         if (data.data?.sessionToken) {
-          document.cookie = `next-auth.session-token=${data.data.sessionToken}; path=/; max-age=${30 * 24 * 60 * 60}; samesite=lax; secure`;
+          const isSecure = window.location.protocol === 'https:';
+          const cookieName = isSecure ? '__Secure-next-auth.session-token' : 'next-auth.session-token';
+          document.cookie = `${cookieName}=${data.data.sessionToken}; path=/; max-age=${30 * 24 * 60 * 60}; samesite=lax${isSecure ? '; secure' : ''}`;
         }
         onReserved(game.id);
         setStep({ step: 'confirmed' });

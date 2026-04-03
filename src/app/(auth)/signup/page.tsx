@@ -28,7 +28,9 @@ export default function SignupPage() {
     if (!res.ok) { setError(data.error); return; }
     // Set session cookie and redirect to dashboard
     if (data.data?.sessionToken) {
-      document.cookie = `next-auth.session-token=${data.data.sessionToken}; path=/; max-age=${30 * 24 * 60 * 60}; samesite=lax; secure`;
+      const isSecure = window.location.protocol === 'https:';
+      const cookieName = isSecure ? '__Secure-next-auth.session-token' : 'next-auth.session-token';
+      document.cookie = `${cookieName}=${data.data.sessionToken}; path=/; max-age=${30 * 24 * 60 * 60}; samesite=lax${isSecure ? '; secure' : ''}`;
     }
     window.location.href = '/dashboard';
   }
