@@ -26,13 +26,8 @@ export default function SignupPage() {
     const res = await fetch('/api/auth/signup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...form, agreedToTerms, marketingOptIn }) });
     const data = await res.json(); setLoading(false);
     if (!res.ok) { setError(data.error); return; }
-    // Set session cookie and redirect to dashboard
-    if (data.data?.sessionToken) {
-      const isSecure = window.location.protocol === 'https:';
-      const cookieName = isSecure ? '__Secure-next-auth.session-token' : 'next-auth.session-token';
-      document.cookie = `${cookieName}=${data.data.sessionToken}; path=/; max-age=${30 * 24 * 60 * 60}; samesite=lax${isSecure ? '; secure' : ''}`;
-    }
-    window.location.href = '/dashboard';
+    // Cookie is set server-side by the API route — redirect straight to package creation
+    window.location.href = '/packages/new';
   }
 
   const inputClass = "block w-full h-12 px-4 bg-white border-[1.5px] border-[#eceae5] rounded-lg text-[15px] font-medium text-[#1a1a1a] outline-none transition-all hover:border-[#b5b1ab] focus:border-[#2c2a2b] focus:ring-[3px] focus:ring-[#2c2a2b]/10";

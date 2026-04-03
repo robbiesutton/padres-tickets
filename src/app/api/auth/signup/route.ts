@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/db';
 import { jsonError, jsonSuccess } from '@/lib/api-utils';
@@ -69,15 +69,27 @@ export async function POST(request: NextRequest) {
     maxAge: 30 * 24 * 60 * 60,
   });
 
-  return jsonSuccess(
+  const response = NextResponse.json(
     {
-      id: user.id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      role: user.role,
-      sessionToken,
+      ok: true,
+      data: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+      },
     },
-    201
+    { status: 201 }
   );
+
+  response.cookies.set('next-auth.session-token', sessionToken, {
+    path: '/',
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: true,
+    maxAge: 30 * 24 * 60 * 60,
+  });
+
+  return response;
 }
