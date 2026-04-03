@@ -201,7 +201,7 @@ export async function POST(request: NextRequest) {
     {
       package: pkg,
       gamesCreated,
-      shareLink: `/share/${slug}`,
+      shareLink: slug,
     },
     201
   );

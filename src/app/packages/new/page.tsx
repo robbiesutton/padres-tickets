@@ -670,7 +670,7 @@ export default function NewPackagePage() {
 
           {/* Share link */}
           <div className="rounded-lg border border-[#eceae5] bg-white px-4 py-3 mb-6 flex items-center gap-2">
-            <span className="text-sm text-[#2c2a2b] flex-1 text-left truncate">benchbuddy.com/{result.shareLink || linkSlug}</span>
+            <span className="text-sm text-[#2c2a2b] flex-1 text-left truncate">benchbuddy.com/share/{result.shareLink || linkSlug}</span>
             <button
               onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/share/${result.shareLink || linkSlug}`); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
               className="text-sm font-bold text-[#2c2a2b] bg-transparent border-none cursor-pointer shrink-0"
