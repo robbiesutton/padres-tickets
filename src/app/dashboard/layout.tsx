@@ -608,12 +608,23 @@ export default function DashboardLayout({
     Promise.all([
       fetch('/api/packages').then((r) => (r.ok ? r.json() : { packages: [] })),
       fetch('/api/users/me').then((r) => (r.ok ? r.json() : null)),
-    ]).then(([pkgData, userData]) => {
+    ]).then(async ([pkgData, userData]) => {
         if (cancelled) return;
         if (pkgData.packages.length === 0) {
           if (!userData?.isHolder) {
             // Non-holders can access their profile but not the rest of the dashboard
             if (pathname !== '/dashboard/profile') {
+              // Claimers → redirect to their share page if they have one
+              try {
+                const claimerRes = await fetch('/api/me/packages');
+                if (claimerRes.ok) {
+                  const claimerData = await claimerRes.json();
+                  if (claimerData.packages?.length > 0) {
+                    window.location.href = `/share/${claimerData.packages[0].shareLinkSlug}`;
+                    return;
+                  }
+                }
+              } catch { /* fall through */ }
               window.location.href = '/';
               return;
             }

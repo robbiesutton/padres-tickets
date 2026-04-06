@@ -25,9 +25,35 @@ function LoginForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault(); setError(''); setLoading(true);
     const result = await signIn('credentials', { email, password, redirect: false });
-    setLoading(false);
-    if (result?.error) setError('Invalid email or password');
-    else router.push(from ? (from.startsWith('/') ? from : `/share/${from}`) : '/dashboard');
+    if (result?.error) { setLoading(false); setError('Invalid email or password'); return; }
+
+    // If there's an explicit redirect target, use it
+    if (from) { router.push(from.startsWith('/') ? from : `/share/${from}`); return; }
+
+    // Determine where to send the user based on role
+    try {
+      const userRes = await fetch('/api/users/me');
+      if (userRes.ok) {
+        const userData = await userRes.json();
+        if (!userData.isHolder && userData.isClaimer) {
+          // Claimer → redirect to their first share page
+          const pkgRes = await fetch('/api/me/packages');
+          if (pkgRes.ok) {
+            const pkgData = await pkgRes.json();
+            if (pkgData.packages?.length > 0) {
+              router.push(`/share/${pkgData.packages[0].shareLinkSlug}`);
+              return;
+            }
+          }
+          // Claimer with no packages → profile
+          router.push('/dashboard/profile');
+          return;
+        }
+      }
+    } catch {
+      // Fall through to default dashboard redirect
+    }
+    router.push('/dashboard');
   }
 
   return (
