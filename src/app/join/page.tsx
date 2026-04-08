@@ -8,6 +8,7 @@ import {
   StepSubhead,
   FormLabel,
 } from '@/components/setup-layout';
+import { AuthFormSkeleton } from '@/components/skeleton';
 
 const inputClass = "block w-full h-12 px-4 bg-white border-[1.5px] border-[#eceae5] rounded-lg text-[15px] font-medium text-[#1a1a1a] outline-none transition-all hover:border-[#b5b1ab] focus:border-[#2c2a2b] focus:ring-[3px] focus:ring-[#2c2a2b]/10";
 
@@ -131,7 +132,7 @@ function JoinForm() {
 
 export default function JoinPage() {
   return (
-    <Suspense fallback={<div className="flex flex-1 items-center justify-center"><p className="text-[#8e8985]">Loading...</p></div>}>
+    <Suspense fallback={<AuthFormSkeleton fields={4} />}>
       <JoinForm />
     </Suspense>
   );
