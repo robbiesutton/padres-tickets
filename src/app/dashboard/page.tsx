@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
+import { Bone } from '@/components/skeleton';
 import {
   formatShortDate,
   groupGamesByMonth,
@@ -13,6 +14,71 @@ import {
 } from '@/lib/game-utils';
 import { getTeamColors } from '@/lib/team-colors';
 import { useDashboardContext } from './layout';
+
+// ─── Skeleton ──────────────────────────────────────────
+
+function DashboardSkeleton() {
+  return (
+    <div className="flex flex-1 flex-col bg-[#fefefe]">
+      <div className="max-w-[1024px] mx-auto w-full px-4 pt-4 pb-6 md:px-10 md:pt-8 md:pb-10 flex-1">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-3 md:mb-4">
+          <Bone w="140px" h="32px" delay={0} />
+          <Bone w="120px" h="20px" delay={0.1} />
+        </div>
+
+        {/* Stats bar — desktop only */}
+        <div className="hidden md:block rounded-xl p-5 mb-8 bg-[#f5f4f2]">
+          <div className="grid sm:grid-cols-4 gap-4">
+            {[0, 1, 2, 3].map((i) => (
+              <div key={i} className="rounded-[10px] p-4 bg-white flex flex-col items-center gap-2">
+                <Bone w="40px" h="32px" delay={i * 0.1} />
+                <Bone w="64px" h="12px" delay={i * 0.1 + 0.05} />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Filters bar */}
+        <div className="flex items-center gap-2 mb-4 overflow-hidden">
+          <Bone w="80px" h="36px" r={8} delay={0} />
+          <Bone w="100px" h="36px" r={8} delay={0.05} />
+          <Bone w="90px" h="36px" r={8} delay={0.1} />
+          <Bone w="70px" h="36px" r={8} delay={0.15} />
+        </div>
+
+        {/* Month header */}
+        <div className="flex items-center gap-2 mb-4">
+          <Bone w="3px" h="16px" delay={0} />
+          <Bone w="120px" h="22px" delay={0.05} />
+          <Bone w="60px" h="14px" delay={0.1} />
+        </div>
+
+        {/* Game cards */}
+        <div className="flex flex-col gap-2">
+          {[0, 1, 2, 3, 4].map((i) => (
+            <div key={i} className="rounded-[10px] px-4 md:px-5 py-4 border border-[#dcd7d4] bg-white flex items-center gap-2 md:gap-4">
+              <div className="flex items-center gap-2 md:gap-4 shrink-0">
+                <div className="flex flex-col items-center gap-1 w-[30px]">
+                  <Bone w="20px" h="10px" delay={i * 0.1} />
+                  <Bone w="18px" h="14px" delay={i * 0.1 + 0.05} />
+                  <Bone w="20px" h="10px" delay={i * 0.1 + 0.1} />
+                </div>
+                <div className="w-px h-[57px] bg-[#dcd7d4]" />
+                <Bone w="42px" h="42px" r="50%" delay={i * 0.1 + 0.15} />
+              </div>
+              <div className="flex flex-col gap-1.5 flex-1 min-w-0">
+                <Bone w="140px" h="16px" delay={i * 0.1 + 0.2} />
+                <Bone w="180px" h="12px" delay={i * 0.1 + 0.25} />
+              </div>
+              <Bone w="90px" h="28px" r={14} delay={i * 0.1 + 0.3} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // ─── Types ──────────────────────────────────────────────
 
@@ -1210,7 +1276,7 @@ export default function DashboardPage() {
 
   function clearFilters() { setStatusFilter(''); setMonthFilter(''); setOpponentFilter([]); setClaimerFilter(''); }
 
-  if (loading) return <div className="flex flex-1 items-center justify-center"><p className="text-[#8e8985]">Loading dashboard...</p></div>;
+  if (loading) return <DashboardSkeleton />;
 
 
   return (
