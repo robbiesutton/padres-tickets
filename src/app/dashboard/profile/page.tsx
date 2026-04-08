@@ -308,7 +308,7 @@ export default function ProfilePage() {
             <input type="tel" value={form.phone} onChange={(e) => update('phone', e.target.value)} placeholder="Optional" className={inputClass} />
           </div>
           <button type="submit" disabled={saving} className="w-full md:w-auto h-12 md:h-10 px-5 rounded-lg bg-[#2c2a2b] text-sm font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors disabled:opacity-50">
-            {saving ? 'Saving...' : 'Save Changes'}
+            {saving ? 'Saving...' : 'Save changes'}
           </button>
         </form>
       </>
@@ -330,7 +330,7 @@ export default function ProfilePage() {
             <input type="text" value={form.zelleInfo} onChange={(e) => update('zelleInfo', e.target.value)} placeholder="email or phone for Zelle" className={inputClass} />
           </div>
           <button type="button" onClick={(e) => handleSave(e as unknown as React.FormEvent)} disabled={saving} className="w-full md:w-auto h-12 md:h-10 px-5 rounded-lg bg-[#2c2a2b] text-sm font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors disabled:opacity-50">
-            {saving ? 'Saving...' : 'Save Changes'}
+            {saving ? 'Saving...' : 'Save changes'}
           </button>
         </div>
       </>
@@ -427,7 +427,7 @@ export default function ProfilePage() {
             </div>
             <p className="text-sm text-[#DC2626] mb-4">Please update your payment method.</p>
             <button onClick={handleManageBilling} disabled={subLoading} className="w-full h-12 md:h-10 rounded-lg bg-[#DC2626] text-sm font-medium text-white hover:bg-[#b91c1c] disabled:opacity-50">
-              {subLoading ? 'Loading...' : 'Update Payment Method'}
+              {subLoading ? 'Loading...' : 'Update payment method'}
             </button>
           </div>
         ) : isPendingCancel ? (
@@ -438,7 +438,7 @@ export default function ProfilePage() {
             </div>
             <p className="text-sm text-[#2c2a2b] mb-4">Ends on {sub.currentPeriodEnd ? formatDate(sub.currentPeriodEnd) : 'end of period'}. You&apos;ll keep access until then.</p>
             <button onClick={handleResubscribe} disabled={subLoading} className="w-full h-12 md:h-10 rounded-lg bg-[#2c2a2b] text-sm font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] disabled:opacity-50">
-              {subLoading ? 'Loading...' : 'Keep My Subscription'}
+              {subLoading ? 'Loading...' : 'Keep my subscription'}
             </button>
           </div>
         ) : isActive ? (
@@ -455,7 +455,7 @@ export default function ProfilePage() {
               </span>
             </div>
             <div className="flex gap-3">
-              <button onClick={handleManageBilling} disabled={subLoading} className="flex-1 h-12 md:h-10 rounded-lg border border-[#eceae5] bg-white text-sm font-medium text-[#2c2a2b] hover:bg-[#f5f4f2] transition-colors disabled:opacity-50">Manage Billing</button>
+              <button onClick={handleManageBilling} disabled={subLoading} className="flex-1 h-12 md:h-10 rounded-lg border border-[#eceae5] bg-white text-sm font-medium text-[#2c2a2b] hover:bg-[#f5f4f2] transition-colors disabled:opacity-50">Manage billing</button>
               <button onClick={handleCancel} disabled={subLoading} className="flex-1 h-12 md:h-10 rounded-lg border border-[#eceae5] bg-white text-sm font-medium text-[#2c2a2b] hover:bg-[#f5f4f2] transition-colors disabled:opacity-50">Cancel</button>
             </div>
           </div>
@@ -494,7 +494,7 @@ export default function ProfilePage() {
 
             {/* CTA */}
             <button onClick={handleSubscribe} disabled={subLoading} className="w-full h-12 rounded-lg bg-[#2c2a2b] text-base font-semibold text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors disabled:opacity-50 cursor-pointer">
-              {subLoading ? 'Loading...' : 'Subscribe Now'}
+              {subLoading ? 'Loading...' : 'Subscribe now'}
             </button>
 
             {/* Fine print */}
@@ -597,7 +597,7 @@ export default function ProfilePage() {
                       <circle cx="12" cy="12" r="10" /><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" /><path d="M2 12h20" />
                     </svg>
                   </span>
-                  <span className="flex-1 text-base font-medium text-[#2c2a2b]">My Games</span>
+                  <span className="flex-1 text-base font-medium text-[#2c2a2b]">My games</span>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8e8985" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M9 18l6-6-6-6" />
                 </svg>

@@ -135,7 +135,7 @@ export default function Home() {
             href="/signup"
             className="h-10 px-4 rounded-lg border border-white text-white text-base font-medium flex items-center justify-center hover:bg-[#dcd7d4] hover:text-[#2c2a2b] hover:border-[#2c2a2b] transition-colors"
           >
-            Get Started
+            Get started
           </a>
         </div>
 
@@ -169,7 +169,7 @@ export default function Home() {
             href="/signup"
             className="h-11 flex items-center justify-center rounded-lg border border-white text-white text-sm font-medium hover:bg-[#dcd7d4] hover:text-[#2c2a2b] hover:border-[#2c2a2b] transition-colors"
           >
-            Get Started
+            Get started
           </a>
         </div>
       )}
@@ -237,7 +237,7 @@ export default function Home() {
                 href="/signup"
                 className="group inline-flex items-center gap-2 h-10 px-4 rounded-lg bg-white text-[#2c2a2b] text-base font-bold hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors"
               >
-                Get Started
+                Get started
                 <span className="text-[#2c2a2b] transition-transform duration-200 group-hover:translate-x-0.5">&rarr;</span>
               </a>
             </div>

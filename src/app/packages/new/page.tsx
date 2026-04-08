@@ -291,7 +291,7 @@ function WizardGameCard({
               onClick={(e) => { e.stopPropagation(); setConfirmRemove(true); }}
               className="w-full text-left px-3.5 py-2.5 rounded-md text-[13px] font-medium text-[#dc2626] bg-transparent border-none cursor-pointer hover:bg-[#f7f5f2] transition-colors"
             >
-              Remove Game
+              Remove game
             </button>
           </div>
         )}
@@ -685,7 +685,7 @@ export default function NewPackagePage() {
               onClick={() => router.push('/dashboard')}
               className="h-12 w-full rounded-lg bg-[#2c2a2b] text-white text-sm font-bold border-none cursor-pointer hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors mb-4"
             >
-              Go to My Dashboard →
+              Go to my dashboard →
             </button>
           </div>
 
@@ -699,7 +699,7 @@ export default function NewPackagePage() {
             onClick={() => router.push('/dashboard')}
             className="h-12 w-full rounded-lg bg-[#2c2a2b] text-white text-sm font-bold border-none cursor-pointer hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors"
           >
-            Go to My Dashboard →
+            Go to my dashboard →
           </button>
         </div>
       </div>
@@ -963,7 +963,7 @@ export default function NewPackagePage() {
           </div>
 
           <StepActions>
-            <PrimaryButton onClick={() => { applyBulkPrice(); createPackage(); }} disabled={loading}>{loading ? 'Creating...' : 'Finish Setup →'}</PrimaryButton>
+            <PrimaryButton onClick={() => { applyBulkPrice(); createPackage(); }} disabled={loading}>{loading ? 'Creating...' : 'Finish setup →'}</PrimaryButton>
           </StepActions>
         </div>
       )}
