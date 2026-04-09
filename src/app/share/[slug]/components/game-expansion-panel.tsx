@@ -195,7 +195,7 @@ export function GameExpansionPanel({
               </div>
               <div>
                 <div className="text-base font-semibold text-foreground">
-                  Reservation confirmed
+                  Game claimed
                 </div>
                 <div className="text-sm text-muted mt-px">
                   Confirmation sent to {email || 'your email'}
@@ -240,7 +240,7 @@ export function GameExpansionPanel({
             We sent a confirmation link to <strong>{step.email}</strong>
           </div>
           <div className="text-xs text-muted">
-            Click the link in your email to complete your reservation. The link
+            Click the link in your email to complete your claim. The link
             expires in 15 minutes.
           </div>
         </div>
@@ -248,7 +248,7 @@ export function GameExpansionPanel({
         /* Error state */
         <div className="p-8 text-center">
           <div className="text-base font-medium text-foreground mb-2">
-            Unable to reserve
+            Unable to claim
           </div>
           <div className="text-sm text-error mb-4">{step.message}</div>
           <button
@@ -263,7 +263,7 @@ export function GameExpansionPanel({
         <div className="grid grid-cols-2">
           <div className="p-6">
             <div className="mb-2.5">
-              <div className="text-sm text-muted uppercase tracking-wider mb-[3px]">
+              <div className="text-sm text-muted mb-[3px]">
                 Date &amp; time
               </div>
               <div className="text-base text-foreground font-medium">
@@ -272,7 +272,7 @@ export function GameExpansionPanel({
               </div>
             </div>
             <div className="mb-2.5">
-              <div className="text-sm text-muted uppercase tracking-wider mb-[3px]">
+              <div className="text-sm text-muted mb-[3px]">
                 Location
               </div>
               <div className="text-base text-foreground font-medium">
@@ -280,7 +280,7 @@ export function GameExpansionPanel({
               </div>
             </div>
             <div>
-              <div className="text-sm text-muted uppercase tracking-wider mb-[3px]">
+              <div className="text-sm text-muted mb-[3px]">
                 Delivery
               </div>
               <div className="text-base text-foreground font-medium">
@@ -291,7 +291,7 @@ export function GameExpansionPanel({
           <div className="p-6 border-l border-border">
             {step.step === 'email' || step.step === 'sending' ? (
               <>
-                <div className="text-sm text-muted uppercase tracking-wider mb-[3px]">
+                <div className="text-sm text-muted mb-[3px]">
                   Your info
                 </div>
                 <div className="flex gap-2 mb-2">
@@ -323,7 +323,7 @@ export function GameExpansionPanel({
                   onClick={handleReserve}
                   disabled={loading || !email.includes('@')}
                 >
-                  {loading ? 'Sending...' : 'Confirm reservation'}
+                  {loading ? 'Sending...' : 'Confirm claim'}
                 </button>
                 <div className="text-center text-sm text-muted mt-[5px]">
                   We&apos;ll send a confirmation email
@@ -331,7 +331,7 @@ export function GameExpansionPanel({
               </>
             ) : (
               <>
-                <div className="text-sm text-muted uppercase tracking-wider mb-[3px]">
+                <div className="text-sm text-muted mb-[3px]">
                   Pricing
                 </div>
                 <div className="flex justify-between text-base text-foreground py-[3px]">
@@ -351,7 +351,7 @@ export function GameExpansionPanel({
                   onClick={isAuthenticated ? handleDirectClaim : () => setStep({ step: 'email' })}
                   disabled={loading}
                 >
-                  {loading ? 'Reserving...' : 'Reserve seats'}
+                  {loading ? 'Claiming...' : 'Claim this game'}
                 </button>
                 <div className="text-center text-sm text-muted mt-[5px]">
                   You won&apos;t be charged yet

@@ -30,7 +30,7 @@ export function AlsoPlaysIn({ games, opponentFilter, monthFilter, onJumpToMonth 
   return (
     <div className="flex items-center gap-2 mb-4 flex-wrap">
       <span className="text-sm font-normal text-[#2c2a2b]">
-        Also play in:
+        Also playing here:
       </span>
       {sortedMonths.map(([month, count]) => {
         const isSelected = selectedMonths.has(month);

@@ -49,7 +49,7 @@ export function MagicLinkLogin() {
           </div>
           <div className="text-xs text-muted">
             We sent a login link to <strong>{email}</strong>. Click it to view
-            and manage your reservations.
+            and manage your games.
           </div>
         </div>
       </div>
@@ -66,10 +66,10 @@ export function MagicLinkLogin() {
           </svg>
         </div>
         <div className="text-base font-medium text-foreground mb-1">
-          View your reservations
+          View your games
         </div>
         <div className="text-xs text-muted mb-4">
-          Enter the email you used when reserving tickets.
+          Enter the email you used when claiming games.
         </div>
         <input
           type="email"

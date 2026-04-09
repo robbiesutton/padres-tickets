@@ -276,7 +276,7 @@ function SeatInfoPillDropdown({ pkg, isDark, navColor, teamAccent, onPkgUpdate }
                 <div>
                   <p className="text-sm font-medium text-[#2c2a2b]">Add your seat details</p>
                   <p className="text-xs text-[#8e8985] mt-1 max-w-[240px]">
-                    Help your friends know what to expect — add a description and perks for your seats.
+                    Help people know what to expect — add a description and perks for your seats.
                   </p>
                 </div>
                 <button

@@ -804,7 +804,7 @@ function SellerGameCard({
                     })()}
 
                     {/* Status section */}
-                    <p className="text-[11px] font-bold text-[#8e8985] uppercase tracking-[1.5px] mb-1">Status</p>
+                    <p className="text-[11px] font-bold text-[#8e8985] tracking-[0.5px] mb-1">Status</p>
                     <div className="flex flex-col">
                       {EDITABLE_STATUSES_WITH_HELP.map((s) => {
                         const isSelected = game.status === s.value;
@@ -1063,21 +1063,21 @@ function SellerToolbar({
 
               <div className="flex flex-col gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-[#8e8985] uppercase tracking-wider mb-2 pl-1">Opponent</label>
+                  <label className="block text-xs font-semibold text-[#8e8985] mb-2 pl-1">Opponent</label>
                   <select className={sheetSelectClass} value={opponentFilter[0] || ''} onChange={(e) => onOpponentFilterChange(e.target.value ? [e.target.value] : [])}>
                     <option value="">Opponent</option>
                     {opponents.map((o) => <option key={o} value={o}>{o}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-[#8e8985] uppercase tracking-wider mb-2 pl-1">Month</label>
+                  <label className="block text-xs font-semibold text-[#8e8985] mb-2 pl-1">Month</label>
                   <select className={sheetSelectClass} value={monthFilter} onChange={(e) => onMonthFilterChange(e.target.value)}>
                     <option value="">Month</option>
                     {months.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-[#8e8985] uppercase tracking-wider mb-2 pl-1">Claimer</label>
+                  <label className="block text-xs font-semibold text-[#8e8985] mb-2 pl-1">Person</label>
                   <select className={sheetSelectClass} value={claimerFilter} onChange={(e) => onClaimerFilterChange(e.target.value)}>
                     <option value="">Person</option>
                     {claimers.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
@@ -1301,10 +1301,10 @@ export default function DashboardPage() {
         {summary && selectedPkg && (() => {
           const { primary, accent } = getTeamColors(selectedPkg.team);
           const stats = [
-            { label: 'Total Games', value: summary.totalGames, highlight: false },
+            { label: 'Total games', value: summary.totalGames, highlight: false },
             { label: 'Claimed', value: summary.gamesClaimed, highlight: false },
             { label: 'Available', value: summary.gamesAvailable, highlight: true },
-            { label: 'Revenue', value: `$${summary.revenueCollected.toFixed(0)}`, highlight: true },
+            { label: 'Collected', value: `$${summary.revenueCollected.toFixed(0)}`, highlight: true },
           ];
           return (
             <div

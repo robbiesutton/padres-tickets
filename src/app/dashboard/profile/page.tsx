@@ -479,9 +479,9 @@ export default function ProfilePage() {
             {/* Benefits */}
             <div className="flex flex-col gap-3 mb-8">
               {[
-                'Share games with unlimited friends',
-                'Track claims, revenue, and status in one place',
-                'Cancel anytime — no commitment',
+                'Share your season with anyone — no limit',
+                'Track claims, payments, and status in one place',
+                'Cancel anytime',
               ].map((benefit) => (
                 <div key={benefit} className="flex items-start gap-3">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="shrink-0 mt-0.5">

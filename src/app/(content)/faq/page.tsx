@@ -17,7 +17,7 @@ const faqs = [
   },
   {
     q: 'Does money flow through BenchBuddy?',
-    a: 'No. BenchBuddy calculates cost-sharing amounts based on face value, but all payments happen directly between you and your friends using whatever method you prefer — Venmo, Zelle, PayPal, cash, etc. BenchBuddy never touches the money.',
+    a: 'No. BenchBuddy coordinates the sharing, but all payments happen directly between you and the people you share with — Venmo, Zelle, PayPal, cash, however you prefer. BenchBuddy never touches the money.',
   },
   {
     q: 'Is this allowed by my team?',
@@ -29,7 +29,7 @@ const faqs = [
   },
   {
     q: 'How does the share link work?',
-    a: 'When you create a ticket package, BenchBuddy generates a unique share link. Send this link to your friends and family via text, email, or any messaging app. They can browse available games, see seat details, and claim the games they want — no account required to browse.',
+    a: 'When you set up your season tickets, BenchBuddy generates a unique share link. Send this link to anyone via text, email, or any messaging app. They can browse available games, see seat details, and claim the ones they want — no account required to browse.',
   },
   {
     q: 'Do my friends need an account?',
@@ -37,11 +37,11 @@ const faqs = [
   },
   {
     q: 'Which teams are supported?',
-    a: 'All 30 MLB teams are supported. When you create a package, your team\'s full home schedule loads automatically. We include section-specific seating data and transfer instructions for every team.',
+    a: 'All 30 MLB teams are supported. When you set up your season tickets, your team\'s full home schedule loads automatically. We include section-specific seating data and transfer instructions for every team.',
   },
   {
     q: 'Can I share tickets for multiple seat locations?',
-    a: 'Yes. You can create multiple packages — one for each set of seats. Each package gets its own share link and game schedule.',
+    a: 'Yes. You can set up multiple sets of season tickets — one for each set of seats. Each gets its own share link and game schedule.',
   },
   {
     q: 'What if someone claims a game and then can\'t go?',

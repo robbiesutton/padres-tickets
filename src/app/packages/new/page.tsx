@@ -81,8 +81,8 @@ const MONTH_NAMES = [
 ];
 
 const STEPS = [
-  { label: 'Your Tickets' },
-  { label: 'Your Seats' },
+  { label: 'Your tickets' },
+  { label: 'Your seats' },
   { label: 'Confirmation' },
 ];
 
@@ -576,13 +576,13 @@ export default function NewPackagePage() {
               Head to your dashboard to customize games and prices before sharing.
             </p>
             <p className="text-sm text-[#8e8985] leading-relaxed hidden md:block">
-              Here&apos;s what your friends will see when you share your link. Head to your dashboard to customize games and prices first.
+              Here&apos;s what people will see when you share your link. Head to your dashboard to customize games and prices first.
             </p>
           </div>
 
           {/* Preview — what friends will see */}
           <div className="mb-4">
-            <p className="text-xs font-medium text-[#8e8985] uppercase tracking-[0.5px] text-center mb-4">What your friends will see</p>
+            <p className="text-xs font-medium text-[#8e8985] text-center mb-4">Preview</p>
 
             <div className="rounded-xl border border-[#dcd7d4] overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.04)] bg-[#fefefe]">
               {/* Mobile nav bar */}
@@ -799,15 +799,15 @@ export default function NewPackagePage() {
           </div>
 
           <div>
-            <FormLabel>Package</FormLabel>
-            <FormSelect value={selectedPackage?.id || ''} onChange={(v) => { const p = packages.find((p) => p.id === v); setSelectedPackage(p || null); }} placeholder="Select a package...">
+            <FormLabel>Your season tickets</FormLabel>
+            <FormSelect value={selectedPackage?.id || ''} onChange={(v) => { const p = packages.find((p) => p.id === v); setSelectedPackage(p || null); }} placeholder="Select your season tickets...">
               {packages.map((p) => <option key={p.id} value={p.id}>{p.name} · {p.gameCount} Games</option>)}
             </FormSelect>
           </div>
 
           {selectedPackage && (
             <div className="rounded-lg bg-[#FEF3CD] text-[#856D10] px-4 py-3 text-sm font-medium mt-4 leading-relaxed">
-              ⚠️ We&apos;ll load your games based on this selection. Make sure it matches your ticket package — you can remove games but can&apos;t add new ones.
+              ⚠️ We&apos;ll load your games based on this selection. Make sure it matches your season tickets — you can remove games but can&apos;t add new ones.
             </div>
           )}
 
@@ -825,7 +825,7 @@ export default function NewPackagePage() {
 
 
           <StepHeadline><span className="md:hidden">Your seats</span><span className="hidden md:inline">Where do you sit?</span></StepHeadline>
-          <StepSubhead>We&apos;ll show this to friends so they know the seats they&apos;re getting.</StepSubhead>
+          <StepSubhead>We&apos;ll show this to anyone you share with so they know the seats they&apos;re getting.</StepSubhead>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <div>
@@ -898,7 +898,7 @@ export default function NewPackagePage() {
             {/* Details rows */}
             <div className="bg-white divide-y divide-[#f5f4f2]">
               <div className="flex items-center justify-between px-5 py-3.5">
-                <span className="text-sm text-[#8e8985]">Package</span>
+                <span className="text-sm text-[#8e8985]">Season tickets</span>
                 <span className="text-sm font-bold text-[#2c2a2b]">{selectedPackage?.name || 'Full Season'} &middot; {selectedPackage?.gameCount || 81} Games</span>
               </div>
               <div className="flex items-center justify-between px-5 py-3.5">
