@@ -331,29 +331,21 @@ function StatusPicker({
           );
         })}
 
-        {/* Add person — always visible */}
-        <div className="h-px bg-[#F0EDEA]" />
-        {assignQuery && showAddNew ? (
-          <button
-            onClick={() => handleAssignPerson(assignQuery)}
-            className="w-full flex items-center gap-3 px-4 py-3.5 border-none cursor-pointer text-left bg-white hover:bg-[#f5f4f2] transition-colors text-sm font-medium text-[#1B1716]"
-          >
-            <div className="w-8 h-8 rounded-full flex items-center justify-center text-lg font-medium text-[#8e8985] shrink-0 border-2 border-[#8e8985] leading-none">
-              +
-            </div>
-            Add &ldquo;{assignQuery}&rdquo;
-          </button>
-        ) : !assignQuery ? (
-          <button
-            onClick={() => assignInputRef.current?.focus()}
-            className="w-full flex items-center gap-3 px-4 py-3.5 border-none cursor-pointer text-left bg-white hover:bg-[#f5f4f2] transition-colors text-sm font-medium text-[#8e8985]"
-          >
-            <div className="w-8 h-8 rounded-full flex items-center justify-center text-lg font-medium text-[#8e8985] shrink-0 border-2 border-[#8e8985] leading-none">
-              +
-            </div>
-            Add person
-          </button>
-        ) : null}
+        {/* Add person — only when typing a new name */}
+        {assignQuery && showAddNew && (
+          <>
+            <div className="h-px bg-[#F0EDEA]" />
+            <button
+              onClick={() => handleAssignPerson(assignQuery)}
+              className="w-full flex items-center gap-3 px-4 py-3.5 border-none cursor-pointer text-left bg-white hover:bg-[#f5f4f2] transition-colors text-sm font-medium text-[#1B1716]"
+            >
+              <div className="w-8 h-8 rounded-full flex items-center justify-center text-lg font-medium text-[#8e8985] shrink-0 border-2 border-[#8e8985] leading-none">
+                +
+              </div>
+              Add &ldquo;{assignQuery}&rdquo;
+            </button>
+          </>
+        )}
 
         {filteredPeople.length === 0 && !showAddNew && (
           <p className="px-4 py-3.5 text-sm text-[#8e8985] bg-white">No matches</p>
@@ -460,17 +452,19 @@ function StatusPicker({
                         </button>
                       );
                     })}
-                    <button
-                      onClick={() => assignQuery && showAddNew ? handleAssignPerson(assignQuery) : undefined}
-                      className="w-full flex items-center gap-3 px-0 py-3.5 border-none cursor-pointer text-left bg-transparent"
-                    >
-                      <div className="w-9 h-9 rounded-full flex items-center justify-center text-lg font-medium text-[#8e8985] shrink-0 border-2 border-[#8e8985] leading-none">
-                        +
-                      </div>
-                      <span className="text-sm font-medium text-[#8e8985]">
-                        {assignQuery && showAddNew ? <>Add &ldquo;{assignQuery}&rdquo;</> : 'Add person'}
-                      </span>
-                    </button>
+                    {assignQuery && showAddNew && (
+                      <button
+                        onClick={() => handleAssignPerson(assignQuery)}
+                        className="w-full flex items-center gap-3 px-0 py-3.5 border-none cursor-pointer text-left bg-transparent"
+                      >
+                        <div className="w-9 h-9 rounded-full flex items-center justify-center text-lg font-medium text-[#8e8985] shrink-0 border-2 border-[#8e8985] leading-none">
+                          +
+                        </div>
+                        <span className="text-sm font-medium text-[#8e8985]">
+                          Add &ldquo;{assignQuery}&rdquo;
+                        </span>
+                      </button>
+                    )}
                   </div>
                 </div>
               ) : (
@@ -741,17 +735,21 @@ function SellerGameCard({
   let borderColor = '#dcd7d4';
   if (game.status === 'UNAVAILABLE') borderColor = '#DC2626';
 
+  // Click outside to close any open dropdown
   useEffect(() => {
-    if (!popoverOpen) return;
+    if (!popoverOpen && !infoOpen) return;
     function handleClickOutside(e: MouseEvent) {
       if (
         popoverRef.current && !popoverRef.current.contains(e.target as Node) &&
         pillRef.current && !pillRef.current.contains(e.target as Node)
-      ) { setPopoverOpen(false); }
+      ) {
+        setPopoverOpen(false);
+        setInfoOpen(false);
+      }
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [popoverOpen]);
+  }, [popoverOpen, infoOpen]);
 
   // Close menu on outside click
   useEffect(() => {
@@ -795,9 +793,13 @@ function SellerGameCard({
   function handlePillClick(e: React.MouseEvent) {
     e.stopPropagation();
     if (editable) {
-      setPopoverOpen(!popoverOpen);
+      const opening = !popoverOpen;
+      setPopoverOpen(opening);
+      if (opening) { setInfoOpen(false); setMenuOpen(false); }
     } else {
       setInfoOpen(true);
+      setPopoverOpen(false);
+      setMenuOpen(false);
     }
   }
 
@@ -918,7 +920,7 @@ function SellerGameCard({
       {/* Three-dot menu — desktop */}
       <div className="relative shrink-0 hidden md:block" ref={menuRef}>
         <button
-          onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen); setConfirmRemove(false); }}
+          onClick={(e) => { e.stopPropagation(); const opening = !menuOpen; setMenuOpen(opening); setConfirmRemove(false); if (opening) { setPopoverOpen(false); setInfoOpen(false); } }}
           className="w-7 h-7 rounded flex items-center justify-center text-[#8e8985] hover:bg-[#f3f4f6] hover:text-[#2c2a2b] transition-all cursor-pointer bg-transparent border-none text-base font-bold"
         >
           ⋯
@@ -1105,18 +1107,20 @@ function SellerGameCard({
                                     </button>
                                   );
                                 })}
-                                {/* Add person */}
-                                <button
-                                  onClick={() => mobileAssignQuery && mShowAddNew ? mHandleAssign(mobileAssignQuery) : mobileAssignInputRef.current?.focus()}
-                                  className="w-full flex items-center gap-3 px-0 py-3.5 border-none cursor-pointer text-left bg-transparent"
-                                >
-                                  <div className="w-9 h-9 rounded-full flex items-center justify-center text-lg font-medium text-[#8e8985] shrink-0 border-2 border-[#8e8985] leading-none">
-                                    +
-                                  </div>
-                                  <span className="text-sm font-medium text-[#8e8985]">
-                                    {mobileAssignQuery && mShowAddNew ? <>Add &ldquo;{mobileAssignQuery}&rdquo;</> : 'Add person'}
-                                  </span>
-                                </button>
+                                {/* Add person — only when typing a new name */}
+                                {mobileAssignQuery && mShowAddNew && (
+                                  <button
+                                    onClick={() => mHandleAssign(mobileAssignQuery)}
+                                    className="w-full flex items-center gap-3 px-0 py-3.5 border-none cursor-pointer text-left bg-transparent"
+                                  >
+                                    <div className="w-9 h-9 rounded-full flex items-center justify-center text-lg font-medium text-[#8e8985] shrink-0 border-2 border-[#8e8985] leading-none">
+                                      +
+                                    </div>
+                                    <span className="text-sm font-medium text-[#8e8985]">
+                                      Add &ldquo;{mobileAssignQuery}&rdquo;
+                                    </span>
+                                  </button>
+                                )}
                               </>
                             );
                           })()}
