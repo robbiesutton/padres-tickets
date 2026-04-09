@@ -327,3 +327,9 @@ export function getTeamByAbbreviation(abbr: string): MlbTeam | undefined {
     (t) => t.abbreviation.toLowerCase() === abbr.toLowerCase()
   );
 }
+
+export function getTeamByName(name: string): MlbTeam | undefined {
+  return MLB_TEAMS.find(
+    (t) => t.name.toLowerCase() === name.toLowerCase()
+  );
+}
