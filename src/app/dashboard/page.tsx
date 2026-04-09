@@ -243,16 +243,14 @@ function StatusPicker({
         <div className="h-px bg-[#F0EDEA]" />
 
         {/* Assign to someone */}
-        {currentStatus !== 'CLAIMED' && (
-          <button
-            onClick={() => setView('assign')}
-            className="w-full flex items-center gap-2.5 px-4 py-3.5 border-none cursor-pointer text-left transition-colors text-sm font-medium hover:bg-[#f5f4f2] bg-white text-[#2c2a2b]"
-          >
-            <span className="w-[7px] h-[7px] rounded-full shrink-0 bg-[#2d6a4f]" />
-            Assign to someone
-            <span className="ml-auto text-[#8e8985] text-sm">→</span>
-          </button>
-        )}
+        <button
+          onClick={() => setView('assign')}
+          className="w-full flex items-center gap-2.5 px-4 py-3.5 border-none cursor-pointer text-left transition-colors text-sm font-medium hover:bg-[#f5f4f2] bg-white text-[#2c2a2b]"
+        >
+          <span className="w-[7px] h-[7px] rounded-full shrink-0 bg-[#2d6a4f]" />
+          Assign to someone
+          <span className="ml-auto text-[#8e8985] text-sm">→</span>
+        </button>
 
         {/* Divider */}
         <div className="h-px bg-[#F0EDEA]" />
@@ -444,10 +442,14 @@ function StatusPicker({
 function ProtectedStatusSheet({
   game,
   onStatusChange,
+  onAssign,
+  knownPeople,
   onClose,
 }: {
   game: GameWithClaim;
   onStatusChange: (gameId: string, status: string) => void;
+  onAssign?: (gameId: string, name: string) => void;
+  knownPeople?: string[];
   onClose: () => void;
 }) {
   const [showPicker, setShowPicker] = useState(false);
@@ -503,10 +505,12 @@ function ProtectedStatusSheet({
       {/* Actions */}
       {showPicker ? (
         <StatusPicker
-          title="Change Status"
+          title="Change status"
           currentStatus={game.status}
           onSelect={handleSelect}
           onClose={() => setShowPicker(false)}
+          onAssign={(name) => { onAssign?.(game.id, name); onClose(); }}
+          knownPeople={knownPeople}
         />
       ) : (
         <div className="flex gap-3">
@@ -817,7 +821,7 @@ function SellerGameCard({
         {/* Read-only info (desktop) */}
         {infoOpen && (
           <div ref={popoverRef} className="absolute right-0 top-[calc(100%+6px)] z-50 bg-white rounded-xl shadow-[0_0_0_1px_#eceae5,0_8px_24px_rgba(0,0,0,0.12)] w-[340px] p-5">
-            <ProtectedStatusSheet game={game} onStatusChange={onStatusChange} onClose={() => setInfoOpen(false)} />
+            <ProtectedStatusSheet game={game} onStatusChange={onStatusChange} onAssign={onAssign} knownPeople={knownPeople} onClose={() => setInfoOpen(false)} />
           </div>
         )}
       </div>
