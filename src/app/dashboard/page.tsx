@@ -1042,11 +1042,6 @@ function SellerToolbar({
           </svg>
           Filters
         </button>
-        {hasActiveFilters && (
-          <button onClick={onClearFilters} className="text-sm font-medium text-[#8e8985] bg-transparent border-none cursor-pointer">
-            Clear all
-          </button>
-        )}
       </div>
 
       {/* ── Mobile: Filter bottom sheet ── */}
@@ -1065,21 +1060,21 @@ function SellerToolbar({
                 <div>
                   <label className="block text-xs font-semibold text-[#8e8985] mb-2 pl-1">Opponent</label>
                   <select className={sheetSelectClass} value={opponentFilter[0] || ''} onChange={(e) => onOpponentFilterChange(e.target.value ? [e.target.value] : [])}>
-                    <option value="">Opponent</option>
+                    <option value="">All opponents</option>
                     {opponents.map((o) => <option key={o} value={o}>{o}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-[#8e8985] mb-2 pl-1">Month</label>
                   <select className={sheetSelectClass} value={monthFilter} onChange={(e) => onMonthFilterChange(e.target.value)}>
-                    <option value="">Month</option>
+                    <option value="">All months</option>
                     {months.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-[#8e8985] mb-2 pl-1">Person</label>
                   <select className={sheetSelectClass} value={claimerFilter} onChange={(e) => onClaimerFilterChange(e.target.value)}>
-                    <option value="">Person</option>
+                    <option value="">All people</option>
                     {claimers.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
                   </select>
                 </div>
@@ -1090,14 +1085,14 @@ function SellerToolbar({
                 className="w-full h-12 mt-6 rounded-lg text-base font-semibold text-white cursor-pointer border-none transition-opacity hover:opacity-90"
                 style={{ backgroundColor: teamPrimary }}
               >
-                Apply Filters
+                Apply filters
               </button>
               {hasActiveFilters && (
                 <button
                   onClick={() => { onClearFilters(); setMobileFiltersOpen(false); }}
                   className="w-full mt-3 text-sm font-medium text-[#8e8985] bg-transparent border-none cursor-pointer py-2"
                 >
-                  Reset all
+                  Clear filters
                 </button>
               )}
             </div>
@@ -1117,10 +1112,23 @@ function SellerToolbar({
               }`}
               style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M6%209l6%206%206-6%22%20stroke%3D%22%238e8985%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')", backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center' }}
             >
-              {opponentFilter.length === 0 ? 'Opponent' : `${opponentFilter.length} opponent${opponentFilter.length !== 1 ? 's' : ''}`}
+              {opponentFilter.length === 0 ? 'All opponents' : `${opponentFilter.length} opponent${opponentFilter.length !== 1 ? 's' : ''}`}
             </button>
             {opponentDropdownOpen && (
               <div className="absolute left-0 top-[calc(100%+4px)] z-50 bg-white rounded-xl shadow-[0_0_0_1px_#eceae5,0_8px_24px_rgba(0,0,0,0.12)] w-[240px] max-h-[320px] overflow-y-auto py-1">
+                <button
+                  onClick={() => onOpponentFilterChange([])}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 border-none cursor-pointer text-left text-sm font-medium transition-colors hover:bg-[#f5f4f2] ${opponentFilter.length === 0 ? 'text-[#2c2a2b]' : 'text-[#8e8985]'}`}
+                >
+                  <div className={`w-[16px] h-[16px] rounded-[3px] border-[1.5px] shrink-0 flex items-center justify-center ${opponentFilter.length === 0 ? 'bg-[#2c2a2b] border-[#2c2a2b]' : 'bg-white border-[#dcd7d4]'}`}>
+                    {opponentFilter.length === 0 && (
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
+                        <path d="M5 13l4 4L19 7" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    )}
+                  </div>
+                  All opponents
+                </button>
                 {opponents.map((o) => {
                   const checked = opponentFilter.includes(o);
                   return (
@@ -1140,23 +1148,15 @@ function SellerToolbar({
                     </button>
                   );
                 })}
-                {opponentFilter.length > 0 && (
-                  <button
-                    onClick={() => onOpponentFilterChange([])}
-                    className="w-full px-3 py-2 border-t border-[#eceae5] text-sm font-medium text-[#8e8985] hover:text-[#2c2a2b] bg-transparent border-x-0 border-b-0 cursor-pointer text-left"
-                  >
-                    Clear selection
-                  </button>
-                )}
               </div>
             )}
           </div>
           <select className={desktopSelectClass} value={monthFilter} onChange={(e) => onMonthFilterChange(e.target.value)}>
-            <option value="">Month</option>
+            <option value="">All months</option>
             {months.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
           </select>
           <select className={desktopSelectClass} value={claimerFilter} onChange={(e) => onClaimerFilterChange(e.target.value)}>
-            <option value="">Person</option>
+            <option value="">All people</option>
             {claimers.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
           </select>
           {hasActiveFilters && (
@@ -1339,6 +1339,44 @@ export default function DashboardPage() {
           />
         </div>
 
+        {/* Also playing here — shows when opponent filter is active */}
+        {opponentFilter.length > 0 && (() => {
+          const oppGames = games.filter((g) => opponentFilter.includes(g.opponent));
+          const monthCounts = new Map<number, number>();
+          for (const g of oppGames) {
+            const d = new Date(g.date);
+            monthCounts.set(d.getMonth(), (monthCounts.get(d.getMonth()) || 0) + 1);
+          }
+          if (monthCounts.size <= 1) return null;
+          const sortedMonths = [...monthCounts.entries()].sort(([a], [b]) => a - b);
+          const selectedMonth = monthFilter ? parseInt(monthFilter) - 1 : -1;
+          return (
+            <div className="flex items-center gap-1.5 mb-4 flex-wrap">
+              <span className="text-xs font-normal text-[#2c2a2b]">Also playing here:</span>
+              {sortedMonths.map(([month]) => {
+                const isSelected = month === selectedMonth;
+                return (
+                  <button
+                    key={month}
+                    onClick={() => setMonthFilter(String(month + 1))}
+                    className={`flex items-center gap-0.5 px-2.5 py-1 rounded-3xl cursor-pointer transition-all ${
+                      isSelected
+                        ? 'bg-[#E5AB00] border border-transparent'
+                        : 'bg-white border border-[#dcd7d4] shadow-[0_1px_2px_rgba(0,0,0,0.05)] hover:bg-[#FFF8E7] hover:border-[#E5AB00] hover:shadow-none'
+                    }`}
+                  >
+                    <span className={`text-[11px] font-medium leading-4 ${isSelected ? 'text-white' : 'text-[#2c2a2b]'}`}>
+                      {MONTH_NAMES[month]}
+                    </span>
+                    {!isSelected && (
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#2c2a2b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="M12 5l7 7-7 7" /></svg>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          );
+        })()}
 
         {/* Game list */}
         {filteredGames.length === 0 && hasActiveFilters ? (

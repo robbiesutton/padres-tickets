@@ -110,15 +110,6 @@ export function Toolbar({
           </svg>
           Filters
         </button>
-        {hasActiveFilters && (
-          <button
-            onClick={() => { onOpponentFilterChange([]); onMonthFilterChange([]); }}
-            className="flex items-center gap-1 text-sm font-medium text-[#8e8985] bg-transparent border-none cursor-pointer ml-auto"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18" /><path d="M6 6l12 12" /></svg>
-            Clear filters
-          </button>
-        )}
       </div>
 
       {/* ── Mobile: Filter bottom sheet ── */}

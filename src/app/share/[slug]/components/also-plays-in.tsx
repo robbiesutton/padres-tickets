@@ -28,26 +28,28 @@ export function AlsoPlaysIn({ games, opponentFilter, monthFilter, onJumpToMonth 
   const selectedMonths = new Set(monthFilter.map((m) => parseInt(m) - 1));
 
   return (
-    <div className="flex items-center gap-2 mb-4 flex-wrap">
-      <span className="text-sm font-normal text-[#2c2a2b]">
+    <div className="flex items-center gap-1.5 mb-4 flex-wrap">
+      <span className="text-xs font-normal text-[#2c2a2b]">
         Also playing here:
       </span>
-      {sortedMonths.map(([month, count]) => {
+      {sortedMonths.map(([month]) => {
         const isSelected = selectedMonths.has(month);
         return (
           <button
             key={month}
             onClick={() => onJumpToMonth(month)}
-            className={`flex items-center gap-1 px-3 py-1.5 rounded-3xl border border-[#ffad00] cursor-pointer hover:bg-[#f7edd0] transition-colors ${
-              isSelected ? 'bg-[#f7edd0]' : 'bg-[#f5f4f2]'
+            className={`flex items-center gap-0.5 px-2.5 py-1 rounded-3xl cursor-pointer transition-all ${
+              isSelected
+                ? 'bg-[#E5AB00] border border-transparent'
+                : 'bg-white border border-[#dcd7d4] shadow-[0_1px_2px_rgba(0,0,0,0.05)] hover:bg-[#FFF8E7] hover:border-[#E5AB00] hover:shadow-none'
             }`}
           >
-            <span className="text-xs font-medium text-[#2c2a2b] leading-5">
+            <span className={`text-[11px] font-medium leading-4 ${isSelected ? 'text-white' : 'text-[#2c2a2b]'}`}>
               {MONTH_NAMES[month]}
             </span>
-            <span className="w-5 h-5 rounded-full bg-[#ffad00] flex items-center justify-center text-xs font-medium text-white">
-              {count}
-            </span>
+            {!isSelected && (
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#2c2a2b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="M12 5l7 7-7 7" /></svg>
+            )}
           </button>
         );
       })}
