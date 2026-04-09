@@ -418,31 +418,99 @@ function StatusPicker({
                   </div>
                 );
               })()}
-              <p className="text-base font-bold text-[#2c2a2b] mb-5">{title}</p>
-              <div className="flex flex-col gap-2.5">
-                {EDITABLE_STATUSES_WITH_HELP.map((s) => {
-                  const isSelected = currentStatus === s.value;
-                  return (
-                    <button
-                      key={s.value}
-                      onClick={() => onSelect(s.value)}
-                      className={`w-full flex items-center gap-3 px-4 h-12 rounded-xl border-none cursor-pointer text-left transition-all ${
-                        isSelected
-                          ? 'bg-white shadow-[0_0_0_2px_#2d6a4f,0_2px_8px_rgba(0,0,0,0.06)]'
-                          : 'bg-[#f5f4f2] hover:bg-[#eceae5]'
-                      }`}
-                    >
-                      <span className="w-[10px] h-[10px] rounded-full shrink-0" style={{ backgroundColor: s.dot }} />
-                      <span className="text-base font-bold text-[#2c2a2b]">{s.label}</span>
-                      {isSelected && (
-                        <svg className="shrink-0 ml-auto" width="18" height="18" viewBox="0 0 24 24" fill="none">
-                          <path d="M5 13l4 4L19 7" stroke="#2d6a4f" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      )}
+              {view === 'confirmed' ? (
+                <div className="flex flex-col items-center justify-center py-8 gap-3">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                    <path d="M5 13l4 4L19 7" stroke="#2d6a4f" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  <span className="text-base font-semibold text-[#2d6a4f]">Assigned to {confirmedName}</span>
+                </div>
+              ) : view === 'assign' ? (
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <button onClick={() => { setView('status'); setAssignQuery(''); }} className="w-8 h-8 flex items-center justify-center bg-transparent border-none cursor-pointer text-[#8e8985]">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5" /><path d="M12 19l-7-7 7-7" /></svg>
                     </button>
-                  );
-                })}
-              </div>
+                    <p className="text-base font-bold text-[#2c2a2b]">Assign to</p>
+                    <div className="w-8" />
+                  </div>
+                  <input
+                    type="text"
+                    value={assignQuery}
+                    onChange={(e) => setAssignQuery(e.target.value)}
+                    placeholder="Search or type a name…"
+                    className="w-full px-4 py-3.5 rounded-xl border-[1.5px] border-[#eceae5] bg-white text-sm font-medium text-[#1B1716] outline-none focus:border-[#2c2a2b] transition-colors mb-3 placeholder:text-[#8e8985]"
+                    autoFocus
+                  />
+                  <div className="flex flex-col">
+                    {filteredPeople.map((name) => {
+                      const colorIndex = (knownPeople || []).indexOf(name);
+                      const color = AVATAR_COLORS[colorIndex >= 0 ? colorIndex % AVATAR_COLORS.length : 0];
+                      return (
+                        <button
+                          key={name}
+                          onClick={() => handleAssignPerson(name)}
+                          className="w-full flex items-center gap-3 px-0 py-3.5 border-none cursor-pointer text-left bg-transparent border-b border-solid border-[#eceae5]"
+                          style={{ borderBottomWidth: '1px', borderBottomColor: '#eceae5' }}
+                        >
+                          <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold text-white shrink-0" style={{ backgroundColor: color }}>
+                            {name.charAt(0).toUpperCase()}
+                          </div>
+                          <span className="text-sm font-medium text-[#1B1716]">{name}</span>
+                        </button>
+                      );
+                    })}
+                    <button
+                      onClick={() => assignQuery && showAddNew ? handleAssignPerson(assignQuery) : undefined}
+                      className="w-full flex items-center gap-3 px-0 py-3.5 border-none cursor-pointer text-left bg-transparent"
+                    >
+                      <div className="w-9 h-9 rounded-full flex items-center justify-center text-lg font-medium text-[#8e8985] shrink-0 border-2 border-[#8e8985] leading-none">
+                        +
+                      </div>
+                      <span className="text-sm font-medium text-[#8e8985]">
+                        {assignQuery && showAddNew ? <>Add &ldquo;{assignQuery}&rdquo;</> : 'Add person'}
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <p className="text-base font-bold text-[#2c2a2b] mb-5">{title}</p>
+                  <div className="flex flex-col gap-2.5">
+                    {EDITABLE_STATUSES_WITH_HELP.map((s) => {
+                      const isSelected = currentStatus === s.value;
+                      return (
+                        <button
+                          key={s.value}
+                          onClick={() => onSelect(s.value)}
+                          className={`w-full flex items-center gap-3 px-4 h-12 rounded-xl border-none cursor-pointer text-left transition-all ${
+                            isSelected
+                              ? 'bg-white shadow-[0_0_0_2px_#2d6a4f,0_2px_8px_rgba(0,0,0,0.06)]'
+                              : 'bg-[#f5f4f2] hover:bg-[#eceae5]'
+                          }`}
+                        >
+                          <span className="w-[10px] h-[10px] rounded-full shrink-0" style={{ backgroundColor: s.dot }} />
+                          <span className="text-base font-bold text-[#2c2a2b]">{s.label}</span>
+                          {isSelected && (
+                            <svg className="shrink-0 ml-auto" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                              <path d="M5 13l4 4L19 7" stroke="#2d6a4f" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                          )}
+                        </button>
+                      );
+                    })}
+                    {/* Assign to someone */}
+                    <button
+                      onClick={() => setView('assign')}
+                      className="w-full flex items-center gap-3 px-4 h-12 rounded-xl border-none cursor-pointer text-left bg-[#f5f4f2] hover:bg-[#eceae5] transition-all"
+                    >
+                      <span className="w-[10px] h-[10px] rounded-full shrink-0 bg-[#2d6a4f]" />
+                      <span className="text-base font-bold text-[#2c2a2b] flex-1">Assign to someone</span>
+                      <span className="text-sm text-[#8e8985]">→</span>
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -1080,7 +1148,8 @@ function SellerGameCard({
                           {/* Assign to someone */}
                           <button
                             onClick={() => setMobileAssignView(true)}
-                            className="w-full flex items-center gap-3 px-0 py-4 border-none cursor-pointer text-left bg-transparent"
+                            className="w-full flex items-center gap-3 px-0 py-4 border-none cursor-pointer text-left bg-transparent border-b border-solid border-[#eceae5]"
+                            style={{ borderBottomWidth: '1px', borderBottomColor: '#eceae5' }}
                           >
                             <span className="w-[7px] h-[7px] rounded-full shrink-0 bg-[#2d6a4f]" />
                             <span className="text-sm font-medium text-[#2c2a2b] flex-1">Assign to someone</span>
@@ -1093,7 +1162,7 @@ function SellerGameCard({
                     {/* Actions */}
                     <div>
                       {/* Edit Price — always open */}
-                      <div className="flex items-end py-4 border-b border-[#eceae5]">
+                      <div className="flex items-baseline py-4 border-b border-[#eceae5]">
                         <span className="text-[24px] font-bold text-[#1a1a1a]">$</span>
                         <input
                           type="text"
@@ -1137,7 +1206,7 @@ function SellerGameCard({
 
       {/* Mobile: protected status sheet */}
       {infoOpen && typeof window !== 'undefined' && window.innerWidth < 768 && (
-        <ProtectedStatusSheet game={game} onStatusChange={onStatusChange} onClose={() => setInfoOpen(false)} />
+        <ProtectedStatusSheet game={game} onStatusChange={onStatusChange} onAssign={onAssign} knownPeople={knownPeople} onClose={() => setInfoOpen(false)} />
       )}
     </div>
   );
