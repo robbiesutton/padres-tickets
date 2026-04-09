@@ -24,6 +24,8 @@ interface PackageForNav {
   perks: string[];
   shareLinkSlug: string;
   _count: { games: number; invitations: number };
+  _role: 'holder' | 'claimer';
+  holderName?: string;
 }
 
 // Context so children (dashboard page) can access the selected package
@@ -607,36 +609,40 @@ export default function DashboardLayout({
     let cancelled = false;
     Promise.all([
       fetch('/api/packages').then((r) => (r.ok ? r.json() : { packages: [] })),
+      fetch('/api/me/packages').then((r) => (r.ok ? r.json() : { packages: [] })),
       fetch('/api/users/me').then((r) => (r.ok ? r.json() : null)),
-    ]).then(async ([pkgData, userData]) => {
+    ]).then(([holderData, claimerData, userData]) => {
         if (cancelled) return;
-        if (pkgData.packages.length === 0) {
-          if (!userData?.isHolder) {
-            // Non-holders can access their profile but not the rest of the dashboard
-            if (pathname !== '/dashboard/profile') {
-              // Claimers → redirect to their share page if they have one
-              try {
-                const claimerRes = await fetch('/api/me/packages');
-                if (claimerRes.ok) {
-                  const claimerData = await claimerRes.json();
-                  if (claimerData.packages?.length > 0) {
-                    window.location.href = `/share/${claimerData.packages[0].shareLinkSlug}`;
-                    return;
-                  }
-                }
-              } catch { /* fall through */ }
-              window.location.href = '/';
-              return;
-            }
-          } else {
-            // Holders → setup wizard
+
+        const holderPkgs = (holderData.packages || []).map((p: PackageForNav) => ({ ...p, _role: 'holder' as const }));
+        const claimerPkgs = (claimerData.packages || []).map((p: PackageForNav) => ({ ...p, _role: 'claimer' as const }));
+        const allPackages = [...holderPkgs, ...claimerPkgs];
+
+        if (allPackages.length === 0) {
+          if (userData?.isHolder) {
+            // Holder with no packages → setup wizard
             window.location.href = '/packages/new';
             return;
           }
+          // Claimer with no packages → stay on profile
+          if (pathname !== '/dashboard/profile') {
+            window.location.href = '/dashboard/profile';
+            return;
+          }
+          setLoading(false);
+          return;
         }
-        setPackages(pkgData.packages);
-        if (pkgData.packages.length > 0) {
-          setSelectedPkgId(pkgData.packages[0].id);
+
+        // If user has no holder packages and is on a non-profile dashboard page,
+        // redirect to their first claimer share page
+        if (holderPkgs.length === 0 && claimerPkgs.length > 0 && pathname !== '/dashboard/profile') {
+          window.location.href = `/share/${claimerPkgs[0].shareLinkSlug}`;
+          return;
+        }
+
+        setPackages(allPackages);
+        if (allPackages.length > 0) {
+          setSelectedPkgId(allPackages[0].id);
         }
         setLoading(false);
       })
@@ -698,7 +704,14 @@ export default function DashboardLayout({
             {packages.length > 1 && (
               <select
                 value={selectedPkgId || ''}
-                onChange={(e) => setSelectedPkgId(e.target.value)}
+                onChange={(e) => {
+                  const pkg = packages.find((p) => p.id === e.target.value);
+                  if (pkg?._role === 'claimer') {
+                    window.location.href = `/share/${pkg.shareLinkSlug}`;
+                    return;
+                  }
+                  setSelectedPkgId(e.target.value);
+                }}
                 className={`h-9 md:h-10 px-3 rounded-lg text-sm font-medium border cursor-pointer transition-colors ${
                   isDark
                     ? 'bg-white/10 text-white border-white/20 hover:bg-white/20'
@@ -707,7 +720,7 @@ export default function DashboardLayout({
               >
                 {packages.map((p) => (
                   <option key={p.id} value={p.id} className="text-black bg-white">
-                    {p.team} — {p.section}
+                    {p.team} — {p.section}{p._role === 'claimer' && p.holderName ? ` (via ${p.holderName})` : ''}
                   </option>
                 ))}
               </select>

@@ -30,29 +30,7 @@ function LoginForm() {
     // If there's an explicit redirect target, use it
     if (from) { router.push(from.startsWith('/') ? from : `/share/${from}`); return; }
 
-    // Determine where to send the user based on role
-    try {
-      const userRes = await fetch('/api/users/me');
-      if (userRes.ok) {
-        const userData = await userRes.json();
-        if (!userData.isHolder && userData.isClaimer) {
-          // Claimer → redirect to their first share page
-          const pkgRes = await fetch('/api/me/packages');
-          if (pkgRes.ok) {
-            const pkgData = await pkgRes.json();
-            if (pkgData.packages?.length > 0) {
-              router.push(`/share/${pkgData.packages[0].shareLinkSlug}`);
-              return;
-            }
-          }
-          // Claimer with no packages → profile
-          router.push('/dashboard/profile');
-          return;
-        }
-      }
-    } catch {
-      // Fall through to default dashboard redirect
-    }
+    // Send all users to dashboard — it handles role-based routing
     router.push('/dashboard');
   }
 
