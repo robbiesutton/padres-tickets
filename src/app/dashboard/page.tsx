@@ -154,9 +154,21 @@ function getShortName(opponent: string): string {
 
 // ─── Status Picker (shared for single + batch) ────────
 
-// Known people colors for avatars
-const AVATAR_COLORS = ['#5B8C6B', '#7B68AE', '#C47A3B', '#4A7FB5', '#8B7355', '#B85450', '#5B7BA5', '#8B6B4A'];
-function getAvatarColor(name: string) { let h = 0; for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h); return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length]; }
+// Avatar colors — sourced from team palette, ordered so no two adjacent are similar
+const AVATAR_COLORS = [
+  '#005A9C', // Dodgers blue
+  '#EB6E1F', // Astros orange
+  '#33006F', // Rockies purple
+  '#C41E3A', // Cardinals red
+  '#003831', // Athletics green
+  '#FFC425', // Padres gold
+  '#A71930', // Diamondbacks crimson
+  '#134A8E', // Blue Jays blue
+  '#FD5A1E', // Giants orange
+  '#002B5C', // Twins navy
+  '#BD9B60', // Royals gold
+  '#CE1141', // Braves red
+];
 
 function StatusPicker({
   title,
@@ -239,9 +251,6 @@ function StatusPicker({
           </button>
         ))}
 
-        {/* Divider */}
-        <div className="h-px bg-[#F0EDEA]" />
-
         {/* Assign to someone */}
         <button
           onClick={() => setView('assign')}
@@ -251,9 +260,6 @@ function StatusPicker({
           Assign to someone
           <span className="ml-auto text-[#8e8985] text-sm">→</span>
         </button>
-
-        {/* Divider */}
-        <div className="h-px bg-[#F0EDEA]" />
 
         {/* Sold + Unavailable */}
         {EDITABLE_STATUSES.filter((s) => s.value === 'SOLD_ELSEWHERE' || s.value === 'UNAVAILABLE').map((s) => (
@@ -295,51 +301,62 @@ function StatusPicker({
       </div>
 
       {/* Search input */}
-      <input
-        ref={assignInputRef}
-        type="text"
-        value={assignQuery}
-        onChange={(e) => setAssignQuery(e.target.value)}
-        placeholder="Search or type a name…"
-        className="w-full h-10 px-3 rounded-lg border-[1.5px] border-[#dcd7d4] bg-[#FAFAF9] text-sm text-[#1B1716] outline-none focus:border-[#2c2a2b] transition-colors mb-2 placeholder:text-[#8e8985]"
-      />
+      <div className="rounded-xl overflow-hidden shadow-[0_0_0_1px_#eceae5] mb-3">
+        <input
+          ref={assignInputRef}
+          type="text"
+          value={assignQuery}
+          onChange={(e) => setAssignQuery(e.target.value)}
+          placeholder="Search or type a name…"
+          className="w-full px-4 py-3.5 border-none bg-white text-sm font-medium text-[#1B1716] outline-none placeholder:text-[#8e8985]"
+        />
+      </div>
 
       {/* Known people */}
-      <div className="max-h-[200px] overflow-y-auto">
-        {!assignQuery && filteredPeople.length > 0 && (
-          <p className="text-[11px] font-semibold uppercase tracking-[0.04em] text-[#8e8985] px-1 pt-2 pb-1">People who&apos;ve used your link</p>
-        )}
-        {filteredPeople.map((name) => (
-          <button
-            key={name}
-            onClick={() => handleAssignPerson(name)}
-            className="w-full flex items-center gap-2.5 px-1 py-2.5 border-none cursor-pointer text-left bg-transparent hover:bg-[#F9F6F0] rounded-lg transition-colors"
-          >
-            <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold text-white shrink-0" style={{ backgroundColor: getAvatarColor(name) }}>
-              {name.charAt(0).toUpperCase()}
-            </div>
-            <span className="text-[15px] font-medium text-[#1B1716]">{name}</span>
-          </button>
-        ))}
-
-        {/* Add new person */}
-        {showAddNew && (
-          <>
-            {filteredPeople.length > 0 && <div className="h-px bg-[#F0EDEA] my-1" />}
+      <div className="max-h-[240px] overflow-y-auto rounded-xl shadow-[0_0_0_1px_#eceae5]">
+        {filteredPeople.map((name) => {
+          const colorIndex = (knownPeople || []).indexOf(name);
+          const color = AVATAR_COLORS[colorIndex >= 0 ? colorIndex % AVATAR_COLORS.length : 0];
+          return (
             <button
-              onClick={() => handleAssignPerson(assignQuery)}
-              className="w-full flex items-center gap-2.5 px-1 py-2.5 border-none cursor-pointer text-left bg-transparent hover:bg-[#F9F6F0] rounded-lg transition-colors"
+              key={name}
+              onClick={() => handleAssignPerson(name)}
+              className="w-full flex items-center gap-3 px-4 py-3.5 border-none cursor-pointer text-left bg-white hover:bg-[#f5f4f2] transition-colors text-sm font-medium text-[#1B1716]"
             >
-              <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold text-[#8e8985] shrink-0 bg-[#F5F0E8]" style={{ border: '1.5px dashed #DCD7D4' }}>
-                +
+              <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0" style={{ backgroundColor: color }}>
+                {name.charAt(0).toUpperCase()}
               </div>
-              <span className="text-[15px] font-medium text-[#1B1716]">Add &ldquo;{assignQuery}&rdquo;</span>
+              {name}
             </button>
-          </>
-        )}
+          );
+        })}
+
+        {/* Add person — always visible */}
+        <div className="h-px bg-[#F0EDEA]" />
+        {assignQuery && showAddNew ? (
+          <button
+            onClick={() => handleAssignPerson(assignQuery)}
+            className="w-full flex items-center gap-3 px-4 py-3.5 border-none cursor-pointer text-left bg-white hover:bg-[#f5f4f2] transition-colors text-sm font-medium text-[#1B1716]"
+          >
+            <div className="w-8 h-8 rounded-full flex items-center justify-center text-lg font-medium text-[#8e8985] shrink-0 border-2 border-[#8e8985] leading-none">
+              +
+            </div>
+            Add &ldquo;{assignQuery}&rdquo;
+          </button>
+        ) : !assignQuery ? (
+          <button
+            onClick={() => assignInputRef.current?.focus()}
+            className="w-full flex items-center gap-3 px-4 py-3.5 border-none cursor-pointer text-left bg-white hover:bg-[#f5f4f2] transition-colors text-sm font-medium text-[#8e8985]"
+          >
+            <div className="w-8 h-8 rounded-full flex items-center justify-center text-lg font-medium text-[#8e8985] shrink-0 border-2 border-[#8e8985] leading-none">
+              +
+            </div>
+            Add person
+          </button>
+        ) : null}
 
         {filteredPeople.length === 0 && !showAddNew && (
-          <p className="py-3 px-1 text-sm text-[#8e8985]">No matches</p>
+          <p className="px-4 py-3.5 text-sm text-[#8e8985] bg-white">No matches</p>
         )}
       </div>
     </div>
@@ -632,6 +649,10 @@ function SellerGameCard({
   const [mobileEditingPrice, setMobileEditingPrice] = useState(false);
   const [mobilePriceValue, setMobilePriceValue] = useState(game.pricePerTicket ? String(Number(game.pricePerTicket)) : '');
   const [mobileConfirmRemove, setMobileConfirmRemove] = useState(false);
+  const [mobileAssignView, setMobileAssignView] = useState(false);
+  const [mobileAssignQuery, setMobileAssignQuery] = useState('');
+  const [mobileAssignConfirmed, setMobileAssignConfirmed] = useState('');
+  const mobileAssignInputRef = useRef<HTMLInputElement>(null);
   const [flashStatus, setFlashStatus] = useState<string | null>(null);
   const [editingPrice, setEditingPrice] = useState(false);
   const [priceValue, setPriceValue] = useState(game.pricePerTicket ? String(Number(game.pricePerTicket)) : '');
@@ -806,7 +827,7 @@ function SellerGameCard({
 
         {/* Single-edit popover (desktop) */}
         {popoverOpen && (
-          <div ref={popoverRef} className="absolute right-0 top-[calc(100%+6px)] z-50 bg-white rounded-xl shadow-[0_0_0_1px_#eceae5,0_8px_24px_rgba(0,0,0,0.12)] w-[260px] p-3">
+          <div ref={popoverRef} className="absolute right-0 top-[calc(100%+6px)] z-50 bg-white rounded-xl shadow-[0_0_0_1px_#eceae5,0_8px_24px_rgba(0,0,0,0.12)] w-[280px] p-4">
             <StatusPicker
               title="Set status"
               currentStatus={game.status}
@@ -960,29 +981,114 @@ function SellerGameCard({
                       );
                     })()}
 
-                    {/* Status section */}
-                    <p className="text-[11px] font-bold text-[#8e8985] tracking-[0.5px] mb-1">Status</p>
-                    <div className="flex flex-col">
-                      {EDITABLE_STATUSES_WITH_HELP.map((s) => {
-                        const isSelected = game.status === s.value;
-                        return (
-                          <button
-                            key={s.value}
-                            onClick={() => { handleStatusSelect(s.value); }}
-                            className="w-full flex items-center gap-3 px-0 py-4 border-none cursor-pointer text-left bg-transparent border-b border-solid border-[#eceae5]"
-                            style={{ borderBottomWidth: '1px', borderBottomColor: '#eceae5' }}
-                          >
-                            <span className="w-[7px] h-[7px] rounded-full shrink-0" style={{ backgroundColor: s.dot }} />
-                            <span className={`text-sm flex-1 ${isSelected ? 'font-semibold' : 'font-medium'} text-[#2c2a2b]`}>{s.label}</span>
-                            {isSelected && (
-                              <svg className="shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none">
-                                <path d="M5 13l4 4L19 7" stroke="#2c2a2b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                              </svg>
-                            )}
+                    {/* Status section / Assign picker — transitions in place */}
+                    {mobileAssignConfirmed ? (
+                      <div className="flex flex-col items-center justify-center py-8 gap-3">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                          <path d="M5 13l4 4L19 7" stroke="#2d6a4f" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                        <span className="text-base font-semibold text-[#2d6a4f]">Assigned to {mobileAssignConfirmed}</span>
+                      </div>
+                    ) : mobileAssignView ? (
+                      <div>
+                        <div className="flex items-center justify-between mb-3">
+                          <button onClick={() => { setMobileAssignView(false); setMobileAssignQuery(''); }} className="w-8 h-8 flex items-center justify-center bg-transparent border-none cursor-pointer text-[#8e8985]">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5" /><path d="M12 19l-7-7 7-7" /></svg>
                           </button>
-                        );
-                      })}
-                    </div>
+                          <p className="text-base font-bold text-[#2c2a2b]">Assign to</p>
+                          <div className="w-8" />
+                        </div>
+                        <input
+                          ref={mobileAssignInputRef}
+                          type="text"
+                          value={mobileAssignQuery}
+                          onChange={(e) => setMobileAssignQuery(e.target.value)}
+                          placeholder="Search or type a name…"
+                          className="w-full px-4 py-3.5 rounded-xl border-[1.5px] border-[#eceae5] bg-white text-sm font-medium text-[#1B1716] outline-none focus:border-[#2c2a2b] transition-colors mb-3 placeholder:text-[#8e8985]"
+                          autoFocus
+                        />
+                        <div className="flex flex-col">
+                          {(() => {
+                            const mFiltered = (knownPeople || []).filter((p) =>
+                              !mobileAssignQuery || p.toLowerCase().includes(mobileAssignQuery.toLowerCase())
+                            );
+                            const mShowAddNew = mobileAssignQuery.length > 0 && !(knownPeople || []).some((p) => p.toLowerCase() === mobileAssignQuery.toLowerCase());
+                            function mHandleAssign(name: string) {
+                              onAssign?.(game.id, name);
+                              setMobileAssignConfirmed(name.split(' ')[0]);
+                              setTimeout(() => { setMobileDrawerOpen(false); setMobileAssignView(false); setMobileAssignQuery(''); setMobileAssignConfirmed(''); setFlashStatus('CLAIMED'); setTimeout(() => setFlashStatus(null), 1500); }, 1500);
+                            }
+                            return (
+                              <>
+                                {mFiltered.map((name) => {
+                                  const colorIndex = (knownPeople || []).indexOf(name);
+                                  const color = AVATAR_COLORS[colorIndex >= 0 ? colorIndex % AVATAR_COLORS.length : 0];
+                                  return (
+                                    <button
+                                      key={name}
+                                      onClick={() => mHandleAssign(name)}
+                                      className="w-full flex items-center gap-3 px-0 py-3.5 border-none cursor-pointer text-left bg-transparent border-b border-solid border-[#eceae5]"
+                                      style={{ borderBottomWidth: '1px', borderBottomColor: '#eceae5' }}
+                                    >
+                                      <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold text-white shrink-0" style={{ backgroundColor: color }}>
+                                        {name.charAt(0).toUpperCase()}
+                                      </div>
+                                      <span className="text-sm font-medium text-[#1B1716]">{name}</span>
+                                    </button>
+                                  );
+                                })}
+                                {/* Add person */}
+                                <button
+                                  onClick={() => mobileAssignQuery && mShowAddNew ? mHandleAssign(mobileAssignQuery) : mobileAssignInputRef.current?.focus()}
+                                  className="w-full flex items-center gap-3 px-0 py-3.5 border-none cursor-pointer text-left bg-transparent"
+                                >
+                                  <div className="w-9 h-9 rounded-full flex items-center justify-center text-lg font-medium text-[#8e8985] shrink-0 border-2 border-[#8e8985] leading-none">
+                                    +
+                                  </div>
+                                  <span className="text-sm font-medium text-[#8e8985]">
+                                    {mobileAssignQuery && mShowAddNew ? <>Add &ldquo;{mobileAssignQuery}&rdquo;</> : 'Add person'}
+                                  </span>
+                                </button>
+                              </>
+                            );
+                          })()}
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <p className="text-[11px] font-bold text-[#8e8985] tracking-[0.5px] mb-1">Status</p>
+                        <div className="flex flex-col">
+                          {EDITABLE_STATUSES_WITH_HELP.map((s) => {
+                            const isSelected = game.status === s.value;
+                            return (
+                              <button
+                                key={s.value}
+                                onClick={() => { handleStatusSelect(s.value); }}
+                                className="w-full flex items-center gap-3 px-0 py-4 border-none cursor-pointer text-left bg-transparent border-b border-solid border-[#eceae5]"
+                                style={{ borderBottomWidth: '1px', borderBottomColor: '#eceae5' }}
+                              >
+                                <span className="w-[7px] h-[7px] rounded-full shrink-0" style={{ backgroundColor: s.dot }} />
+                                <span className={`text-sm flex-1 ${isSelected ? 'font-semibold' : 'font-medium'} text-[#2c2a2b]`}>{s.label}</span>
+                                {isSelected && (
+                                  <svg className="shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                                    <path d="M5 13l4 4L19 7" stroke="#2c2a2b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                                  </svg>
+                                )}
+                              </button>
+                            );
+                          })}
+                          {/* Assign to someone */}
+                          <button
+                            onClick={() => setMobileAssignView(true)}
+                            className="w-full flex items-center gap-3 px-0 py-4 border-none cursor-pointer text-left bg-transparent"
+                          >
+                            <span className="w-[7px] h-[7px] rounded-full shrink-0 bg-[#2d6a4f]" />
+                            <span className="text-sm font-medium text-[#2c2a2b] flex-1">Assign to someone</span>
+                            <span className="text-sm text-[#8e8985]">→</span>
+                          </button>
+                        </div>
+                      </>
+                    )}
 
                     {/* Actions */}
                     <div>
