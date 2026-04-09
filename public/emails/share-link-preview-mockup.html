@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Share Link Preview Mockup — BenchBuddy</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F5F4F2; padding: 40px 20px; }
+  h1 { font-size: 22px; font-weight: 700; color: #1B1716; margin-bottom: 8px; }
+  h2 { font-size: 16px; font-weight: 700; color: #1B1716; margin: 40px 0 16px; }
+  .subtitle { font-size: 14px; color: #8E8985; margin-bottom: 32px; }
+  .section { max-width: 500px; margin: 0 auto 48px; }
+
+  /* iMessage bubble */
+  .imessage { background: #fff; border-radius: 20px; padding: 24px; max-width: 380px; margin: 0 auto; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+  .bubble { background: #34C759; color: #fff; font-size: 15px; padding: 10px 14px; border-radius: 18px 18px 4px 18px; margin-bottom: 10px; max-width: 260px; margin-left: auto; line-height: 1.4; }
+  .link-bubble { background: #E5E5EA; color: #1B1716; font-size: 14px; padding: 8px 14px; border-radius: 18px 18px 18px 4px; margin-bottom: 10px; max-width: 300px; line-height: 1.4; word-break: break-all; }
+  .link-card { border-radius: 14px; overflow: hidden; border: 1px solid #E5E5EA; max-width: 300px; background: #fff; }
+  .link-card img { width: 100%; height: 157px; object-fit: cover; display: block; }
+  .link-card-body { padding: 10px 12px; }
+  .link-card-title { font-size: 16px; font-weight: 700; color: #1B1716; line-height: 1.3; margin-bottom: 3px; }
+  .link-card-url { font-size: 12px; font-weight: 400; color: #8E8985; margin-bottom: 2px; }
+  .link-card-desc { font-size: 13px; font-weight: 400; color: #555; line-height: 1.4; }
+
+  /* Slack */
+  .slack { background: #fff; border-radius: 12px; padding: 20px; max-width: 440px; margin: 0 auto; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+  .slack-msg { display: flex; gap: 10px; margin-bottom: 12px; }
+  .slack-avatar { width: 36px; height: 36px; border-radius: 6px; background: #E5AB00; color: #2C2A2B; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .slack-name { font-size: 14px; font-weight: 700; color: #1B1716; }
+  .slack-time { font-size: 11px; color: #8E8985; margin-left: 6px; }
+  .slack-text { font-size: 14px; color: #1B1716; line-height: 1.5; margin-top: 2px; }
+  .slack-link { color: #1264A3; text-decoration: none; }
+  .slack-preview { margin-left: 46px; border-left: 4px solid #E5AB00; padding-left: 12px; }
+  .slack-preview-title { font-size: 14px; font-weight: 700; color: #1264A3; margin-bottom: 2px; }
+  .slack-preview-desc { font-size: 13px; color: #1B1716; line-height: 1.4; margin-bottom: 6px; }
+  .slack-preview-img { width: 100%; max-width: 360px; height: 190px; object-fit: cover; border-radius: 6px; border: 1px solid #E5E5EA; }
+
+  /* Branded fallback image */
+  .og-image-fallback { width: 100%; height: 157px; background: #2C2A2B; display: flex; align-items: center; justify-content: center; padding: 0 40px; box-sizing: border-box; }
+  .og-image-fallback img { width: 85%; max-width: 280px; height: auto; }
+</style>
+</head>
+<body>
+
+<div style="max-width: 520px; margin: 0 auto;">
+  <h1>Share link preview mockup</h1>
+  <p class="subtitle">How BenchBuddy share links will appear when texted or shared.</p>
+
+  <!-- iMessage — Padres -->
+  <div class="section">
+    <h2>iMessage — Padres holder</h2>
+    <div class="imessage">
+      <div class="bubble">Hey want to go to the Dodgers game Friday?</div>
+
+      <div class="link-card">
+        <div class="og-image-fallback"><img src="/benchbuddy-lockup-white.svg" alt="BenchBuddy" /></div>
+        <div class="link-card-body">
+          <div class="link-card-title">Robbie shared Padres tickets with you</div>
+          <div class="link-card-url">getbenchbuddy.com</div>
+          <div class="link-card-desc">Browse available games and claim the ones you want.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- iMessage — Dodgers -->
+  <div class="section">
+    <h2>iMessage — Dodgers holder</h2>
+    <div class="imessage">
+      <div class="bubble">Check out my season tickets! Pick a game 🎉</div>
+
+      <div class="link-card">
+        <div class="og-image-fallback"><img src="/benchbuddy-lockup-white.svg" alt="BenchBuddy" /></div>
+        <div class="link-card-body">
+          <div class="link-card-title">Mike shared Dodgers tickets with you</div>
+          <div class="link-card-url">getbenchbuddy.com</div>
+          <div class="link-card-desc">Browse available games and claim the ones you want.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slack -->
+  <div class="section">
+    <h2>Slack</h2>
+    <div class="slack">
+      <div class="slack-msg">
+        <div class="slack-avatar">R</div>
+        <div>
+          <div><span class="slack-name">Robbie Sutton</span> <span class="slack-time">2:34 PM</span></div>
+          <div class="slack-text">Here&rsquo;s my share link if you want to claim any Padres games this season <a class="slack-link" href="#">getbenchbuddy.com/share/robbie-padres</a></div>
+        </div>
+      </div>
+      <div class="slack-preview">
+        <div class="slack-preview-title">Robbie shared Padres tickets with you</div>
+        <div class="slack-preview-desc">Browse available games and claim the ones you want.</div>
+        <div class="og-image-fallback" style="max-width:360px;height:190px;border-radius:6px;border:1px solid #E5E5EA;"><img src="/benchbuddy-lockup-white.svg" alt="BenchBuddy" /></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
