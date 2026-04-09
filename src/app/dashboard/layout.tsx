@@ -700,31 +700,6 @@ export default function DashboardLayout({
           </div>
 
           <div className="flex items-center gap-2 md:gap-3">
-            {/* Package switcher (if multiple) */}
-            {packages.length > 1 && (
-              <select
-                value={selectedPkgId || ''}
-                onChange={(e) => {
-                  const pkg = packages.find((p) => p.id === e.target.value);
-                  if (pkg?._role === 'claimer') {
-                    window.location.href = `/share/${pkg.shareLinkSlug}`;
-                    return;
-                  }
-                  setSelectedPkgId(e.target.value);
-                }}
-                className={`h-9 md:h-10 px-3 rounded-lg text-sm font-medium border cursor-pointer transition-colors ${
-                  isDark
-                    ? 'bg-white/10 text-white border-white/20 hover:bg-white/20'
-                    : 'bg-[#f5f4f2] text-black border-[#eceae5] hover:bg-[#eceae5]'
-                }`}
-              >
-                {packages.map((p) => (
-                  <option key={p.id} value={p.id} className="text-black bg-white">
-                    {p.team} — {p.section}{p._role === 'claimer' && p.holderName ? ` (via ${p.holderName})` : ''}
-                  </option>
-                ))}
-              </select>
-            )}
 
             {/* Account avatar */}
             <Link
