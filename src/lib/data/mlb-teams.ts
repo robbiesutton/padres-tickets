@@ -6,6 +6,7 @@ export interface MlbTeam {
   venue: string;
   league: 'AL' | 'NL';
   division: 'East' | 'Central' | 'West';
+  timezone: string;
 }
 
 export const MLB_TEAMS: MlbTeam[] = [
@@ -18,6 +19,7 @@ export const MLB_TEAMS: MlbTeam[] = [
     venue: 'Oriole Park at Camden Yards',
     league: 'AL',
     division: 'East',
+    timezone: 'America/New_York',
   },
   {
     id: 111,
@@ -27,6 +29,7 @@ export const MLB_TEAMS: MlbTeam[] = [
     venue: 'Fenway Park',
     league: 'AL',
     division: 'East',
+    timezone: 'America/New_York',
   },
   {
     id: 147,
@@ -36,6 +39,7 @@ export const MLB_TEAMS: MlbTeam[] = [
     venue: 'Yankee Stadium',
     league: 'AL',
     division: 'East',
+    timezone: 'America/New_York',
   },
   {
     id: 139,
@@ -45,6 +49,7 @@ export const MLB_TEAMS: MlbTeam[] = [
     venue: 'Tropicana Field',
     league: 'AL',
     division: 'East',
+    timezone: 'America/New_York',
   },
   {
     id: 141,
@@ -54,6 +59,7 @@ export const MLB_TEAMS: MlbTeam[] = [
     venue: 'Rogers Centre',
     league: 'AL',
     division: 'East',
+    timezone: 'America/New_York',
   },
   // AL Central
   {
@@ -64,6 +70,7 @@ export const MLB_TEAMS: MlbTeam[] = [
     venue: 'Guaranteed Rate Field',
     league: 'AL',
     division: 'Central',
+    timezone: 'America/Chicago',
   },
   {
     id: 114,
@@ -73,6 +80,7 @@ export const MLB_TEAMS: MlbTeam[] = [
     venue: 'Progressive Field',
     league: 'AL',
     division: 'Central',
+    timezone: 'America/New_York',
   },
   {
     id: 116,
@@ -82,6 +90,7 @@ export const MLB_TEAMS: MlbTeam[] = [
     venue: 'Comerica Park',
     league: 'AL',
     division: 'Central',
+    timezone: 'America/New_York',
   },
   {
     id: 118,
@@ -91,6 +100,7 @@ export const MLB_TEAMS: MlbTeam[] = [
     venue: 'Kauffman Stadium',
     league: 'AL',
     division: 'Central',
+    timezone: 'America/Chicago',
   },
   {
     id: 142,
@@ -100,6 +110,7 @@ export const MLB_TEAMS: MlbTeam[] = [
     venue: 'Target Field',
     league: 'AL',
     division: 'Central',
+    timezone: 'America/Chicago',
   },
   // AL West
   {
@@ -110,6 +121,7 @@ export const MLB_TEAMS: MlbTeam[] = [
     venue: 'Minute Maid Park',
     league: 'AL',
     division: 'West',
+    timezone: 'America/Chicago',
   },
   {
     id: 108,
@@ -119,6 +131,7 @@ export const MLB_TEAMS: MlbTeam[] = [
     venue: 'Angel Stadium',
     league: 'AL',
     division: 'West',
+    timezone: 'America/Los_Angeles',
   },
   {
     id: 133,
@@ -128,6 +141,7 @@ export const MLB_TEAMS: MlbTeam[] = [
     venue: 'Sutter Health Park',
     league: 'AL',
     division: 'West',
+    timezone: 'America/Los_Angeles',
   },
   {
     id: 136,
@@ -137,6 +151,7 @@ export const MLB_TEAMS: MlbTeam[] = [
     venue: 'T-Mobile Park',
     league: 'AL',
     division: 'West',
+    timezone: 'America/Los_Angeles',
   },
   {
     id: 140,
@@ -146,6 +161,7 @@ export const MLB_TEAMS: MlbTeam[] = [
     venue: 'Globe Life Field',
     league: 'AL',
     division: 'West',
+    timezone: 'America/Chicago',
   },
   // NL East
   {
@@ -156,6 +172,7 @@ export const MLB_TEAMS: MlbTeam[] = [
     venue: 'Truist Park',
     league: 'NL',
     division: 'East',
+    timezone: 'America/New_York',
   },
   {
     id: 146,
@@ -165,6 +182,7 @@ export const MLB_TEAMS: MlbTeam[] = [
     venue: 'LoanDepot Park',
     league: 'NL',
     division: 'East',
+    timezone: 'America/New_York',
   },
   {
     id: 121,
@@ -174,6 +192,7 @@ export const MLB_TEAMS: MlbTeam[] = [
     venue: 'Citi Field',
     league: 'NL',
     division: 'East',
+    timezone: 'America/New_York',
   },
   {
     id: 143,
@@ -183,6 +202,7 @@ export const MLB_TEAMS: MlbTeam[] = [
     venue: 'Citizens Bank Park',
     league: 'NL',
     division: 'East',
+    timezone: 'America/New_York',
   },
   {
     id: 120,
@@ -192,6 +212,7 @@ export const MLB_TEAMS: MlbTeam[] = [
     venue: 'Nationals Park',
     league: 'NL',
     division: 'East',
+    timezone: 'America/New_York',
   },
   // NL Central
   {
@@ -202,6 +223,7 @@ export const MLB_TEAMS: MlbTeam[] = [
     venue: 'Wrigley Field',
     league: 'NL',
     division: 'Central',
+    timezone: 'America/Chicago',
   },
   {
     id: 113,
@@ -211,6 +233,7 @@ export const MLB_TEAMS: MlbTeam[] = [
     venue: 'Great American Ball Park',
     league: 'NL',
     division: 'Central',
+    timezone: 'America/New_York',
   },
   {
     id: 158,
@@ -220,6 +243,7 @@ export const MLB_TEAMS: MlbTeam[] = [
     venue: 'American Family Field',
     league: 'NL',
     division: 'Central',
+    timezone: 'America/Chicago',
   },
   {
     id: 134,
@@ -229,6 +253,7 @@ export const MLB_TEAMS: MlbTeam[] = [
     venue: 'PNC Park',
     league: 'NL',
     division: 'Central',
+    timezone: 'America/New_York',
   },
   {
     id: 138,
@@ -238,6 +263,7 @@ export const MLB_TEAMS: MlbTeam[] = [
     venue: 'Busch Stadium',
     league: 'NL',
     division: 'Central',
+    timezone: 'America/Chicago',
   },
   // NL West
   {
@@ -248,6 +274,7 @@ export const MLB_TEAMS: MlbTeam[] = [
     venue: 'Chase Field',
     league: 'NL',
     division: 'West',
+    timezone: 'America/Phoenix',
   },
   {
     id: 115,
@@ -257,6 +284,7 @@ export const MLB_TEAMS: MlbTeam[] = [
     venue: 'Coors Field',
     league: 'NL',
     division: 'West',
+    timezone: 'America/Denver',
   },
   {
     id: 119,
@@ -266,6 +294,7 @@ export const MLB_TEAMS: MlbTeam[] = [
     venue: 'Dodger Stadium',
     league: 'NL',
     division: 'West',
+    timezone: 'America/Los_Angeles',
   },
   {
     id: 135,
@@ -275,6 +304,7 @@ export const MLB_TEAMS: MlbTeam[] = [
     venue: 'Petco Park',
     league: 'NL',
     division: 'West',
+    timezone: 'America/Los_Angeles',
   },
   {
     id: 137,
@@ -284,6 +314,7 @@ export const MLB_TEAMS: MlbTeam[] = [
     venue: 'Oracle Park',
     league: 'NL',
     division: 'West',
+    timezone: 'America/Los_Angeles',
   },
 ];
 
