@@ -34,6 +34,21 @@ export default function Home() {
     return () => observers.forEach((o) => o.disconnect());
   }, []);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const hamburgerRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    function handleClick(e: MouseEvent) {
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(e.target as Node) &&
+          hamburgerRef.current && !hamburgerRef.current.contains(e.target as Node)) {
+        setMobileMenuOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [mobileMenuOpen]);
+
   const [linkError, setLinkError] = useState('');
   const [validating, setValidating] = useState(false);
   async function handleGoToLink() {
@@ -141,6 +156,7 @@ export default function Home() {
 
         {/* Mobile hamburger */}
         <button
+          ref={hamburgerRef}
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           className="md:hidden w-10 h-10 flex items-center justify-center bg-transparent border-none cursor-pointer"
         >
@@ -158,7 +174,7 @@ export default function Home() {
 
       {/* Mobile menu dropdown */}
       {mobileMenuOpen && (
-        <div className="md:hidden px-6 pb-4 flex flex-col gap-3 bg-[#1B1716]">
+        <div ref={mobileMenuRef} className="md:hidden px-6 pb-4 flex flex-col gap-3 bg-[#1B1716]">
           <a
             href="/login"
             className="h-11 flex items-center justify-center rounded-lg text-sm font-medium text-white/70 hover:text-white transition-colors"
@@ -226,7 +242,7 @@ export default function Home() {
 
             {/* Subtitle */}
             <p className="-mt-0 max-w-lg text-base md:text-lg text-white/50 leading-relaxed">
-              Share a link with the people in your life and let them claim the games they want — no wasted tickets, no crazy fees.
+              Share a link and let them claim the games they want — no wasted tickets, no crazy fees.
             </p>
 
             {/* CTA */}

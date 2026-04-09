@@ -152,6 +152,114 @@ function initPrices() {
   return pr;
 }
 
+// ─── Seat Multi-Select ───────────────────────────────────
+
+function SeatMultiSelect({ selectedSeats, onToggle }: { selectedSeats: Set<number>; onToggle: (num: number) => void }) {
+  const [search, setSearch] = useState('');
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const allSeats = Array.from({ length: 40 }, (_, i) => i + 1);
+  const sorted = [...selectedSeats].sort((a, b) => a - b);
+
+  // Only show dropdown when there's a query, filter out already-selected seats
+  const available = allSeats.filter((s) => !selectedSeats.has(s));
+  const filtered = search ? available.filter((s) => String(s).includes(search)).slice(0, 8) : [];
+
+  useEffect(() => {
+    if (!dropdownOpen) return;
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setDropdownOpen(false);
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [dropdownOpen]);
+
+  function selectSeat(num: number) {
+    onToggle(num);
+    setSearch('');
+    setTimeout(() => inputRef.current?.focus(), 0);
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.key === 'Enter' && filtered.length > 0) {
+      e.preventDefault();
+      selectSeat(filtered[0]);
+    }
+    if (e.key === 'Backspace' && search === '' && sorted.length > 0) {
+      onToggle(sorted[sorted.length - 1]);
+    }
+  }
+
+  return (
+    <div ref={ref}>
+      <FormLabel>Your seats</FormLabel>
+
+      {/* Input container with chips */}
+      <div
+        className={`min-h-[48px] px-3 py-2 rounded-lg border-[1.5px] bg-white cursor-text flex flex-wrap items-center gap-1.5 transition-all ${
+          dropdownOpen ? 'border-[#2c2a2b] ring-[3px] ring-[#2c2a2b]/10' : 'border-[#eceae5] hover:border-[#b5b1ab]'
+        }`}
+        onClick={() => { setDropdownOpen(true); setTimeout(() => inputRef.current?.focus(), 0); }}
+      >
+        {sorted.map((num) => (
+          <span
+            key={num}
+            className="inline-flex items-center gap-1 py-1 pl-[10px] pr-2 rounded-[6px] bg-[#F5F0E8] border border-[#E5D9C3] text-sm font-medium text-[#1B1716]"
+          >
+            {num}
+            <button
+              onClick={(e) => { e.stopPropagation(); onToggle(num); }}
+              className="bg-transparent border-none text-[#999] hover:text-[#1B1716] cursor-pointer p-0 text-[13px] font-semibold leading-none ml-0.5"
+            >
+              ✕
+            </button>
+          </span>
+        ))}
+        <input
+          ref={inputRef}
+          type="text"
+          inputMode="numeric"
+          value={search}
+          onChange={(e) => { setSearch(e.target.value.replace(/[^0-9]/g, '')); setDropdownOpen(true); }}
+          onFocus={() => setDropdownOpen(true)}
+          onKeyDown={handleKeyDown}
+          placeholder={selectedSeats.size === 0 ? 'Type a seat number\u2026' : ''}
+          className="flex-1 min-w-[120px] bg-transparent border-none outline-none text-[15px] font-semibold text-[#1a1a1a] placeholder:text-[#8e8985] placeholder:font-medium py-0.5"
+        />
+      </div>
+
+      {/* Dropdown — only when query is non-empty */}
+      {dropdownOpen && search.length > 0 && (
+        <div className="mt-1 rounded-lg border border-[#eceae5] bg-white shadow-[0_4px_16px_rgba(0,0,0,0.10)] max-h-[180px] overflow-y-auto">
+          {filtered.length === 0 ? (
+            <div className="px-3.5 py-3 text-sm text-[#8e8985]">No matching seats</div>
+          ) : (
+            filtered.map((num, i) => (
+              <button
+                key={num}
+                onClick={() => selectSeat(num)}
+                className={`w-full px-3.5 py-3 text-left text-sm text-[#1B1716] bg-transparent border-none cursor-pointer hover:bg-[#F9F6F0] transition-colors ${
+                  i < filtered.length - 1 ? 'border-b border-[#F0F0F0]' : ''
+                }`}
+              >
+                Seat {num}
+              </button>
+            ))
+          )}
+        </div>
+      )}
+
+      {/* Helper text */}
+      {selectedSeats.size > 0 && (
+        <p className="mt-1.5 text-xs text-[#999]">
+          {selectedSeats.size} seat{selectedSeats.size !== 1 ? 's' : ''} selected
+        </p>
+      )}
+    </div>
+  );
+}
+
 // ─── Wizard Game Card ──────────────────────────────────
 
 function WizardGameCard({
@@ -842,25 +950,8 @@ export default function NewPackagePage() {
             </div>
           </div>
 
-          {/* Seat chips */}
-          <div className="mb-5">
-            <FormLabel>Which seats are yours?</FormLabel>
-            <div className="grid grid-cols-5 md:grid-cols-12 gap-2">
-              {Array.from({ length: 12 }, (_, i) => i + 1).map((num) => (
-                <button
-                  key={num}
-                  onClick={() => toggleSeat(num)}
-                  className={`h-11 rounded-lg text-sm font-bold border-[1.5px] cursor-pointer transition-all ${
-                    selectedSeats.has(num)
-                      ? 'bg-[#2c2a2b] border-[#2c2a2b] text-white'
-                      : 'bg-white border-[#eceae5] text-[#1a1a1a] hover:border-[#b5b1ab]'
-                  }`}
-                >
-                  {num}
-                </button>
-              ))}
-            </div>
-          </div>
+          {/* Seat multi-select */}
+          <SeatMultiSelect selectedSeats={selectedSeats} onToggle={toggleSeat} />
 
           <StepActions>
             <PrimaryButton onClick={() => goToStep(3)} disabled={!selectedSection || !row || selectedSeats.size === 0}>
