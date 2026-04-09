@@ -110,14 +110,6 @@ export function Toolbar({
           </svg>
           Filters
         </button>
-        {hasActiveFilters && (
-          <button
-            onClick={() => { onOpponentFilterChange([]); onMonthFilterChange([]); }}
-            className="text-sm font-medium text-[#8e8985] bg-transparent border-none cursor-pointer ml-auto"
-          >
-            Clear all
-          </button>
-        )}
       </div>
 
       {/* ── Mobile: Filter bottom sheet ── */}
@@ -132,14 +124,14 @@ export function Toolbar({
               <h3 className="text-lg font-semibold text-[#2c2a2b] mb-6">Filters</h3>
               <div className="flex flex-col gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-[#8e8985] uppercase tracking-wider mb-2 pl-1">Opponent</label>
+                  <label className="block text-xs font-semibold text-[#8e8985] mb-2 pl-1">Opponent</label>
                   <select className={sheetSelectClass} value={opponentFilter[0] || ''} onChange={(e) => onOpponentFilterChange(e.target.value ? [e.target.value] : [])}>
                     <option value="">All opponents</option>
                     {opponents.map((o) => <option key={o} value={o}>{o}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-[#8e8985] uppercase tracking-wider mb-2 pl-1">Month</label>
+                  <label className="block text-xs font-semibold text-[#8e8985] mb-2 pl-1">Month</label>
                   <select className={sheetSelectClass} value={monthFilter[0] || ''} onChange={(e) => onMonthFilterChange(e.target.value ? [e.target.value] : [])}>
                     <option value="">All months</option>
                     {months.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
@@ -151,14 +143,14 @@ export function Toolbar({
                 className="w-full h-12 mt-6 rounded-lg text-base font-semibold text-white cursor-pointer border-none transition-opacity hover:opacity-90"
                 style={{ backgroundColor: teamPrimary || '#2c2a2b' }}
               >
-                Apply Filters
+                Apply filters
               </button>
               {hasActiveFilters && (
                 <button
                   onClick={() => { onOpponentFilterChange([]); onMonthFilterChange([]); setMobileFiltersOpen(false); }}
                   className="w-full mt-3 text-sm font-medium text-[#8e8985] bg-transparent border-none cursor-pointer py-2"
                 >
-                  Reset all
+                  Clear filters
                 </button>
               )}
             </div>
@@ -285,6 +277,15 @@ export function Toolbar({
             )}
           </div>
         </div>
+        {hasActiveFilters && (
+          <button
+            onClick={() => { onOpponentFilterChange([]); onMonthFilterChange([]); }}
+            className="flex items-center gap-1.5 text-sm font-medium text-[#8e8985] hover:text-[#2c2a2b] bg-transparent border-none cursor-pointer transition-colors whitespace-nowrap"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18" /><path d="M6 6l12 12" /></svg>
+            Clear filters
+          </button>
+        )}
       </div>
     </>
   );

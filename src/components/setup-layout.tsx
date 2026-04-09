@@ -201,7 +201,7 @@ export function InlineNote({ children }: { children: React.ReactNode }) {
 
 export function FormLabel({ children }: { children: React.ReactNode }) {
   return (
-    <label className="block text-xs font-medium text-[#8e8985] uppercase tracking-[0.5px] mb-2">
+    <label className="block text-xs font-medium text-[#8e8985] mb-2">
       {children}
     </label>
   );

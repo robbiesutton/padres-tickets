@@ -129,7 +129,7 @@ export default function SharePage({
           target="_blank"
           className="block text-center text-sm text-brand-600 hover:underline"
         >
-          Preview what your friends will see
+          Preview what people will see
         </a>
       </div>
     </div>

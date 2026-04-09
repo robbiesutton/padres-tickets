@@ -46,7 +46,7 @@ function JoinForm() {
       <div className="flex flex-col flex-1 md:justify-center max-w-[380px] mx-auto w-full pt-12 md:pt-0">
         <div className="text-center">
           <StepHeadline>{holderName} shared tickets with you.</StepHeadline>
-          <StepSubhead>Create a free account to browse games and reserve the ones you want.</StepSubhead>
+          <StepSubhead>Create a free account to browse games and claim the ones you want.</StepSubhead>
         </div>
 
         {error && (

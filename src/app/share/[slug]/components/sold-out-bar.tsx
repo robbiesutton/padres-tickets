@@ -5,7 +5,7 @@ interface Props {
 }
 
 export function SoldOutBar({
-  message = 'All games in these months have been reserved by others. Use the arrows to check other months.',
+  message = 'All games in these months have been claimed. Use the arrows to check other months.',
 }: Props) {
   return (
     <div className="mb-4 px-4 py-2 rounded-lg bg-[rgba(255,194,11,0.16)] border border-[#ffb611] flex items-center gap-1">

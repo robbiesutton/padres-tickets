@@ -351,7 +351,7 @@ export default function ProfilePage() {
             </select>
           )}
         </div>
-        <p className="text-sm text-[#3d3a38] mb-6">This info is shown to claimers on your share page.</p>
+        <p className="text-sm text-[#3d3a38] mb-6">This info is shown to anyone who opens your share link.</p>
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-[#2c2a2b] mb-2">Seat Photo</label>
@@ -386,7 +386,7 @@ export default function ProfilePage() {
           </div>
           <div>
             <label className="block text-sm font-medium text-[#2c2a2b] mb-2">Description</label>
-            <textarea value={seatForm.description} onChange={(e) => setSeatForm((prev) => ({ ...prev, description: e.target.value }))} placeholder="Tell claimers about your seats..." rows={3} className={`${inputClass} resize-none`} />
+            <textarea value={seatForm.description} onChange={(e) => setSeatForm((prev) => ({ ...prev, description: e.target.value }))} placeholder="Describe your seats..." rows={3} className={`${inputClass} resize-none`} />
           </div>
           <div>
             <label className="block text-sm font-medium text-[#2c2a2b] mb-2">Perks</label>
@@ -405,7 +405,7 @@ export default function ProfilePage() {
             </div>
           </div>
           <button type="button" onClick={handleSaveSeatInfo} disabled={savingSeat} className="w-full md:w-auto h-12 md:h-10 px-5 rounded-lg bg-[#2c2a2b] text-sm font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors disabled:opacity-50">
-            {savingSeat ? 'Saving...' : 'Save Seat Info'}
+            {savingSeat ? 'Saving...' : 'Save seat info'}
           </button>
         </div>
       </>
@@ -467,7 +467,7 @@ export default function ProfilePage() {
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-bold text-[#2c2a2b]">BenchBuddy Season Pass</h3>
-              <span className="rounded-full bg-[#fdf6e3] px-3 py-1 text-xs font-bold text-[#d4a017] uppercase tracking-wide">Free for Early Adopters</span>
+              <span className="rounded-full bg-[#fdf6e3] px-3 py-1 text-xs font-bold text-[#d4a017]">Free for early adopters</span>
             </div>
 
             {/* Price */}
@@ -482,9 +482,9 @@ export default function ProfilePage() {
             {/* Benefits */}
             <div className="flex flex-col gap-3 mb-8">
               {[
-                'Share games with unlimited friends',
-                'Track claims, revenue, and status in one place',
-                'Cancel anytime — no commitment',
+                'Share your season with anyone — no limit',
+                'Track claims, payments, and status in one place',
+                'Cancel anytime',
               ].map((benefit) => (
                 <div key={benefit} className="flex items-start gap-3">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="shrink-0 mt-0.5">
@@ -502,7 +502,7 @@ export default function ProfilePage() {
 
             {/* Fine print */}
             <p className="text-xs text-[#8e8985] text-center mt-4">
-              Cancel anytime. You won&apos;t be charged until your free month ends.
+              Cancel anytime. You won&apos;t be charged until your free year ends.
             </p>
           </div>
         )}
