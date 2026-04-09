@@ -50,6 +50,11 @@ const ALL_NAV_ITEMS = [
       <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
     </svg>
   )},
+  { id: 'shared-tickets', label: 'Tickets shared with me', holder: true, claimer: false, icon: (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 00-3-3.87" /><path d="M16 3.13a4 4 0 010 7.75" />
+    </svg>
+  )},
 ];
 
 const inputClass = "block w-full px-3 py-2.5 rounded-lg border border-[#eceae5] bg-white text-sm outline-none focus:border-[#2c2a2b] transition-colors";
@@ -276,9 +281,15 @@ export default function ProfilePage() {
     // Fallback: detect via referrer if no query param
     if (!fromShare && typeof document !== 'undefined' && document.referrer.includes('/share/')) setCameFromShare(true);
   }, [fromShare]);
-  // If user navigated from share page, show claimer view even if they're a holder
-  const showAsHolder = isHolderRole && !cameFromShare;
-  const NAV_ITEMS = ALL_NAV_ITEMS.filter((item) => showAsHolder ? item.holder : item.claimer);
+  // Holders always see the holder profile view, regardless of where they came from
+  const showAsHolder = !!isHolderRole;
+  const claimerPackages = packages.filter((p) => p._role === 'claimer');
+  const NAV_ITEMS = ALL_NAV_ITEMS.filter((item) => {
+    if (showAsHolder && !item.holder) return false;
+    if (!showAsHolder && !item.claimer) return false;
+    if (item.id === 'shared-tickets' && claimerPackages.length === 0) return false;
+    return true;
+  });
 
 
   if (loading) return <ProfileSkeleton />;
@@ -511,19 +522,50 @@ export default function ProfilePage() {
   }
 
 
+  function renderSharedTickets() {
+    return (
+      <>
+        <h2 className="text-lg font-medium text-[#2c2a2b] mb-2">Tickets shared with me</h2>
+        <p className="text-sm text-[#3d3a38] mb-6">Packages you&apos;ve been invited to.</p>
+        <div className="flex flex-col gap-2">
+          {claimerPackages.map((pkg) => (
+            <a
+              key={pkg.id}
+              href={`/share/${pkg.shareLinkSlug}`}
+              className="flex items-center gap-3 px-4 py-3 rounded-lg border border-[#eceae5] bg-white hover:border-[#2c2a2b] transition-colors no-underline"
+            >
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium text-[#2c2a2b] truncate">
+                  {pkg.team} — Sec {pkg.section}{pkg.row ? `, Row ${pkg.row}` : ''}
+                </div>
+                {pkg.holderName && (
+                  <div className="text-xs text-[#8e8985] mt-0.5">Shared by {pkg.holderName}</div>
+                )}
+              </div>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8e8985" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </a>
+          ))}
+        </div>
+      </>
+    );
+  }
+
   const sectionRenderers: Record<string, () => React.ReactNode> = {
     profile: renderProfile,
     'seat-info': renderSeatInfo,
     subscription: renderSubscription,
+    'shared-tickets': renderSharedTickets,
   };
 
   return (
     <div className="flex flex-1 bg-[#fefefe]">
       {/* ── Sidebar Nav (desktop) ── */}
       <aside className="hidden md:flex md:flex-col w-[220px] shrink-0 border-r border-[#eceae5] pt-8 pl-8 pr-4 sticky top-[77px] self-start h-[calc(100vh-77px)]">
-        <Link href={cameFromShare && shareSlug ? `/share/${shareSlug}` : '/dashboard'} className="flex items-center gap-1.5 text-sm text-[#8e8985] hover:text-[#2c2a2b] transition-colors mb-6">
+        <Link href={showAsHolder ? '/dashboard' : (shareSlug ? `/share/${shareSlug}` : '/dashboard')} className="flex items-center gap-1.5 text-sm text-[#8e8985] hover:text-[#2c2a2b] transition-colors mb-6">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
-          {cameFromShare ? 'Back to Games' : 'Back to Dashboard'}
+          {showAsHolder ? 'Back to Dashboard' : 'Back to Games'}
         </Link>
         <nav className="flex flex-col gap-1">
           {NAV_ITEMS.map((item) => (
@@ -561,8 +603,8 @@ export default function ProfilePage() {
 
             {/* Nav items */}
             <div className="flex flex-col">
-              {/* Dashboard link — when coming from seller dashboard */}
-              {!cameFromShare && (
+              {/* Dashboard link — for holders; My Games link — for pure claimers */}
+              {showAsHolder ? (
                 <Link
                   href="/dashboard"
                   className="flex items-center gap-3 px-1 py-4 no-underline border-b border-[#eceae5]"
@@ -578,9 +620,7 @@ export default function ProfilePage() {
                     <path d="M9 18l6-6-6-6" />
                   </svg>
                 </Link>
-              )}
-              {/* My Games link — when coming from share/claimer page */}
-              {cameFromShare && (
+              ) : (
                 <button
                   onClick={() => {
                     if (shareSlug) {
@@ -607,8 +647,8 @@ export default function ProfilePage() {
                   <span className="flex-1 text-base font-medium text-[#2c2a2b]">My games</span>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8e8985" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M9 18l6-6-6-6" />
-                </svg>
-              </button>
+                  </svg>
+                </button>
               )}
               {NAV_ITEMS.map((item) => (
                 <button
