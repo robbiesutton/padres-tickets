@@ -692,7 +692,7 @@ function SellerGameCard({
                 isClaimed ? 'text-[#ccc] cursor-not-allowed' : 'text-[#dc2626] cursor-pointer hover:bg-[#f7f5f2]'
               }`}
             >
-              Remove Game
+              Remove game
             </button>
           </div>
         )}
@@ -860,7 +860,7 @@ function SellerGameCard({
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={isClaimed ? '#ccc' : '#dc2626'} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M18 6L6 18" /><path d="M6 6l12 12" />
                         </svg>
-                        <span className={`text-sm font-medium ${isClaimed ? 'text-[#ccc]' : 'text-[#dc2626]'}`}>Remove Game</span>
+                        <span className={`text-sm font-medium ${isClaimed ? 'text-[#ccc]' : 'text-[#dc2626]'}`}>Remove game</span>
                       </button>
                     </div>
                   </>
