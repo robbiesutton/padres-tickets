@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const EMAILS = [
   { id: '1', label: '#1 Holder welcome', file: '/emails/email-1-holder-welcome.html' },
@@ -17,7 +17,19 @@ const EMAILS = [
 export default function EmailPreviewPage() {
   const [selected, setSelected] = useState(EMAILS[0].id);
   const [width, setWidth] = useState<'mobile' | 'desktop'>('desktop');
+  const [html, setHtml] = useState('');
   const email = EMAILS.find((e) => e.id === selected)!;
+
+  useEffect(() => {
+    fetch(email.file)
+      .then((r) => r.text())
+      .then((text) => {
+        // Extract just the body content
+        const match = text.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+        setHtml(match ? match[1] : text);
+      })
+      .catch(() => setHtml('<p style="color:#999;text-align:center;padding:40px;">Failed to load email template</p>'));
+  }, [email.file]);
 
   return (
     <div className="min-h-screen bg-[#1B1716] flex flex-col">
@@ -53,18 +65,9 @@ export default function EmailPreviewPage() {
 
       {/* Preview */}
       <div className="flex-1 flex justify-center py-8 px-4">
-        <iframe
-          key={email.id + width}
-          src={email.file}
-          title={email.label}
-          style={{
-            width: width === 'mobile' ? 320 : 600,
-            height: '100%',
-            minHeight: 700,
-            border: 'none',
-            borderRadius: 4,
-            background: '#F5F4F2',
-          }}
+        <div
+          style={{ width: width === 'mobile' ? 320 : 600 }}
+          dangerouslySetInnerHTML={{ __html: html }}
         />
       </div>
     </div>
