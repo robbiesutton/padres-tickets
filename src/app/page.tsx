@@ -242,7 +242,7 @@ export default function Home() {
 
             {/* Subtitle */}
             <p className="-mt-0 max-w-lg text-base md:text-lg text-white/50 leading-relaxed">
-              Share a link with the people in your life and let them claim the games they want — no wasted tickets, no crazy fees.
+              Share a link and let them claim the games they want — no wasted tickets, no crazy fees.
             </p>
 
             {/* CTA */}
