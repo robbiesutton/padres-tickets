@@ -570,7 +570,7 @@ export default function ProfilePage() {
                       <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" />
                     </svg>
                   </span>
-                  <span className="flex-1 text-base font-medium text-[#2c2a2b]">Dashboard</span>
+                  <span className="flex-1 text-base font-medium text-[#2c2a2b]">My season</span>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8e8985" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M9 18l6-6-6-6" />
                   </svg>

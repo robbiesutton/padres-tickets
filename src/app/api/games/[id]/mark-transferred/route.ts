@@ -75,7 +75,7 @@ export async function GET(
       <h1 style="font-size:48px;margin:0">&#10003;</h1>
       <h2>Tickets Marked as Transferred</h2>
       <p style="color:#666">${game.opponent} tickets transferred to ${claimerName}.</p>
-      <a href="${process.env.NEXTAUTH_URL}/dashboard" style="display:inline-block;margin-top:16px;background:#2563eb;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none">Go to Dashboard</a>
+      <a href="${process.env.NEXTAUTH_URL}/dashboard" style="display:inline-block;margin-top:16px;background:#2563eb;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none">Go to my season</a>
     </body></html>
   `;
 

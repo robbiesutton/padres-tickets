@@ -308,7 +308,7 @@ function StatusPicker({
           value={assignQuery}
           onChange={(e) => setAssignQuery(e.target.value)}
           placeholder="Search or type a name…"
-          className="w-full px-4 py-3.5 border-none bg-white text-sm font-medium text-[#1B1716] outline-none placeholder:text-[#8e8985]"
+          className="w-full px-4 py-3.5 border-none bg-white text-base font-medium text-[#1B1716] outline-none placeholder:text-[#8e8985]"
         />
       </div>
 
@@ -431,7 +431,7 @@ function StatusPicker({
                     value={assignQuery}
                     onChange={(e) => setAssignQuery(e.target.value)}
                     placeholder="Search or type a name…"
-                    className="w-full px-4 py-3.5 rounded-xl border-[1.5px] border-[#eceae5] bg-white text-sm font-medium text-[#1B1716] outline-none focus:border-[#2c2a2b] transition-colors mb-3 placeholder:text-[#8e8985]"
+                    className="w-full px-4 py-3.5 rounded-xl border-[1.5px] border-[#eceae5] bg-white text-base font-medium text-[#1B1716] outline-none focus:border-[#2c2a2b] transition-colors mb-3 placeholder:text-[#8e8985]"
                     autoFocus
                   />
                   <div className="flex flex-col">
@@ -1074,7 +1074,7 @@ function SellerGameCard({
                           value={mobileAssignQuery}
                           onChange={(e) => setMobileAssignQuery(e.target.value)}
                           placeholder="Search or type a name…"
-                          className="w-full px-4 py-3.5 rounded-xl border-[1.5px] border-[#eceae5] bg-white text-sm font-medium text-[#1B1716] outline-none focus:border-[#2c2a2b] transition-colors mb-3 placeholder:text-[#8e8985]"
+                          className="w-full px-4 py-3.5 rounded-xl border-[1.5px] border-[#eceae5] bg-white text-base font-medium text-[#1B1716] outline-none focus:border-[#2c2a2b] transition-colors mb-3 placeholder:text-[#8e8985]"
                           autoFocus
                         />
                         <div className="flex flex-col">
@@ -1669,7 +1669,7 @@ export default function DashboardPage() {
       <div className="max-w-[1024px] mx-auto w-full px-4 pt-4 pb-6 md:px-10 md:pt-8 md:pb-10 overflow-x-hidden flex-1">
         {/* Header */}
         <div className="flex flex-wrap items-center justify-between gap-3 mb-3 md:mb-4">
-          <h1 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>Dashboard</h1>
+          <h1 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>My season</h1>
           <button
             onClick={handleCopyShareLink}
             className="flex items-center gap-1.5 text-base font-medium text-[#2c2a2b] hover:text-[#1a1a1a] transition-colors bg-transparent border-none cursor-pointer"

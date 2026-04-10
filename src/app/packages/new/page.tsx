@@ -225,7 +225,7 @@ function SeatMultiSelect({ selectedSeats, onToggle }: { selectedSeats: Set<numbe
           onFocus={() => setDropdownOpen(true)}
           onKeyDown={handleKeyDown}
           placeholder={selectedSeats.size === 0 ? 'Type a seat number\u2026' : ''}
-          className="flex-1 min-w-[120px] bg-transparent border-none outline-none text-[15px] font-semibold text-[#1a1a1a] placeholder:text-[#8e8985] placeholder:font-medium py-0.5"
+          className="flex-1 min-w-[120px] bg-transparent border-none outline-none text-base font-semibold text-[#1a1a1a] placeholder:text-[#8e8985] placeholder:font-medium py-0.5"
         />
       </div>
 
@@ -681,10 +681,10 @@ export default function NewPackagePage() {
               You&apos;re all set{firstName ? `, ${firstName}` : ''}!
             </h2>
             <p className="text-sm text-[#8e8985] leading-relaxed md:hidden">
-              Head to your dashboard to customize games and prices before sharing.
+              Head to My season to customize games and prices before sharing.
             </p>
             <p className="text-sm text-[#8e8985] leading-relaxed hidden md:block">
-              Here&apos;s what people will see when you share your link. Head to your dashboard to customize games and prices first.
+              Here&apos;s what people will see when you share your link. Head to My season to customize games and prices first.
             </p>
           </div>
 
@@ -793,7 +793,7 @@ export default function NewPackagePage() {
               onClick={() => router.push('/dashboard')}
               className="h-12 w-full rounded-lg bg-[#2c2a2b] text-white text-sm font-bold border-none cursor-pointer hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors mb-4"
             >
-              Go to my dashboard →
+              Go to my season →
             </button>
           </div>
 
@@ -1050,7 +1050,7 @@ export default function NewPackagePage() {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="#2d6a4f" className="inline-block align-[-1px] mr-1.5">
               <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
             </svg>
-            <strong>${defaultPrice || '0'}/ticket</strong> applied to all {selectedPackage?.gameCount || 81} games. You can adjust prices for each game from your dashboard.
+            <strong>${defaultPrice || '0'}/ticket</strong> applied to all {selectedPackage?.gameCount || 81} games. You can adjust prices for each game from My season.
           </div>
 
           <StepActions>

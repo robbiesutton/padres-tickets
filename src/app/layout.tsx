@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { DM_Sans, Inter, Syne } from 'next/font/google';
 import Script from 'next/script';
 import Providers from './providers';
@@ -25,6 +25,13 @@ const syne = Syne({
   subsets: ['latin'],
   weight: ['700'],
 });
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
 
 export const metadata: Metadata = {
   title: 'BenchBuddy — Share Your Season Tickets',
