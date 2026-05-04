@@ -565,7 +565,7 @@ export default function ProfilePage() {
       <aside className="hidden md:flex md:flex-col w-[220px] shrink-0 border-r border-[#eceae5] pt-8 pl-8 pr-4 sticky top-[77px] self-start h-[calc(100vh-77px)]">
         <Link href={showAsHolder ? '/dashboard' : (shareSlug ? `/share/${shareSlug}` : '/dashboard')} className="flex items-center gap-1.5 text-sm text-[#8e8985] hover:text-[#2c2a2b] transition-colors mb-6">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
-          {showAsHolder ? 'Back to Dashboard' : 'Back to Games'}
+          Back to my season
         </Link>
         <nav className="flex flex-col gap-1">
           {NAV_ITEMS.map((item) => (

@@ -353,6 +353,8 @@ function SharePageInner({ packageInfo, games: initialGames, opponents }: Props) 
     setClaimCount(count);
   }, []);
 
+  const holderFirstName = packageInfo.holderName?.trim().split(/\s+/)[0] || '';
+
   return (
     <div className="flex flex-col min-h-screen bg-[#fefefe]">
       <ShareHeader
@@ -374,10 +376,17 @@ function SharePageInner({ packageInfo, games: initialGames, opponents }: Props) 
       <div className="max-w-[1024px] mx-auto w-full px-4 pt-4 pb-6 md:px-10 md:pt-8 md:pb-10 overflow-x-hidden flex-1">
         {activeTab === 'available' ? (
           <>
-            {/* Welcome message */}
-            <p className="hidden md:block text-2xl text-[#2c2a2b] mb-6 md:mb-8 font-bold" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>
-              Welcome {session?.user?.name?.split(' ')[0] || 'Margo'}, select your games.
-            </p>
+            {/* Page heading — uses Holder's first name per voice guide */}
+            <div className="hidden md:block mb-6 md:mb-8">
+              <h1 className="text-2xl font-bold text-[#2c2a2b]" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>
+                {holderFirstName ? <>{holderFirstName}&apos;s season</> : 'Your shared season'}
+              </h1>
+              <p className="mt-2 text-base text-[#8e8985]">
+                {holderFirstName
+                  ? <>Pick the games you want — {holderFirstName} will transfer them to your Ballpark account.</>
+                  : 'Pick the games you want — your tickets will be transferred to your Ballpark account closer to game day.'}
+              </p>
+            </div>
             <Toolbar
               viewMode={viewMode}
               onViewChange={(mode) => {
