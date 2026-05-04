@@ -41,7 +41,6 @@ export async function POST(request: NextRequest) {
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         email: normalizedEmail,
-        role: 'CLAIMER',
         emailVerified: new Date(), // Magic link verifies email implicitly
       },
     });

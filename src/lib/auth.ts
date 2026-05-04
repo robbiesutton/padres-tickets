@@ -43,7 +43,8 @@ export const authOptions: NextAuthOptions = {
           id: user.id,
           email: user.email,
           name: `${user.firstName} ${user.lastName}`,
-          role: user.role,
+          isHolder: user.isHolder,
+          isClaimer: user.isClaimer,
         };
       },
     }),
@@ -52,14 +53,27 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.role = (user as unknown as { role: string }).role;
+        token.isHolder = (user as unknown as { isHolder: boolean }).isHolder;
+        token.isClaimer = (user as unknown as { isClaimer: boolean }).isClaimer;
+      } else if (token.id) {
+        // Refresh from DB on subsequent requests so role upgrades
+        // take effect without re-login
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: { isHolder: true, isClaimer: true },
+        });
+        if (dbUser) {
+          token.isHolder = dbUser.isHolder;
+          token.isClaimer = dbUser.isClaimer;
+        }
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
-        session.user.role = token.role as string;
+        session.user.isHolder = token.isHolder as boolean;
+        session.user.isClaimer = token.isClaimer as boolean;
       }
       return session;
     },

@@ -6,7 +6,8 @@ declare module 'next-auth' {
       id: string;
       email: string;
       name: string;
-      role: string;
+      isHolder: boolean;
+      isClaimer: boolean;
     };
   }
 }
@@ -14,6 +15,7 @@ declare module 'next-auth' {
 declare module 'next-auth/jwt' {
   interface JWT {
     id: string;
-    role: string;
+    isHolder: boolean;
+    isClaimer: boolean;
   }
 }

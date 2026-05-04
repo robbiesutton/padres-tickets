@@ -37,8 +37,8 @@ export type ActiveTab = 'available' | 'my-games';
 export type ReserveFlowStep =
   | { step: 'details' }
   | { step: 'email' }
-  | { step: 'sending' }
   | { step: 'check-email'; email: string }
+  | { step: 'sending' }
   | { step: 'confirmed' }
   | { step: 'error'; message: string };
 

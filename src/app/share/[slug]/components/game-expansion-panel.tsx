@@ -116,7 +116,9 @@ export function GameExpansionPanel({
         localStorage.setItem('bb_claimer_email', email);
         if (firstName) localStorage.setItem('bb_claimer_firstName', firstName);
         if (lastName) localStorage.setItem('bb_claimer_lastName', lastName);
-        setStep({ step: 'check-email', email });
+        // Cookie is set server-side by the API route
+        onReserved(game.id);
+        setStep({ step: 'confirmed' });
       } else {
         setStep({
           step: 'error',
@@ -326,7 +328,7 @@ export function GameExpansionPanel({
                   {loading ? 'Sending...' : 'Confirm claim'}
                 </button>
                 <div className="text-center text-sm text-muted mt-[5px]">
-                  We&apos;ll send a confirmation email
+                  You won&apos;t be charged yet
                 </div>
               </>
             ) : (

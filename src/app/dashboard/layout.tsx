@@ -24,6 +24,8 @@ interface PackageForNav {
   perks: string[];
   shareLinkSlug: string;
   _count: { games: number; invitations: number };
+  _role: 'holder' | 'claimer';
+  holderName?: string;
 }
 
 // Context so children (dashboard page) can access the selected package
@@ -607,29 +609,46 @@ export default function DashboardLayout({
     let cancelled = false;
     Promise.all([
       fetch('/api/packages').then((r) => (r.ok ? r.json() : { packages: [] })),
+      fetch('/api/me/packages').then((r) => (r.ok ? r.json() : { packages: [] })),
       fetch('/api/users/me').then((r) => (r.ok ? r.json() : null)),
-    ]).then(([pkgData, userData]) => {
+    ]).then(([holderData, claimerData, userData]) => {
         if (cancelled) return;
-        if (pkgData.packages.length === 0) {
-          const role = userData?.role || '';
-          if (role === 'CLAIMER') {
-            // Claimers don't create packages — send them back
-            window.location.href = '/';
+
+        const holderPkgs = (holderData.packages || []).map((p: PackageForNav) => ({ ...p, _role: 'holder' as const }));
+        const claimerPkgs = (claimerData.packages || []).map((p: PackageForNav) => ({ ...p, _role: 'claimer' as const }));
+        const allPackages = [...holderPkgs, ...claimerPkgs];
+
+        if (allPackages.length === 0) {
+          if (userData?.isHolder) {
+            // Holder with no packages → setup wizard
+            window.location.href = '/packages/new';
             return;
           }
-          // Holders/BOTH → setup wizard
-          window.location.href = '/packages/new';
+          // Claimer with no packages → stay on profile
+          if (pathname !== '/dashboard/profile') {
+            window.location.href = '/dashboard/profile';
+            return;
+          }
+          setLoading(false);
           return;
         }
-        setPackages(pkgData.packages);
-        if (pkgData.packages.length > 0) {
-          setSelectedPkgId(pkgData.packages[0].id);
+
+        // If user has no holder packages and is on a non-profile dashboard page,
+        // redirect to their first claimer share page
+        if (holderPkgs.length === 0 && claimerPkgs.length > 0 && pathname !== '/dashboard/profile') {
+          window.location.href = `/share/${claimerPkgs[0].shareLinkSlug}`;
+          return;
+        }
+
+        setPackages(allPackages);
+        if (allPackages.length > 0) {
+          setSelectedPkgId(allPackages[0].id);
         }
         setLoading(false);
       })
       .catch(() => !cancelled && setLoading(false));
     return () => { cancelled = true; };
-  }, []);
+  }, [pathname]);
 
   const selectedPkg = packages.find((p) => p.id === selectedPkgId) || null;
   const { primary: navColor, accent: teamAccent } = selectedPkg
@@ -681,24 +700,6 @@ export default function DashboardLayout({
           </div>
 
           <div className="flex items-center gap-2 md:gap-3">
-            {/* Package switcher (if multiple) */}
-            {packages.length > 1 && (
-              <select
-                value={selectedPkgId || ''}
-                onChange={(e) => setSelectedPkgId(e.target.value)}
-                className={`h-9 md:h-10 px-3 rounded-lg text-sm font-medium border cursor-pointer transition-colors ${
-                  isDark
-                    ? 'bg-white/10 text-white border-white/20 hover:bg-white/20'
-                    : 'bg-[#f5f4f2] text-black border-[#eceae5] hover:bg-[#eceae5]'
-                }`}
-              >
-                {packages.map((p) => (
-                  <option key={p.id} value={p.id} className="text-black bg-white">
-                    {p.team} — {p.section}
-                  </option>
-                ))}
-              </select>
-            )}
 
             {/* Account avatar */}
             <Link

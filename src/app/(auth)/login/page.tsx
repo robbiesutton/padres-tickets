@@ -17,7 +17,6 @@ const inputClass = "block w-full h-12 px-4 bg-white border-[1.5px] border-[#ecea
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const verified = searchParams.get('verified');
   const from = searchParams.get('from');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -27,9 +26,13 @@ function LoginForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault(); setError(''); setLoading(true);
     const result = await signIn('credentials', { email, password, redirect: false });
-    setLoading(false);
-    if (result?.error) setError('Invalid email or password');
-    else router.push(from ? `/share/${from}` : '/dashboard');
+    if (result?.error) { setLoading(false); setError('Invalid email or password'); return; }
+
+    // If there's an explicit redirect target, use it
+    if (from) { router.push(from.startsWith('/') ? from : `/share/${from}`); return; }
+
+    // Send all users to dashboard — it handles role-based routing
+    router.push('/dashboard');
   }
 
   return (
@@ -48,12 +51,6 @@ function LoginForm() {
           <StepHeadline>Sign in</StepHeadline>
           <StepSubhead>Welcome back to BenchBuddy</StepSubhead>
         </div>
-
-        {verified && (
-          <div className="rounded-lg bg-[#E1F5EE] text-[#0F6E56] px-4 py-3 text-sm font-medium mb-4">
-            Email verified! You can now sign in.
-          </div>
-        )}
 
         {error && (
           <div className="rounded-lg bg-[#FEE2E2] text-[#DC2626] px-4 py-3 text-sm font-medium mb-4">

@@ -218,6 +218,12 @@ function SharePageInner({ packageInfo, games: initialGames, opponents }: Props) 
     }
   }, [searchParams]);
 
+  // Register visit so claimer gets linked to this package
+  useEffect(() => {
+    if (!currentUserId) return;
+    fetch(`/api/share/${packageInfo.slug}/visit`, { method: 'POST' }).catch(() => {});
+  }, [currentUserId, packageInfo.slug]);
+
   // Fetch initial claim count
   useEffect(() => {
     fetch(`/api/share/${packageInfo.slug}/my-reservations`)

@@ -8,7 +8,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const token = await getToken({ req: request });
+  const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
   if (!token) {
     const pathname = request.nextUrl.pathname;
 
@@ -20,8 +20,10 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(joinUrl);
     }
 
-    // Dashboard → redirect to login
+    // Dashboard → redirect to login, preserving intended destination
     const loginUrl = new URL('/login', request.url);
+    const fullPath = pathname + request.nextUrl.search;
+    loginUrl.searchParams.set('from', fullPath);
     return NextResponse.redirect(loginUrl);
   }
 

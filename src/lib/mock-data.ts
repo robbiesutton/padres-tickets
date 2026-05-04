@@ -23,7 +23,8 @@ export const mockHolder = {
   lastName: 'Sutton',
   email: 'robbie@benchbuddy.app',
   phone: '(619) 555-0142',
-  role: 'HOLDER',
+  isHolder: true,
+  isClaimer: false,
   venmoHandle: '@robbie-sutton',
   zelleInfo: 'robbie@benchbuddy.app',
   emailVerified: new Date('2026-01-15').toISOString(),
@@ -35,7 +36,8 @@ export const mockClaimer = {
   firstName: 'Margo',
   lastName: 'Coleman',
   email: 'margo@benchbuddy.app',
-  role: 'CLAIMER',
+  isHolder: false,
+  isClaimer: true,
 };
 
 // ── Package ──────────────────────────────────────────────

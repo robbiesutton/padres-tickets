@@ -23,12 +23,15 @@ export async function GET() {
           status: true,
           seatPhotoUrl: true,
           description: true,
+          defaultPricePerTicket: true,
+          perks: true,
           user: {
             select: { firstName: true, lastName: true },
           },
           _count: {
             select: {
-              games: { where: { status: 'AVAILABLE' } },
+              games: true,
+              invitations: true,
             },
           },
         },
@@ -50,8 +53,10 @@ export async function GET() {
       season: inv.package.season,
       seatPhotoUrl: inv.package.seatPhotoUrl,
       description: inv.package.description,
+      defaultPricePerTicket: inv.package.defaultPricePerTicket,
+      perks: inv.package.perks,
+      _count: inv.package._count,
       holderName: `${inv.package.user.firstName} ${inv.package.user.lastName}`,
-      availableGames: inv.package._count.games,
       invitedAt: inv.invitedAt.toISOString(),
     }));
 

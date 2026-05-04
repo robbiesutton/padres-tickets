@@ -18,12 +18,11 @@ function JoinForm() {
   const holderName = searchParams.get('holder') || 'your friend';
 
   const [form, setForm] = useState({
-    firstName: '', lastName: '', email: '', password: '', role: 'CLAIMER',
+    firstName: '', lastName: '', email: '', password: '',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [success, setSuccess] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [marketingOptIn, setMarketingOptIn] = useState(false);
 
@@ -34,21 +33,8 @@ function JoinForm() {
     const res = await fetch('/api/auth/signup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...form, agreedToTerms, marketingOptIn }) });
     const data = await res.json(); setLoading(false);
     if (!res.ok) { setError(data.error); return; }
-    setSuccess(true);
-  }
-
-  if (success) {
-    return (
-      <SetupLayout showSidebar={false}>
-        <div className="flex flex-col items-center justify-center flex-1 text-center">
-          <div className="text-5xl mb-5">&#9993;&#65039;</div>
-          <StepHeadline>Check your email</StepHeadline>
-          <p className="text-sm text-[#8e8985] leading-relaxed max-w-[360px]">
-            We sent a confirmation link to <strong className="text-[#2c2a2b]">{form.email}</strong>. Click the link to verify your email and you&apos;ll be taken straight to the games.
-          </p>
-        </div>
-      </SetupLayout>
-    );
+    // Cookie is set server-side by the API route — just redirect
+    window.location.href = from ? `/share/${from}` : '/dashboard';
   }
 
   return (

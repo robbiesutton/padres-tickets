@@ -1,10 +1,9 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { jsonError, jsonSuccess } from '@/lib/api-utils';
-import { createToken } from '@/lib/services/tokens';
-import { sendEmail } from '@/lib/services/email';
+import { jsonError } from '@/lib/api-utils';
 import { getClientIp, rateLimit, rateLimitResponse } from '@/lib/rate-limit';
-import { buildReserveMagicLinkEmail } from '@/lib/emails/auth-email';
+import { createClaim } from '@/lib/services/claim';
+import { setSessionCookie } from '@/lib/session';
 
 export async function POST(
   request: NextRequest,
@@ -70,31 +69,23 @@ export async function POST(
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         email: normalizedEmail,
-        role: 'CLAIMER',
         emailVerified: new Date(),
       },
     });
   }
 
-  // Create magic link token with callback URL containing reservation info
-  const tokenRecord = await createToken(user.id, 'MAGIC_LINK');
-  const callbackParams = new URLSearchParams({
-    token: tokenRecord.token,
-    pendingSlug: slug,
-    pendingGameId: gameId,
-  });
-  const magicUrl = `${process.env.NEXTAUTH_URL}/api/auth/magic-link/verify?${callbackParams.toString()}`;
+  // Create the claim immediately
+  const result = await createClaim(gameId, user.id);
+  if (!result.success) {
+    return jsonError(result.error || 'Failed to reserve', 409);
+  }
 
-  const reserveEmail = buildReserveMagicLinkEmail(user.firstName, magicUrl, pkg.team, game.opponent);
+  const response = NextResponse.json(
+    { ok: true, data: { status: 'reserved' } },
+    { status: 200 }
+  );
 
-  await sendEmail({
-    to: user.email,
-    subject: reserveEmail.subject,
-    html: reserveEmail.html,
-  });
+  await setSessionCookie(user, request, response);
 
-  return jsonSuccess({
-    status: 'magic_link_sent',
-    message: 'Check your email to confirm your reservation.',
-  });
+  return response;
 }
