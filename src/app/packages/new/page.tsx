@@ -164,7 +164,7 @@ function SeatMultiSelect({ selectedSeats, onToggle }: { selectedSeats: Set<numbe
 
   // Only show dropdown when there's a query, filter out already-selected seats
   const available = allSeats.filter((s) => !selectedSeats.has(s));
-  const filtered = search ? available.filter((s) => String(s).includes(search)).slice(0, 8) : [];
+  const filtered = search ? available.filter((s) => s === Number(search)) : [];
 
   useEffect(() => {
     if (!dropdownOpen) return;
