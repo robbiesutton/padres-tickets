@@ -2,6 +2,7 @@
 
 import { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { AuthFormSkeleton } from '@/components/skeleton';
 
 function ResetPasswordForm() {
   const searchParams = useSearchParams();
@@ -138,7 +139,7 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={<div className="flex flex-1 items-center justify-center"><p className="text-[#8e8985]">Loading...</p></div>}>
+    <Suspense fallback={<AuthFormSkeleton fields={2} />}>
       <ResetPasswordForm />
     </Suspense>
   );

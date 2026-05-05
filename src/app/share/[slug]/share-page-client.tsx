@@ -20,6 +20,7 @@ import { MyGamesTab } from './components/my-games-tab';
 import { EmptyState } from './components/empty-state';
 import { AlsoPlaysIn } from './components/also-plays-in';
 import { ScoreTicker } from '@/components/score-ticker';
+import { Bone } from '@/components/skeleton';
 
 import { createPortal } from 'react-dom';
 import Image from 'next/image';
@@ -352,6 +353,8 @@ function SharePageInner({ packageInfo, games: initialGames, opponents }: Props) 
     setClaimCount(count);
   }, []);
 
+  const holderFirstName = packageInfo.holderName?.trim().split(/\s+/)[0] || '';
+
   return (
     <div className="flex flex-col min-h-screen bg-[#fefefe]">
       <ShareHeader
@@ -373,10 +376,17 @@ function SharePageInner({ packageInfo, games: initialGames, opponents }: Props) 
       <div className="max-w-[1024px] mx-auto w-full px-4 pt-4 pb-6 md:px-10 md:pt-8 md:pb-10 overflow-x-hidden flex-1">
         {activeTab === 'available' ? (
           <>
-            {/* Welcome message */}
-            <p className="hidden md:block text-2xl text-[#2c2a2b] mb-6 md:mb-8 font-bold" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>
-              Welcome {session?.user?.name?.split(' ')[0] || 'Margo'}, select your games.
-            </p>
+            {/* Page heading — uses Holder's first name per voice guide */}
+            <div className="hidden md:block mb-6 md:mb-8">
+              <h1 className="text-2xl font-bold text-[#2c2a2b]" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>
+                {holderFirstName ? <>{holderFirstName}&apos;s season</> : 'Your shared season'}
+              </h1>
+              <p className="mt-2 text-base text-[#8e8985]">
+                {holderFirstName
+                  ? <>Pick the games you want — {holderFirstName} will transfer them to your Ballpark account.</>
+                  : 'Pick the games you want — your tickets will be transferred to your Ballpark account closer to game day.'}
+              </p>
+            </div>
             <Toolbar
               viewMode={viewMode}
               onViewChange={(mode) => {
@@ -471,9 +481,74 @@ function SharePageInner({ packageInfo, games: initialGames, opponents }: Props) 
   );
 }
 
+function ShareSkeleton() {
+  return (
+    <div className="flex flex-col min-h-screen bg-[#fefefe]">
+      {/* Nav bar */}
+      <div className="h-[60px] md:h-[77px] flex items-center justify-between px-4 md:px-8 bg-[#2c2a2b]">
+        <div className="flex items-center gap-4">
+          <Bone w="120px" h="24px" delay={0} />
+          <div className="hidden md:block"><Bone w="240px" h="40px" r={8} delay={0.05} /></div>
+        </div>
+        <Bone w="40px" h="40px" r="50%" delay={0.1} />
+      </div>
+
+      {/* Mobile seat info pill */}
+      <div className="md:hidden px-4 pt-4">
+        <Bone w="100%" h="44px" r={8} delay={0.15} />
+      </div>
+
+      <div className="max-w-[1024px] mx-auto w-full px-4 pt-4 pb-6 md:px-10 md:pt-8 md:pb-10 flex-1">
+        {/* Welcome text */}
+        <div className="hidden md:block mb-6 md:mb-8">
+          <Bone w="320px" h="32px" delay={0} />
+        </div>
+
+        {/* Toolbar */}
+        <div className="flex items-center gap-2 mb-4">
+          <Bone w="80px" h="40px" r={8} delay={0} />
+          <Bone w="100px" h="40px" r={8} delay={0.05} />
+          <Bone w="90px" h="40px" r={8} delay={0.1} />
+        </div>
+
+        {/* Month header */}
+        <div className="flex items-center gap-2 mb-4">
+          <Bone w="3px" h="16px" delay={0} />
+          <Bone w="120px" h="22px" delay={0.05} />
+          <Bone w="60px" h="14px" delay={0.1} />
+        </div>
+
+        {/* Game cards */}
+        <div className="flex flex-col gap-2">
+          {[0, 1, 2, 3, 4].map((i) => (
+            <div key={i} className="rounded-lg px-4 md:px-6 py-4 border border-[#dcd7d4] bg-white flex items-center gap-2 md:gap-10">
+              <div className="flex items-center gap-2 md:gap-4 shrink-0">
+                <div className="flex flex-col items-center gap-1 w-[30px]">
+                  <Bone w="20px" h="10px" delay={i * 0.1} />
+                  <Bone w="18px" h="14px" delay={i * 0.1 + 0.05} />
+                  <Bone w="20px" h="10px" delay={i * 0.1 + 0.1} />
+                </div>
+                <div className="w-px h-[57px] bg-[#dcd7d4]" />
+                <Bone w="42px" h="42px" r="50%" delay={i * 0.1 + 0.15} />
+              </div>
+              <div className="flex flex-col gap-1.5 flex-1 min-w-0">
+                <Bone w="140px" h="16px" delay={i * 0.1 + 0.2} />
+                <Bone w="180px" h="12px" delay={i * 0.1 + 0.25} />
+              </div>
+              <div className="hidden md:block">
+                <Bone w="100px" h="36px" r={8} delay={i * 0.1 + 0.3} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function SharePageClient(props: Props) {
   return (
-    <Suspense fallback={<div className="flex-1 flex items-center justify-center text-muted">Loading...</div>}>
+    <Suspense fallback={<ShareSkeleton />}>
       <SharePageInner {...props} />
     </Suspense>
   );

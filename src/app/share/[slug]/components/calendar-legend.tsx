@@ -21,7 +21,7 @@ export function CalendarLegend() {
             />
           </svg>
         </div>
-        <span className="text-xs md:text-sm font-normal text-[#8e8985]">Reserved</span>
+        <span className="text-xs md:text-sm font-normal text-[#8e8985]">Claimed</span>
       </div>
       <div className="flex items-center gap-1">
         <div className="w-[16px] h-[16px] md:w-[19px] md:h-[19px] flex items-center justify-center">

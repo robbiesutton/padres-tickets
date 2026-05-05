@@ -34,6 +34,21 @@ export default function Home() {
     return () => observers.forEach((o) => o.disconnect());
   }, []);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const hamburgerRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    function handleClick(e: MouseEvent) {
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(e.target as Node) &&
+          hamburgerRef.current && !hamburgerRef.current.contains(e.target as Node)) {
+        setMobileMenuOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [mobileMenuOpen]);
+
   const [linkError, setLinkError] = useState('');
   const [validating, setValidating] = useState(false);
   async function handleGoToLink() {
@@ -135,12 +150,13 @@ export default function Home() {
             href="/signup"
             className="h-10 px-4 rounded-lg border border-white text-white text-base font-medium flex items-center justify-center hover:bg-[#dcd7d4] hover:text-[#2c2a2b] hover:border-[#2c2a2b] transition-colors"
           >
-            Get Started
+            Get started
           </a>
         </div>
 
         {/* Mobile hamburger */}
         <button
+          ref={hamburgerRef}
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           className="md:hidden w-10 h-10 flex items-center justify-center bg-transparent border-none cursor-pointer"
         >
@@ -158,7 +174,7 @@ export default function Home() {
 
       {/* Mobile menu dropdown */}
       {mobileMenuOpen && (
-        <div className="md:hidden px-6 pb-4 flex flex-col gap-3 bg-[#1B1716]">
+        <div ref={mobileMenuRef} className="md:hidden px-6 pb-4 flex flex-col gap-3 bg-[#1B1716]">
           <a
             href="/login"
             className="h-11 flex items-center justify-center rounded-lg text-sm font-medium text-white/70 hover:text-white transition-colors"
@@ -169,7 +185,7 @@ export default function Home() {
             href="/signup"
             className="h-11 flex items-center justify-center rounded-lg border border-white text-white text-sm font-medium hover:bg-[#dcd7d4] hover:text-[#2c2a2b] hover:border-[#2c2a2b] transition-colors"
           >
-            Get Started
+            Get started
           </a>
         </div>
       )}
@@ -219,16 +235,14 @@ export default function Home() {
               className="text-3xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.08] tracking-tight"
               style={{ fontFamily: 'var(--font-syne), sans-serif' }}
             >
-              Share your
+              Share your season.
               <br />
-              season tickets
-              <br />
-              effortlessly.
+              Skip the group text.
             </h1>
 
             {/* Subtitle */}
             <p className="-mt-0 max-w-lg text-base md:text-lg text-white/50 leading-relaxed">
-              Ditch the spreadsheets and group text. Share a link with your circle and let them claim the games they want - no wasted tickets, no crazy fees, just that simple.
+              Share a link and let them claim the games they want — no wasted tickets, no crazy fees.
             </p>
 
             {/* CTA */}
@@ -237,14 +251,14 @@ export default function Home() {
                 href="/signup"
                 className="group inline-flex items-center gap-2 h-10 px-4 rounded-lg bg-white text-[#2c2a2b] text-base font-bold hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors"
               >
-                Get Started
+                Share my tickets
                 <span className="text-[#2c2a2b] transition-transform duration-200 group-hover:translate-x-0.5">&rarr;</span>
               </a>
             </div>
 
             {/* Secondary link */}
             <div className="flex items-center gap-2 text-sm">
-              <span className="text-white/40">Were you shared a link?</span>
+              <span className="text-white/40">Got a link from a friend?</span>
               <button
                 onClick={() => setShowLinkInput(true)}
                 className="text-white/70 underline underline-offset-2 hover:text-white transition-colors bg-transparent border-none cursor-pointer text-sm"
@@ -304,23 +318,23 @@ export default function Home() {
               transform: howItWorksVisible ? 'translateY(0)' : 'translateY(24px)',
             }}
           >
-            Three simple steps
+            Share in three steps
           </h2>
           <div className="grid gap-12 md:gap-8 md:grid-cols-3">
             {[
               {
                 step: '01',
-                title: 'Set Up Your Tickets',
+                title: 'Set up your tickets',
                 desc: 'Select your team, enter your seat details, and your full season schedule loads automatically.',
               },
               {
                 step: '02',
-                title: 'Share Your Link',
-                desc: 'Get a unique link for your tickets. Send it to friends and family via text, email, or any app.',
+                title: 'Share your link',
+                desc: 'Get a unique link for your tickets. Send it to anyone via text, email, or any app.',
               },
               {
                 step: '03',
-                title: 'Friends Claim Games',
+                title: 'Friends claim games',
                 desc: 'They browse available dates, claim the games they want, and you get notified to transfer tickets.',
               },
             ].map((item, i) => (
@@ -425,9 +439,9 @@ export default function Home() {
             {/* Benefits */}
             <div className="flex flex-col gap-4 mb-8">
               {[
-                'Share games with unlimited friends',
-                'Track claims, revenue, and status in one place',
-                'Cancel anytime — no commitment',
+                'Share your season with anyone — no limit',
+                'Track claims, payments, and status in one place',
+                'Cancel anytime',
               ].map((benefit) => (
                 <div key={benefit} className="flex items-start gap-3">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="shrink-0 mt-0.5">
@@ -443,10 +457,10 @@ export default function Home() {
               href="/signup"
               className="w-full h-12 rounded-lg bg-[#2c2a2b] text-white text-base font-semibold flex items-center justify-center hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors mb-3"
             >
-              Start Free for a Year
+              Start free for a year
             </a>
             <p className="text-xs text-[#8e8985] text-center">
-              Cancel anytime. You won&apos;t be charged until your free month ends.
+              Cancel anytime. You won&apos;t be charged until your free year ends.
             </p>
             </div>
           </div>

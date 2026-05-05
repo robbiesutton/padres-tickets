@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect, use } from 'react';
+import { Bone } from '@/components/skeleton';
 
 interface PackageInfo {
   id: string;
@@ -36,8 +37,10 @@ export default function SharePage({
 
   if (!pkg) {
     return (
-      <div className="flex flex-1 items-center justify-center">
-        <p className="text-foreground/50">Loading...</p>
+      <div className="flex flex-1 flex-col p-6 md:p-10 max-w-2xl mx-auto w-full">
+        <Bone w="180px" h="28px" delay={0} className="mb-4" />
+        <Bone w="100%" h="200px" r={12} delay={0.1} className="mb-4" />
+        <Bone w="100%" h="56px" r={8} delay={0.2} />
       </div>
     );
   }
@@ -126,7 +129,7 @@ export default function SharePage({
           target="_blank"
           className="block text-center text-sm text-brand-600 hover:underline"
         >
-          Preview what your friends will see
+          Preview what people will see
         </a>
       </div>
     </div>

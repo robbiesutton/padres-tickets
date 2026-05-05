@@ -84,7 +84,7 @@ export async function getHomeSchedule(
         hour: '2-digit',
         minute: '2-digit',
         hour12: false,
-        timeZone: 'America/New_York', // MLB API returns ET
+        timeZone: team.timezone,
       });
 
       const opponent = game.teams.away.team;

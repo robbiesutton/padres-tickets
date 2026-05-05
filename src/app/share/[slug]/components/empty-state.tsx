@@ -34,7 +34,7 @@ export function EmptyState({
       (g) => opponentFilter.includes(g.opponent) && isGameAvailable(g)
     );
     if (oppGames.length > 0) {
-      alsoPlaysLabel = `Also play in:`;
+      alsoPlaysLabel = `Also playing here:`;
       const mCounts = new Map<number, number>();
       for (const g of oppGames) {
         const { month } = getGameMonthYear(g);
@@ -74,18 +74,16 @@ export function EmptyState({
             <span className="text-sm font-normal text-[#2c2a2b]">
               {alsoPlaysLabel}
             </span>
-            {pills.map(({ month, count }) => (
+            {pills.map(({ month }) => (
               <button
                 key={month}
                 onClick={() => onJumpToMonth(month)}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-3xl bg-[#f5f4f2] border border-[#ffad00] cursor-pointer hover:bg-[#f7edd0] transition-colors"
+                className="flex items-center gap-0.5 px-2.5 py-1 rounded-3xl bg-white text-[#2c2a2b] border border-[#dcd7d4] shadow-[0_1px_2px_rgba(0,0,0,0.05)] cursor-pointer hover:bg-[#FFF8E7] hover:border-[#E5AB00] hover:shadow-none transition-all"
               >
-                <span className="text-xs font-medium text-[#2c2a2b] leading-5">
+                <span className="text-[11px] font-medium leading-4">
                   {MONTH_NAMES[month]}
                 </span>
-                <span className="w-5 h-5 rounded-full bg-[#ffad00] flex items-center justify-center text-xs font-medium text-white">
-                  {count}
-                </span>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#2c2a2b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="M12 5l7 7-7 7" /></svg>
               </button>
             ))}
           </div>

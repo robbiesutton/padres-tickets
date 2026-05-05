@@ -71,7 +71,7 @@ export function MyGamesTab({ pkg, claimerName, onSwitchToAvailable, onReservatio
   if (loading && !claims) {
     return (
       <div className="py-12 text-center text-muted">
-        Loading your reservations...
+        Loading your games...
       </div>
     );
   }
@@ -82,10 +82,10 @@ export function MyGamesTab({ pkg, claimerName, onSwitchToAvailable, onReservatio
       <div className="flex flex-col items-center gap-6 py-10 md:gap-8 md:py-16">
         <div className="flex flex-col items-center gap-2">
           <p className="text-base font-medium text-black text-center">
-            No games reserved yet
+            No games claimed yet
           </p>
           <p className="text-base font-normal text-[#2c2a2b] text-center">
-            Browse available games and reserve the ones you want to attend.
+            Browse available games and claim the ones you want to attend.
           </p>
         </div>
         <button

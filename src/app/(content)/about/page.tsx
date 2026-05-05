@@ -54,7 +54,7 @@ export default function AboutPage() {
           <p>
             All ticket transfers happen through your team&apos;s official app
             (like the MLB Ballpark App). All payments happen directly between
-            you and your friends via Venmo, Zelle, or however you prefer.
+            you and the people you share with via Venmo, Zelle, or however you prefer.
             BenchBuddy just makes sure everyone knows who&apos;s going where.
           </p>
 

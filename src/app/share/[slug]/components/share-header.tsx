@@ -175,7 +175,7 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
             }`}
             onClick={() => onTabChange('my-games')}
           >
-            My Games
+            My games
             {reservedCount > 0 && (
               <span className="w-5 h-5 rounded-full bg-[#0F6F57] text-white text-xs font-semibold flex items-center justify-center">
                 {reservedCount}

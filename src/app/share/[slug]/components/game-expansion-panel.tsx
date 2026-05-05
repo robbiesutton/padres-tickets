@@ -197,7 +197,7 @@ export function GameExpansionPanel({
               </div>
               <div>
                 <div className="text-base font-semibold text-foreground">
-                  Reservation confirmed
+                  Game claimed
                 </div>
                 <div className="text-sm text-muted mt-px">
                   Confirmation sent to {email || 'your email'}
@@ -226,11 +226,31 @@ export function GameExpansionPanel({
             Seller will contact you about payment details
           </div>
         </>
+      ) : step.step === 'check-email' ? (
+        /* Check email state */
+        <div className="p-8 text-center">
+          <div className="mx-auto mb-3 w-10 h-10 rounded-full bg-green-light flex items-center justify-center">
+            <svg width="20" height="20" viewBox="0 0 16 16" fill="none">
+              <rect x="1.5" y="3" width="13" height="10" rx="1.5" stroke="#0F6E56" strokeWidth="1.2" />
+              <path d="M2 4l6 4.5L14 4" stroke="#0F6E56" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+          <div className="text-base font-medium text-foreground mb-1">
+            Check your email
+          </div>
+          <div className="text-sm text-muted mb-2">
+            We sent a confirmation link to <strong>{step.email}</strong>
+          </div>
+          <div className="text-xs text-muted">
+            Click the link in your email to complete your claim. The link
+            expires in 15 minutes.
+          </div>
+        </div>
       ) : step.step === 'error' ? (
         /* Error state */
         <div className="p-8 text-center">
           <div className="text-base font-medium text-foreground mb-2">
-            Unable to reserve
+            Unable to claim
           </div>
           <div className="text-sm text-error mb-4">{step.message}</div>
           <button
@@ -245,7 +265,7 @@ export function GameExpansionPanel({
         <div className="grid grid-cols-2">
           <div className="p-6">
             <div className="mb-2.5">
-              <div className="text-sm text-muted uppercase tracking-wider mb-[3px]">
+              <div className="text-sm text-muted mb-[3px]">
                 Date &amp; time
               </div>
               <div className="text-base text-foreground font-medium">
@@ -254,7 +274,7 @@ export function GameExpansionPanel({
               </div>
             </div>
             <div className="mb-2.5">
-              <div className="text-sm text-muted uppercase tracking-wider mb-[3px]">
+              <div className="text-sm text-muted mb-[3px]">
                 Location
               </div>
               <div className="text-base text-foreground font-medium">
@@ -262,7 +282,7 @@ export function GameExpansionPanel({
               </div>
             </div>
             <div>
-              <div className="text-sm text-muted uppercase tracking-wider mb-[3px]">
+              <div className="text-sm text-muted mb-[3px]">
                 Delivery
               </div>
               <div className="text-base text-foreground font-medium">
@@ -273,7 +293,7 @@ export function GameExpansionPanel({
           <div className="p-6 border-l border-border">
             {step.step === 'email' || step.step === 'sending' ? (
               <>
-                <div className="text-sm text-muted uppercase tracking-wider mb-[3px]">
+                <div className="text-sm text-muted mb-[3px]">
                   Your info
                 </div>
                 <div className="flex gap-2 mb-2">
@@ -305,7 +325,7 @@ export function GameExpansionPanel({
                   onClick={handleReserve}
                   disabled={loading || !email.includes('@')}
                 >
-                  {loading ? 'Reserving...' : 'Confirm reservation'}
+                  {loading ? 'Sending...' : 'Confirm claim'}
                 </button>
                 <div className="text-center text-sm text-muted mt-[5px]">
                   You won&apos;t be charged yet
@@ -313,7 +333,7 @@ export function GameExpansionPanel({
               </>
             ) : (
               <>
-                <div className="text-sm text-muted uppercase tracking-wider mb-[3px]">
+                <div className="text-sm text-muted mb-[3px]">
                   Pricing
                 </div>
                 <div className="flex justify-between text-base text-foreground py-[3px]">
@@ -333,7 +353,7 @@ export function GameExpansionPanel({
                   onClick={isAuthenticated ? handleDirectClaim : () => setStep({ step: 'email' })}
                   disabled={loading}
                 >
-                  {loading ? 'Reserving...' : 'Reserve seats'}
+                  {loading ? 'Claiming...' : 'Claim this game'}
                 </button>
                 <div className="text-center text-sm text-muted mt-[5px]">
                   You won&apos;t be charged yet
