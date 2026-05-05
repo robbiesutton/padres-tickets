@@ -15,18 +15,29 @@ export async function GET() {
   const user = await requireAuth();
   if (!user) return jsonError('Unauthorized', 401);
 
-  const packages = await prisma.package.findMany({
-    where: { userId: user.id },
+  const memberships = await prisma.packageMember.findMany({
+    where: { userId: user.id, role: 'OWNER', revokedAt: null },
     include: {
-      _count: {
-        select: {
-          games: true,
-          invitations: true,
+      package: {
+        include: {
+          _count: {
+            select: {
+              games: true,
+              members: true,
+            },
+          },
         },
       },
     },
-    orderBy: { createdAt: 'desc' },
+    orderBy: { invitedAt: 'desc' },
   });
+
+  const packages = memberships
+    .filter(m => m.package.status === 'ACTIVE')
+    .map(m => ({
+      ...m.package,
+      _count: m.package._count,
+    }));
 
   return jsonSuccess({ packages });
 }
@@ -44,15 +55,8 @@ export async function POST(request: NextRequest) {
   const user = await requireAuth();
   if (!user) return jsonError('Unauthorized', 401);
 
-  // Ensure user is a holder — upgrade if not already
   const dbUser = await prisma.user.findUnique({ where: { id: user.id } });
   if (!dbUser) return jsonError('User not found', 404);
-  if (!dbUser.isHolder) {
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { isHolder: true },
-    });
-  }
 
   const body = await request.json();
   const {
@@ -139,6 +143,15 @@ export async function POST(request: NextRequest) {
       seatPhotoUrl: seatPhotoUrl || null,
       perks: Array.isArray(perks) ? perks : [],
       description: description || null,
+    },
+  });
+
+  // Create OWNER membership for the package creator
+  await prisma.packageMember.create({
+    data: {
+      packageId: pkg.id,
+      userId: user.id,
+      role: 'OWNER',
     },
   });
 

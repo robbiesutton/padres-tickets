@@ -19,8 +19,6 @@ async function main() {
       lastName: 'Thompson',
       email: 'holder@test.com',
       passwordHash: await bcrypt.hash('password123', 10),
-      isHolder: true,
-      isClaimer: false,
       venmoHandle: '@mark-thompson',
       emailVerified: new Date(),
     },
@@ -35,8 +33,6 @@ async function main() {
       firstName: 'Sarah',
       lastName: 'Chen',
       email: 'claimer@test.com',
-      isHolder: false,
-      isClaimer: true,
       emailVerified: new Date(),
     },
   });

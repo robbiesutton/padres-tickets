@@ -23,8 +23,8 @@ interface PackageForNav {
   defaultPricePerTicket: number | null;
   perks: string[];
   shareLinkSlug: string;
-  _count: { games: number; invitations: number };
-  _role: 'holder' | 'claimer';
+  _count: { games: number; members: number };
+  role: 'OWNER' | 'CO_OWNER' | 'CLAIMER';
   holderName?: string;
 }
 
@@ -607,48 +607,37 @@ export default function DashboardLayout({
 
   useEffect(() => {
     let cancelled = false;
-    Promise.all([
-      fetch('/api/packages').then((r) => (r.ok ? r.json() : { packages: [] })),
-      fetch('/api/me/packages').then((r) => (r.ok ? r.json() : { packages: [] })),
-      fetch('/api/users/me').then((r) => (r.ok ? r.json() : null)),
-    ]).then(([holderData, claimerData, userData]) => {
+    fetch('/api/me/packages')
+      .then((r) => (r.ok ? r.json() : { packages: [] }))
+      .then((data) => {
         if (cancelled) return;
 
-        const holderPkgs = (holderData.packages || []).map((p: PackageForNav) => ({ ...p, _role: 'holder' as const }));
-        const claimerPkgs = (claimerData.packages || []).map((p: PackageForNav) => ({ ...p, _role: 'claimer' as const }));
-        const allPackages = [...holderPkgs, ...claimerPkgs];
+        const allPackages: PackageForNav[] = data.packages || [];
 
         if (allPackages.length === 0) {
-          if (userData?.isHolder) {
-            // Holder with no packages → setup wizard
-            window.location.href = '/packages/new';
-            return;
-          }
-          // Claimer with no packages → stay on profile
-          if (pathname !== '/dashboard/profile') {
-            window.location.href = '/dashboard/profile';
-            return;
-          }
+          // No packages at all — stay on dashboard to show "get started" state
           setLoading(false);
           return;
         }
 
-        // If user has no holder packages and is on a non-profile dashboard page,
+        // If user only has claimer packages and is on the main dashboard,
         // redirect to their first claimer share page
-        if (holderPkgs.length === 0 && claimerPkgs.length > 0 && pathname !== '/dashboard/profile') {
+        const ownedPkgs = allPackages.filter((p) => p.role === 'OWNER' || p.role === 'CO_OWNER');
+        const claimerPkgs = allPackages.filter((p) => p.role === 'CLAIMER');
+        if (ownedPkgs.length === 0 && claimerPkgs.length > 0 && isDashboard) {
           window.location.href = `/share/${claimerPkgs[0].shareLinkSlug}`;
           return;
         }
 
         setPackages(allPackages);
-        if (allPackages.length > 0) {
-          setSelectedPkgId(allPackages[0].id);
-        }
+        // Default to first owned package, or first package overall
+        const defaultPkg = ownedPkgs[0] || allPackages[0];
+        setSelectedPkgId(defaultPkg.id);
         setLoading(false);
       })
       .catch(() => !cancelled && setLoading(false));
     return () => { cancelled = true; };
-  }, [pathname]);
+  }, [pathname, isDashboard]);
 
   const selectedPkg = packages.find((p) => p.id === selectedPkgId) || null;
   const { primary: navColor, accent: teamAccent } = selectedPkg
@@ -706,7 +695,7 @@ export default function DashboardLayout({
                 value={selectedPkgId || ''}
                 onChange={(e) => {
                   const pkg = packages.find((p) => p.id === e.target.value);
-                  if (pkg?._role === 'claimer') {
+                  if (pkg?.role === 'CLAIMER') {
                     window.location.href = `/share/${pkg.shareLinkSlug}`;
                     return;
                   }
@@ -720,7 +709,7 @@ export default function DashboardLayout({
               >
                 {packages.map((p) => (
                   <option key={p.id} value={p.id} className="text-black bg-white">
-                    {p.team} — {p.section}{p._role === 'claimer' && p.holderName ? ` (via ${p.holderName})` : ''}
+                    {p.team} — {p.section}{p.role === 'CLAIMER' && p.holderName ? ` (via ${p.holderName})` : ''}
                   </option>
                 ))}
               </select>

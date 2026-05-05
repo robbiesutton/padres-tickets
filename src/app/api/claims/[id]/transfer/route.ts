@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/db';
 import { requireAuth, jsonError, jsonSuccess } from '@/lib/api-utils';
+import { requirePackageOwner } from '@/lib/services/package-auth';
 import { logActivity } from '@/lib/services/activity';
 import { sendEmail } from '@/lib/services/email';
 import { getTicketingInfo } from '@/lib/data/ticketing-platforms';
@@ -33,7 +34,17 @@ export async function PUT(
       claimer: true,
       game: {
         include: {
-          package: { include: { user: true } },
+          package: {
+            select: {
+              id: true,
+              team: true,
+              members: {
+                where: { role: 'OWNER' },
+                include: { user: { select: { firstName: true, lastName: true } } },
+                take: 1,
+              },
+            },
+          },
         },
       },
     },
@@ -42,7 +53,8 @@ export async function PUT(
   if (!claim) return jsonError('Claim not found', 404);
 
   const pkg = claim.game.package;
-  const isHolder = pkg.user.id === user.id;
+  const ownerMembership = await requirePackageOwner(pkg.id, user.id);
+  const isHolder = !!ownerMembership;
   const isClaimer = claim.claimerUserId === user.id;
 
   // Holder can mark SENT, claimer can mark ACCEPTED
@@ -88,7 +100,8 @@ export async function PUT(
 
   // Log activity
   const claimerName = `${claim.claimer.firstName} ${claim.claimer.lastName}`;
-  const holderName = `${pkg.user.firstName} ${pkg.user.lastName}`;
+  const ownerUser = pkg.members[0]?.user;
+  const holderName = ownerUser ? `${ownerUser.firstName} ${ownerUser.lastName}` : 'The ticket holder';
   const description =
     status === 'SENT'
       ? `${holderName} transferred ${claim.game.opponent} tickets to ${claimerName}`

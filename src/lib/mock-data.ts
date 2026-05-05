@@ -23,8 +23,6 @@ export const mockHolder = {
   lastName: 'Sutton',
   email: 'robbie@benchbuddy.app',
   phone: '(619) 555-0142',
-  isHolder: true,
-  isClaimer: false,
   venmoHandle: '@robbie-sutton',
   zelleInfo: 'robbie@benchbuddy.app',
   emailVerified: new Date('2026-01-15').toISOString(),
@@ -36,8 +34,6 @@ export const mockClaimer = {
   firstName: 'Margo',
   lastName: 'Coleman',
   email: 'margo@benchbuddy.app',
-  isHolder: false,
-  isClaimer: true,
 };
 
 // ── Package ──────────────────────────────────────────────
@@ -60,7 +56,7 @@ export const mockPackage = {
   perks: [],
   createdAt: new Date('2026-02-01').toISOString(),
   updatedAt: new Date('2026-03-01').toISOString(),
-  _count: { games: 20, invitations: 3 },
+  _count: { games: 20, members: 3 },
 };
 
 // ── Package info (for share page) ────────────────────────

@@ -2,6 +2,7 @@ import { prisma } from '@/lib/db';
 import { Prisma } from '@/generated/prisma/client';
 import { logActivity } from './activity';
 import { sendClaimNotifications } from './claim-notifications';
+import { isOwnerRole } from './package-auth';
 
 interface CreateClaimResult {
   success: boolean;
@@ -41,8 +42,12 @@ export async function createClaim(
         throw new Error('Game is no longer available');
       }
 
-      // If holder claims their own game, mark as GOING_MYSELF
-      const isHolder = game.package.userId === claimerUserId;
+      // Check membership to determine if this is a self-claim by the owner
+      const membership = await tx.packageMember.findUnique({
+        where: { packageId_userId: { packageId: game.packageId, userId: claimerUserId } },
+      });
+      if (membership?.revokedAt) throw new Error('Access revoked');
+      const isOwner = membership && isOwnerRole(membership.role);
 
       // Check if claimer already has an active claim on this game
       const existingClaim = await tx.claim.findUnique({
@@ -54,7 +59,7 @@ export async function createClaim(
       }
 
       // Determine payment status based on price
-      const isFree = isHolder || !game.pricePerTicket || Number(game.pricePerTicket) === 0;
+      const isFree = isOwner || !game.pricePerTicket || Number(game.pricePerTicket) === 0;
       const paymentStatus = isFree ? 'WAIVED' : 'UNPAID';
 
       // Create the claim
@@ -64,32 +69,33 @@ export async function createClaim(
           claimerUserId,
           status: 'CONFIRMED',
           paymentStatus,
-          transferStatus: isHolder ? 'ACCEPTED' : 'NOT_STARTED',
+          transferStatus: isOwner ? 'ACCEPTED' : 'NOT_STARTED',
         },
       });
 
       // Update game status — holder self-claims are GOING_MYSELF
       await tx.game.update({
         where: { id: gameId },
-        data: { status: isHolder ? 'GOING_MYSELF' : 'CLAIMED' },
+        data: { status: isOwner ? 'GOING_MYSELF' : 'CLAIMED' },
       });
 
-      // Create invitation linking claimer to package (if not exists)
-      await tx.invitation.upsert({
+      // Create PackageMember(CLAIMER) linking claimer to package
+      await tx.packageMember.upsert({
         where: {
-          packageId_claimerUserId: {
+          packageId_userId: {
             packageId: game.packageId,
-            claimerUserId,
+            userId: claimerUserId,
           },
         },
         update: {},
         create: {
           packageId: game.packageId,
-          claimerUserId,
+          userId: claimerUserId,
+          role: 'CLAIMER',
         },
       });
 
-      return { claim, isHolder };
+      return { claim, isOwner };
     });
 
     // Log activity (best-effort, non-blocking)
@@ -108,7 +114,7 @@ export async function createClaim(
           const claimerName = game.claim
             ? `${game.claim.claimer.firstName} ${game.claim.claimer.lastName}`
             : 'Someone';
-          const action = result.isHolder ? 'marked Going Myself for' : 'claimed';
+          const action = result.isOwner ? 'marked Going Myself for' : 'claimed';
           await logActivity(
             game.package.id,
             'CLAIM_CREATED',
@@ -120,7 +126,7 @@ export async function createClaim(
     })();
 
     // Send claim notification emails only for non-holder claims
-    if (!result.isHolder) {
+    if (!result.isOwner) {
       sendClaimNotifications(result.claim.id).catch((err) =>
         console.error('Failed to send claim notifications:', err)
       );

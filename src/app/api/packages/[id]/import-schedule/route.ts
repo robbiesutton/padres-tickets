@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/db';
 import { requireAuth, jsonError, jsonSuccess } from '@/lib/api-utils';
+import { requirePackageOwner } from '@/lib/services/package-auth';
 import { getHomeSchedule } from '@/lib/services/schedule';
 import { getTeamByAbbreviation, getTeamById } from '@/lib/data/mlb-teams';
 
@@ -15,7 +16,7 @@ export async function POST(
 
   const pkg = await prisma.package.findUnique({ where: { id } });
   if (!pkg) return jsonError('Package not found', 404);
-  if (pkg.userId !== user.id) return jsonError('Forbidden', 403);
+  if (!(await requirePackageOwner(id, user.id))) return jsonError('Forbidden', 403);
 
   // Resolve team ID from package team name
   const body = await request.json().catch(() => ({}));

@@ -21,8 +21,6 @@ export async function requireAuth() {
       id: 'design-user-holder-001',
       name: 'Robbie Sutton',
       email: 'robbie@benchbuddy.app',
-      isHolder: true,
-      isClaimer: false,
     };
   }
 

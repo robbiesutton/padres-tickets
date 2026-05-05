@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/db';
 import { requireAuth, jsonError, jsonSuccess } from '@/lib/api-utils';
+import { requirePackageOwner } from '@/lib/services/package-auth';
 
 export async function GET(
   request: NextRequest,
@@ -12,7 +13,7 @@ export async function GET(
   const { id } = await params;
   const pkg = await prisma.package.findUnique({ where: { id } });
   if (!pkg) return jsonError('Package not found', 404);
-  if (pkg.userId !== user.id) return jsonError('Forbidden', 403);
+  if (!(await requirePackageOwner(id, user.id))) return jsonError('Forbidden', 403);
 
   const searchParams = request.nextUrl.searchParams;
   const status = searchParams.get('status');
@@ -49,7 +50,7 @@ export async function POST(
   const { id } = await params;
   const pkg = await prisma.package.findUnique({ where: { id } });
   if (!pkg) return jsonError('Package not found', 404);
-  if (pkg.userId !== user.id) return jsonError('Forbidden', 403);
+  if (!(await requirePackageOwner(id, user.id))) return jsonError('Forbidden', 403);
 
   const body = await request.json();
   const { date, time, opponent, pricePerTicket, status, notes } = body;
