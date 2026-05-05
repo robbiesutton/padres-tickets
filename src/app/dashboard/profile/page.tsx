@@ -6,6 +6,8 @@ import { signOut, useSession } from 'next-auth/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useDashboardContext } from '../layout';
+import { getTeamColors, isColorDark } from '@/lib/team-colors';
+import { getOpponentAbbr } from '@/lib/game-utils';
 
 interface SubscriptionInfo {
   plan: 'FREE' | 'PRO';
@@ -36,7 +38,7 @@ const AVAILABLE_PERKS = [
 
 const ALL_NAV_ITEMS = [
   { id: 'profile', label: 'Profile', holder: true, claimer: true, icon: (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" />
     </svg>
   )},
@@ -50,8 +52,8 @@ const ALL_NAV_ITEMS = [
       <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
     </svg>
   )},
-  { id: 'shared-tickets', label: 'Tickets shared with me', holder: true, claimer: false, icon: (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+  { id: 'shared-tickets', label: 'Shared with me', holder: true, claimer: false, icon: (
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 00-3-3.87" /><path d="M16 3.13a4 4 0 010 7.75" />
     </svg>
   )},
@@ -300,7 +302,7 @@ export default function ProfilePage() {
     return (
       <>
         <h2 className="text-lg font-medium text-[#2c2a2b] mb-2">Profile</h2>
-        <p className="text-sm text-[#3d3a38] mb-6">Your personal information.</p>
+        <p className="text-sm text-[#3d3a38] mb-6 md:mb-8">Your personal information.</p>
         <form onSubmit={handleSave} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -333,7 +335,7 @@ export default function ProfilePage() {
     return (
       <>
         <h2 className="text-lg font-medium text-[#2c2a2b] mb-2">Payment</h2>
-        <p className="text-sm text-[#3d3a38] mb-6">Share your payment details so claimers know how to pay you.</p>
+        <p className="text-sm text-[#3d3a38] mb-6 md:mb-8">Share your payment details so claimers know how to pay you.</p>
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-[#2c2a2b] mb-2">Venmo Handle</label>
@@ -362,7 +364,7 @@ export default function ProfilePage() {
             </select>
           )}
         </div>
-        <p className="text-sm text-[#3d3a38] mb-6">This info is shown to anyone who opens your share link.</p>
+        <p className="text-sm text-[#3d3a38] mb-6 md:mb-8">This info is shown to anyone who opens your share link.</p>
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-[#2c2a2b] mb-2">Seat Photo</label>
@@ -431,7 +433,7 @@ export default function ProfilePage() {
     return (
       <>
         <h2 className="text-lg font-medium text-[#2c2a2b] mb-2">Subscription</h2>
-        <p className="text-sm text-[#3d3a38] mb-6">Manage your BenchBuddy subscription.</p>
+        <p className="text-sm text-[#3d3a38] mb-6 md:mb-8">Manage your BenchBuddy subscription.</p>
 
         {sub?.status === 'PAST_DUE' ? (
           <div className="rounded-lg border border-[#DC2626]/20 bg-[#FEE2E2] p-5">
@@ -525,28 +527,42 @@ export default function ProfilePage() {
   function renderSharedTickets() {
     return (
       <>
-        <h2 className="text-lg font-medium text-[#2c2a2b] mb-2">Tickets shared with me</h2>
-        <p className="text-sm text-[#3d3a38] mb-6">Packages you&apos;ve been invited to.</p>
-        <div className="flex flex-col gap-2">
-          {claimerPackages.map((pkg) => (
-            <a
-              key={pkg.id}
-              href={`/share/${pkg.shareLinkSlug}`}
-              className="flex items-center gap-3 px-4 py-3 rounded-lg border border-[#eceae5] bg-white hover:border-[#2c2a2b] transition-colors no-underline"
-            >
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-[#2c2a2b] truncate">
-                  {pkg.team} — Sec {pkg.section}{pkg.row ? `, Row ${pkg.row}` : ''}
+        <h2 className="text-lg font-medium text-[#2c2a2b] mb-2">Shared with me</h2>
+        <p className="text-sm text-[#3d3a38] mb-6 md:mb-8">Seasons people have shared with you.</p>
+        <div className="flex flex-col gap-2 max-w-[400px]">
+          {claimerPackages.map((pkg) => {
+            const { primary, accent } = getTeamColors(pkg.team);
+            // If accent is light (e.g. Dodgers white), it disappears on the
+            // white card. Invert so the badge reads on either page background.
+            const accentIsLight = !isColorDark(accent);
+            const badgeBg = accentIsLight ? primary : accent;
+            const badgeFg = accentIsLight ? accent : primary;
+            return (
+              <a
+                key={pkg.id}
+                href={`/share/${pkg.shareLinkSlug}`}
+                className="flex items-center gap-3 px-3 py-3 rounded-lg border border-[#eceae5] bg-white hover:border-[#2c2a2b] transition-colors no-underline"
+              >
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
+                  style={{ backgroundColor: badgeBg, color: badgeFg }}
+                >
+                  {getOpponentAbbr(pkg.team)}
                 </div>
-                {pkg.holderName && (
-                  <div className="text-xs text-[#8e8985] mt-0.5">Shared by {pkg.holderName}</div>
-                )}
-              </div>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8e8985" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M9 18l6-6-6-6" />
-              </svg>
-            </a>
-          ))}
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-[#2c2a2b] truncate">
+                    Sec {pkg.section} &middot; Row {pkg.row} &middot; Seats {pkg.seats}
+                  </div>
+                  {pkg.holderName && (
+                    <div className="text-xs text-[#8e8985] mt-0.5 truncate">Shared by {pkg.holderName}</div>
+                  )}
+                </div>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8e8985" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                  <path d="M9 18l6-6-6-6" />
+                </svg>
+              </a>
+            );
+          })}
         </div>
       </>
     );
@@ -576,7 +592,7 @@ export default function ProfilePage() {
                 activeSection === item.id ? 'bg-[#f5f4f2] text-[#2c2a2b]' : 'bg-transparent text-[#8e8985] hover:text-[#2c2a2b] hover:bg-[#f5f4f2]'
               }`}
             >
-              {item.icon}
+              <span className="flex items-center justify-center w-[21px] shrink-0">{item.icon}</span>
               {item.label}
             </button>
           ))}
@@ -584,7 +600,9 @@ export default function ProfilePage() {
           <div className="my-1 mx-3 border-t border-[#eceae5]" style={{ marginTop: 4, marginBottom: 4 }} />
 
           <button onClick={() => signOut({ callbackUrl: '/' })} className="w-full flex items-center gap-2.5 text-left px-3 py-2 rounded-lg text-sm font-medium text-[#8e8985] hover:text-[#DC2626] hover:bg-[#FEE2E2]/50 transition-colors bg-transparent border-none cursor-pointer">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
+            <span className="flex items-center justify-center w-[21px] shrink-0">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
+            </span>
             Sign out
           </button>
         </nav>

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { signOut } from 'next-auth/react';
 import type { PackageInfo, MyGameClaim, Game } from '../types';
 import { getTeamColors } from '../team-colors';
 import { groupGamesByMonth, getOpponentAbbr, getOpponentColor, formatTime, formatShortDate } from '../utils';
@@ -205,12 +204,6 @@ export function MyGamesTab({ pkg, claimerName, onSwitchToAvailable, onReservatio
         >
           Browse other games
         </button>
-        <button
-          className="text-sm font-medium text-[#8e8985] bg-transparent border-none cursor-pointer hover:text-[#2c2a2b] transition-colors"
-          onClick={() => signOut()}
-        >
-          Sign out
-        </button>
       </div>
 
       {/* Browse other games — mobile sticky */}
@@ -221,12 +214,6 @@ export function MyGamesTab({ pkg, claimerName, onSwitchToAvailable, onReservatio
           onClick={onSwitchToAvailable}
         >
           Browse other games
-        </button>
-        <button
-          className="w-full mt-2 text-sm font-medium text-[#8e8985] bg-transparent border-none cursor-pointer active:text-[#2c2a2b] transition-colors py-1"
-          onClick={() => signOut()}
-        >
-          Sign out
         </button>
       </div>
       {/* Spacer for sticky button + footer coverage */}
