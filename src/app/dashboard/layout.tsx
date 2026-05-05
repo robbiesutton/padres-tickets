@@ -9,6 +9,7 @@ import { useSession } from 'next-auth/react';
 import { getTeamColors, isColorDark } from '@/lib/team-colors';
 import { getOpponentAbbr } from '@/lib/game-utils';
 import { ScoreTicker } from '@/components/score-ticker';
+import { DESIGN_MODE, mockHolder } from '@/lib/mock-data';
 
 interface PackageForNav {
   id: string;
@@ -598,7 +599,9 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname();
   const { data: session } = useSession();
-  const userInitial = session?.user?.name?.charAt(0)?.toUpperCase() || '';
+  const userInitial =
+    session?.user?.name?.charAt(0)?.toUpperCase() ||
+    (DESIGN_MODE ? mockHolder.firstName.charAt(0).toUpperCase() : '');
   const isProfile = pathname === '/dashboard/profile';
   const isDashboard = pathname === '/dashboard';
   const [packages, setPackages] = useState<PackageForNav[]>([]);

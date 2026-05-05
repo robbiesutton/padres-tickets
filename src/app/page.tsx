@@ -148,9 +148,9 @@ export default function Home() {
           </a>
           <a
             href="/signup"
-            className="h-10 px-4 rounded-lg border border-white text-white text-base font-medium flex items-center justify-center hover:bg-[#dcd7d4] hover:text-[#2c2a2b] hover:border-[#2c2a2b] transition-colors"
+            className="h-10 px-4 rounded-lg bg-white text-[#2c2a2b] text-base font-bold flex items-center justify-center hover:bg-[#dcd7d4] transition-colors"
           >
-            Get started
+            Share my tickets
           </a>
         </div>
 
@@ -183,9 +183,9 @@ export default function Home() {
           </a>
           <a
             href="/signup"
-            className="h-11 flex items-center justify-center rounded-lg border border-white text-white text-sm font-medium hover:bg-[#dcd7d4] hover:text-[#2c2a2b] hover:border-[#2c2a2b] transition-colors"
+            className="h-11 flex items-center justify-center rounded-lg bg-white text-[#2c2a2b] text-sm font-bold hover:bg-[#dcd7d4] transition-colors"
           >
-            Get started
+            Share my tickets
           </a>
         </div>
       )}
