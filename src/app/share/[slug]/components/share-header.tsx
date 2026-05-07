@@ -9,6 +9,7 @@ import type { PackageInfo } from '../types';
 
 import { getTeamColors, isColorDark } from '../team-colors';
 import { getOpponentAbbr } from '../utils';
+import { DESIGN_MODE, mockClaimer } from '@/lib/mock-data';
 
 interface Props {
   holderName: string;
@@ -20,7 +21,9 @@ interface Props {
 
 export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount, pkg }: Props) {
   const { data: session } = useSession();
-  const userInitial = session?.user?.name?.charAt(0)?.toUpperCase() || '';
+  const userInitial =
+    session?.user?.name?.charAt(0)?.toUpperCase() ||
+    (DESIGN_MODE ? mockClaimer.firstName.charAt(0).toUpperCase() : '');
   const [seatInfoOpen, setSeatInfoOpen] = useState(false);
   const [pillOpen, setPillOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);

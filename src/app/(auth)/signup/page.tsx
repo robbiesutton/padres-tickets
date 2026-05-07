@@ -11,7 +11,7 @@ import {
 
 export default function SignupPage() {
   const [form, setForm] = useState({
-    firstName: '', lastName: '', email: '', password: '',
+    firstName: '', lastName: '', email: '', phone: '', password: '',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -65,6 +65,11 @@ export default function SignupPage() {
           <div>
             <FormLabel>Email</FormLabel>
             <input type="email" required value={form.email} onChange={(e) => update('email', e.target.value)} className={inputClass} />
+          </div>
+
+          <div>
+            <FormLabel>Phone number</FormLabel>
+            <input type="tel" required autoComplete="tel" value={form.phone} onChange={(e) => update('phone', e.target.value)} className={inputClass} />
           </div>
 
           <div>

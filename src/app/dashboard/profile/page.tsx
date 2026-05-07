@@ -6,6 +6,8 @@ import { signOut } from 'next-auth/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useDashboardContext } from '../layout';
+import { getTeamColors, isColorDark } from '@/lib/team-colors';
+import { getOpponentAbbr } from '@/lib/game-utils';
 
 interface SubscriptionInfo {
   plan: 'FREE' | 'PRO';
@@ -34,7 +36,7 @@ const AVAILABLE_PERKS = [
 
 const ALL_NAV_ITEMS = [
   { id: 'profile', label: 'Profile', requiresOwner: false, icon: (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" />
     </svg>
   )},
@@ -46,6 +48,11 @@ const ALL_NAV_ITEMS = [
   { id: 'subscription', label: 'Subscription', requiresOwner: true, icon: (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+    </svg>
+  )},
+  { id: 'shared-tickets', label: 'Shared with me', requiresOwner: false, icon: (
+    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 00-3-3.87" /><path d="M16 3.13a4 4 0 010 7.75" />
     </svg>
   )},
 ];
@@ -273,7 +280,11 @@ export default function ProfilePage() {
     if (!fromShare && typeof document !== 'undefined' && document.referrer.includes('/share/')) setCameFromShare(true);
   }, [fromShare]);
   const showOwnerTabs = hasOwnedPackages && !cameFromShare;
-  const NAV_ITEMS = ALL_NAV_ITEMS.filter((item) => !item.requiresOwner || showOwnerTabs);
+  const claimerPackages = packages.filter((p) => p.role !== 'OWNER' && p.role !== 'CO_OWNER');
+  const NAV_ITEMS = ALL_NAV_ITEMS.filter((item) => {
+    if (item.id === 'shared-tickets') return claimerPackages.length > 0;
+    return !item.requiresOwner || showOwnerTabs;
+  });
 
 
   if (loading) return <ProfileSkeleton />;
@@ -284,7 +295,7 @@ export default function ProfilePage() {
     return (
       <>
         <h2 className="text-lg font-medium text-[#2c2a2b] mb-2">Profile</h2>
-        <p className="text-sm text-[#3d3a38] mb-6">Your personal information.</p>
+        <p className="text-sm text-[#3d3a38] mb-6 md:mb-8">Your personal information.</p>
         <form onSubmit={handleSave} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -306,7 +317,7 @@ export default function ProfilePage() {
             <input type="tel" value={form.phone} onChange={(e) => update('phone', e.target.value)} placeholder="Optional" className={inputClass} />
           </div>
           <button type="submit" disabled={saving} className="w-full md:w-auto h-12 md:h-10 px-5 rounded-lg bg-[#2c2a2b] text-sm font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors disabled:opacity-50">
-            {saving ? 'Saving...' : 'Save Changes'}
+            {saving ? 'Saving...' : 'Save changes'}
           </button>
         </form>
       </>
@@ -317,7 +328,7 @@ export default function ProfilePage() {
     return (
       <>
         <h2 className="text-lg font-medium text-[#2c2a2b] mb-2">Payment</h2>
-        <p className="text-sm text-[#3d3a38] mb-6">Share your payment details so claimers know how to pay you.</p>
+        <p className="text-sm text-[#3d3a38] mb-6 md:mb-8">Share your payment details so claimers know how to pay you.</p>
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-[#2c2a2b] mb-2">Venmo Handle</label>
@@ -328,7 +339,7 @@ export default function ProfilePage() {
             <input type="text" value={form.zelleInfo} onChange={(e) => update('zelleInfo', e.target.value)} placeholder="email or phone for Zelle" className={inputClass} />
           </div>
           <button type="button" onClick={(e) => handleSave(e as unknown as React.FormEvent)} disabled={saving} className="w-full md:w-auto h-12 md:h-10 px-5 rounded-lg bg-[#2c2a2b] text-sm font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors disabled:opacity-50">
-            {saving ? 'Saving...' : 'Save Changes'}
+            {saving ? 'Saving...' : 'Save changes'}
           </button>
         </div>
       </>
@@ -346,7 +357,7 @@ export default function ProfilePage() {
             </select>
           )}
         </div>
-        <p className="text-sm text-[#3d3a38] mb-6">This info is shown to claimers on your share page.</p>
+        <p className="text-sm text-[#3d3a38] mb-6 md:mb-8">This info is shown to anyone who opens your share link.</p>
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-[#2c2a2b] mb-2">Seat Photo</label>
@@ -381,7 +392,7 @@ export default function ProfilePage() {
           </div>
           <div>
             <label className="block text-sm font-medium text-[#2c2a2b] mb-2">Description</label>
-            <textarea value={seatForm.description} onChange={(e) => setSeatForm((prev) => ({ ...prev, description: e.target.value }))} placeholder="Tell claimers about your seats..." rows={3} className={`${inputClass} resize-none`} />
+            <textarea value={seatForm.description} onChange={(e) => setSeatForm((prev) => ({ ...prev, description: e.target.value }))} placeholder="Describe your seats..." rows={3} className={`${inputClass} resize-none`} />
           </div>
           <div>
             <label className="block text-sm font-medium text-[#2c2a2b] mb-2">Perks</label>
@@ -400,7 +411,7 @@ export default function ProfilePage() {
             </div>
           </div>
           <button type="button" onClick={handleSaveSeatInfo} disabled={savingSeat} className="w-full md:w-auto h-12 md:h-10 px-5 rounded-lg bg-[#2c2a2b] text-sm font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors disabled:opacity-50">
-            {savingSeat ? 'Saving...' : 'Save Seat Info'}
+            {savingSeat ? 'Saving...' : 'Save seat info'}
           </button>
         </div>
       </>
@@ -415,7 +426,7 @@ export default function ProfilePage() {
     return (
       <>
         <h2 className="text-lg font-medium text-[#2c2a2b] mb-2">Subscription</h2>
-        <p className="text-sm text-[#3d3a38] mb-6">Manage your BenchBuddy subscription.</p>
+        <p className="text-sm text-[#3d3a38] mb-6 md:mb-8">Manage your BenchBuddy subscription.</p>
 
         {sub?.status === 'PAST_DUE' ? (
           <div className="rounded-lg border border-[#DC2626]/20 bg-[#FEE2E2] p-5">
@@ -425,7 +436,7 @@ export default function ProfilePage() {
             </div>
             <p className="text-sm text-[#DC2626] mb-4">Please update your payment method.</p>
             <button onClick={handleManageBilling} disabled={subLoading} className="w-full h-12 md:h-10 rounded-lg bg-[#DC2626] text-sm font-medium text-white hover:bg-[#b91c1c] disabled:opacity-50">
-              {subLoading ? 'Loading...' : 'Update Payment Method'}
+              {subLoading ? 'Loading...' : 'Update payment method'}
             </button>
           </div>
         ) : isPendingCancel ? (
@@ -436,7 +447,7 @@ export default function ProfilePage() {
             </div>
             <p className="text-sm text-[#2c2a2b] mb-4">Ends on {sub.currentPeriodEnd ? formatDate(sub.currentPeriodEnd) : 'end of period'}. You&apos;ll keep access until then.</p>
             <button onClick={handleResubscribe} disabled={subLoading} className="w-full h-12 md:h-10 rounded-lg bg-[#2c2a2b] text-sm font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] disabled:opacity-50">
-              {subLoading ? 'Loading...' : 'Keep My Subscription'}
+              {subLoading ? 'Loading...' : 'Keep my subscription'}
             </button>
           </div>
         ) : isActive ? (
@@ -453,7 +464,7 @@ export default function ProfilePage() {
               </span>
             </div>
             <div className="flex gap-3">
-              <button onClick={handleManageBilling} disabled={subLoading} className="flex-1 h-12 md:h-10 rounded-lg border border-[#eceae5] bg-white text-sm font-medium text-[#2c2a2b] hover:bg-[#f5f4f2] transition-colors disabled:opacity-50">Manage Billing</button>
+              <button onClick={handleManageBilling} disabled={subLoading} className="flex-1 h-12 md:h-10 rounded-lg border border-[#eceae5] bg-white text-sm font-medium text-[#2c2a2b] hover:bg-[#f5f4f2] transition-colors disabled:opacity-50">Manage billing</button>
               <button onClick={handleCancel} disabled={subLoading} className="flex-1 h-12 md:h-10 rounded-lg border border-[#eceae5] bg-white text-sm font-medium text-[#2c2a2b] hover:bg-[#f5f4f2] transition-colors disabled:opacity-50">Cancel</button>
             </div>
           </div>
@@ -462,7 +473,7 @@ export default function ProfilePage() {
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-bold text-[#2c2a2b]">BenchBuddy Season Pass</h3>
-              <span className="rounded-full bg-[#fdf6e3] px-3 py-1 text-xs font-bold text-[#d4a017] uppercase tracking-wide">Free for Early Adopters</span>
+              <span className="rounded-full bg-[#fdf6e3] px-3 py-1 text-xs font-bold text-[#d4a017]">Free for early adopters</span>
             </div>
 
             {/* Price */}
@@ -477,9 +488,9 @@ export default function ProfilePage() {
             {/* Benefits */}
             <div className="flex flex-col gap-3 mb-8">
               {[
-                'Share games with unlimited friends',
-                'Track claims, revenue, and status in one place',
-                'Cancel anytime — no commitment',
+                'Share your season with anyone — no limit',
+                'Track claims, payments, and status in one place',
+                'Cancel anytime',
               ].map((benefit) => (
                 <div key={benefit} className="flex items-start gap-3">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="shrink-0 mt-0.5">
@@ -492,12 +503,12 @@ export default function ProfilePage() {
 
             {/* CTA */}
             <button onClick={handleSubscribe} disabled={subLoading} className="w-full h-12 rounded-lg bg-[#2c2a2b] text-base font-semibold text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors disabled:opacity-50 cursor-pointer">
-              {subLoading ? 'Loading...' : 'Subscribe Now'}
+              {subLoading ? 'Loading...' : 'Subscribe now'}
             </button>
 
             {/* Fine print */}
             <p className="text-xs text-[#8e8985] text-center mt-4">
-              Cancel anytime. You won&apos;t be charged until your free month ends.
+              Cancel anytime. You won&apos;t be charged until your free year ends.
             </p>
           </div>
         )}
@@ -506,10 +517,55 @@ export default function ProfilePage() {
   }
 
 
+  function renderSharedTickets() {
+    return (
+      <>
+        <h2 className="text-lg font-medium text-[#2c2a2b] mb-2">Shared with me</h2>
+        <p className="text-sm text-[#3d3a38] mb-6 md:mb-8">Seasons people have shared with you.</p>
+        <div className="flex flex-col gap-2 max-w-[400px]">
+          {claimerPackages.map((pkg) => {
+            const { primary, accent } = getTeamColors(pkg.team);
+            // If accent is light (e.g. Dodgers white), it disappears on the
+            // white card. Invert so the badge reads on either page background.
+            const accentIsLight = !isColorDark(accent);
+            const badgeBg = accentIsLight ? primary : accent;
+            const badgeFg = accentIsLight ? accent : primary;
+            return (
+              <a
+                key={pkg.id}
+                href={`/share/${pkg.shareLinkSlug}`}
+                className="flex items-center gap-3 px-3 py-3 rounded-lg border border-[#eceae5] bg-white hover:border-[#2c2a2b] transition-colors no-underline"
+              >
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
+                  style={{ backgroundColor: badgeBg, color: badgeFg }}
+                >
+                  {getOpponentAbbr(pkg.team)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-[#2c2a2b] truncate">
+                    Sec {pkg.section} &middot; Row {pkg.row} &middot; Seats {pkg.seats}
+                  </div>
+                  {pkg.holderName && (
+                    <div className="text-xs text-[#8e8985] mt-0.5 truncate">Shared by {pkg.holderName}</div>
+                  )}
+                </div>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8e8985" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                  <path d="M9 18l6-6-6-6" />
+                </svg>
+              </a>
+            );
+          })}
+        </div>
+      </>
+    );
+  }
+
   const sectionRenderers: Record<string, () => React.ReactNode> = {
     profile: renderProfile,
     'seat-info': renderSeatInfo,
     subscription: renderSubscription,
+    'shared-tickets': renderSharedTickets,
   };
 
   return (
@@ -518,7 +574,7 @@ export default function ProfilePage() {
       <aside className="hidden md:flex md:flex-col w-[220px] shrink-0 border-r border-[#eceae5] pt-8 pl-8 pr-4 sticky top-[77px] self-start h-[calc(100vh-77px)]">
         <Link href={cameFromShare && shareSlug ? `/share/${shareSlug}` : '/dashboard'} className="flex items-center gap-1.5 text-sm text-[#8e8985] hover:text-[#2c2a2b] transition-colors mb-6">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
-          {cameFromShare ? 'Back to Games' : 'Back to Dashboard'}
+          Back to my season
         </Link>
         <nav className="flex flex-col gap-1">
           {NAV_ITEMS.map((item) => (
@@ -529,7 +585,7 @@ export default function ProfilePage() {
                 activeSection === item.id ? 'bg-[#f5f4f2] text-[#2c2a2b]' : 'bg-transparent text-[#8e8985] hover:text-[#2c2a2b] hover:bg-[#f5f4f2]'
               }`}
             >
-              {item.icon}
+              <span className="flex items-center justify-center w-[21px] shrink-0">{item.icon}</span>
               {item.label}
             </button>
           ))}
@@ -537,7 +593,9 @@ export default function ProfilePage() {
           <div className="my-1 mx-3 border-t border-[#eceae5]" style={{ marginTop: 4, marginBottom: 4 }} />
 
           <button onClick={() => signOut({ callbackUrl: '/' })} className="w-full flex items-center gap-2.5 text-left px-3 py-2 rounded-lg text-sm font-medium text-[#8e8985] hover:text-[#DC2626] hover:bg-[#FEE2E2]/50 transition-colors bg-transparent border-none cursor-pointer">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
+            <span className="flex items-center justify-center w-[21px] shrink-0">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
+            </span>
             Sign out
           </button>
         </nav>
@@ -568,7 +626,7 @@ export default function ProfilePage() {
                       <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" />
                     </svg>
                   </span>
-                  <span className="flex-1 text-base font-medium text-[#2c2a2b]">Dashboard</span>
+                  <span className="flex-1 text-base font-medium text-[#2c2a2b]">My season</span>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8e8985" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M9 18l6-6-6-6" />
                   </svg>
@@ -599,11 +657,11 @@ export default function ProfilePage() {
                       <circle cx="12" cy="12" r="10" /><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" /><path d="M2 12h20" />
                     </svg>
                   </span>
-                  <span className="flex-1 text-base font-medium text-[#2c2a2b]">My Games</span>
+                  <span className="flex-1 text-base font-medium text-[#2c2a2b]">My games</span>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8e8985" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M9 18l6-6-6-6" />
-                </svg>
-              </button>
+                  </svg>
+                </button>
               )}
               {NAV_ITEMS.map((item) => (
                 <button

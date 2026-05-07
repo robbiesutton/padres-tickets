@@ -377,14 +377,12 @@ function SharePageInner({ packageInfo, games: initialGames, opponents }: Props) 
         {activeTab === 'available' ? (
           <>
             {/* Page heading — uses Holder's first name per voice guide */}
-            <div className="hidden md:block mb-6 md:mb-8">
-              <h1 className="text-2xl font-bold text-[#2c2a2b]" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>
+            <div className="hidden md:block mb-8">
+              <h1 className="text-2xl font-bold leading-tight text-[#2c2a2b]" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>
                 {holderFirstName ? <>{holderFirstName}&apos;s season</> : 'Your shared season'}
               </h1>
               <p className="mt-2 text-base text-[#8e8985]">
-                {holderFirstName
-                  ? <>Pick the games you want — {holderFirstName} will transfer them to your Ballpark account.</>
-                  : 'Pick the games you want — your tickets will be transferred to your Ballpark account closer to game day.'}
+                Claim the games you want.
               </p>
             </div>
             <Toolbar
