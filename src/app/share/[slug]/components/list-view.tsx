@@ -141,10 +141,10 @@ export function ListView({
           game={selectedGame}
           pkg={pkg}
           isReservedByMe={
-            !cancelledGameIds.has(selectedGame.id) && (
-              reservedGames.has(selectedGame.id) ||
-              (selectedGame.claim?.claimerUserId === currentUserId && selectedGame.claim?.status !== 'RELEASED')
-            )
+            !cancelledGameIds.has(selectedGame.id) &&
+            (reservedGames.has(selectedGame.id) ||
+              (selectedGame.claim?.claimerUserId === currentUserId &&
+                selectedGame.claim?.status !== 'RELEASED'))
           }
           anchorRect={null}
           containerRect={null}
