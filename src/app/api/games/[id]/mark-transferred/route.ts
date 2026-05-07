@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/db';
 import { verifyToken } from '@/lib/services/tokens';
 import { jsonError } from '@/lib/api-utils';
+import { requirePackageOwner } from '@/lib/services/package-auth';
 import { logActivity } from '@/lib/services/activity';
 import { Prisma } from '@/generated/prisma/client';
 
@@ -39,7 +40,7 @@ export async function GET(
     return jsonError('Game not found', 404);
   }
 
-  if (game.package.userId !== user.id) {
+  if (!(await requirePackageOwner(game.package.id, user.id))) {
     return jsonError('Forbidden', 403);
   }
 

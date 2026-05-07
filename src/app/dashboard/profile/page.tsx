@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { signOut, useSession } from 'next-auth/react';
+import { signOut } from 'next-auth/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useDashboardContext } from '../layout';
@@ -24,8 +24,6 @@ interface UserProfile {
   lastName: string;
   email: string;
   phone: string | null;
-  isHolder: boolean;
-  isClaimer: boolean;
   venmoHandle: string | null;
   zelleInfo: string | null;
   subscription: SubscriptionInfo | null;
@@ -37,22 +35,22 @@ const AVAILABLE_PERKS = [
 ];
 
 const ALL_NAV_ITEMS = [
-  { id: 'profile', label: 'Profile', holder: true, claimer: true, icon: (
+  { id: 'profile', label: 'Profile', requiresOwner: false, icon: (
     <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" />
     </svg>
   )},
-  { id: 'seat-info', label: 'Seat Info', holder: true, claimer: false, icon: (
+  { id: 'seat-info', label: 'Seat Info', requiresOwner: true, icon: (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" /><line x1="4" y1="22" x2="4" y2="15" />
     </svg>
   )},
-  { id: 'subscription', label: 'Subscription', holder: true, claimer: false, icon: (
+  { id: 'subscription', label: 'Subscription', requiresOwner: true, icon: (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
     </svg>
   )},
-  { id: 'shared-tickets', label: 'Shared with me', holder: true, claimer: false, icon: (
+  { id: 'shared-tickets', label: 'Shared with me', requiresOwner: false, icon: (
     <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 00-3-3.87" /><path d="M16 3.13a4 4 0 010 7.75" />
     </svg>
@@ -274,23 +272,18 @@ export default function ProfilePage() {
     return new Date(dateStr).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
   }
 
-  const { data: session } = useSession();
-  const isHolderRole = (session?.user as { isHolder?: boolean })?.isHolder || profile?.isHolder;
+  const hasOwnedPackages = packages.some((p) => p.role === 'OWNER' || p.role === 'CO_OWNER');
   const fromShare = searchParams.get('from') === 'share';
   const shareSlug = searchParams.get('slug') || '';
   const [cameFromShare, setCameFromShare] = useState(fromShare);
   useEffect(() => {
-    // Fallback: detect via referrer if no query param
     if (!fromShare && typeof document !== 'undefined' && document.referrer.includes('/share/')) setCameFromShare(true);
   }, [fromShare]);
-  // Holders always see the holder profile view, regardless of where they came from
-  const showAsHolder = !!isHolderRole;
-  const claimerPackages = packages.filter((p) => p._role === 'claimer');
+  const showOwnerTabs = hasOwnedPackages && !cameFromShare;
+  const claimerPackages = packages.filter((p) => p.role !== 'OWNER' && p.role !== 'CO_OWNER');
   const NAV_ITEMS = ALL_NAV_ITEMS.filter((item) => {
-    if (showAsHolder && !item.holder) return false;
-    if (!showAsHolder && !item.claimer) return false;
-    if (item.id === 'shared-tickets' && claimerPackages.length === 0) return false;
-    return true;
+    if (item.id === 'shared-tickets') return claimerPackages.length > 0;
+    return !item.requiresOwner || showOwnerTabs;
   });
 
 
@@ -579,7 +572,7 @@ export default function ProfilePage() {
     <div className="flex flex-1 bg-[#fefefe]">
       {/* ── Sidebar Nav (desktop) ── */}
       <aside className="hidden md:flex md:flex-col w-[220px] shrink-0 border-r border-[#eceae5] pt-8 pl-8 pr-4 sticky top-[77px] self-start h-[calc(100vh-77px)]">
-        <Link href={showAsHolder ? '/dashboard' : (shareSlug ? `/share/${shareSlug}` : '/dashboard')} className="flex items-center gap-1.5 text-sm text-[#8e8985] hover:text-[#2c2a2b] transition-colors mb-6">
+        <Link href={cameFromShare && shareSlug ? `/share/${shareSlug}` : '/dashboard'} className="flex items-center gap-1.5 text-sm text-[#8e8985] hover:text-[#2c2a2b] transition-colors mb-6">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
           Back to my season
         </Link>
@@ -621,8 +614,8 @@ export default function ProfilePage() {
 
             {/* Nav items */}
             <div className="flex flex-col">
-              {/* Dashboard link — for holders; My Games link — for pure claimers */}
-              {showAsHolder ? (
+              {/* Dashboard link — when coming from seller dashboard */}
+              {!cameFromShare && (
                 <Link
                   href="/dashboard"
                   className="flex items-center gap-3 px-1 py-4 no-underline border-b border-[#eceae5]"
@@ -638,7 +631,9 @@ export default function ProfilePage() {
                     <path d="M9 18l6-6-6-6" />
                   </svg>
                 </Link>
-              ) : (
+              )}
+              {/* My Games link — when coming from share/claimer page */}
+              {cameFromShare && (
                 <button
                   onClick={() => {
                     if (shareSlug) {

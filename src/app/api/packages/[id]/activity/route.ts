@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/db';
 import { requireAuth, jsonError, jsonSuccess } from '@/lib/api-utils';
+import { requirePackageOwner } from '@/lib/services/package-auth';
 import { DESIGN_MODE, mockActivities } from '@/lib/mock-data';
 
 export async function GET(
@@ -18,7 +19,7 @@ export async function GET(
 
   const pkg = await prisma.package.findUnique({ where: { id } });
   if (!pkg) return jsonError('Package not found', 404);
-  if (pkg.userId !== user.id) return jsonError('Forbidden', 403);
+  if (!(await requirePackageOwner(id, user.id))) return jsonError('Forbidden', 403);
 
   const limit = parseInt(request.nextUrl.searchParams.get('limit') || '20', 10);
   const offset = parseInt(

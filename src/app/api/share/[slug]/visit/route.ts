@@ -22,22 +22,23 @@ export async function POST(
     return jsonError('Package not found', 404);
   }
 
-  // Don't create an invitation for the package owner
+  // Don't create a membership for the package owner
   if (pkg.userId === user.id) {
     return jsonSuccess({ ok: true });
   }
 
-  await prisma.invitation.upsert({
+  await prisma.packageMember.upsert({
     where: {
-      packageId_claimerUserId: {
+      packageId_userId: {
         packageId: pkg.id,
-        claimerUserId: user.id,
+        userId: user.id,
       },
     },
     update: {},
     create: {
       packageId: pkg.id,
-      claimerUserId: user.id,
+      userId: user.id,
+      role: 'CLAIMER',
     },
   });
 

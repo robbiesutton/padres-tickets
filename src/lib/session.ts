@@ -6,8 +6,6 @@ interface SessionUser {
   email: string;
   firstName: string;
   lastName: string;
-  isHolder: boolean;
-  isClaimer: boolean;
 }
 
 export async function setSessionCookie(
@@ -20,8 +18,6 @@ export async function setSessionCookie(
       id: user.id,
       email: user.email,
       name: `${user.firstName} ${user.lastName}`,
-      isHolder: user.isHolder,
-      isClaimer: user.isClaimer,
       sub: user.id,
     },
     secret: process.env.NEXTAUTH_SECRET!,

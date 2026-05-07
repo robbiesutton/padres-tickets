@@ -11,7 +11,7 @@ import {
 
 export default function SignupPage() {
   const [form, setForm] = useState({
-    firstName: '', lastName: '', email: '', phone: '', password: '', isHolder: true,
+    firstName: '', lastName: '', email: '', phone: '', password: '',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);

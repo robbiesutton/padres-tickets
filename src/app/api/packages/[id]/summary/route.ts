@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/db';
 import { requireAuth, jsonError, jsonSuccess } from '@/lib/api-utils';
+import { requirePackageOwner } from '@/lib/services/package-auth';
 import { DESIGN_MODE, mockSummary } from '@/lib/mock-data';
 
 export async function GET(
@@ -18,7 +19,7 @@ export async function GET(
 
   const pkg = await prisma.package.findUnique({ where: { id } });
   if (!pkg) return jsonError('Package not found', 404);
-  if (pkg.userId !== user.id) return jsonError('Forbidden', 403);
+  if (!(await requirePackageOwner(id, user.id))) return jsonError('Forbidden', 403);
 
   // Aggregate stats using database queries
   const [statusCounts, , pastAvailable] = await Promise.all([
@@ -86,8 +87,8 @@ export async function GET(
       gamesAvailable + gamesClaimed + gamesTransferred + gamesComplete,
     gamesUnused: pastAvailable,
     revenueCollected,
-    claimersCount: await prisma.invitation.count({
-      where: { packageId: id },
+    claimersCount: await prisma.packageMember.count({
+      where: { packageId: id, role: 'CLAIMER', revokedAt: null },
     }),
   });
 }

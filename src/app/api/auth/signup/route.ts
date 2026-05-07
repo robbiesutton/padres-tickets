@@ -1,21 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/db';
-import { jsonError, jsonSuccess } from '@/lib/api-utils';
+import { jsonError } from '@/lib/api-utils';
 import { getClientIp, rateLimit, rateLimitResponse } from '@/lib/rate-limit';
 import { DESIGN_MODE } from '@/lib/mock-data';
 import { setSessionCookie } from '@/lib/session';
 
 export async function POST(request: NextRequest) {
   if (DESIGN_MODE) {
-    return jsonSuccess({ message: 'Check your email to verify your account' });
+    return NextResponse.json({ ok: true, data: { message: 'Check your email to verify your account' } });
   }
   const ip = getClientIp(request);
   const { success } = rateLimit(`signup:${ip}`, 5, 60_000);
   if (!success) return rateLimitResponse();
 
   const body = await request.json();
-  const { firstName, lastName, email, password, isHolder, role, agreedToTerms, marketingOptIn } = body;
+  const { firstName, lastName, email, password, agreedToTerms, marketingOptIn } = body;
 
   if (!agreedToTerms) {
     return jsonError('You must agree to the Terms of Service and Privacy Policy', 400);
@@ -44,17 +44,12 @@ export async function POST(request: NextRequest) {
 
   const passwordHash = await bcrypt.hash(password, 10);
 
-  // Support both new (isHolder) and legacy (role) field from client
-  const holderFlag = isHolder === true || role === 'HOLDER';
-
   const user = await prisma.user.create({
     data: {
       firstName: firstName.trim(),
       lastName: lastName.trim(),
       email: normalizedEmail,
       passwordHash,
-      isHolder: holderFlag,
-      isClaimer: true,
       emailVerified: new Date(),
       notificationPrefs: { marketingOptIn: !!marketingOptIn },
     },
@@ -68,8 +63,6 @@ export async function POST(request: NextRequest) {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        isHolder: user.isHolder,
-        isClaimer: user.isClaimer,
       },
     },
     { status: 201 }

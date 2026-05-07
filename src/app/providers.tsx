@@ -9,8 +9,6 @@ const mockSession =
           id: 'design-user-claimer-001',
           name: 'Margo Coleman',
           email: 'margo@benchbuddy.app',
-          isHolder: false,
-          isClaimer: true,
         },
         expires: '2099-12-31T23:59:59.999Z',
       }

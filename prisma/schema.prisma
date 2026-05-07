@@ -77,6 +77,12 @@ enum ActivityType {
   GAME_UPDATED
 }
 
+enum PackageRole {
+  OWNER
+  CO_OWNER
+  CLAIMER
+}
+
 // ─── Models ──────────────────────────────────────────────
 
 model User {
@@ -86,8 +92,6 @@ model User {
   email         String    @unique
   phone         String?
   passwordHash  String?
-  isHolder      Boolean   @default(false)
-  isClaimer     Boolean   @default(true)
   venmoHandle       String?
   zelleInfo         String?
   emailVerified     DateTime?
@@ -97,7 +101,7 @@ model User {
 
   packages      Package[]
   claims        Claim[]
-  invitations   Invitation[]
+  memberships   PackageMember[]
   subscription  Subscription?
   tokens        Token[]
   notifications Notification[]
@@ -126,7 +130,7 @@ model Package {
 
   user        User         @relation(fields: [userId], references: [id])
   games       Game[]
-  invitations Invitation[]
+  members     PackageMember[]
   activities  Activity[]
 
   @@index([userId])
@@ -173,18 +177,6 @@ model Claim {
 
   @@index([claimerUserId])
   @@index([transferStatus])
-}
-
-model Invitation {
-  id            String   @id @default(cuid())
-  packageId     String
-  claimerUserId String
-  invitedAt     DateTime @default(now())
-
-  package Package @relation(fields: [packageId], references: [id], onDelete: Cascade)
-  claimer User    @relation(fields: [claimerUserId], references: [id])
-
-  @@unique([packageId, claimerUserId])
 }
 
 model Token {
@@ -247,4 +239,20 @@ model Subscription {
   updatedAt            DateTime           @updatedAt
 
   user User @relation(fields: [userId], references: [id])
+}
+
+model PackageMember {
+  id        String       @id @default(cuid())
+  packageId String
+  userId    String
+  role      PackageRole
+  invitedAt DateTime     @default(now())
+  revokedAt DateTime?
+
+  package Package @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@unique([packageId, userId])
+  @@index([userId])
+  @@index([packageId, role])
 }
