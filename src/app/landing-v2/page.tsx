@@ -120,7 +120,7 @@ export default function Home() {
       `}</style>
 
       {/* Nav */}
-      <nav className="flex items-center justify-between px-6 md:px-12 py-6">
+      <nav className="flex items-center justify-between px-6 md:px-12 lg:px-20 py-6">
         <a href="/" className="flex items-center gap-2">
           <img
             src="/benchbuddy-mark-white.svg"
@@ -174,7 +174,7 @@ export default function Home() {
 
       {/* Mobile menu dropdown */}
       {mobileMenuOpen && (
-        <div ref={mobileMenuRef} className="md:hidden px-6 pb-4 flex flex-col gap-3 bg-[#1B1716]">
+        <div ref={mobileMenuRef} className="md:hidden px-6 md:px-12 lg:px-20 pb-4 flex flex-col gap-3 bg-[#1B1716]">
           <a
             href="/login"
             className="h-11 flex items-center justify-center rounded-lg text-sm font-medium text-white/70 hover:text-white transition-colors"
@@ -191,12 +191,12 @@ export default function Home() {
       )}
 
       {/* Hero */}
-      <section className="relative lg:h-[650px] flex items-center overflow-hidden bg-[#1B1716]">
+      <section className="relative lg:h-[650px] flex items-center lg:items-start overflow-hidden bg-[#1B1716]">
 
         {/* Content */}
-        <div className="relative z-10 px-6 md:px-12 w-full">
-          <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-8 lg:gap-20">
-          <div className="flex-1 max-w-xl flex flex-col gap-6 pt-20 pb-8 lg:py-20">
+        <div className="relative z-10 px-6 md:px-12 lg:px-20 w-full">
+          <div className="max-w-7xl mx-auto flex flex-col lg:flex-row lg:justify-center items-center gap-8 md:gap-16 lg:gap-24">
+          <div className="max-w-xl flex flex-col gap-0 md:gap-6 pt-10 md:pt-6 pb-14 md:pb-[72px] lg:pt-20 lg:pb-24">
             {/* Alert */}
             <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#E41837]/20 bg-[#E41837]/10 text-sm font-medium text-white/70 w-fit">
               <span className="relative flex w-2 h-2">
@@ -208,24 +208,25 @@ export default function Home() {
 
             {/* Headline */}
             <h1
-              className="text-3xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.08] tracking-tight"
+              className="mt-6 md:mt-0 text-3xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.08] tracking-tight"
               style={{ fontFamily: 'var(--font-syne), sans-serif' }}
             >
-              Share your season.
-              <br />
-              Skip the group text.
+              Share your season tickets.
             </h1>
 
             {/* Subtitle */}
-            <p className="-mt-0 max-w-lg text-base md:text-lg text-white/50 leading-relaxed">
-              Share a link and let them claim the games they want — no wasted tickets, no crazy fees.
+            <p className="md:hidden mt-4 max-w-lg text-base text-white/50 leading-relaxed">
+              Share your link. They claim the games they want. No group texts, no crazy fees.
+            </p>
+            <p className="hidden md:block -mt-0 max-w-lg text-base md:text-lg text-white/50 leading-relaxed">
+              Share your personal link and let them claim the games they want. No wasted tickets, no group texts, no crazy fees.
             </p>
 
             {/* CTA */}
             <div className="mt-8">
               <a
                 href="/signup"
-                className="group inline-flex items-center gap-2 h-10 px-4 rounded-lg bg-white text-[#2c2a2b] text-base font-bold hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors"
+                className="group inline-flex w-full md:w-auto items-center justify-center md:justify-start gap-2 h-12 md:h-10 px-4 rounded-lg bg-white text-[#2c2a2b] text-base font-bold hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors"
               >
                 Share my tickets
                 <span className="text-[#2c2a2b] transition-transform duration-200 group-hover:translate-x-0.5">&rarr;</span>
@@ -233,18 +234,18 @@ export default function Home() {
             </div>
 
             {/* Secondary link */}
-            <div className="flex items-center gap-2 text-sm">
+            <div className="mt-5 md:mt-0 flex items-center gap-2 text-base md:text-sm">
               <span className="text-white/40">Got a link from a friend?</span>
               <button
                 onClick={() => setShowLinkInput(true)}
-                className="text-white/70 underline underline-offset-2 hover:text-white transition-colors bg-transparent border-none cursor-pointer text-sm"
+                className="text-white/70 underline underline-offset-2 hover:text-white transition-colors bg-transparent border-none cursor-pointer text-base md:text-sm py-2"
               >
                 Enter it here
               </button>
             </div>
 
             {showLinkInput && (
-              <div className="max-w-md space-y-3">
+              <div className="mt-5 md:mt-0 max-w-md space-y-3">
                 <div className="flex gap-2">
                   <input
                     type="text"
@@ -253,13 +254,13 @@ export default function Home() {
                     onKeyDown={(e) => e.key === 'Enter' && !validating && handleGoToLink()}
                     disabled={validating}
                     placeholder="e.g. benchbuddy.com/share/mark-rockies"
-                    className="flex-1 h-11 px-3 rounded-lg border border-white/20 bg-white/10 text-white text-sm outline-none placeholder:text-white/30 focus:border-white/40"
+                    className="flex-1 h-12 md:h-11 px-3 rounded-lg border border-white/20 bg-white/10 text-white text-base md:text-sm outline-none placeholder:text-white/30 focus:border-white/40"
                     autoFocus
                   />
                   <button
                     onClick={handleGoToLink}
                     disabled={validating}
-                    className="h-10 px-4 rounded-lg bg-white text-[#2c2a2b] text-base font-medium hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="h-12 md:h-10 px-4 rounded-lg bg-white text-[#2c2a2b] text-base font-medium hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {validating ? 'Checking...' : 'Go'}
                   </button>
@@ -272,8 +273,8 @@ export default function Home() {
 
           </div>
 
-          {/* Hero visual — floating claimer calendar */}
-          <div className="flex w-full lg:flex-[1.3] relative items-center justify-center pb-12 lg:pb-0" style={{ padding: 24 }}>
+          {/* Hero visual — floating claimer calendar (desktop only) */}
+          <div className="hidden lg:flex lg:w-[520px] lg:ml-4 lg:shrink-0 relative items-center justify-center lg:pb-0 lg:p-0">
             {/* Gold halo */}
             <div
               aria-hidden
@@ -295,121 +296,81 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Social proof bar */}
-      <section className="bg-[#F9F6F0] py-5">
-        <div className="max-w-5xl mx-auto px-6 md:px-12 flex items-center justify-center gap-4">
-          <p className="text-sm text-[#8e8985] text-center">Now in early access — join season ticket holders already sharing their season</p>
-        </div>
-      </section>
-
-      {/* Product showcase */}
-      {/* Block 1 — Share */}
-      <section className="bg-[#F9F6F0] py-16 md:py-24 px-6 md:px-12">
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row md:items-center md:gap-16">
-          <div className="flex-1 mb-10 md:mb-0">
-            <p className="text-xs font-semibold text-[#E5AB00] uppercase tracking-widest mb-3">Share</p>
-            <h2 className="text-2xl md:text-3xl font-bold text-[#1B1716] mb-4" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>Text a link, they claim a game</h2>
-            <p className="text-base text-[#8e8985] leading-relaxed max-w-md">Send your unique link to anyone — by text, email, or any app. They see your available games and claim the ones they want. No app download, no account required to browse.</p>
-          </div>
-          <div className="flex-1 flex justify-center md:justify-end">
-            <div className="w-full flex flex-col items-center md:items-end px-4 py-[60px] md:px-8" style={{ gap: 6 }}>
-              <ShareBubble />
-              <SharePreviewCard />
+      {/* Product showcase — Share + Claim merged */}
+      <section className="bg-[#F5F4F2] py-10 md:py-[72px] lg:py-24 px-5 md:px-8">
+        <div className="max-w-[1120px] mx-auto flex flex-col gap-10 md:gap-12 lg:gap-16">
+          {/* Row 1 — Share */}
+          <div className="flex flex-col md:flex-row md:items-center md:gap-16 lg:gap-24">
+            <div className="flex-1 mb-10 md:mb-0">
+              <p className="text-xs font-semibold text-[#810100] uppercase tracking-widest mb-3">Share</p>
+              <h2 className="text-2xl md:text-3xl font-bold text-[#1B1716] mb-4" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>Text a link, share your season</h2>
+              <p className="text-base text-[#8e8985] leading-relaxed max-w-md">Get a unique link with a calendar of your available games. Send it to anyone via text, email, or any app.</p>
+            </div>
+            <div className="flex-1 flex justify-center">
+              <div className="flex flex-col items-end" style={{ gap: 6 }}>
+                <ShareBubble />
+                <SharePreviewCard />
+              </div>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* Block 2 — Claim */}
-      <section className="bg-[#F9F6F0] py-16 md:py-24 px-6 md:px-12">
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row-reverse md:items-center md:gap-16">
-          <div className="flex-1 mb-10 md:mb-0">
-            <p className="text-xs font-semibold text-[#E5AB00] uppercase tracking-widest mb-3">Claim</p>
-            <h2 className="text-2xl md:text-3xl font-bold text-[#1B1716] mb-4" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>They pick a game and claim it</h2>
-            <p className="text-base text-[#8e8985] leading-relaxed max-w-md">They see every available date, the opponent, the time, and the price. One tap to claim. You get notified instantly.</p>
-          </div>
-          <div className="flex-1 flex justify-center">
-            <div
-              className="relative w-full flex items-center justify-center px-12 py-[60px] rounded-xl overflow-visible"
-              style={{
-                background:
-                  'radial-gradient(ellipse 600px 480px at 50% 50%, rgba(255,250,240,0.95) 0%, rgba(249,246,240,0.6) 45%, rgba(245,244,242,0) 75%), linear-gradient(135deg, #F5F4F2, #FFFFFF)',
-              }}
-            >
-              {/* Backing card — rotated, behind primary */}
+          {/* Row 2 — Claim */}
+          <div className="flex flex-col md:flex-row-reverse md:items-center md:gap-16 lg:gap-24">
+            <div className="flex-1 mb-10 md:mb-0">
+              <p className="text-xs font-semibold text-[#810100] uppercase tracking-widest mb-3">Claim</p>
+              <h2 className="text-2xl md:text-3xl font-bold text-[#1B1716] mb-4" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>They pick a game and claim it</h2>
+              <p className="text-base text-[#8e8985] leading-relaxed max-w-md">They see every available date, the opponent, the time, and the price. One tap to claim. You get notified instantly.</p>
+            </div>
+            <div className="flex-1 flex justify-center">
+              {/* Claim popover — mirrors /share/padres-section203 */}
               <div
-                aria-hidden
-                className="hidden md:block absolute pointer-events-none"
+                className="relative bg-white w-[340px] lg:w-[290px] max-w-full"
                 style={{
-                  width: 360,
-                  transform: 'translate(14px, 16px) rotate(-3deg)',
-                  opacity: 0.75,
-                  filter: 'drop-shadow(0 12px 24px rgba(28, 23, 22, 0.10))',
-                }}
-              >
-                <div
-                  className="bg-white"
-                  style={{
-                    borderRadius: 16,
-                    border: '1px solid #E8E4DF',
-                    padding: 24,
-                    height: 230,
-                  }}
-                />
-              </div>
-
-              {/* Primary card */}
-              <div
-                className="relative bg-white"
-                style={{
-                  width: 360,
-                  maxWidth: '100%',
                   borderRadius: 16,
-                  border: '1px solid #E8E4DF',
-                  padding: 24,
+                  border: '1px solid #E5E5EA',
+                  padding: '20px 24px',
                   boxShadow:
                     '0 24px 48px -16px rgba(28, 23, 22, 0.18), 0 4px 12px -2px rgba(28, 23, 22, 0.08)',
                 }}
               >
-                {/* Top row: badge + date pill */}
+                {/* Header row: COL badge + matchup */}
                 <div className="flex items-center gap-3 mb-4">
                   <div
                     className="rounded-full flex items-center justify-center shrink-0"
-                    style={{ width: 32, height: 32, backgroundColor: '#005A9C' }}
+                    style={{ width: 48, height: 48, backgroundColor: '#33006F' }}
                   >
-                    <span className="text-white text-[10px] font-bold tracking-wide">LAD</span>
+                    <span className="text-white font-bold tracking-wide" style={{ fontSize: 14 }}>COL</span>
                   </div>
-                  <span className="text-xs font-semibold text-[#8E8985] tracking-wide">
-                    FRI · APR 3 · 7:10 PM
-                  </span>
+                  <div className="min-w-0">
+                    <div className="text-[18px] font-bold text-[#1B1716]" style={{ lineHeight: 1.2 }}>
+                      vs Colorado Rockies
+                    </div>
+                    <div className="text-[14px] text-[#8E8985]" style={{ marginTop: 2 }}>
+                      Tuesday, April 7, 2026
+                    </div>
+                  </div>
                 </div>
 
-                {/* Matchup */}
-                <div className="text-[18px] font-bold text-[#1B1716] leading-snug">
-                  vs. San Diego Padres
+                {/* Detail lines */}
+                <div className="flex flex-col gap-1.5 mb-4">
+                  <div className="text-[14px] text-[#1B1716]">7:10 PM &bull; Petco Park</div>
+                  <div className="text-[14px] text-[#8E8985]">Section 203 &middot; Row 5 &middot; Seats 1-2</div>
+                  <div className="text-[14px] font-semibold text-[#1B1716]">2 tickets &middot; $90 total</div>
                 </div>
 
-                {/* Seat detail */}
-                <div className="text-[13px] text-[#8E8985] mt-1">
-                  Section 203 · Row 5 · Seats 1-2
-                </div>
-
-                {/* Divider */}
-                <div className="my-4 border-t border-[#DCD7D4]" />
-
-                {/* Price */}
-                <div className="flex items-baseline gap-1.5 mb-4">
-                  <span className="text-2xl font-bold text-[#1B1716]">$45</span>
-                  <span className="text-[13px] text-[#8E8985]">per ticket</span>
-                </div>
-
-                {/* CTA */}
+                {/* Claim button */}
                 <button
                   type="button"
-                  className="w-full text-white text-sm font-medium border-none cursor-pointer"
-                  style={{ height: 44, backgroundColor: '#2C2A2B', borderRadius: 8 }}
+                  className="w-full text-white border-none cursor-pointer"
+                  style={{
+                    backgroundColor: '#2C2A2B',
+                    borderRadius: 8,
+                    padding: 12,
+                    fontSize: 16,
+                    fontWeight: 600,
+                  }}
                 >
-                  Claim this game
+                  Claim
                 </button>
               </div>
             </div>
@@ -418,32 +379,37 @@ export default function Home() {
       </section>
 
       {/* Block 3 — Track */}
-      <section className="bg-white py-16 md:py-24 px-6 md:px-12">
-        <div className="max-w-6xl mx-auto flex flex-col md:grid md:grid-cols-[1fr_1.4fr] md:gap-12 md:items-center">
+      <section className="bg-white py-10 md:py-[72px] lg:py-24 px-5 md:px-8">
+        <div className="max-w-[1120px] mx-auto flex flex-col md:grid md:grid-cols-[1fr_1.4fr] md:gap-12 md:items-center">
           <div className="mb-10 md:mb-0">
-            <p className="text-xs font-semibold text-[#E5AB00] uppercase tracking-widest mb-3">Track</p>
+            <p className="text-xs font-semibold text-[#810100] uppercase tracking-widest mb-3">Track and manage</p>
             <h2 className="text-2xl md:text-3xl font-bold text-[#1B1716] mb-4" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>Always know where your tickets are going</h2>
-            <p className="text-base text-[#8e8985] leading-relaxed max-w-md">See who claimed what, which games are still available, and your full season at a glance. Names, not numbers.</p>
+            <p className="text-base text-[#8e8985] leading-relaxed max-w-md">See who claimed what, which games are still available, and your full season at a glance. You have full control to easily manage your tickets.</p>
           </div>
           <div className="flex justify-center">
             <div
-              className="relative w-full flex items-center justify-center px-4 py-[60px] md:px-12 md:py-[80px] rounded-xl overflow-visible"
+              className="relative w-full flex items-center justify-center p-6 md:p-8 lg:p-12 rounded-xl overflow-visible"
               style={{
                 background:
                   'radial-gradient(ellipse 700px 520px at 50% 50%, rgba(229, 171, 0, 0.08) 0%, rgba(229, 171, 0, 0.03) 40%, rgba(0,0,0,0) 75%), linear-gradient(135deg, #2C2A2B, #3a3839)',
               }}
             >
-              <DashboardPanel />
+              <div className="hidden md:block w-full">
+                <DashboardPanel />
+              </div>
+              <div className="md:hidden w-full">
+                <TrackAndManageMobileMockup />
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* How it works */}
-      <section ref={howItWorksRef} className="px-6 md:px-12 pt-16 pb-[88px] md:pt-24 md:pb-[120px] bg-[#F9F6F0]">
-        <div className="max-w-5xl mx-auto">
+      <section ref={howItWorksRef} className="px-5 md:px-8 py-10 md:py-[72px] lg:py-24 bg-[#F5F4F2]">
+        <div className="max-w-[1120px] mx-auto">
           <p
-            className="text-[20px] font-semibold text-[#8e8985] uppercase tracking-widest mb-4 transition-all duration-700"
+            className="text-[20px] font-semibold text-[#810100] uppercase tracking-widest mb-4 transition-all duration-700"
             style={{
               opacity: howItWorksVisible ? 1 : 0,
               transform: howItWorksVisible ? 'translateY(0)' : 'translateY(24px)',
@@ -452,7 +418,7 @@ export default function Home() {
             How it works
           </p>
           <h2
-            className="text-3xl md:text-4xl font-bold text-[#1B1716] mb-16 transition-all duration-700 delay-150"
+            className="text-2xl md:text-4xl font-bold text-[#1B1716] mb-8 md:mb-12 transition-all duration-700 delay-150"
             style={{
               fontFamily: 'var(--font-syne), sans-serif',
               opacity: howItWorksVisible ? 1 : 0,
@@ -461,7 +427,7 @@ export default function Home() {
           >
             Share in three steps
           </h2>
-          <div className="grid gap-12 md:gap-8 md:grid-cols-3">
+          <div className="flex flex-col gap-12 md:grid md:grid-cols-3 md:gap-x-8 md:gap-y-0 md:[grid-template-rows:auto_auto_auto_auto]">
             {[
               {
                 step: '01',
@@ -484,28 +450,25 @@ export default function Home() {
             ].map((item, i) => (
               <div
                 key={item.step}
-                className="transition-all duration-700"
+                className="transition-all duration-700 flex flex-col md:grid md:[grid-row:span_4] md:[grid-template-rows:subgrid] md:gap-y-0"
                 style={{
                   opacity: howItWorksVisible ? 1 : 0,
                   transform: howItWorksVisible ? 'translateY(0)' : 'translateY(32px)',
                   transitionDelay: `${300 + i * 150}ms`,
                 }}
               >
-                <div
-                  className="w-full h-[200px] rounded-2xl mb-6 flex items-center justify-center px-6 overflow-hidden"
-                  style={{ background: 'linear-gradient(135deg, #F0EBE5, #E8E4DF)' }}
-                >
-                  {item.snippet}
-                </div>
-                <div className="w-8 h-8 rounded-full bg-[#810100] text-white text-sm font-bold flex items-center justify-center mb-3">
+                <div className="md:row-start-2 w-8 h-8 rounded-full bg-[#810100] text-white text-sm font-bold flex items-center justify-center mb-3">
                   {item.step.replace('0', '')}
                 </div>
-                <h3 className="text-base font-semibold text-[#1B1716] mb-3">
+                <h3 className="md:row-start-3 text-base font-semibold text-[#1B1716] mb-2">
                   {item.title}
                 </h3>
-                <p className="text-sm md:text-base text-[#8e8985] leading-relaxed">
+                <p className="md:row-start-4 text-base text-[#8e8985] leading-relaxed mb-6 md:mb-0">
                   {item.desc}
                 </p>
+                <div className="md:row-start-1 mb-0 md:mb-6 md:flex md:items-center md:justify-start">
+                  {item.snippet}
+                </div>
               </div>
             ))}
           </div>
@@ -514,12 +477,12 @@ export default function Home() {
 
 
       {/* Pricing */}
-      <section ref={pricingRef} className="px-6 md:px-12 py-16 md:py-24 bg-[#f5f4f2]">
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row md:items-center md:gap-16">
+      <section ref={pricingRef} className="px-5 md:px-8 py-10 md:py-[72px] lg:py-24 bg-white">
+        <div className="max-w-[1120px] mx-auto flex flex-col md:flex-row md:items-center md:gap-16">
           {/* Left — text content */}
           <div className="flex-1 mb-10 md:mb-0">
             <p
-              className="text-[20px] font-semibold text-[#2c2a2b]/50 uppercase tracking-widest mb-4 transition-all duration-700"
+              className="text-[20px] font-semibold text-[#810100] uppercase tracking-widest mb-4 transition-all duration-700"
               style={{
                 opacity: pricingVisible ? 1 : 0,
                 transform: pricingVisible ? 'translateY(0)' : 'translateY(24px)',
@@ -528,7 +491,7 @@ export default function Home() {
               Pricing
             </p>
             <h2
-              className="text-3xl md:text-4xl font-bold text-[#2c2a2b] mb-4 transition-all duration-700"
+              className="text-2xl md:text-4xl font-bold text-[#2c2a2b] mb-4 transition-all duration-700"
               style={{
                 fontFamily: 'var(--font-syne), sans-serif',
                 opacity: pricingVisible ? 1 : 0,
@@ -546,55 +509,57 @@ export default function Home() {
                 transitionDelay: '300ms',
               }}
             >
-              Sign up during early access and get your entire first year on us — no credit card required.
+              Sign up during early access and get your entire first year on us. No credit card required.
             </p>
           </div>
 
           {/* Right — card */}
           <div
-            className="w-full md:w-[420px] shrink-0 rounded-lg border border-[#eceae5] bg-white overflow-hidden text-left transition-all duration-700"
+            className="w-full md:w-[420px] shrink-0 bg-white text-left transition-all duration-700"
             style={{
+              borderRadius: 16,
+              padding: 32,
+              boxShadow:
+                '0 24px 48px -16px rgba(28, 23, 22, 0.18), 0 4px 12px -2px rgba(28, 23, 22, 0.08)',
               opacity: pricingVisible ? 1 : 0,
               transform: pricingVisible ? 'translateY(0)' : 'translateY(32px)',
               transitionDelay: '400ms',
             }}
           >
-            {/* Red accent bar */}
-            <div className="h-1 bg-[#810100]" />
-
-            <div className="p-8 md:p-10">
             {/* Badge */}
             <div className="mb-6">
-              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#0F6E56]/20 bg-[#0F6E56]/10 text-sm font-medium text-[#0F6E56]">
-                <span className="relative flex w-2 h-2">
-                  <span className="absolute inset-0 rounded-full bg-[#0F6E56] animate-ping opacity-75" />
-                  <span className="relative w-2 h-2 rounded-full bg-[#0F6E56]" />
-                </span>
+              <span
+                className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium"
+                style={{ backgroundColor: '#F5F4F2', color: '#1B1716' }}
+              >
                 Early Access
               </span>
             </div>
 
             {/* Price */}
             <div className="mb-8">
-              <div className="flex items-baseline gap-3">
-                <span className="text-4xl md:text-5xl font-bold text-[#8e8985] line-through leading-none" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>$39.99</span>
-                <span className="text-4xl md:text-5xl font-bold text-[#2c2a2b] leading-none" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>$0</span>
+              <div
+                className="font-bold leading-none text-[#1B1716]"
+                style={{ fontFamily: 'var(--font-syne), sans-serif', fontSize: 48 }}
+              >
+                $0
               </div>
-              <p className="text-sm text-[#8e8985] mt-2">per year &middot; first year free</p>
+              <p className="text-[14px] text-[#8E8985] mt-2">per year</p>
+              <p className="text-[13px] text-[#8E8985] mt-1">$39.99/year after early access</p>
             </div>
 
             {/* Benefits */}
             <div className="flex flex-col gap-4 mb-8">
               {[
-                'Share your season with anyone — no limit',
-                'See who claimed what — names, not numbers',
+                'Share your season with anyone. No limit.',
+                'See who claimed what. Names, not numbers.',
                 'Cancel anytime',
               ].map((benefit) => (
                 <div key={benefit} className="flex items-start gap-3">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="shrink-0 mt-0.5">
-                    <path d="M5 13l4 4L19 7" stroke="#0F6E56" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M5 13l4 4L19 7" stroke="#810100" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
-                  <span className="text-sm text-[#2c2a2b]">{benefit}</span>
+                  <span className="text-sm text-[#1B1716]">{benefit}</span>
                 </div>
               ))}
             </div>
@@ -602,21 +567,27 @@ export default function Home() {
             {/* CTA */}
             <a
               href="/signup"
-              className="w-full h-12 rounded-lg bg-[#2c2a2b] text-white text-base font-semibold flex items-center justify-center hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors mb-3"
+              className="w-full text-white text-base font-semibold flex items-center justify-center transition-colors mb-3"
+              style={{
+                backgroundColor: '#1B1716',
+                borderRadius: 8,
+                padding: 14,
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#2C2A2B'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#1B1716'; }}
             >
               Start free for a year
             </a>
-            <p className="text-xs text-[#8e8985] text-center">
+            <p className="text-xs text-[#8E8985] text-center">
               Cancel anytime. You won&apos;t be charged until your free year ends.
             </p>
-            </div>
           </div>
         </div>
       </section>
 
 
       {/* Feedback */}
-      <section ref={feedbackRef} className="relative py-24 md:py-32 overflow-hidden">
+      <section ref={feedbackRef} className="relative py-10 md:py-[72px] lg:py-24 overflow-hidden">
         {/* Background image */}
         <style>{`
           @keyframes panCrowd {
@@ -636,10 +607,11 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/30 to-transparent" />
 
         {/* Content */}
-        <div className="relative z-10 px-6 md:px-12 max-w-5xl mx-auto text-center flex flex-col items-center">
+        <div className="relative z-10 px-5 md:px-8 max-w-[1120px] mx-auto text-center flex flex-col items-center">
           <p
-            className="text-[20px] font-semibold text-white/30 uppercase tracking-widest mb-6 transition-all duration-700"
+            className="text-[20px] font-semibold uppercase tracking-widest mb-6 transition-all duration-700"
             style={{
+              color: 'rgba(255, 255, 255, 0.8)',
               opacity: feedbackVisible ? 1 : 0,
               transform: feedbackVisible ? 'translateY(0)' : 'translateY(24px)',
             }}
@@ -647,7 +619,7 @@ export default function Home() {
             Feedback
           </p>
           <h2
-            className="text-3xl md:text-4xl font-bold text-white mb-4 transition-all duration-700"
+            className="text-2xl md:text-4xl font-bold text-white mb-4 transition-all duration-700"
             style={{
               fontFamily: 'var(--font-syne), sans-serif',
               opacity: feedbackVisible ? 1 : 0,
@@ -670,7 +642,7 @@ export default function Home() {
           </p>
           <a
             href="mailto:hello@getbenchbuddy.com"
-            className="inline-flex h-10 items-center justify-center rounded-lg border border-white bg-transparent px-4 text-base font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] hover:border-[#2c2a2b] transition-colors transition-all duration-700"
+            className="inline-flex w-full md:w-auto h-12 md:h-10 items-center justify-center rounded-lg border border-white bg-transparent px-4 text-base font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] hover:border-[#2c2a2b] transition-colors transition-all duration-700"
             style={{
               opacity: feedbackVisible ? 1 : 0,
               transform: feedbackVisible ? 'translateY(0)' : 'translateY(24px)',
@@ -705,14 +677,13 @@ const TEAM_ACCENT = '#FFC425'; // Padres gold
 
 function DashboardPanel() {
   const games: PanelGame[] = [
-    { dow: 'WED', date: '1', time: '7:10 PM', oppAbbr: 'LAD', oppColor: '#005A9C', opponent: 'vs Los Angeles Dodgers', price: 65, status: 'going' },
-    { dow: 'FRI', date: '3', time: '7:10 PM', oppAbbr: 'LAD', oppColor: '#005A9C', opponent: 'vs Los Angeles Dodgers', price: 55, status: 'claimed', claimerName: 'Margo Coleman' },
-    { dow: 'SAT', date: '4', time: '5:40 PM', oppAbbr: 'LAD', oppColor: '#005A9C', opponent: 'vs Los Angeles Dodgers', price: 55, status: 'available' },
+    { dow: 'FRI', date: '3', time: '7:10 PM', oppAbbr: 'SF', oppColor: '#FD5A1E', opponent: 'vs San Francisco Giants', price: 55, status: 'claimed', claimerName: 'Margo Coleman' },
+    { dow: 'SAT', date: '4', time: '5:40 PM', oppAbbr: 'COL', oppColor: '#33006F', opponent: 'vs Colorado Rockies', price: 55, status: 'available' },
   ];
 
   return (
     <div
-      className="relative bg-white w-full max-w-[560px] px-4 py-4 md:px-6 md:py-5"
+      className="relative bg-white w-full max-w-[640px] lg:max-w-[580px] px-4 py-4 md:px-6 md:py-5"
       style={{
         borderRadius: 16,
         border: '1px solid #E8E4DF',
@@ -781,6 +752,84 @@ function DashboardPanel() {
         {games.map((g, i) => (
           <GameRow key={i} game={g} />
         ))}
+      </div>
+    </div>
+  );
+}
+
+function TrackAndManageMobileMockup() {
+  return (
+    <div
+      className="bg-white w-full"
+      style={{
+        borderRadius: 16,
+        border: '1px solid #E8E4DF',
+        padding: 16,
+        boxShadow: '0 32px 64px -20px rgba(0, 0, 0, 0.5), 0 8px 24px -4px rgba(0, 0, 0, 0.3)',
+      }}
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
+        <span
+          className="font-bold text-[#1B1716]"
+          style={{ fontFamily: 'var(--font-syne), sans-serif', fontSize: 22 }}
+        >
+          My season
+        </span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8E8985" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+          <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" />
+          <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" />
+        </svg>
+      </div>
+
+      {/* 2x2 stats grid — same color treatment as desktop StatCard */}
+      <div
+        className="rounded-xl p-3 mb-4 grid grid-cols-2 gap-2"
+        style={{
+          backgroundColor: TEAM_PRIMARY,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+        }}
+      >
+        <StatCard value="20" label="Total games" highlight={false} />
+        <StatCard value="3" label="Claimed" highlight={false} />
+        <StatCard value="12" label="Available" highlight={true} />
+        <StatCard value="$90" label="Collected" highlight={true} />
+      </div>
+
+      {/* Single representative game row — claimed (LAD) */}
+      <div
+        className="flex items-center gap-2 bg-white"
+        style={{
+          border: '1px solid #E8E4DF',
+          borderRadius: 12,
+          padding: 12,
+          boxShadow: '0 1px 2px rgba(0, 0, 0, 0.03)',
+        }}
+      >
+        <div className="flex flex-col items-center w-[40px] shrink-0">
+          <span className="text-[10px] font-semibold uppercase text-[#8E8985] tracking-wide">FRI</span>
+          <span className="text-[22px] font-bold text-[#1B1716] leading-none">3</span>
+          <span className="text-[10px] font-medium text-[#8E8985] uppercase mt-0.5">Apr</span>
+        </div>
+        <div
+          className="rounded-full flex items-center justify-center shrink-0"
+          style={{ width: 36, height: 36, backgroundColor: '#005A9C' }}
+        >
+          <span className="text-white text-[11px] font-bold tracking-wide">LAD</span>
+        </div>
+        <div className="flex flex-col min-w-0 flex-1">
+          <span className="text-[14px] font-bold text-[#1B1716] truncate">vs LA Dodgers</span>
+          <span className="text-[12px] text-[#8E8985] truncate">7:10 PM &bull; Margo Coleman</span>
+        </div>
+        <div
+          className="rounded-full flex items-center justify-center shrink-0"
+          style={{ width: 28, height: 28, backgroundColor: '#2d6a4f' }}
+          aria-hidden
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </div>
       </div>
     </div>
   );
@@ -861,8 +910,7 @@ function GameRow({ game }: { game: PanelGame }) {
       {/* Game info */}
       <div className="flex flex-col min-w-0 flex-1">
         <span className="text-[15px] md:text-[16px] font-bold text-[#1B1716] truncate">
-          <span className="md:hidden">vs LA Dodgers</span>
-          <span className="hidden md:inline">{game.opponent}</span>
+          {game.opponent}
         </span>
 
         {/* Mobile meta: time • status */}
@@ -920,12 +968,12 @@ function StatusPill({ status }: { status: Status }) {
 }
 
 const SNIPPET_SHADOW =
-  '0 12px 32px -8px rgba(28, 23, 22, 0.15), 0 2px 8px -2px rgba(28, 23, 22, 0.08)';
+  '0 24px 48px -16px rgba(28, 23, 22, 0.18), 0 4px 12px -2px rgba(28, 23, 22, 0.08)';
 
 function SetupSnippet() {
   return (
     <div
-      className="bg-white w-full max-w-[220px]"
+      className="bg-white w-full max-w-[320px]"
       style={{
         border: '1px solid #E8E4DF',
         borderRadius: 12,
@@ -939,9 +987,9 @@ function SetupSnippet() {
       <div className="flex items-center gap-2 mb-2">
         <div
           className="rounded-full flex items-center justify-center shrink-0"
-          style={{ width: 24, height: 24, backgroundColor: '#d4a017' }}
+          style={{ width: 28, height: 28, backgroundColor: '#d4a017' }}
         >
-          <span className="text-[11px] font-bold tracking-wide" style={{ color: '#2F241D' }}>SD</span>
+          <span className="text-[12px] font-bold tracking-wide text-white">SD</span>
         </div>
         <span className="text-[14px] font-bold text-[#1B1716] truncate">San Diego Padres</span>
       </div>
@@ -967,7 +1015,7 @@ function SetupSnippet() {
 function ShareLinkSnippet() {
   return (
     <div
-      className="bg-white w-full max-w-[220px]"
+      className="bg-white w-full max-w-[320px]"
       style={{
         border: '1px solid #E8E4DF',
         borderRadius: 12,
@@ -1011,7 +1059,7 @@ function ShareLinkSnippet() {
 function ClaimToastSnippet() {
   return (
     <div
-      className="bg-white w-full max-w-[260px] flex items-center gap-3"
+      className="bg-white w-full max-w-[320px] flex items-center gap-3"
       style={{
         border: '1px solid #E8E4DF',
         borderRadius: 12,
@@ -1040,18 +1088,8 @@ function ClaimToastSnippet() {
       {/* Game info */}
       <div className="flex flex-col min-w-0 flex-1">
         <span className="text-[14px] font-bold text-[#1B1716] truncate">vs LA Dodgers</span>
-        <span className="text-[12px] text-[#8E8985] truncate">7:10 PM • Margo Coleman</span>
+        <span className="text-[12px] text-[#8E8985] truncate">7:10 PM &bull; Margo Coleman</span>
       </div>
-
-      {/* Kebab menu */}
-      <button
-        type="button"
-        aria-label="More"
-        className="shrink-0 bg-transparent border-none cursor-pointer text-[#8E8985] hover:text-[#1B1716]"
-        style={{ fontSize: 18, lineHeight: 1, padding: 0 }}
-      >
-        ⋯
-      </button>
     </div>
   );
 }
@@ -1059,12 +1097,11 @@ function ClaimToastSnippet() {
 function ShareBubble() {
   return (
     <div
-      className="text-white text-[15px]"
+      className="text-white text-[15px] max-w-[300px] lg:max-w-[256px]"
       style={{
         backgroundColor: '#34C759',
         padding: '10px 14px',
         borderRadius: '18px 18px 4px 18px',
-        maxWidth: 300,
         lineHeight: 1.4,
         boxShadow:
           '0 8px 16px -4px rgba(52, 199, 89, 0.25), 0 2px 6px -1px rgba(28, 23, 22, 0.08)',
@@ -1078,9 +1115,8 @@ function ShareBubble() {
 function SharePreviewCard() {
   return (
     <div
-      className="bg-white w-full"
+      className="bg-white w-full max-w-[340px] lg:max-w-[290px]"
       style={{
-        maxWidth: 340,
         border: '1px solid #E5E5EA',
         borderRadius: 14,
         overflow: 'hidden',
@@ -1106,7 +1142,7 @@ function SharePreviewCard() {
       </div>
 
       {/* Content */}
-      <div style={{ padding: 14 }}>
+      <div style={{ padding: '14px 24px' }}>
         <p className="text-[15px] text-[#1B1716]" style={{ fontWeight: 600, lineHeight: 1.3, textWrap: 'balance' }}>
           Robbie shared Padres tickets with you
         </p>
@@ -1488,18 +1524,10 @@ function HeroCalendar() {
         await wait(50);
         if (cancelled) return;
 
-        // 4.2–4.8s — badge transforms to green check (in calendar AND popover)
+        // 4.2s — calendar badge AND popover state flip simultaneously
         setClaimed(true);
-        await wait(600);
-        if (cancelled) return;
-
-        // 4.8–5.4s — popover updates (Claim → Claimed)
         setConfirmed(true);
-        await wait(600);
-        if (cancelled) return;
-
-        // 5.4–6.6s — pause
-        await wait(1200);
+        await wait(2400); // absorb time (matches prior total of 600 + 600 + 1200)
         if (cancelled) return;
 
         // 6.6–7.0s — fade out popover + cursor
@@ -1541,7 +1569,7 @@ function HeroCalendar() {
       ref={panelRef}
       className="relative bg-white w-full"
       style={{
-        maxWidth: 460,
+        maxWidth: 520,
         borderRadius: 20,
         border: '1px solid #E8E4DF',
         padding: 20,
@@ -1551,7 +1579,13 @@ function HeroCalendar() {
     >
       {/* Single month grid */}
       <div>
-        <div className="text-[15px] md:text-[16px] font-semibold text-[#1B1716] text-center" style={{ marginBottom: 12 }}>
+        <div
+          className="text-[18px] md:text-[20px] font-bold text-[#1B1716] text-left"
+          style={{ fontFamily: 'var(--font-syne), sans-serif', marginBottom: 4 }}
+        >
+          Adam&apos;s season
+        </div>
+        <div className="text-[13px] text-[#8e8985] text-left" style={{ marginBottom: 14 }}>
           April 2026
         </div>
         <div className="grid grid-cols-7" style={{ gap: 4 }}>
