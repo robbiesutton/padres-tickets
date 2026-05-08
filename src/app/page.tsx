@@ -466,7 +466,7 @@ export default function Home() {
                 <p className="md:row-start-4 text-base text-[#8e8985] leading-relaxed mb-6 md:mb-0">
                   {item.desc}
                 </p>
-                <div className="md:row-start-1 mb-0 md:mb-6 md:flex md:items-end md:justify-start">
+                <div className="md:row-start-1 mb-0 md:mb-6 md:flex md:items-center md:justify-start">
                   {item.snippet}
                 </div>
               </div>
