@@ -156,9 +156,10 @@ export function StepActions({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function PrimaryButton({ children, onClick, disabled }: { children: React.ReactNode; onClick?: () => void; disabled?: boolean }) {
+export function PrimaryButton({ children, onClick, disabled, 'data-testid': testId }: { children: React.ReactNode; onClick?: () => void; disabled?: boolean; 'data-testid'?: string }) {
   return (
     <button
+      data-testid={testId}
       onClick={onClick}
       disabled={disabled}
       className="h-11 w-full md:w-auto px-7 rounded-lg bg-[#2c2a2b] text-white text-sm font-bold cursor-pointer border-none transition-all hover:bg-[#dcd7d4] hover:text-[#2c2a2b] disabled:opacity-50 disabled:cursor-not-allowed"
@@ -168,9 +169,10 @@ export function PrimaryButton({ children, onClick, disabled }: { children: React
   );
 }
 
-export function GhostButton({ children, onClick }: { children: React.ReactNode; onClick?: () => void }) {
+export function GhostButton({ children, onClick, 'data-testid': testId }: { children: React.ReactNode; onClick?: () => void; 'data-testid'?: string }) {
   return (
     <button
+      data-testid={testId}
       onClick={onClick}
       className="text-sm font-medium text-[#b0a89e] hover:text-[#2c2a2b] bg-transparent border-none cursor-pointer transition-colors"
     >

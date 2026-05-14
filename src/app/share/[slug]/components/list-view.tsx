@@ -78,7 +78,7 @@ export function ListView({
   }
 
   return (
-    <div>
+    <div data-testid="game-list">
       {Array.from(grouped.entries()).map(([monthLabel, monthGames]) => (
         <div key={monthLabel} className="mb-6 md:mb-8">
           {/* Month header */}

@@ -53,7 +53,7 @@ function LoginForm() {
         </div>
 
         {error && (
-          <div className="rounded-lg bg-[#FEE2E2] text-[#DC2626] px-4 py-3 text-sm font-medium mb-4">
+          <div data-testid="login-error" className="rounded-lg bg-[#FEE2E2] text-[#DC2626] px-4 py-3 text-sm font-medium mb-4">
             {error}
             {error.includes('sign up') && <a href="/signup" className="ml-1 font-medium underline">Sign up</a>}
           </div>
@@ -62,18 +62,19 @@ function LoginForm() {
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
             <FormLabel>Email</FormLabel>
-            <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass} autoFocus />
+            <input data-testid="login-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass} autoFocus />
           </div>
           <div>
             <FormLabel>Password</FormLabel>
             <div className="relative">
-              <input type={showPassword ? 'text' : 'password'} required value={password} onChange={(e) => setPassword(e.target.value)} className={`${inputClass} pr-16`} />
+              <input data-testid="login-password" type={showPassword ? 'text' : 'password'} required value={password} onChange={(e) => setPassword(e.target.value)} className={`${inputClass} pr-16`} />
               <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[13px] font-medium text-[#8e8985] hover:text-[#2c2a2b] bg-transparent border-none cursor-pointer">
                 {showPassword ? 'Hide' : 'Show'}
               </button>
             </div>
           </div>
           <button
+            data-testid="login-submit"
             type="submit"
             disabled={loading}
             className="mt-4 w-full h-12 rounded-lg bg-[#2c2a2b] text-white text-sm font-medium cursor-pointer border-none transition-all hover:bg-[#dcd7d4] hover:text-[#2c2a2b] disabled:opacity-50 disabled:cursor-not-allowed"
@@ -83,7 +84,7 @@ function LoginForm() {
         </form>
 
         <div className="flex flex-col gap-2 text-center text-sm mt-8">
-          <a href="/forgot-password" className="text-[#8e8985] underline">Forgot password?</a>
+          <a data-testid="forgot-password-link" href="/forgot-password" className="text-[#8e8985] underline">Forgot password?</a>
           <p className="text-[#8e8985]">
             Don&apos;t have an account? <a href="/signup" className="text-[#8e8985] underline">Sign up</a>
           </p>

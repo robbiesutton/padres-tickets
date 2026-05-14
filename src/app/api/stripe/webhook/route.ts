@@ -22,6 +22,13 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: 'Invalid signature' }, { status: 400 });
   }
 
+  // Deduplicate: Stripe retries on non-200; ignore already-processed events
+  try {
+    await prisma.stripeEvent.create({ data: { id: event.id } });
+  } catch {
+    return Response.json({ received: true });
+  }
+
   switch (event.type) {
     case 'checkout.session.completed': {
       const session = event.data.object as Stripe.Checkout.Session;

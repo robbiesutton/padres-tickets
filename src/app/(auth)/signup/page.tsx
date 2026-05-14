@@ -177,16 +177,17 @@ export default function SignupPage() {
         </div>
 
         {submitError && (
-          <div className="rounded-lg bg-[#FEE2E2] text-[#DC2626] px-4 py-3 text-sm font-medium mb-4">
+          <div data-testid="signup-error" className="rounded-lg bg-[#FEE2E2] text-[#DC2626] px-4 py-3 text-sm font-medium mb-4">
             {submitError}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
+        <form data-testid="signup-form" onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <FormLabel>First name</FormLabel>
               <input
+                data-testid="signup-first-name"
                 ref={refs.firstName}
                 type="text"
                 autoComplete="given-name"
@@ -202,6 +203,7 @@ export default function SignupPage() {
             <div>
               <FormLabel>Last name</FormLabel>
               <input
+                data-testid="signup-last-name"
                 ref={refs.lastName}
                 type="text"
                 autoComplete="family-name"
@@ -219,6 +221,7 @@ export default function SignupPage() {
           <div>
             <FormLabel>Email</FormLabel>
             <input
+              data-testid="signup-email"
               ref={refs.email}
               type="email"
               autoComplete="email"
@@ -254,6 +257,7 @@ export default function SignupPage() {
             <FormLabel>Password</FormLabel>
             <div className="relative">
               <input
+                data-testid="signup-password"
                 ref={refs.password}
                 type={showPassword ? 'text' : 'password'}
                 autoComplete="new-password"
@@ -279,6 +283,7 @@ export default function SignupPage() {
             <div className="flex flex-col gap-1.5">
               <label className="flex items-start gap-2.5 text-sm cursor-pointer">
                 <input
+                  data-testid="signup-terms-checkbox"
                   type="checkbox"
                   checked={agreedToTerms}
                   onChange={(e) => {
@@ -305,6 +310,7 @@ export default function SignupPage() {
           </div>
 
           <button
+            data-testid="signup-submit"
             type="submit"
             disabled={loading}
             className="w-full h-12 rounded-lg bg-[#2c2a2b] text-white text-sm font-medium cursor-pointer border-none transition-all hover:bg-[#dcd7d4] hover:text-[#2c2a2b] disabled:opacity-50 disabled:cursor-not-allowed"
