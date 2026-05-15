@@ -46,6 +46,11 @@ const ALL_NAV_ITEMS = [
       <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" /><line x1="4" y1="22" x2="4" y2="15" />
     </svg>
   )},
+  { id: 'payment-info', label: 'Payment Info', requiresOwner: true, icon: (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 12V7H5a2 2 0 010-4h14v4" /><path d="M3 5v14a2 2 0 002 2h16v-5" /><path d="M18 12a2 2 0 000 4h4v-4z" />
+    </svg>
+  )},
   { id: 'subscription', label: 'Subscription', requiresOwner: true, icon: (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
@@ -177,6 +182,7 @@ export default function ProfilePage() {
   });
   const [saving, setSaving] = useState(false);
   const [savingSeat, setSavingSeat] = useState(false);
+  const [savingPayment, setSavingPayment] = useState(false);
   const [subLoading, setSubLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -234,6 +240,14 @@ export default function ProfilePage() {
     setSavingSeat(false);
     if (res.ok) setMessage({ type: 'success', text: 'Seat info saved!' });
     else { const data = await res.json(); setMessage({ type: 'error', text: data.error || 'Failed to save seat info' }); }
+  }
+
+  async function handleSavePaymentInfo() {
+    setSavingPayment(true); setMessage(null);
+    const res = await fetch('/api/users/me', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
+    setSavingPayment(false);
+    if (res.ok) { const data = await res.json(); setProfile(data); setMessage({ type: 'success', text: 'Payment info saved!' }); }
+    else { const data = await res.json(); setMessage({ type: 'error', text: data.error || 'Failed to save payment info' }); }
   }
 
   function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -325,22 +339,22 @@ export default function ProfilePage() {
     );
   }
 
-  function renderPayment() {
+  function renderPaymentInfo() {
     return (
       <>
-        <h2 className="text-lg font-medium text-[#2c2a2b] mb-2">Payment</h2>
-        <p className="text-sm text-[#3d3a38] mb-6 md:mb-8">Share your payment details so claimers know how to pay you.</p>
+        <h2 className="text-lg font-medium text-[#2c2a2b] mb-2">Payment Info</h2>
+        <p className="text-sm text-[#3d3a38] mb-6 md:mb-8">This info is shown to anyone who opens your share link so they know how to pay you.</p>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-[#2c2a2b] mb-2">Venmo Handle</label>
-            <input type="text" value={form.venmoHandle} onChange={(e) => update('venmoHandle', e.target.value)} placeholder="@your-handle" className={inputClass} />
+            <label className="block text-sm font-medium text-[#2c2a2b] mb-2">Venmo <span className="font-normal text-[#8e8985]">(Optional)</span></label>
+            <input type="text" value={form.venmoHandle} onChange={(e) => update('venmoHandle', e.target.value)} placeholder="@yourhandle" className={inputClass} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-[#2c2a2b] mb-2">Zelle Email / Phone</label>
-            <input type="text" value={form.zelleInfo} onChange={(e) => update('zelleInfo', e.target.value)} placeholder="email or phone for Zelle" className={inputClass} />
+            <label className="block text-sm font-medium text-[#2c2a2b] mb-2">Zelle <span className="font-normal text-[#8e8985]">(Optional)</span></label>
+            <input type="text" value={form.zelleInfo} onChange={(e) => update('zelleInfo', e.target.value)} placeholder="(555) 555-5555" className={inputClass} />
           </div>
-          <button type="button" onClick={(e) => handleSave(e as unknown as React.FormEvent)} disabled={saving} className="w-full md:w-auto h-12 md:h-10 px-5 rounded-lg bg-[#2c2a2b] text-sm font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors disabled:opacity-50">
-            {saving ? 'Saving...' : 'Save changes'}
+          <button type="button" onClick={handleSavePaymentInfo} disabled={savingPayment} className="w-full md:w-auto h-12 md:h-10 px-5 rounded-lg bg-[#2c2a2b] text-sm font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors disabled:opacity-50">
+            {savingPayment ? 'Saving...' : 'Save payment info'}
           </button>
         </div>
       </>
@@ -565,6 +579,7 @@ export default function ProfilePage() {
   const sectionRenderers: Record<string, () => React.ReactNode> = {
     profile: renderProfile,
     'seat-info': renderSeatInfo,
+    'payment-info': renderPaymentInfo,
     subscription: renderSubscription,
     'shared-tickets': renderSharedTickets,
   };

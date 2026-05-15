@@ -61,7 +61,7 @@ interface ScheduleGame {
   opponent: string;
 }
 
-type Step = 1 | 2 | 3;
+type Step = 1 | 2 | 3 | 4;
 
 // ─── Constants ──────────────────────────────────────────
 
@@ -83,6 +83,7 @@ const MONTH_NAMES = [
 const STEPS = [
   { label: 'Your tickets' },
   { label: 'Your seats' },
+  { label: 'Pricing & payment' },
   { label: 'Confirmation' },
 ];
 
@@ -484,7 +485,7 @@ export default function NewPackagePage() {
 
   // Step 5: Payment
   const [venmoHandle, setVenmoHandle] = useState(DESIGN ? '@robbie-sutton' : '');
-  const [zelleInfo, setZelleInfo] = useState(DESIGN ? 'robbie@benchbuddy.app' : '');
+  const [zelleInfo, setZelleInfo] = useState(DESIGN ? '(619) 555-0142' : '');
 
   // Celebration
   const [linkSlug, setLinkSlug] = useState(DESIGN ? 'padres-section203' : '');
@@ -816,7 +817,7 @@ export default function NewPackagePage() {
 
   // ─── Wizard Steps ──────────────────────────────────────
 
-  const totalSteps = 3;
+  const totalSteps = 4;
 
   return (
     <SetupLayout steps={STEPS} currentStep={step} showSidebar={false}>
@@ -1018,17 +1019,95 @@ export default function NewPackagePage() {
         </div>
       )}
 
-      {/* ── Step 3: Customize ── */}
+      {/* ── Step 3: Pricing & payment ── */}
       {step === 3 && (
         <div className="flex flex-col flex-1">
 
 
+          <StepHeadline>Pricing &amp; payment</StepHeadline>
+          <StepSubhead>Set your default price and how you&apos;d like to get paid. Payment info is optional and editable anytime in your Profile.</StepSubhead>
+
+          {/* Default price */}
+          <div>
+            <FormLabel>Default price per ticket</FormLabel>
+            <div className="flex items-center gap-2 mt-1">
+              <div className="flex items-center h-[44px] rounded-lg border-[1.5px] border-[#eceae5] bg-white px-3 focus-within:border-[#2c2a2b] focus-within:ring-[3px] focus-within:ring-[#2c2a2b]/10 transition-all">
+                <span className="text-sm font-bold text-[#1a1a1a]">$</span>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={defaultPrice}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/[^0-9]/g, '');
+                    setDefaultPrice(val);
+                    const num = parseInt(val) || 0;
+                    setPrices((prev) => {
+                      const next = { ...prev };
+                      Object.keys(next).forEach((k) => { next[Number(k)] = num; });
+                      return next;
+                    });
+                  }}
+                  onBlur={() => { if (!defaultPrice) setDefaultPrice('0'); }}
+                  style={{ width: `${Math.max(2, defaultPrice.length || 1)}ch` }}
+                  className="bg-transparent border-none outline-none text-sm font-bold text-[#1a1a1a] p-0 ml-0.5"
+                />
+              </div>
+              <span className="text-sm text-[#8e8985]">/ ticket</span>
+            </div>
+            <div className="mt-2 rounded-lg bg-[#e8f5e4] text-[#2d6a4f] px-4 py-3 text-sm font-medium leading-relaxed">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="#2d6a4f" className="inline-block align-[-1px] mr-1.5">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+              </svg>
+              <strong>${defaultPrice || '0'}/ticket</strong> applied to all {selectedPackage?.gameCount || 81} games. You can adjust prices for each game from My season.
+            </div>
+          </div>
+
+          {/* Venmo */}
+          <div className="mt-4">
+            <FormLabel>Venmo <span className="font-normal">(Optional)</span></FormLabel>
+            <input
+              type="text"
+              value={venmoHandle}
+              onChange={(e) => setVenmoHandle(e.target.value)}
+              placeholder="@yourhandle"
+              className="w-full h-12 px-4 bg-white border-[1.5px] border-[#eceae5] rounded-lg text-[15px] text-[#1a1a1a] hover:border-[#b5b1ab] focus:border-[#2c2a2b] focus:outline-none focus:ring-[3px] focus:ring-[#2c2a2b]/10 transition-all"
+            />
+          </div>
+
+          {/* Zelle */}
+          <div className="mt-4">
+            <FormLabel>Zelle <span className="font-normal">(Optional)</span></FormLabel>
+            <input
+              type="tel"
+              value={zelleInfo}
+              onChange={(e) => setZelleInfo(e.target.value)}
+              placeholder="(555) 555-5555"
+              className="w-full h-12 px-4 bg-white border-[1.5px] border-[#eceae5] rounded-lg text-[15px] text-[#1a1a1a] hover:border-[#b5b1ab] focus:border-[#2c2a2b] focus:outline-none focus:ring-[3px] focus:ring-[#2c2a2b]/10 transition-all"
+            />
+          </div>
+
+          <StepActions>
+            <PrimaryButton
+              onClick={() => goToStep(4)}
+              disabled={!defaultPrice}
+            >
+              Continue →
+            </PrimaryButton>
+          </StepActions>
+        </div>
+      )}
+
+      {/* ── Step 4: Confirmation ── */}
+      {step === 4 && (
+        <div className="flex flex-col flex-1">
+
+
           <StepHeadline>Confirm your setup</StepHeadline>
-          <p className="hidden md:block text-sm text-[#8e8985] leading-relaxed mb-4">Make sure everything looks right, then set your default ticket price.</p>
+          <p className="hidden md:block text-sm text-[#8e8985] leading-relaxed mb-4">Make sure everything looks right, then finish setup.</p>
           <div className="md:hidden mb-[10px]" />
 
           {/* Summary card */}
-          <div className="rounded-xl border border-[#dcd7d4] overflow-hidden mb-6">
+          <div className="rounded-xl border border-[#dcd7d4] overflow-hidden">
             {/* Team header */}
             {(() => {
               const { primary: teamPrimary, accent: teamAccent } = getTeamColors(selectedTeam?.name || 'San Diego Padres');
@@ -1070,44 +1149,23 @@ export default function NewPackagePage() {
                   </span>
                 </div>
               )}
-            </div>
-          </div>
-
-          {/* Default price */}
-          <div className="mb-2">
-            <FormLabel>Default price per ticket</FormLabel>
-            <div className="flex items-center gap-2 mt-1">
-              <div className="flex items-center h-[44px] rounded-lg border-[1.5px] border-[#eceae5] bg-white px-3 focus-within:border-[#2c2a2b] focus-within:ring-[3px] focus-within:ring-[#2c2a2b]/10 transition-all">
-                <span className="text-sm font-bold text-[#1a1a1a]">$</span>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  value={defaultPrice}
-                  onChange={(e) => {
-                    const val = e.target.value.replace(/[^0-9]/g, '');
-                    setDefaultPrice(val);
-                    const num = parseInt(val) || 0;
-                    setPrices((prev) => {
-                      const next = { ...prev };
-                      Object.keys(next).forEach((k) => { next[Number(k)] = num; });
-                      return next;
-                    });
-                  }}
-                  onBlur={() => { if (!defaultPrice) setDefaultPrice('0'); }}
-                  style={{ width: `${Math.max(2, defaultPrice.length || 1)}ch` }}
-                  className="bg-transparent border-none outline-none text-sm font-bold text-[#1a1a1a] p-0 ml-0.5"
-                />
+              <div className="flex items-center justify-between px-5 py-3.5">
+                <span className="text-sm text-[#8e8985]">Default price</span>
+                <span className="text-sm font-bold text-[#2c2a2b]">${defaultPrice || '0'} / ticket</span>
               </div>
-              <span className="text-sm text-[#8e8985]">/ ticket</span>
+              {venmoHandle.trim() && (
+                <div className="flex items-center justify-between px-5 py-3.5">
+                  <span className="text-sm text-[#8e8985]">Venmo</span>
+                  <span className="text-sm font-bold text-[#2c2a2b]">{venmoHandle}</span>
+                </div>
+              )}
+              {zelleInfo.trim() && (
+                <div className="flex items-center justify-between px-5 py-3.5">
+                  <span className="text-sm text-[#8e8985]">Zelle</span>
+                  <span className="text-sm font-bold text-[#2c2a2b]">{zelleInfo}</span>
+                </div>
+              )}
             </div>
-          </div>
-
-          {/* Info callout */}
-          <div className="rounded-lg bg-[#e8f5e4] text-[#2d6a4f] px-4 py-3 text-sm font-medium leading-relaxed">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="#2d6a4f" className="inline-block align-[-1px] mr-1.5">
-              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-            </svg>
-            <strong>${defaultPrice || '0'}/ticket</strong> applied to all {selectedPackage?.gameCount || 81} games. You can adjust prices for each game from My season.
           </div>
 
           <StepActions>
