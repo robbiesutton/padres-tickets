@@ -127,6 +127,29 @@ function MobileSeatInfoPill({ pkg }: { pkg: PackageInfo }) {
                     ))}
                   </div>
                 )}
+
+                {/* How to pay */}
+                {(pkg.venmoHandle?.trim() || pkg.zelleInfo?.trim()) && (
+                  <div className="pt-4 border-t border-[#f5f4f2]">
+                    <p className="text-xs font-medium text-[#8e8985] mb-2">
+                      How to pay {(pkg.holderName?.trim().split(/\s+/)[0]) || 'the holder'}
+                    </p>
+                    <div className="flex flex-col gap-3 text-sm leading-6">
+                      {pkg.venmoHandle?.trim() && (
+                        <div className="flex items-center justify-between">
+                          <span className="font-normal text-black">Venmo</span>
+                          <span className="font-bold text-black">{pkg.venmoHandle}</span>
+                        </div>
+                      )}
+                      {pkg.zelleInfo?.trim() && (
+                        <div className="flex items-center justify-between">
+                          <span className="font-normal text-black">Zelle</span>
+                          <span className="font-bold text-black">{pkg.zelleInfo}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

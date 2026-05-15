@@ -18,6 +18,8 @@ export async function GET() {
       defaultPricePerTicket: mockPackage.defaultPricePerTicket,
       perks: mockPackage.perks,
       _count: mockPackage._count,
+      venmoHandle: mockHolder.venmoHandle,
+      zelleInfo: mockHolder.zelleInfo,
       role: 'OWNER' as const,
     };
     const padresShared = {
@@ -36,6 +38,8 @@ export async function GET() {
       _count: mockPackage._count,
       holderName: `${mockHolder.firstName} ${mockHolder.lastName}`,
       invitedAt: new Date('2026-04-01').toISOString(),
+      venmoHandle: mockHolder.venmoHandle,
+      zelleInfo: mockHolder.zelleInfo,
       role: 'CLAIMER' as const,
     };
     const dodgersShared = {
@@ -54,6 +58,8 @@ export async function GET() {
       _count: { games: 18, invitations: 4 },
       holderName: 'Jamie Chen',
       invitedAt: new Date('2026-03-12').toISOString(),
+      venmoHandle: '@jamie-chen',
+      zelleInfo: null,
       role: 'CLAIMER' as const,
     };
     const packages = MOCK_AS_HOLDER

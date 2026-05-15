@@ -154,7 +154,7 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
                   </div>
                 </div>
                 {pkg.perks.length > 0 && (
-                  <div className="flex flex-wrap gap-2 pt-4">
+                  <div className="flex flex-wrap gap-2 pt-4 pb-4 border-b border-[#f5f4f2]">
                     {pkg.perks.map((perk) => (
                       <span
                         key={perk}
@@ -163,6 +163,27 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
                         {perk}
                       </span>
                     ))}
+                  </div>
+                )}
+                {(pkg.venmoHandle?.trim() || pkg.zelleInfo?.trim()) && (
+                  <div className="pt-4">
+                    <p className="text-xs font-medium text-[#8e8985] mb-2">
+                      How to pay {(pkg.holderName?.trim().split(/\s+/)[0]) || 'the holder'}
+                    </p>
+                    <div className="flex flex-col gap-2 text-sm leading-5">
+                      {pkg.venmoHandle?.trim() && (
+                        <div className="flex items-center justify-between">
+                          <span className="font-normal text-black">Venmo</span>
+                          <span className="font-bold text-black">{pkg.venmoHandle}</span>
+                        </div>
+                      )}
+                      {pkg.zelleInfo?.trim() && (
+                        <div className="flex items-center justify-between">
+                          <span className="font-normal text-black">Zelle</span>
+                          <span className="font-bold text-black">{pkg.zelleInfo}</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>

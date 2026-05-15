@@ -99,6 +99,8 @@ export async function sendClaimNotifications(claimId: string) {
       row: pkg.row,
       seatCount: pkg.seatCount,
       pricePerTicket: game.pricePerTicket ? Number(game.pricePerTicket) : null,
+      venmoHandle: holder.venmoHandle,
+      zelleInfo: holder.zelleInfo,
       myGamesUrl: `${BASE_URL}/dashboard/my-games`,
     });
 

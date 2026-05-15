@@ -8,6 +8,8 @@ interface ClaimConfirmationEmailData {
   row: string | null;
   seatCount: number;
   pricePerTicket: number | null;
+  venmoHandle: string | null;
+  zelleInfo: string | null;
   myGamesUrl: string;
 }
 
@@ -16,6 +18,18 @@ export function buildClaimConfirmationEmail(data: ClaimConfirmationEmailData) {
     data.pricePerTicket && data.pricePerTicket > 0
       ? `$${(data.pricePerTicket * data.seatCount).toFixed(2)}`
       : null;
+
+  const holderFirst = data.holderName?.trim().split(/\s+/)[0] || data.holderName;
+  const venmo = data.venmoHandle?.trim() || '';
+  const zelle = data.zelleInfo?.trim() || '';
+  const totalForCopy = totalCost || `$${((data.pricePerTicket ?? 0) * data.seatCount).toFixed(2)}`;
+  const paymentSentence = venmo && zelle
+    ? `Pay ${holderFirst} ${totalForCopy} via Venmo ${venmo} or Zelle ${zelle}. ${holderFirst} will then transfer the tickets to you a few days before the game.`
+    : venmo
+      ? `Pay ${holderFirst} ${totalForCopy} via Venmo ${venmo}. ${holderFirst} will then transfer the tickets to you a few days before the game.`
+      : zelle
+        ? `Pay ${holderFirst} ${totalForCopy} via Zelle ${zelle}. ${holderFirst} will then transfer the tickets to you a few days before the game.`
+        : `${holderFirst} will be in touch with payment details and will transfer the tickets to you a few days before the game.`;
 
   const subject = `You claimed ${data.team} vs. ${data.opponent} tickets!`;
 
@@ -35,7 +49,7 @@ export function buildClaimConfirmationEmail(data: ClaimConfirmationEmailData) {
         totalCost
           ? `<div style="background:#fff8e1;padding:12px 16px;border-radius:8px;margin-top:16px">
               <p style="margin:0;font-weight:600">Total: ${totalCost}</p>
-              <p style="margin:4px 0 0;color:#666">${data.holderName} will send payment details.</p>
+              <p style="margin:4px 0 0;color:#666">${paymentSentence}</p>
             </div>`
           : `<div style="background:#e8f5e9;padding:12px 16px;border-radius:8px;margin-top:16px">
               <p style="margin:0;font-weight:600;color:#2e7d32">Free — no payment needed</p>
@@ -45,8 +59,8 @@ export function buildClaimConfirmationEmail(data: ClaimConfirmationEmailData) {
       <div style="margin-top:24px">
         <h3 style="margin:0 0 8px">What happens next:</h3>
         <ol style="color:#444;padding-left:20px">
-          ${totalCost ? `<li style="margin-bottom:4px">${data.holderName} will share payment details</li>` : ''}
-          <li style="margin-bottom:4px">${data.holderName} will transfer tickets to your email</li>
+          ${totalCost && !venmo && !zelle ? `<li style="margin-bottom:4px">${holderFirst} will share payment details</li>` : ''}
+          <li style="margin-bottom:4px">${holderFirst} will transfer tickets to your email</li>
           <li style="margin-bottom:4px">Accept the transfer in your ticketing app</li>
           <li>Enjoy the game!</li>
         </ol>

@@ -32,7 +32,7 @@ export async function getUserPackagesWithRole(userId: string) {
           _count: { select: { games: true, members: true } },
           members: {
             where: { role: 'OWNER' },
-            include: { user: { select: { firstName: true, lastName: true } } },
+            include: { user: { select: { firstName: true, lastName: true, venmoHandle: true, zelleInfo: true } } },
             take: 1,
           },
         },
@@ -61,6 +61,8 @@ export async function getUserPackagesWithRole(userId: string) {
       holderName: isOwnerRole(m.role)
         ? undefined
         : `${m.package.members[0]?.user.firstName} ${m.package.members[0]?.user.lastName}`,
+      venmoHandle: m.package.members[0]?.user.venmoHandle ?? null,
+      zelleInfo: m.package.members[0]?.user.zelleInfo ?? null,
       invitedAt: m.invitedAt.toISOString(),
     }));
 }

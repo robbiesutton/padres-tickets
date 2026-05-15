@@ -28,6 +28,8 @@ interface PackageForNav {
   _count: { games: number; members: number };
   role: 'OWNER' | 'CO_OWNER' | 'CLAIMER';
   holderName?: string;
+  venmoHandle: string | null;
+  zelleInfo: string | null;
 }
 
 // Context so children (dashboard page) can access the selected package
@@ -319,6 +321,25 @@ function SeatInfoPillDropdown({ pkg, isDark, navColor, teamAccent, onPkgUpdate }
                         {perk}
                       </span>
                     ))}
+                  </div>
+                )}
+                {(pkg.venmoHandle?.trim() || pkg.zelleInfo?.trim()) && (
+                  <div className="pt-4 pb-4 border-b border-[#f5f4f2]">
+                    <p className="text-xs font-medium text-[#8e8985] mb-2">How to pay</p>
+                    <div className="flex flex-col gap-2 text-sm leading-5">
+                      {pkg.venmoHandle?.trim() && (
+                        <div className="flex items-center justify-between">
+                          <span className="font-normal text-black">Venmo</span>
+                          <span className="font-bold text-black">{pkg.venmoHandle}</span>
+                        </div>
+                      )}
+                      {pkg.zelleInfo?.trim() && (
+                        <div className="flex items-center justify-between">
+                          <span className="font-normal text-black">Zelle</span>
+                          <span className="font-bold text-black">{pkg.zelleInfo}</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
                 <button

@@ -71,6 +71,8 @@ export const mockPackageInfo = {
   holderName: `${mockHolder.firstName} ${mockHolder.lastName}`,
   holderEmail: mockHolder.email,
   holderPhone: mockHolder.phone,
+  venmoHandle: mockHolder.venmoHandle,
+  zelleInfo: mockHolder.zelleInfo,
   team: mockPackage.team,
   section: mockPackage.section,
   row: mockPackage.row,
