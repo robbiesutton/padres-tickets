@@ -56,7 +56,7 @@ export const mockPackage = {
   shareLinkSlug: MOCK_SHARE_SLUG,
   status: 'ACTIVE',
   defaultPricePerTicket: 45,
-  description: null,
+  description: 'Great shaded seats just past third base — perfect view of the infield, easy walk to concessions, and never a bad day at the park.',
   seatPhotoUrl: null,
   perks: [],
   createdAt: new Date('2026-02-01').toISOString(),

@@ -30,11 +30,6 @@ interface UserProfile {
   subscription: SubscriptionInfo | null;
 }
 
-const AVAILABLE_PERKS = [
-  'Shaded seats', 'Behind home plate', 'Premium', 'Craft beer nearby',
-  'Easy parking', 'Club access', 'Great for kids', 'Aisle seats',
-];
-
 const ALL_NAV_ITEMS = [
   { id: 'profile', label: 'Profile', requiresOwner: false, icon: (
     <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
@@ -192,14 +187,14 @@ export default function ProfilePage() {
   });
 
   const [seatForm, setSeatForm] = useState({
-    seatPhotoUrl: '' as string | null, description: '', perks: [] as string[],
+    seatPhotoUrl: '' as string | null, description: '',
   });
 
   useEffect(() => { if (ctxPkgId && !selectedPkgId) setSelectedPkgId(ctxPkgId); }, [ctxPkgId, selectedPkgId]);
 
   useEffect(() => {
     const pkg = packages.find((p) => p.id === selectedPkgId);
-    if (pkg) setSeatForm({ seatPhotoUrl: pkg.seatPhotoUrl || null, description: pkg.description || '', perks: pkg.perks || [] });
+    if (pkg) setSeatForm({ seatPhotoUrl: pkg.seatPhotoUrl || null, description: pkg.description || '' });
   }, [selectedPkgId, packages]);
 
   useEffect(() => {
@@ -224,7 +219,6 @@ export default function ProfilePage() {
 
   function handlePkgChange(pkgId: string) { setSelectedPkgId(pkgId); ctxSetPkgId(pkgId); }
   function update(field: string, value: string) { setForm((prev) => ({ ...prev, [field]: value })); }
-  function togglePerk(perk: string) { setSeatForm((prev) => ({ ...prev, perks: prev.perks.includes(perk) ? prev.perks.filter((p) => p !== perk) : [...prev.perks, perk] })); }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault(); setSaving(true); setMessage(null);
@@ -236,7 +230,7 @@ export default function ProfilePage() {
 
   async function handleSaveSeatInfo() {
     if (!selectedPkgId) return; setSavingSeat(true); setMessage(null);
-    const res = await fetch(`/api/packages/${selectedPkgId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ seatPhotoUrl: seatForm.seatPhotoUrl, description: seatForm.description, perks: seatForm.perks }) });
+    const res = await fetch(`/api/packages/${selectedPkgId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ seatPhotoUrl: seatForm.seatPhotoUrl, description: seatForm.description }) });
     setSavingSeat(false);
     if (res.ok) setMessage({ type: 'success', text: 'Seat info saved!' });
     else { const data = await res.json(); setMessage({ type: 'error', text: data.error || 'Failed to save seat info' }); }
@@ -408,22 +402,6 @@ export default function ProfilePage() {
           <div>
             <label className="block text-sm font-medium text-[#2c2a2b] mb-2">Description</label>
             <textarea value={seatForm.description} onChange={(e) => setSeatForm((prev) => ({ ...prev, description: e.target.value }))} placeholder="Describe your seats..." rows={3} className={`${inputClass} resize-none`} />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-[#2c2a2b] mb-2">Perks</label>
-            <div className="flex flex-wrap gap-2">
-              {AVAILABLE_PERKS.map((perk) => {
-                const selected = seatForm.perks.includes(perk);
-                return (
-                  <button key={perk} type="button" onClick={() => togglePerk(perk)}
-                    className={`inline-flex items-center h-8 px-3 rounded-full text-xs font-medium border transition-colors cursor-pointer ${selected ? 'bg-[#E1F5EE] border-[#0F6E56] text-[#0F6E56]' : 'bg-white border-[#dcd7d4] text-[#4a4745] hover:border-[#2c2a2b] hover:text-[#2c2a2b]'}`}
-                  >
-                    {selected && <svg className="w-3 h-3 mr-1.5" viewBox="0 0 16 16" fill="none"><path d="M3.5 8.5L6.5 11.5L12.5 4.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>}
-                    {perk}
-                  </button>
-                );
-              })}
-            </div>
           </div>
           <button type="button" onClick={handleSaveSeatInfo} disabled={savingSeat} className="w-full md:w-auto h-12 md:h-10 px-5 rounded-lg bg-[#2c2a2b] text-sm font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors disabled:opacity-50">
             {savingSeat ? 'Saving...' : 'Save seat info'}

@@ -153,18 +153,6 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
                     <span className="font-bold text-black">MLB Ballpark App</span>
                   </div>
                 </div>
-                {pkg.perks.length > 0 && (
-                  <div className="flex flex-wrap gap-2 pt-4 pb-4 border-b border-[#f5f4f2]">
-                    {pkg.perks.map((perk) => (
-                      <span
-                        key={perk}
-                        className="inline-flex items-center justify-center text-xs font-medium text-[#8e8985] h-8 px-3 border border-[#8e8985]/75 rounded-full whitespace-nowrap"
-                      >
-                        {perk}
-                      </span>
-                    ))}
-                  </div>
-                )}
                 {(pkg.venmoHandle?.trim() || pkg.zelleInfo?.trim()) && (
                   <div className="pt-4">
                     <p className="text-xs font-medium text-[#8e8985] mb-2">

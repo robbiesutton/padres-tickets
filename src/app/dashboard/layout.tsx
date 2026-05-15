@@ -53,11 +53,6 @@ export function useDashboardContext() {
   return useContext(DashboardContext);
 }
 
-const AVAILABLE_PERKS = [
-  'Shaded seats', 'Behind home plate', 'Premium', 'Craft beer nearby',
-  'Easy parking', 'Club access', 'Great for kids', 'Aisle seats',
-];
-
 function SeatInfoPillDropdown({ pkg, isDark, navColor, teamAccent, onPkgUpdate }: {
   pkg: PackageForNav;
   isDark: boolean;
@@ -70,17 +65,15 @@ function SeatInfoPillDropdown({ pkg, isDark, navColor, teamAccent, onPkgUpdate }
   const [saving, setSaving] = useState(false);
   const [descError, setDescError] = useState(false);
   const [description, setDescription] = useState(pkg.description || '');
-  const [perks, setPerks] = useState<string[]>(pkg.perks || []);
   const pillRef = useRef<HTMLDivElement>(null);
   const pillPanelRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const isEmpty = !pkg.seatPhotoUrl && !pkg.description && pkg.perks.length === 0;
+  const isEmpty = !pkg.seatPhotoUrl && !pkg.description;
 
   useEffect(() => {
     setDescription(pkg.description || '');
-    setPerks(pkg.perks || []);
-  }, [pkg.description, pkg.perks]);
+  }, [pkg.description]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -100,10 +93,6 @@ function SeatInfoPillDropdown({ pkg, isDark, navColor, teamAccent, onPkgUpdate }
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [pillOpen]);
 
-  function togglePerk(perk: string) {
-    setPerks((prev) => prev.includes(perk) ? prev.filter((p) => p !== perk) : [...prev, perk]);
-  }
-
   async function handleSave() {
     if (!description.trim()) {
       setDescError(true);
@@ -114,10 +103,10 @@ function SeatInfoPillDropdown({ pkg, isDark, navColor, teamAccent, onPkgUpdate }
     const res = await fetch(`/api/packages/${pkg.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ description: description.trim(), perks }),
+      body: JSON.stringify({ description: description.trim() }),
     });
     if (res.ok) {
-      onPkgUpdate({ description: description.trim(), perks });
+      onPkgUpdate({ description: description.trim() });
       setEditing(false);
     }
     setSaving(false);
@@ -227,36 +216,9 @@ function SeatInfoPillDropdown({ pkg, isDark, navColor, teamAccent, onPkgUpdate }
                     <p className="text-xs text-[#DC2626] mt-1">Description is required</p>
                   )}
                 </div>
-                <div className="py-4 border-b border-[#f5f4f2]">
-                  <label className="block text-xs font-medium text-[#8e8985] mb-2">Perks</label>
-                  <div className="flex flex-wrap gap-1.5">
-                    {AVAILABLE_PERKS.map((perk) => {
-                      const selected = perks.includes(perk);
-                      return (
-                        <button
-                          key={perk}
-                          type="button"
-                          onClick={() => togglePerk(perk)}
-                          className={`inline-flex items-center h-7 px-2.5 rounded-full text-xs font-medium border transition-colors cursor-pointer ${
-                            selected
-                              ? 'bg-[#E1F5EE] border-[#0F6E56] text-[#0F6E56]'
-                              : 'bg-white border-[#dcd7d4] text-[#8e8985] hover:border-[#2c2a2b] hover:text-[#2c2a2b]'
-                          }`}
-                        >
-                          {selected && (
-                            <svg className="w-3 h-3 mr-1" viewBox="0 0 16 16" fill="none">
-                              <path d="M3.5 8.5L6.5 11.5L12.5 4.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
-                          )}
-                          {perk}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
                 <div className="flex gap-2 pt-4">
                   <button
-                    onClick={() => { setEditing(false); setDescription(pkg.description || ''); setPerks(pkg.perks || []); }}
+                    onClick={() => { setEditing(false); setDescription(pkg.description || ''); }}
                     className="flex-1 h-9 rounded-lg border border-[#dcd7d4] bg-white text-sm font-medium text-[#2c2a2b] cursor-pointer hover:bg-[#f5f4f2] transition-colors"
                   >
                     Cancel
@@ -282,7 +244,7 @@ function SeatInfoPillDropdown({ pkg, isDark, navColor, teamAccent, onPkgUpdate }
                 <div>
                   <p className="text-sm font-medium text-[#2c2a2b]">Add your seat details</p>
                   <p className="text-xs text-[#8e8985] mt-1 max-w-[240px]">
-                    Help your friends know what to expect — add a description and perks for your seats.
+                    Help your friends know what to expect — add a description for your seats.
                   </p>
                 </div>
                 <button
@@ -314,15 +276,6 @@ function SeatInfoPillDropdown({ pkg, isDark, navColor, teamAccent, onPkgUpdate }
                     <span className="font-bold text-black">MLB Ballpark App</span>
                   </div>
                 </div>
-                {pkg.perks.length > 0 && (
-                  <div className="flex flex-wrap gap-2 pt-4 pb-4 border-b border-[#f5f4f2]">
-                    {pkg.perks.map((perk) => (
-                      <span key={perk} className="inline-flex items-center justify-center text-xs font-medium text-[#8e8985] h-8 px-3 border border-[#8e8985]/75 rounded-full whitespace-nowrap">
-                        {perk}
-                      </span>
-                    ))}
-                  </div>
-                )}
                 {(pkg.venmoHandle?.trim() || pkg.zelleInfo?.trim()) && (
                   <div className="pt-4 pb-4 border-b border-[#f5f4f2]">
                     <p className="text-xs font-medium text-[#8e8985] mb-2">How to pay</p>
@@ -372,19 +325,13 @@ function MobileSeatInfoDrawer({ pkg, navColor, teamAccent, onPkgUpdate }: {
   const [saving, setSaving] = useState(false);
   const [descError, setDescError] = useState(false);
   const [description, setDescription] = useState(pkg.description || '');
-  const [perks, setPerks] = useState<string[]>(pkg.perks || []);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const isEmpty = !pkg.seatPhotoUrl && !pkg.description && pkg.perks.length === 0;
+  const isEmpty = !pkg.seatPhotoUrl && !pkg.description;
 
   useEffect(() => {
     setDescription(pkg.description || '');
-    setPerks(pkg.perks || []);
-  }, [pkg.description, pkg.perks]);
-
-  function togglePerk(perk: string) {
-    setPerks((prev) => prev.includes(perk) ? prev.filter((p) => p !== perk) : [...prev, perk]);
-  }
+  }, [pkg.description]);
 
   async function handleSave() {
     if (!description.trim()) {
@@ -396,10 +343,10 @@ function MobileSeatInfoDrawer({ pkg, navColor, teamAccent, onPkgUpdate }: {
     const res = await fetch(`/api/packages/${pkg.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ description: description.trim(), perks }),
+      body: JSON.stringify({ description: description.trim() }),
     });
     if (res.ok) {
-      onPkgUpdate({ description: description.trim(), perks });
+      onPkgUpdate({ description: description.trim() });
       setEditing(false);
     }
     setSaving(false);
@@ -500,36 +447,9 @@ function MobileSeatInfoDrawer({ pkg, navColor, teamAccent, onPkgUpdate }: {
                         <p className="text-xs text-[#DC2626] mt-1">Description is required</p>
                       )}
                     </div>
-                    <div className="pb-4 border-b border-[#f5f4f2]">
-                      <label className="block text-xs font-medium text-[#8e8985] mb-2">Perks</label>
-                      <div className="flex flex-wrap gap-1.5">
-                        {AVAILABLE_PERKS.map((perk) => {
-                          const selected = perks.includes(perk);
-                          return (
-                            <button
-                              key={perk}
-                              type="button"
-                              onClick={() => togglePerk(perk)}
-                              className={`inline-flex items-center h-8 px-3 rounded-full text-xs font-medium border transition-colors cursor-pointer ${
-                                selected
-                                  ? 'bg-[#E1F5EE] border-[#0F6E56] text-[#0F6E56]'
-                                  : 'bg-white border-[#dcd7d4] text-[#8e8985] hover:border-[#2c2a2b]'
-                              }`}
-                            >
-                              {selected && (
-                                <svg className="w-3 h-3 mr-1" viewBox="0 0 16 16" fill="none">
-                                  <path d="M3.5 8.5L6.5 11.5L12.5 4.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                </svg>
-                              )}
-                              {perk}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
                     <div className="flex gap-2">
                       <button
-                        onClick={() => { setEditing(false); setDescription(pkg.description || ''); setPerks(pkg.perks || []); }}
+                        onClick={() => { setEditing(false); setDescription(pkg.description || ''); }}
                         className="flex-1 h-11 rounded-lg border border-[#dcd7d4] bg-white text-sm font-medium text-[#2c2a2b] cursor-pointer"
                       >
                         Cancel
@@ -583,15 +503,6 @@ function MobileSeatInfoDrawer({ pkg, navColor, teamAccent, onPkgUpdate }: {
                         <span className="font-bold text-black">MLB Ballpark App</span>
                       </div>
                     </div>
-                    {pkg.perks.length > 0 && (
-                      <div className="flex flex-wrap gap-2 pb-4 border-b border-[#f5f4f2]">
-                        {pkg.perks.map((perk) => (
-                          <span key={perk} className="inline-flex items-center justify-center text-xs font-medium text-[#8e8985] h-8 px-3 border border-[#8e8985]/75 rounded-full whitespace-nowrap">
-                            {perk}
-                          </span>
-                        ))}
-                      </div>
-                    )}
                     <button
                       onClick={() => setEditing(true)}
                       className="flex items-center gap-1.5 text-sm font-medium text-[#8e8985] bg-transparent border-none cursor-pointer self-start"

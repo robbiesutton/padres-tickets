@@ -114,20 +114,6 @@ function MobileSeatInfoPill({ pkg }: { pkg: PackageInfo }) {
                   </div>
                 </div>
 
-                {/* Perks */}
-                {pkg.perks.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {pkg.perks.map((perk) => (
-                      <span
-                        key={perk}
-                        className="inline-flex items-center justify-center text-xs font-medium text-[#8e8985] h-8 px-3 border border-[#8e8985]/75 rounded-full whitespace-nowrap"
-                      >
-                        {perk}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
                 {/* How to pay */}
                 {(pkg.venmoHandle?.trim() || pkg.zelleInfo?.trim()) && (
                   <div className="pt-4 border-t border-[#f5f4f2]">

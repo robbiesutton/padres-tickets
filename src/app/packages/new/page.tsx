@@ -87,11 +87,6 @@ const STEPS = [
   { label: 'Confirmation' },
 ];
 
-const AVAILABLE_PERKS = [
-  'Shaded seats', 'Behind home plate', 'Premium', 'Craft beer nearby',
-  'Easy parking', 'Club access', 'Great for kids', 'Aisle seats',
-];
-
 // ─── Design Mode Mock Data ──────────────────────────────
 
 const DESIGN = process.env.NEXT_PUBLIC_DESIGN_MODE === 'true';
@@ -469,7 +464,6 @@ export default function NewPackagePage() {
   const [selectedSeats, setSelectedSeats] = useState<Set<number>>(DESIGN ? new Set([1, 2]) : new Set());
   const [seatPhotoUrl, setSeatPhotoUrl] = useState<string | null>(null);
   const [seatDescription, setSeatDescription] = useState('');
-  const [seatPerks, setSeatPerks] = useState<string[]>([]);
 
   // Step 3: Games
   const [schedule, setSchedule] = useState<ScheduleGame[]>(DESIGN ? MOCK_SCHEDULE : []);
@@ -597,7 +591,6 @@ export default function NewPackagePage() {
   function toggleAvailability(index: number) { setAvailability((prev) => ({ ...prev, [index]: prev[index] === 'available' ? 'keeping' : 'available' })); }
   function setAllAvailability(value: 'available' | 'keeping') { setAvailability((prev) => { const next = { ...prev }; selectedGames.forEach((i) => { next[i] = value; }); return next; }); }
   function toggleSeat(seatNum: number) { setSelectedSeats((prev) => { const next = new Set(prev); if (next.has(seatNum)) next.delete(seatNum); else next.add(seatNum); return next; }); }
-  function togglePerk(perk: string) { setSeatPerks((prev) => prev.includes(perk) ? prev.filter((p) => p !== perk) : [...prev, perk]); }
 
   function applyBulkPrice() {
     const price = parseInt(bulkPrice) || 0;
@@ -641,7 +634,7 @@ export default function NewPackagePage() {
         body: JSON.stringify({
           teamId: selectedTeam.id, section: selectedSection?.id || '', row: row || undefined,
           seats: seatsStr || 'TBD', seatCount: selectedSeats.size || 2, season, autoLoadSchedule: true,
-          seatPhotoUrl: seatPhotoUrl || undefined, perks: seatPerks.length > 0 ? seatPerks : sectionTags.length > 0 ? sectionTags : undefined,
+          seatPhotoUrl: seatPhotoUrl || undefined,
           description: seatDescription || (selectedSection ? `${selectedSection.level} seats at ${selectedTeam.venue}` : undefined),
           gameOverrides, excludedDates, venmoHandle: venmoHandle || undefined, zelleInfo: zelleInfo || undefined, shareLinkSlug: linkSlug || undefined,
         }),
@@ -986,29 +979,6 @@ export default function NewPackagePage() {
               rows={3}
               className="w-full px-4 py-3 bg-white border-[1.5px] border-[#eceae5] rounded-lg text-[15px] text-[#1a1a1a] resize-none transition-all hover:border-[#b5b1ab] focus:border-[#2c2a2b] focus:outline-none focus:ring-[3px] focus:ring-[#2c2a2b]/10"
             />
-          </div>
-
-          <div className="mt-4">
-            <FormLabel>Perks <span className="font-normal">(Optional)</span></FormLabel>
-            <div className="flex flex-wrap gap-2">
-              {AVAILABLE_PERKS.map((perk) => {
-                const selected = seatPerks.includes(perk);
-                return (
-                  <button
-                    key={perk}
-                    type="button"
-                    onClick={() => togglePerk(perk)}
-                    className={`h-9 px-3.5 rounded-full text-xs font-semibold border transition-all cursor-pointer ${
-                      selected
-                        ? 'bg-[#2c2a2b] text-white border-[#2c2a2b]'
-                        : 'bg-white text-[#1a1a1a] border-[#eceae5] hover:border-[#b5b1ab]'
-                    }`}
-                  >
-                    {perk}
-                  </button>
-                );
-              })}
-            </div>
           </div>
 
           <StepActions>
