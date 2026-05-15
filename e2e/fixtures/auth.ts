@@ -6,10 +6,10 @@ const HOLDER_PASSWORD = process.env.TEST_HOLDER_PASSWORD || 'password123';
 
 // Ensures holder@test.com exists in the preview DB and saves storageState.
 // Strategy:
-// 1. Try to log in — works if seed already ran against the right branch
-// 2. If login fails, sign up — handles the case where the Vercel preview uses
-//    a per-PR Neon branch that hasn't been seeded yet
-// 3. If signup also fails, save empty state so tests fail individually (not globally)
+// 1. Try login via credentials
+// 2. If that fails, create via /join page (no phone required; calls /api/auth/signup
+//    which sets session cookie directly — works even without NEXTAUTH_SECRET in preview)
+// 3. If both fail, save empty state and let auth-dependent tests fail individually
 export default async function globalSetup(config: FullConfig) {
   const baseURL = config.projects[0].use.baseURL || 'http://localhost:3000';
   fs.mkdirSync('e2e/.auth', { recursive: true });
@@ -18,24 +18,23 @@ export default async function globalSetup(config: FullConfig) {
   const page = await browser.newPage();
 
   try {
-    // Step 1: try to log in
     const loggedIn = await tryLogin(page, baseURL);
 
     if (loggedIn) {
       await page.context().storageState({ path: 'e2e/.auth/holder.json' });
       console.log('[globalSetup] Logged in as existing holder.');
-    } else {
-      // Step 2: account may not exist in this DB branch — sign up
-      console.log('[globalSetup] Login failed — attempting signup to create holder account...');
-      const signedup = await trySignup(page, baseURL);
+      return;
+    }
 
-      if (signedup) {
-        await page.context().storageState({ path: 'e2e/.auth/holder.json' });
-        console.log('[globalSetup] Signed up and saved holder auth state.');
-      } else {
-        console.warn('[globalSetup] WARNING: Could not log in or sign up — holder auth tests will fail.');
-        fs.writeFileSync('e2e/.auth/holder.json', JSON.stringify({ cookies: [], origins: [] }));
-      }
+    console.log('[globalSetup] Login failed — creating holder via /join...');
+    const created = await tryCreateViaJoin(page, baseURL);
+
+    if (created) {
+      await page.context().storageState({ path: 'e2e/.auth/holder.json' });
+      console.log('[globalSetup] Created holder account and saved auth state.');
+    } else {
+      console.warn('[globalSetup] WARNING: Could not authenticate — holder auth tests will fail.');
+      fs.writeFileSync('e2e/.auth/holder.json', JSON.stringify({ cookies: [], origins: [] }));
     }
   } catch (err) {
     console.warn('[globalSetup] Unexpected error:', err);
@@ -58,17 +57,18 @@ async function tryLogin(page: import('@playwright/test').Page, baseURL: string):
   }
 }
 
-async function trySignup(page: import('@playwright/test').Page, baseURL: string): Promise<boolean> {
+async function tryCreateViaJoin(page: import('@playwright/test').Page, baseURL: string): Promise<boolean> {
   try {
-    await page.goto(`${baseURL}/signup`);
-    await page.getByTestId('signup-first-name').fill('Mark');
-    await page.getByTestId('signup-last-name').fill('Thompson');
-    await page.getByTestId('signup-email').fill(HOLDER_EMAIL);
-    await page.getByTestId('signup-password').fill(HOLDER_PASSWORD);
-    await page.getByTestId('signup-terms-checkbox').check();
-    await page.getByTestId('signup-submit').click();
-    // Signup redirects to /packages/new — that's success
-    await page.waitForURL(/\/packages\/new|\/dashboard/, { timeout: 12000 });
+    // /join has no phone field and calls /api/auth/signup directly
+    await page.goto(`${baseURL}/join`);
+    await page.getByTestId('join-first-name').fill('Mark');
+    await page.getByTestId('join-last-name').fill('Thompson');
+    await page.getByTestId('join-email').fill(HOLDER_EMAIL);
+    await page.getByTestId('join-password').fill(HOLDER_PASSWORD);
+    await page.getByTestId('join-terms-checkbox').check();
+    await page.getByTestId('join-submit').click();
+    // /join with no `from` param redirects to /dashboard
+    await page.waitForURL(/\/dashboard/, { timeout: 12000 });
     return true;
   } catch {
     return false;
