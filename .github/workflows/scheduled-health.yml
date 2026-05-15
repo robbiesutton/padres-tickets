@@ -1,0 +1,40 @@
+# Scheduled production smoke check — DISABLED in v1.
+# Flip on in Vercel/GitHub Actions settings once user base is large enough
+# to justify monitoring production continuously.
+#
+# To enable: uncomment the `on` block below and update PLAYWRIGHT_BASE_URL.
+
+name: Scheduled Health Check
+
+# on:
+#   schedule:
+#     - cron: '0 13 * * *'   # 6 AM PT daily
+
+on:
+  workflow_dispatch:   # manual trigger only for now
+
+jobs:
+  smoke:
+    name: Production smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci --legacy-peer-deps
+      - run: npx playwright install chromium --with-deps
+      - name: Run smoke suite against production
+        run: npx playwright test --grep @smoke --project=chromium-desktop
+        env:
+          PLAYWRIGHT_BASE_URL: https://benchbuddy.app
+          MAILOSAUR_API_KEY: ${{ secrets.MAILOSAUR_API_KEY }}
+          MAILOSAUR_SERVER_ID: ${{ secrets.MAILOSAUR_SERVER_ID }}
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: health-report
+          path: playwright-report/
+          retention-days: 7

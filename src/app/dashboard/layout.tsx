@@ -659,6 +659,7 @@ export default function DashboardLayout({
     <DashboardContext.Provider value={{ packages, selectedPkg, selectedPkgId, setSelectedPkgId, loading }}>
       <div className="flex flex-1 flex-col">
         <header
+          data-testid="dashboard-nav"
           className="h-[60px] md:h-[77px] flex items-center justify-between px-4 md:px-8 sticky top-0 z-50 shadow-[0_1px_3px_rgba(0,0,0,0.06)]"
           style={{ backgroundColor: navColor }}
         >
@@ -695,6 +696,7 @@ export default function DashboardLayout({
             {/* Package switcher (if multiple) */}
             {packages.length > 1 && (
               <select
+                data-testid="package-switcher"
                 value={selectedPkgId || ''}
                 onChange={(e) => {
                   const pkg = packages.find((p) => p.id === e.target.value);
@@ -720,6 +722,7 @@ export default function DashboardLayout({
 
             {/* Account avatar */}
             <Link
+              data-testid="account-avatar"
               href="/dashboard/profile"
               className="w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all text-sm font-semibold"
               style={{ backgroundColor: teamAccent, color: navColor }}

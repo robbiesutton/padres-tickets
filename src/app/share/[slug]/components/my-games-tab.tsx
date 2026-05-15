@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { signOut } from 'next-auth/react';
 import type { PackageInfo, MyGameClaim, Game } from '../types';
 import { getTeamColors } from '../team-colors';
 import { groupGamesByMonth, getOpponentAbbr, getOpponentColor, formatTime, formatShortDate } from '../utils';
@@ -150,7 +151,7 @@ export function MyGamesTab({ pkg, claimerName, onSwitchToAvailable, onReservatio
     .slice(0, 2);
 
   return (
-    <div className="flex flex-col">
+    <div data-testid="my-games-list" className="flex flex-col">
       {/* Greeting */}
       <p className="hidden md:block text-2xl text-[#2c2a2b] mb-8 font-bold" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>
         {claimerName || 'Margo'}, here are your games.
@@ -198,11 +199,19 @@ export function MyGamesTab({ pkg, claimerName, onSwitchToAvailable, onReservatio
       {/* Browse other games — desktop, mt = md/lg */}
       <div className="hidden md:flex flex-col items-end gap-3 -mt-4">
         <button
+          data-testid="my-games-browse"
           className="h-11 px-6 rounded-lg text-white text-base font-medium border-none cursor-pointer flex items-center justify-center hover:opacity-90 transition-opacity"
           style={{ backgroundColor: teamPrimary }}
           onClick={onSwitchToAvailable}
         >
           Browse other games
+        </button>
+        <button
+          data-testid="my-games-sign-out"
+          className="text-sm font-medium text-[#8e8985] bg-transparent border-none cursor-pointer hover:text-[#2c2a2b] transition-colors"
+          onClick={() => signOut()}
+        >
+          Sign out
         </button>
       </div>
 
@@ -214,6 +223,12 @@ export function MyGamesTab({ pkg, claimerName, onSwitchToAvailable, onReservatio
           onClick={onSwitchToAvailable}
         >
           Browse other games
+        </button>
+        <button
+          className="w-full mt-2 text-sm font-medium text-[#8e8985] bg-transparent border-none cursor-pointer active:text-[#2c2a2b] transition-colors py-1"
+          onClick={() => signOut()}
+        >
+          Sign out
         </button>
       </div>
       {/* Spacer for sticky button + footer coverage */}

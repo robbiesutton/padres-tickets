@@ -920,7 +920,7 @@ export default function NewPackagePage() {
           )}
 
           <StepActions>
-            <PrimaryButton onClick={() => { loadSchedule(); goToStep(2); }} disabled={!league || !selectedTeam || !selectedPackage}>
+            <PrimaryButton data-testid="package-step1-continue" onClick={() => { loadSchedule(); goToStep(2); }} disabled={!league || !selectedTeam || !selectedPackage}>
               Continue →
             </PrimaryButton>
           </StepActions>
@@ -954,7 +954,7 @@ export default function NewPackagePage() {
           <SeatMultiSelect selectedSeats={selectedSeats} onToggle={toggleSeat} />
 
           <StepActions>
-            <PrimaryButton onClick={() => goToStep(3)} disabled={!selectedSection || !row || selectedSeats.size === 0}>
+            <PrimaryButton data-testid="package-step2-continue" onClick={() => goToStep(3)} disabled={!selectedSection || !row || selectedSeats.size === 0}>
               Continue →
             </PrimaryButton>
           </StepActions>
@@ -1054,7 +1054,7 @@ export default function NewPackagePage() {
           </div>
 
           <StepActions>
-            <PrimaryButton onClick={() => { applyBulkPrice(); createPackage(); }} disabled={loading}>{loading ? 'Creating...' : 'Finish setup →'}</PrimaryButton>
+            <PrimaryButton data-testid="package-step3-finish" onClick={() => { applyBulkPrice(); createPackage(); }} disabled={loading}>{loading ? 'Creating...' : 'Finish setup →'}</PrimaryButton>
           </StepActions>
         </div>
       )}

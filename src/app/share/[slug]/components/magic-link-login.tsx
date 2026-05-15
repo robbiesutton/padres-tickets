@@ -36,7 +36,7 @@ export function MagicLinkLogin() {
 
   if (sent) {
     return (
-      <div className="bg-card border border-border rounded-xl overflow-hidden">
+      <div data-testid="magic-link-sent" className="bg-card border border-border rounded-xl overflow-hidden">
         <div className="p-10 text-center">
           <div className="mx-auto mb-3 w-10 h-10 rounded-full bg-background flex items-center justify-center">
             <svg width="20" height="20" viewBox="0 0 16 16" fill="none">
@@ -72,6 +72,7 @@ export function MagicLinkLogin() {
           Enter the email you used when claiming games.
         </div>
         <input
+          data-testid="magic-link-email"
           type="email"
           placeholder="name@email.com"
           value={email}
@@ -83,6 +84,7 @@ export function MagicLinkLogin() {
           <div className="text-xs text-error mb-2">{error}</div>
         )}
         <button
+          data-testid="magic-link-submit"
           className="w-full max-w-[320px] py-[11px] rounded-lg bg-navy text-white border-none text-base font-medium cursor-pointer mx-auto block disabled:opacity-50"
           onClick={handleSubmit}
           disabled={loading || !email.includes('@')}

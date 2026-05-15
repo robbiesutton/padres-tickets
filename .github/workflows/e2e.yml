@@ -1,0 +1,140 @@
+name: E2E Tests
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# Cancel in-progress runs on force-pushes to avoid burning Mailosaur quota
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit:
+    name: Unit tests (Vitest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci --legacy-peer-deps
+      - run: npx prisma generate
+      - run: npm test
+
+  e2e:
+    name: E2E tests (Playwright)
+    needs: [unit]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci --legacy-peer-deps
+      - run: npx playwright install chromium --with-deps
+
+      # Vercel auto-deploys every push. Poll Vercel's own API (not GitHub's)
+      # to find the existing deployment for this SHA and wait until READY.
+      - name: Get Vercel preview URL
+        id: deploy
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_TEAM_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          # pull_request events have a synthetic merge SHA in github.sha —
+          # use the actual branch HEAD SHA that Vercel deploys from instead
+          SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          echo "Polling Vercel API for deployment of SHA $SHA..."
+          for i in $(seq 1 60); do
+            RESPONSE=$(curl -sf \
+              -H "Authorization: Bearer $VERCEL_TOKEN" \
+              "https://api.vercel.com/v6/deployments?teamId=$VERCEL_TEAM_ID&projectId=$VERCEL_PROJECT_ID&meta-githubCommitSha=$SHA&limit=1")
+
+            STATE=$(echo "$RESPONSE" | jq -r '.deployments[0].readyState // empty')
+            URL=$(echo "$RESPONSE" | jq -r '.deployments[0].url // empty')
+
+            echo "Attempt $i: state=${STATE:-not found yet}"
+
+            if [ "$STATE" = "READY" ] && [ -n "$URL" ]; then
+              echo "url=https://$URL" >> "$GITHUB_OUTPUT"
+              echo "Preview ready: https://$URL"
+              exit 0
+            elif [ "$STATE" = "ERROR" ] || [ "$STATE" = "CANCELED" ]; then
+              echo "Deployment failed with state: $STATE"
+              exit 1
+            fi
+            sleep 10
+          done
+          echo "Timed out waiting for Vercel deployment (10 minutes)"
+          exit 1
+        timeout-minutes: 12
+
+      # Hit the root URL with the bypass header until the server responds
+      - name: Warm up preview
+        run: |
+          URL="${{ steps.deploy.outputs.url }}"
+          for i in $(seq 1 12); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+              -H "x-vercel-protection-bypass: ${{ secrets.VERCEL_BYPASS_SECRET }}" \
+              "$URL")
+            if echo "$STATUS" | grep -qE "^[23]"; then
+              echo "Preview warm (HTTP $STATUS)"; exit 0
+            fi
+            echo "Attempt $i/12 — status=${STATUS:-no response}, waiting 5s..."; sleep 5
+          done
+          echo "Preview did not warm up"; exit 1
+        timeout-minutes: 2
+
+      - name: Run Playwright tests
+        run: npx playwright test --project=chromium-desktop
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ steps.deploy.outputs.url }}
+          VERCEL_BYPASS_SECRET: ${{ secrets.VERCEL_BYPASS_SECRET }}
+          MAILOSAUR_API_KEY: ${{ secrets.MAILOSAUR_API_KEY }}
+          MAILOSAUR_SERVER_ID: ${{ secrets.MAILOSAUR_SERVER_ID }}
+          TEST_EMAIL_DOMAIN: ${{ secrets.MAILOSAUR_SERVER_ID }}.mailosaur.net
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+
+  report:
+    name: Notion reporter
+    needs: [e2e]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci --legacy-peer-deps
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: playwright-report
+          path: playwright-report/
+      - name: Run reporter
+        run: npx tsx scripts/verify-report.ts
+        env:
+          NOTION_API_TOKEN: ${{ secrets.NOTION_API_TOKEN }}
+          NOTION_VERIFICATION_DB_ID: ${{ secrets.NOTION_VERIFICATION_DB_ID }}
+          NOTION_TASKS_DB_ID: ${{ secrets.NOTION_TASKS_DB_ID }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERCEL_BLOB_RW_TOKEN: ${{ secrets.VERCEL_BLOB_RW_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_HEAD_REF: ${{ github.head_ref }}
+          GITHUB_SHA: ${{ github.sha }}

@@ -82,7 +82,7 @@ export function GameCard({
   }
 
   return (
-    <div className={cardClass + ' md:cursor-default cursor-pointer'} onClick={() => { if (window.innerWidth < 768 && onMobileTap) onMobileTap(); }}>
+    <div data-testid="game-card" className={cardClass + ' md:cursor-default cursor-pointer'} onClick={() => { if (window.innerWidth < 768 && onMobileTap) onMobileTap(); }}>
       {/* Date + separator + badge + info */}
       <div className="flex-1 flex items-center gap-2 md:gap-4 min-w-0">
         <div className="flex items-center gap-2 md:gap-4 shrink-0">
@@ -138,6 +138,7 @@ export function GameCard({
         {!isTakenByOthers && (
           isReservedByMe ? (
             <button
+              data-testid="game-card-release"
               className="shrink-0 h-10 px-4 rounded-lg bg-transparent text-black text-base font-medium border border-solid border-black cursor-pointer flex items-center justify-center hover:bg-[#f5f4f2] transition-colors"
               onClick={(e) => { e.stopPropagation(); onRelease?.(); }}
             >
@@ -145,6 +146,7 @@ export function GameCard({
             </button>
           ) : (
             <button
+              data-testid="game-card-claim"
               className="shrink-0 h-10 px-4 rounded-lg text-white text-base font-medium border-none cursor-pointer flex items-center justify-center hover:opacity-90 transition-opacity"
               style={{ backgroundColor: teamColor || '#2c2a2b' }}
               onClick={(e) => { e.stopPropagation(); onReserve(); }}
