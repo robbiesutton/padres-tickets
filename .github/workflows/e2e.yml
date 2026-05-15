@@ -30,8 +30,6 @@ jobs:
     name: E2E tests (Playwright)
     needs: [unit]
     runs-on: ubuntu-latest
-    env:
-      PLAYWRIGHT_BASE_URL: ${{ steps.deploy.outputs.url }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
