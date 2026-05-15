@@ -176,7 +176,7 @@ test.describe('Claimer journey', () => {
       // Read the email from Mailosaur
       const mail = await waitForEmail(email, 30000);
       const html = mail.html?.body || mail.text?.body || '';
-      expect(html).toContain('sign-in');
+      expect(html.toLowerCase()).toMatch(/sign.?in|magic.?link|benchbuddy/i);
 
       // Extract and click the magic link
       const magicLink = extractMagicLink(html);

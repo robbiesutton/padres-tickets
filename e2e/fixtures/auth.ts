@@ -1,32 +1,76 @@
 import { chromium, FullConfig } from '@playwright/test';
 import fs from 'fs';
 
-// Logs in as the seeded holder once and saves storageState.
-// Tests load it via: use: { storageState: 'e2e/.auth/holder.json' }
-// If login fails (e.g. seed not run, wrong NEXTAUTH_URL), a warning is printed
-// and the file is not written. Tests that require auth will fail individually.
-// Claimer (magic-link only) is handled per-test via Mailosaur in Phase 2.
+const HOLDER_EMAIL = process.env.TEST_HOLDER_EMAIL || 'holder@test.com';
+const HOLDER_PASSWORD = process.env.TEST_HOLDER_PASSWORD || 'password123';
+
+// Ensures holder@test.com exists in the preview DB and saves storageState.
+// Strategy:
+// 1. Try to log in — works if seed already ran against the right branch
+// 2. If login fails, sign up — handles the case where the Vercel preview uses
+//    a per-PR Neon branch that hasn't been seeded yet
+// 3. If signup also fails, save empty state so tests fail individually (not globally)
 export default async function globalSetup(config: FullConfig) {
   const baseURL = config.projects[0].use.baseURL || 'http://localhost:3000';
+  fs.mkdirSync('e2e/.auth', { recursive: true });
 
   const browser = await chromium.launch();
-  try {
-    const page = await browser.newPage();
-    await page.goto(`${baseURL}/login`);
-    await page.getByTestId('login-email').fill(process.env.TEST_HOLDER_EMAIL || 'holder@test.com');
-    await page.getByTestId('login-password').fill(process.env.TEST_HOLDER_PASSWORD || 'password123');
-    await page.getByTestId('login-submit').click();
+  const page = await browser.newPage();
 
-    await page.waitForURL(`${baseURL}/dashboard`, { timeout: 10000 });
-    await page.context().storageState({ path: 'e2e/.auth/holder.json' });
-    console.log('[globalSetup] Holder auth state saved to e2e/.auth/holder.json');
-  } catch {
-    console.warn('[globalSetup] WARNING: Could not log in as holder — auth-dependent tests will fail.');
-    console.warn('[globalSetup] Ensure seed-test.ts has been run and NEXTAUTH_URL matches the test server.');
-    // Write an empty state file so tests that declare storageState don't crash on file-not-found
-    fs.mkdirSync('e2e/.auth', { recursive: true });
+  try {
+    // Step 1: try to log in
+    const loggedIn = await tryLogin(page, baseURL);
+
+    if (loggedIn) {
+      await page.context().storageState({ path: 'e2e/.auth/holder.json' });
+      console.log('[globalSetup] Logged in as existing holder.');
+    } else {
+      // Step 2: account may not exist in this DB branch — sign up
+      console.log('[globalSetup] Login failed — attempting signup to create holder account...');
+      const signedup = await trySignup(page, baseURL);
+
+      if (signedup) {
+        await page.context().storageState({ path: 'e2e/.auth/holder.json' });
+        console.log('[globalSetup] Signed up and saved holder auth state.');
+      } else {
+        console.warn('[globalSetup] WARNING: Could not log in or sign up — holder auth tests will fail.');
+        fs.writeFileSync('e2e/.auth/holder.json', JSON.stringify({ cookies: [], origins: [] }));
+      }
+    }
+  } catch (err) {
+    console.warn('[globalSetup] Unexpected error:', err);
     fs.writeFileSync('e2e/.auth/holder.json', JSON.stringify({ cookies: [], origins: [] }));
   } finally {
     await browser.close();
+  }
+}
+
+async function tryLogin(page: import('@playwright/test').Page, baseURL: string): Promise<boolean> {
+  try {
+    await page.goto(`${baseURL}/login`);
+    await page.getByTestId('login-email').fill(HOLDER_EMAIL);
+    await page.getByTestId('login-password').fill(HOLDER_PASSWORD);
+    await page.getByTestId('login-submit').click();
+    await page.waitForURL(`${baseURL}/dashboard`, { timeout: 12000 });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function trySignup(page: import('@playwright/test').Page, baseURL: string): Promise<boolean> {
+  try {
+    await page.goto(`${baseURL}/signup`);
+    await page.getByTestId('signup-first-name').fill('Mark');
+    await page.getByTestId('signup-last-name').fill('Thompson');
+    await page.getByTestId('signup-email').fill(HOLDER_EMAIL);
+    await page.getByTestId('signup-password').fill(HOLDER_PASSWORD);
+    await page.getByTestId('signup-terms-checkbox').check();
+    await page.getByTestId('signup-submit').click();
+    // Signup redirects to /packages/new — that's success
+    await page.waitForURL(/\/packages\/new|\/dashboard/, { timeout: 12000 });
+    return true;
+  } catch {
+    return false;
   }
 }
