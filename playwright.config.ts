@@ -12,6 +12,10 @@ export default defineConfig({
     trace: 'on-first-retry',
     video: 'on-first-retry',
     screenshot: 'only-on-failure',
+    // Pass Vercel deployment protection bypass header when testing against previews
+    extraHTTPHeaders: process.env.VERCEL_BYPASS_SECRET
+      ? { 'x-vercel-protection-bypass': process.env.VERCEL_BYPASS_SECRET }
+      : {},
   },
   globalSetup: './e2e/fixtures/auth.ts',
   projects: [

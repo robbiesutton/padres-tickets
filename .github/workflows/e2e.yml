@@ -75,14 +75,15 @@ jobs:
           exit 1
         timeout-minutes: 12
 
-      # Hit the root URL until serverless functions respond (any HTTP code is fine —
-      # 401 means Vercel deployment protection is on but the server IS up)
+      # Hit the root URL with the bypass header until the server responds
       - name: Warm up preview
         run: |
           URL="${{ steps.deploy.outputs.url }}"
           for i in $(seq 1 12); do
-            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
-            if echo "$STATUS" | grep -qE "^[2345]"; then
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+              -H "x-vercel-protection-bypass: ${{ secrets.VERCEL_BYPASS_SECRET }}" \
+              "$URL")
+            if echo "$STATUS" | grep -qE "^[23]"; then
               echo "Preview warm (HTTP $STATUS)"; exit 0
             fi
             echo "Attempt $i/12 — status=${STATUS:-no response}, waiting 5s..."; sleep 5
@@ -94,6 +95,7 @@ jobs:
         run: npx playwright test --project=chromium-desktop
         env:
           PLAYWRIGHT_BASE_URL: ${{ steps.deploy.outputs.url }}
+          VERCEL_BYPASS_SECRET: ${{ secrets.VERCEL_BYPASS_SECRET }}
           MAILOSAUR_API_KEY: ${{ secrets.MAILOSAUR_API_KEY }}
           MAILOSAUR_SERVER_ID: ${{ secrets.MAILOSAUR_SERVER_ID }}
           TEST_EMAIL_DOMAIN: ${{ secrets.MAILOSAUR_SERVER_ID }}.mailosaur.net
