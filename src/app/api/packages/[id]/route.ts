@@ -72,7 +72,8 @@ export async function PUT(
 ) {
   if (DESIGN_MODE) {
     const body = await request.json();
-    return jsonSuccess({ package: { ...mockPackage, ...body } });
+    Object.assign(mockPackage, body);
+    return jsonSuccess({ package: { ...mockPackage } });
   }
 
   const user = await requireAuth();
