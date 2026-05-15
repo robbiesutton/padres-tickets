@@ -20,7 +20,7 @@ export default async function globalSetup(config: FullConfig) {
     await page.waitForURL(`${baseURL}/dashboard`, { timeout: 10000 });
     await page.context().storageState({ path: 'e2e/.auth/holder.json' });
     console.log('[globalSetup] Holder auth state saved to e2e/.auth/holder.json');
-  } catch (err) {
+  } catch {
     console.warn('[globalSetup] WARNING: Could not log in as holder — auth-dependent tests will fail.');
     console.warn('[globalSetup] Ensure seed-test.ts has been run and NEXTAUTH_URL matches the test server.');
     // Write an empty state file so tests that declare storageState don't crash on file-not-found

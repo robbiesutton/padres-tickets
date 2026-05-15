@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { signOut } from 'next-auth/react';
 import type { PackageInfo, MyGameClaim, Game } from '../types';
 import { getTeamColors } from '../team-colors';
-import { groupGamesByMonth, getOpponentAbbr, getOpponentColor, formatTime, formatShortDate } from '../utils';
+import { groupGamesByMonth, getOpponentAbbr, getOpponentColor, formatShortDate } from '../utils';
 import { GameCard } from './game-card';
 import { CalendarPopover } from './calendar-popover';
 
@@ -20,7 +20,7 @@ export function MyGamesTab({ pkg, claimerName, onSwitchToAvailable, onReservatio
   const [claims, setClaims] = useState<MyGameClaim[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [selectedGameId, setSelectedGameId] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [, setCopied] = useState(false);
 
   const { primary: teamPrimary, accent: teamAccent } = getTeamColors(pkg.team);
 
@@ -60,7 +60,7 @@ export function MyGamesTab({ pkg, claimerName, onSwitchToAvailable, onReservatio
     }
   }
 
-  function handleCopyLink() {
+  function _handleCopyLink() {
     const link = `benchbuddy.app/s/${pkg.slug}`;
     navigator.clipboard.writeText(link);
     setCopied(true);
@@ -125,16 +125,16 @@ export function MyGamesTab({ pkg, claimerName, onSwitchToAvailable, onReservatio
     .filter((c) => new Date(c.game.date) > now)
     .sort((a, b) => new Date(a.game.date).getTime() - new Date(b.game.date).getTime())[0];
 
-  const daysAway = nextGame
+  const _daysAway = nextGame
     ? Math.ceil((new Date(nextGame.game.date).getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
     : null;
 
-  const nextGameDate = nextGame
+  const _nextGameDate = nextGame
     ? formatShortDate(nextGame.game.date)
     : null;
 
-  const nextGameAbbr = nextGame ? getOpponentAbbr(nextGame.game.opponent) : '';
-  const nextGameColor = nextGame ? getOpponentColor(nextGame.game.opponent) : '';
+  const _nextGameAbbr = nextGame ? getOpponentAbbr(nextGame.game.opponent) : '';
+  const _nextGameColor = nextGame ? getOpponentColor(nextGame.game.opponent) : '';
 
   // Group by month
   const grouped = groupGamesByMonth(claimGames.map((c) => c.game));
@@ -143,7 +143,7 @@ export function MyGamesTab({ pkg, claimerName, onSwitchToAvailable, onReservatio
   const selectedGame = selectedGameId ? claimGames.find((c) => c.game.id === selectedGameId) : null;
 
   // Holder initials
-  const holderInitials = pkg.holderName
+  const _holderInitials = pkg.holderName
     .split(' ')
     .map((n) => n[0])
     .join('')

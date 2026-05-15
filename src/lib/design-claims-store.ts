@@ -3,7 +3,7 @@
  * Persists across API calls within the same server process,
  * resets on server restart.
  */
-import { mockMyClaims, mockGames, mockPackage, mockHolder, MOCK_USER_ID } from './mock-data';
+import { mockMyClaims, mockGames } from './mock-data';
 
 export interface DesignClaim {
   id: string;

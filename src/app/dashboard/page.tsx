@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Bone } from '@/components/skeleton';
 import {
@@ -532,7 +532,7 @@ function ProtectedStatusSheet({
   onClose: () => void;
 }) {
   const [showPicker, setShowPicker] = useState(false);
-  const chip = getStatusChip(game.status);
+  const _chip = getStatusChip(game.status);
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   function handleSelect(status: string) {
@@ -605,7 +605,6 @@ function ProtectedStatusSheet({
   );
 
   if (isMobile) {
-    const { dow, day, month: mon } = formatShortDate(game.date);
     const d = new Date(game.date);
     const fullDate = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 
@@ -686,13 +685,13 @@ function ProtectedStatusSheet({
 
 function SellerGameCard({
   game,
-  team,
+  team: _team,
   onStatusChange,
   onPriceChange,
   onRemoveGame,
   onAssign,
-  onTap,
-  packageInfo,
+  onTap: _onTap,
+  packageInfo: _packageInfo,
   knownPeople,
 }: {
   game: GameWithClaim;
@@ -708,7 +707,7 @@ function SellerGameCard({
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
-  const [mobileEditingPrice, setMobileEditingPrice] = useState(false);
+  const [, setMobileEditingPrice] = useState(false);
   const [mobilePriceValue, setMobilePriceValue] = useState(game.pricePerTicket ? String(Number(game.pricePerTicket)) : '');
   const [mobileConfirmRemove, setMobileConfirmRemove] = useState(false);
   const [mobileAssignView, setMobileAssignView] = useState(false);
@@ -873,6 +872,7 @@ function SellerGameCard({
       {/* Status pill — desktop only */}
       <div className="relative shrink-0 hidden md:block">
         <button
+          data-testid="game-status-pill"
           ref={pillRef}
           onClick={handlePillClick}
           className="inline-flex items-center gap-2 h-11 px-4 rounded-full text-sm font-medium transition-all cursor-pointer hover:shadow-[0_1px_4px_rgba(0,0,0,0.1)]"
@@ -1516,7 +1516,7 @@ function SellerToolbar({
 // ─── Main Dashboard Page ───────────────────────────────
 
 export default function DashboardPage() {
-  const { packages, selectedPkg, selectedPkgId, loading } = useDashboardContext();
+  const { selectedPkg, selectedPkgId, loading } = useDashboardContext();
   const [summary, setSummary] = useState<Summary | null>(null);
   const [games, setGames] = useState<GameWithClaim[]>([]);
 

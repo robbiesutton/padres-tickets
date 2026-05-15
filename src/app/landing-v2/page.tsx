@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, startTransition } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { PrimaryButton } from '@/components/primary-button';
 
 export default function Home() {
   const router = useRouter();
@@ -121,7 +121,8 @@ export default function Home() {
 
       {/* Nav */}
       <nav className="flex items-center justify-between px-6 md:px-12 lg:px-20 py-6">
-        <a href="/" className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/benchbuddy-mark-white.svg"
             alt="BenchBuddy"
@@ -137,7 +138,7 @@ export default function Home() {
           >
             BenchBuddy
           </span>
-        </a>
+        </Link>
         {/* Desktop nav links */}
         <div className="hidden md:flex items-center gap-4">
           <a
@@ -1418,8 +1419,10 @@ function HeroCalendar() {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const isMobile = window.matchMedia('(max-width: 767px)').matches;
     if (reduced || isMobile) {
-      setAnimationsEnabled(false);
-      setClaimed(true); // static end state — COL is already a green check
+      startTransition(() => {
+        setAnimationsEnabled(false);
+        setClaimed(true); // static end state — COL is already a green check
+      });
       return;
     }
     // Animations enabled — proceed to loop below.

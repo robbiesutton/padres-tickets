@@ -6,7 +6,6 @@ import type { Game, PackageInfo, ReserveFlowStep } from '../types';
 import {
   getOpponentAbbr,
   getOpponentColor,
-  formatGameDate,
   formatTime,
   MONTH_NAMES,
 } from '../utils';

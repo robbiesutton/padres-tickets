@@ -40,7 +40,7 @@ async function main() {
     },
   });
 
-  const claimer = await prisma.user.upsert({
+  await prisma.user.upsert({
     where: { email: CLAIMER_EMAIL },
     update: { emailVerified: new Date() },
     create: {

@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from 'next';
+import type { Metadata } from 'next';
 import { DM_Sans, Inter, Syne } from 'next/font/google';
 import Script from 'next/script';
 import Providers from './providers';

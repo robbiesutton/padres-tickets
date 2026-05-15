@@ -13,6 +13,9 @@ function getUnsubscribeUrl(email: string): string {
 }
 
 function wrapWithFooter(html: string, to: string, isMarketing: boolean): string {
+  // Complete HTML documents (new designer templates) already include their own footer.
+  if (html.trimEnd().toLowerCase().endsWith('</html>')) return html;
+
   const footer = `
     <div style="margin-top:32px;padding-top:16px;border-top:1px solid #eee;font-size:12px;color:#999">
       <p>BenchBuddy — Your seats. Your friends. Your price.</p>

@@ -1,5 +1,36 @@
+import { emailChrome, greeting, gameDetailBlock, ctaButton, bodyText } from './template';
+
+const FONT = `-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif`;
+
+interface GameClaimedEmailData {
+  holderFirstName: string;
+  claimerName: string;
+  team: string;
+  opponent: string;
+  gameDayStr: string;
+  timeVenue: string;
+  claimedCount: number;
+  totalCount: number;
+  availableCount: number;
+  dashboardUrl: string;
+}
+
+export function buildGameClaimedEmail(data: GameClaimedEmailData) {
+  const body = `
+${greeting(data.holderFirstName, `${data.claimerName} just claimed a game from your ${data.team} season.`)}
+${gameDetailBlock(data.gameDayStr, data.opponent, data.timeVenue)}
+${bodyText(`That&rsquo;s ${data.claimedCount} of ${data.totalCount} games claimed so far, with ${data.availableCount} still available.`)}
+${ctaButton(data.dashboardUrl, 'View my season')}
+`;
+
+  return {
+    subject: `${data.claimerName} claimed ${data.team} vs. ${data.opponent}`,
+    html: emailChrome(body, 'BenchBuddy &middot; You&rsquo;re receiving this because someone claimed a game from your season.'),
+  };
+}
+
 interface TransferActionEmailData {
-  holderName: string;
+  holderFirstName: string;
   claimerName: string;
   claimerEmail: string;
   team: string;
@@ -23,51 +54,44 @@ export function buildTransferActionEmail(data: TransferActionEmailData) {
       : null;
 
   const stepsHtml = data.transferSteps
-    .map((step, i) => `<li style="margin-bottom:4px">${i + 1}. ${step}</li>`)
+    .map((step, i) => `<tr><td style="font-size:14px;color:#444;font-family:${FONT};padding-bottom:4px;">${i + 1}. ${step}</td></tr>`)
     .join('');
 
-  const paymentSection = totalCost
-    ? `<div style="background:#fff8e1;padding:12px 16px;border-radius:8px;margin-top:16px">
-        <p style="margin:0;font-weight:600">Payment: ${totalCost}</p>
-        <p style="margin:4px 0 0;color:#666">Collect payment from ${data.claimerName} via your preferred method.</p>
-      </div>`
-    : `<div style="background:#e8f5e9;padding:12px 16px;border-radius:8px;margin-top:16px">
-        <p style="margin:0;font-weight:600;color:#2e7d32">Free — no payment needed</p>
-      </div>`;
+  const paymentHtml = totalCost
+    ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:16px 0;">
+        <tr><td bgcolor="#FFF8E1" style="background-color:#FFF8E1;border-radius:8px;padding:14px 16px;">
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+            <tr><td style="font-size:14px;font-weight:600;color:#1B1716;font-family:${FONT};">Payment: ${totalCost}</td></tr>
+            <tr><td style="font-size:13px;color:#8E8985;padding-top:2px;font-family:${FONT};">Collect from ${data.claimerName} via your preferred method.</td></tr>
+          </table>
+        </td></tr>
+      </table>`
+    : '';
 
-  const subject = `Action needed: Transfer ${data.team} vs. ${data.opponent} tickets to ${data.claimerName}`;
+  const body = `
+${greeting(data.holderFirstName, `${data.claimerName} wants to go to the game. Transfer the tickets to complete the claim.`)}
 
-  const html = `
-    <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:560px;margin:0 auto;padding:24px">
-      <h2 style="margin:0 0 8px">Tickets Claimed!</h2>
-      <p style="color:#666;margin:0 0 24px">${data.claimerName} wants to go to the game. Transfer the tickets to complete the claim.</p>
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:16px 0;">
+  <tr><td style="font-size:13px;color:#8E8985;font-family:${FONT};padding-bottom:2px;">Transfer to</td></tr>
+  <tr><td style="font-size:14px;font-weight:600;color:#1B1716;font-family:${FONT};">${data.claimerName} &lt;${data.claimerEmail}&gt;</td></tr>
+</table>
 
-      <div style="background:#f5f5f5;padding:16px;border-radius:8px">
-        <p style="margin:0;font-weight:600">${data.team} vs. ${data.opponent}</p>
-        <p style="margin:4px 0 0;color:#666">${data.gameDate}</p>
-        <p style="margin:4px 0 0;color:#666">Section ${data.section}${data.row ? `, Row ${data.row}` : ''} · ${data.seatCount} seats</p>
-        <p style="margin:8px 0 0"><strong>Transfer to:</strong> ${data.claimerName} (${data.claimerEmail})</p>
-      </div>
+${paymentHtml}
 
-      ${paymentSection}
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top:16px;">
+  <tr><td style="font-size:14px;font-weight:600;color:#1B1716;font-family:${FONT};padding-bottom:8px;">How to transfer (${data.platformName}):</td></tr>
+  ${stepsHtml}
+</table>
 
-      <div style="margin-top:24px">
-        <h3 style="margin:0 0 8px">How to transfer (${data.platformName}):</h3>
-        <ol style="padding-left:0;list-style:none;margin:0;color:#444">${stepsHtml}</ol>
-      </div>
+${ctaButton(data.transferDeepLink, 'Transfer Tickets Now')}
 
-      <div style="margin-top:24px;text-align:center">
-        <a href="${data.transferDeepLink}" style="display:inline-block;background:#2563eb;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:600;margin-right:8px">Transfer Tickets Now</a>
-      </div>
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top:12px;">
+  <tr><td align="center"><a href="${data.markTransferredUrl}" style="font-size:13px;color:#8E8985;font-family:${FONT};">Already transferred? Mark as done</a></td></tr>
+</table>
+`;
 
-      <div style="margin-top:16px;text-align:center">
-        <a href="${data.markTransferredUrl}" style="color:#2563eb;text-decoration:underline;font-size:14px">Already transferred? Mark as done</a>
-      </div>
-
-      <hr style="border:none;border-top:1px solid #eee;margin:32px 0 16px">
-      <p style="color:#999;font-size:12px;margin:0">Sent by BenchBuddy · You received this because ${data.claimerName} claimed your tickets.</p>
-    </div>
-  `;
-
-  return { subject, html };
+  return {
+    subject: `Action needed: Transfer ${data.team} vs. ${data.opponent} tickets to ${data.claimerName}`,
+    html: emailChrome(body, `BenchBuddy &middot; You received this because ${data.claimerName} claimed your tickets.`),
+  };
 }

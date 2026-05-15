@@ -3,17 +3,12 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
-import Image from 'next/image';
 import {
   SetupLayout,
-
   StepHeadline,
   StepSubhead,
   StepActions,
   PrimaryButton,
-  GhostButton,
-  SkipLink,
-  InlineNote,
   FormLabel,
   FormSelect,
 } from '@/components/setup-layout';
@@ -86,10 +81,6 @@ const STEPS = [
   { label: 'Confirmation' },
 ];
 
-const AVAILABLE_PERKS = [
-  'Shaded seats', 'Behind home plate', 'Premium', 'Craft beer nearby',
-  'Easy parking', 'Club access', 'Great for kids', 'Aisle seats',
-];
 
 // ─── Design Mode Mock Data ──────────────────────────────
 
@@ -262,9 +253,10 @@ function SeatMultiSelect({ selectedSeats, onToggle }: { selectedSeats: Set<numbe
 
 // ─── Wizard Game Card ──────────────────────────────────
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function WizardGameCard({
   game,
-  index,
+  index: _index,
   isAvail,
   price,
   onToggleAvailability,
@@ -443,7 +435,6 @@ function WizardGameCard({
 
 export default function NewPackagePage() {
   const router = useRouter();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [step, setStep] = useState<Step>(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -459,41 +450,40 @@ export default function NewPackagePage() {
 
   // Step 2: Seats + Seat Info
   const [sections, setSections] = useState<StadiumSection[]>(DESIGN ? MOCK_SECTIONS : []);
-  const [sectionsLoading, setSectionsLoading] = useState(false);
+  const [, setSectionsLoading] = useState(false);
   const [selectedSection, setSelectedSection] = useState<StadiumSection | null>(DESIGN ? MOCK_SECTIONS[1] : null);
   const [rows, setRows] = useState<string[]>(DESIGN ? ['1','2','3','4','5','6','7','8','9','10'] : []);
-  const [rowsLoading, setRowsLoading] = useState(false);
+  const [, setRowsLoading] = useState(false);
   const [sectionTags, setSectionTags] = useState<string[]>(DESIGN ? ['Shaded seats', 'Craft beer'] : []);
   const [row, setRow] = useState(DESIGN ? '5' : '');
   const [selectedSeats, setSelectedSeats] = useState<Set<number>>(DESIGN ? new Set([1, 2]) : new Set());
   const [seatPhotoUrl, setSeatPhotoUrl] = useState<string | null>(null);
-  const [seatDescription, setSeatDescription] = useState('');
+  const [seatDescription, _setSeatDescription] = useState('');
   const [seatPerks, setSeatPerks] = useState<string[]>(DESIGN ? ['Shaded seats', 'Craft beer'] : []);
 
   // Step 3: Games
   const [schedule, setSchedule] = useState<ScheduleGame[]>(DESIGN ? MOCK_SCHEDULE : []);
   const [selectedGames, setSelectedGames] = useState<Set<number>>(DESIGN ? new Set(MOCK_SCHEDULE.map((_, i) => i)) : new Set());
-  const [scheduleLoading, setScheduleLoading] = useState(false);
+  const [, setScheduleLoading] = useState(false);
   const [availability, setAvailability] = useState<Record<number, 'available' | 'keeping'>>(DESIGN ? initAvailability() : {});
 
   // Step 4: Pricing
   const [prices, setPrices] = useState<Record<number, number>>(DESIGN ? initPrices() : {});
-  const [bulkPrice, setBulkPrice] = useState(DESIGN ? '45' : '');
-  const [showPerGame, setShowPerGame] = useState(false);
+  const [bulkPrice, _setBulkPrice] = useState(DESIGN ? '45' : '');
   const [defaultPrice, setDefaultPrice] = useState('45');
 
   // Step 5: Payment
-  const [venmoHandle, setVenmoHandle] = useState(DESIGN ? '@robbie-sutton' : '');
-  const [zelleInfo, setZelleInfo] = useState(DESIGN ? 'robbie@benchbuddy.app' : '');
+  const [venmoHandle, _setVenmoHandle] = useState(DESIGN ? '@robbie-sutton' : '');
+  const [zelleInfo, _setZelleInfo] = useState(DESIGN ? 'robbie@benchbuddy.app' : '');
 
   // Celebration
-  const [linkSlug, setLinkSlug] = useState(DESIGN ? 'padres-section203' : '');
-  const [slugAvailable, setSlugAvailable] = useState<boolean | null>(DESIGN ? true : null);
+  const [linkSlug, _setLinkSlug] = useState(DESIGN ? 'padres-section203' : '');
+  const [, setSlugAvailable] = useState<boolean | null>(DESIGN ? true : null);
   const [copied, setCopied] = useState(false);
   const [result, setResult] = useState<{ shareLink: string; gamesCreated: number } | null>(null);
   const [firstName, setFirstName] = useState(DESIGN ? 'Robbie' : '');
-  const [subscribed, setSubscribed] = useState(true);
-  const [subLoading, setSubLoading] = useState(false);
+  const [, setSubscribed] = useState(true);
+  const [, setSubLoading] = useState(false);
 
   // ─── Data Loading ──────────────────────────────────────
 
@@ -567,7 +557,7 @@ export default function NewPackagePage() {
 
   // ─── Derived Data ──────────────────────────────────────
 
-  const gamesByMonth = useMemo(() => {
+  const _gamesByMonth = useMemo(() => {
     const grouped: Record<string, { game: ScheduleGame; index: number }[]> = {};
     schedule.forEach((game, index) => {
       const d = new Date(game.date);
@@ -578,7 +568,7 @@ export default function NewPackagePage() {
     return grouped;
   }, [schedule]);
 
-  const availableCount = useMemo(() => Array.from(selectedGames).filter((i) => availability[i] === 'available').length, [selectedGames, availability]);
+  const _availableCount = useMemo(() => Array.from(selectedGames).filter((i) => availability[i] === 'available').length, [selectedGames, availability]);
 
   // ─── Actions ───────────────────────────────────────────
 
@@ -592,18 +582,18 @@ export default function NewPackagePage() {
     setLeague(value);
   }
 
-  function toggleGame(index: number) { setSelectedGames((prev) => { const next = new Set(prev); if (next.has(index)) next.delete(index); else next.add(index); return next; }); }
-  function toggleAvailability(index: number) { setAvailability((prev) => ({ ...prev, [index]: prev[index] === 'available' ? 'keeping' : 'available' })); }
-  function setAllAvailability(value: 'available' | 'keeping') { setAvailability((prev) => { const next = { ...prev }; selectedGames.forEach((i) => { next[i] = value; }); return next; }); }
+  function _toggleGame(index: number) { setSelectedGames((prev) => { const next = new Set(prev); if (next.has(index)) next.delete(index); else next.add(index); return next; }); }
+  function _toggleAvailability(index: number) { setAvailability((prev) => ({ ...prev, [index]: prev[index] === 'available' ? 'keeping' : 'available' })); }
+  function _setAllAvailability(value: 'available' | 'keeping') { setAvailability((prev) => { const next = { ...prev }; selectedGames.forEach((i) => { next[i] = value; }); return next; }); }
   function toggleSeat(seatNum: number) { setSelectedSeats((prev) => { const next = new Set(prev); if (next.has(seatNum)) next.delete(seatNum); else next.add(seatNum); return next; }); }
-  function togglePerk(perk: string) { setSeatPerks((prev) => prev.includes(perk) ? prev.filter((p) => p !== perk) : [...prev, perk]); }
+  function _togglePerk(perk: string) { setSeatPerks((prev) => prev.includes(perk) ? prev.filter((p) => p !== perk) : [...prev, perk]); }
 
   function applyBulkPrice() {
     const price = parseInt(bulkPrice) || 0;
     setPrices((prev) => { const next = { ...prev }; selectedGames.forEach((i) => { if (availability[i] === 'available') next[i] = price; }); return next; });
   }
 
-  function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  function _handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]; if (!file) return;
     const reader = new FileReader();
     reader.onload = () => { setSeatPhotoUrl(reader.result as string); };
@@ -651,7 +641,7 @@ export default function NewPackagePage() {
     } finally { setLoading(false); }
   }
 
-  async function handleSubscribe() {
+  async function _handleSubscribe() {
     setSubLoading(true);
     try { const res = await fetch('/api/stripe/checkout', { method: 'POST' }); const data = await res.json(); if (data.url) window.location.href = data.url; else { setError(data.error || 'Failed'); setSubLoading(false); } }
     catch { setError('Something went wrong'); setSubLoading(false); }
@@ -695,7 +685,7 @@ export default function NewPackagePage() {
             <div className="rounded-xl border border-[#dcd7d4] overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.04)] bg-[#fefefe]">
               {/* Mobile nav bar */}
               {(() => {
-                const { primary: teamPrimary, accent: teamAccent } = getTeamColors(selectedTeam?.name || 'San Diego Padres');
+                const { primary: teamPrimary, accent: _teamAccent } = getTeamColors(selectedTeam?.name || 'San Diego Padres');
                 return (
                   <div className="h-[48px] flex items-center justify-between px-3 shadow-[0_1px_3px_rgba(0,0,0,0.06)]" style={{ backgroundColor: teamPrimary }}>
                     <div className="flex items-center gap-1.5">
@@ -816,7 +806,6 @@ export default function NewPackagePage() {
 
   // ─── Wizard Steps ──────────────────────────────────────
 
-  const totalSteps = 3;
 
   return (
     <SetupLayout steps={STEPS} currentStep={step} showSidebar={false}>

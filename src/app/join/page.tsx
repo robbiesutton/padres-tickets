@@ -50,32 +50,32 @@ function JoinForm() {
         </div>
 
         {error && (
-          <div className="rounded-lg bg-[#FEE2E2] text-[#DC2626] px-4 py-3 text-sm font-medium mb-4">
+          <div data-testid="join-error" className="rounded-lg bg-[#FEE2E2] text-[#DC2626] px-4 py-3 text-sm font-medium mb-4">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form data-testid="join-form" onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
               <FormLabel>First name</FormLabel>
-              <input type="text" required value={form.firstName} onChange={(e) => update('firstName', e.target.value)} className={inputClass} />
+              <input data-testid="join-first-name" type="text" required value={form.firstName} onChange={(e) => update('firstName', e.target.value)} className={inputClass} />
             </div>
             <div>
               <FormLabel>Last name</FormLabel>
-              <input type="text" required value={form.lastName} onChange={(e) => update('lastName', e.target.value)} className={inputClass} />
+              <input data-testid="join-last-name" type="text" required value={form.lastName} onChange={(e) => update('lastName', e.target.value)} className={inputClass} />
             </div>
           </div>
 
           <div>
             <FormLabel>Email</FormLabel>
-            <input type="email" required value={form.email} onChange={(e) => update('email', e.target.value)} className={inputClass} />
+            <input data-testid="join-email" type="email" required value={form.email} onChange={(e) => update('email', e.target.value)} className={inputClass} />
           </div>
 
           <div>
             <FormLabel>Password</FormLabel>
             <div className="relative">
-              <input type={showPassword ? 'text' : 'password'} required minLength={8} value={form.password} onChange={(e) => update('password', e.target.value)} className={`${inputClass} pr-16`} />
+              <input data-testid="join-password" type={showPassword ? 'text' : 'password'} required minLength={8} value={form.password} onChange={(e) => update('password', e.target.value)} className={`${inputClass} pr-16`} />
               <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[13px] font-medium text-[#8e8985] hover:text-[#2c2a2b] bg-transparent border-none cursor-pointer">
                 {showPassword ? 'Hide' : 'Show'}
               </button>
@@ -86,7 +86,7 @@ function JoinForm() {
           {/* Consent */}
           <div className="flex flex-col gap-3">
             <label className="flex items-start gap-2.5 text-sm cursor-pointer">
-              <input type="checkbox" checked={agreedToTerms} onChange={(e) => setAgreedToTerms(e.target.checked)} className="mt-0.5 w-5 h-5 accent-[#2c2a2b] shrink-0" />
+              <input data-testid="join-terms-checkbox" type="checkbox" checked={agreedToTerms} onChange={(e) => setAgreedToTerms(e.target.checked)} className="mt-0.5 w-5 h-5 accent-[#2c2a2b] shrink-0" />
               <span className="text-[#8e8985] leading-relaxed">
                 I agree to the <a href="/terms" target="_blank" className="text-[#8e8985] underline">Terms of Service</a> and <a href="/privacy" target="_blank" className="text-[#8e8985] underline">Privacy Policy</a>
               </span>
@@ -100,6 +100,7 @@ function JoinForm() {
           </div>
 
           <button
+            data-testid="join-submit"
             type="submit"
             disabled={loading || !agreedToTerms}
             className="w-full h-12 rounded-lg bg-[#2c2a2b] text-white text-sm font-medium cursor-pointer border-none transition-all hover:bg-[#dcd7d4] hover:text-[#2c2a2b] disabled:opacity-50 disabled:cursor-not-allowed"

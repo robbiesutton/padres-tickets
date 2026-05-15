@@ -8,7 +8,6 @@ import {
   StepHeadline,
   StepSubhead,
   FormLabel,
-  PrimaryButton,
 } from '@/components/setup-layout';
 import { AuthFormSkeleton } from '@/components/skeleton';
 

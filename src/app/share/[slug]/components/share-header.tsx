@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import type { ActiveTab } from '../types';
 import type { PackageInfo } from '../types';
@@ -19,7 +18,7 @@ interface Props {
   pkg: PackageInfo;
 }
 
-export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount, pkg }: Props) {
+export function ShareHeader({ holderName: _holderName, activeTab: _activeTab, onTabChange, reservedCount, pkg }: Props) {
   const { data: session } = useSession();
   const userInitial =
     session?.user?.name?.charAt(0)?.toUpperCase() ||

@@ -6,7 +6,6 @@ import type { Game, PackageInfo } from '../types';
 import {
   getOpponentAbbr,
   getOpponentColor,
-  formatShortDate,
   formatTime,
 } from '../utils';
 import { getTeamColors } from '../team-colors';
@@ -57,12 +56,7 @@ export function CalendarPopover({
     return () => document.removeEventListener('keydown', handleEsc);
   }, [onClose]);
 
-  // Reset confirmed state when game changes
-  useEffect(() => {
-    setJustConfirmed(false);
-  }, [game.id]);
 
-  const { dow, day, month } = formatShortDate(game.date);
   const abbr = getOpponentAbbr(game.opponent);
   const color = getOpponentColor(game.opponent);
   const { primary: teamPrimary } = getTeamColors(pkg.team);
@@ -151,6 +145,7 @@ export function CalendarPopover({
           </div>
 
           <button
+            data-testid="popover-release"
             className="w-full h-12 md:h-10 rounded-lg bg-transparent text-black text-base font-medium border-[1.5px] border-solid border-black cursor-pointer flex items-center justify-center hover:bg-[#f5f4f2] transition-colors"
             onClick={onRelease}
           >
@@ -175,6 +170,7 @@ export function CalendarPopover({
           </div>
 
           <button
+            data-testid="popover-claim"
             className="w-full h-12 md:h-10 rounded-lg text-white text-base font-medium border-none cursor-pointer flex items-center justify-center hover:opacity-90 transition-opacity"
             style={{ backgroundColor: teamPrimary }}
             onClick={handleClaimClick}

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import Link from 'next/link';
 import {
   SetupLayout,
   StepHeadline,
@@ -70,13 +71,11 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const refs = {
-    firstName: useRef<HTMLInputElement>(null),
-    lastName: useRef<HTMLInputElement>(null),
-    email: useRef<HTMLInputElement>(null),
-    phone: useRef<HTMLInputElement>(null),
-    password: useRef<HTMLInputElement>(null),
-  };
+  const firstNameRef = useRef<HTMLInputElement>(null);
+  const lastNameRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const phoneRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
 
   function runValidator(field: FieldKey, value: string, agreed: boolean = agreedToTerms): string | null {
     if (field === 'firstName') return validateName(value) ? 'Please enter your first name' : null;
@@ -122,11 +121,12 @@ export default function SignupPage() {
 
     if (Object.keys(next).length > 0) {
       // Focus first invalid field in DOM order.
+      const refMap = { firstName: firstNameRef, lastName: lastNameRef, email: emailRef, phone: phoneRef, password: passwordRef };
       const order: Array<'firstName' | 'lastName' | 'email' | 'phone' | 'password'> = [
         'firstName', 'lastName', 'email', 'phone', 'password',
       ];
       const firstInvalid = order.find((f) => next[f]);
-      if (firstInvalid) refs[firstInvalid].current?.focus();
+      if (firstInvalid) refMap[firstInvalid].current?.focus();
       return;
     }
 
@@ -166,10 +166,10 @@ export default function SignupPage() {
 
   return (
     <SetupLayout showSidebar={false}>
-      <a href="/" className="fixed top-6 left-6 flex items-center gap-1.5 text-sm font-medium text-[#8e8985] hover:text-[#2c2a2b] no-underline transition-colors z-10">
+      <Link href="/" className="fixed top-6 left-6 flex items-center gap-1.5 text-sm font-medium text-[#8e8985] hover:text-[#2c2a2b] no-underline transition-colors z-10">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
         Back
-      </a>
+      </Link>
       <div className="flex flex-col flex-1 md:justify-center max-w-[380px] mx-auto w-full pt-12 md:pt-0">
         <div className="text-center">
           <StepHeadline>Create your account</StepHeadline>
@@ -188,7 +188,7 @@ export default function SignupPage() {
               <FormLabel>First name</FormLabel>
               <input
                 data-testid="signup-first-name"
-                ref={refs.firstName}
+                ref={firstNameRef}
                 type="text"
                 autoComplete="given-name"
                 value={form.firstName}
@@ -204,7 +204,7 @@ export default function SignupPage() {
               <FormLabel>Last name</FormLabel>
               <input
                 data-testid="signup-last-name"
-                ref={refs.lastName}
+                ref={lastNameRef}
                 type="text"
                 autoComplete="family-name"
                 value={form.lastName}
@@ -222,7 +222,7 @@ export default function SignupPage() {
             <FormLabel>Email</FormLabel>
             <input
               data-testid="signup-email"
-              ref={refs.email}
+              ref={emailRef}
               type="email"
               autoComplete="email"
               inputMode="email"
@@ -239,7 +239,7 @@ export default function SignupPage() {
           <div>
             <FormLabel>Phone number</FormLabel>
             <input
-              ref={refs.phone}
+              ref={phoneRef}
               type="tel"
               autoComplete="tel"
               inputMode="tel"
@@ -258,7 +258,7 @@ export default function SignupPage() {
             <div className="relative">
               <input
                 data-testid="signup-password"
-                ref={refs.password}
+                ref={passwordRef}
                 type={showPassword ? 'text' : 'password'}
                 autoComplete="new-password"
                 value={form.password}

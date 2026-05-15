@@ -1,4 +1,6 @@
-const LOGO_URL = 'https://getbenchbuddy.com/benchbuddy-mark-white.svg';
+import { emailChrome, greeting, ctaButton } from './template';
+
+const FONT = `-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif`;
 
 interface AuthEmailData {
   firstName: string;
@@ -10,33 +12,13 @@ interface AuthEmailData {
 }
 
 export function buildAuthEmail(data: AuthEmailData): string {
-  return `
-    <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:560px;margin:0 auto;padding:0;background:#ffffff">
-      <!-- Header -->
-      <div style="background:#2c2a2b;padding:24px 32px;border-radius:12px 12px 0 0;text-align:center">
-        <img src="${LOGO_URL}" alt="BenchBuddy" width="36" height="36" style="display:inline-block;vertical-align:middle;margin-right:10px" />
-        <span style="color:#ffffff;font-size:20px;font-weight:700;vertical-align:middle;letter-spacing:-0.3px">BenchBuddy</span>
-      </div>
+  const body = `
+${greeting(data.firstName, data.body)}
+${ctaButton(data.ctaUrl, data.ctaLabel)}
+${data.footnote ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top:16px;"><tr><td style="font-size:12px;color:#8E8985;line-height:1.5;font-family:${FONT};">${data.footnote}</td></tr></table>` : ''}
+`;
 
-      <!-- Body -->
-      <div style="padding:32px;border:1px solid #eceae5;border-top:none;border-radius:0 0 12px 12px">
-        <h2 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#2c2a2b">${data.heading}</h2>
-        <p style="color:#666;margin:0 0 24px;font-size:15px;line-height:1.5">Hi ${data.firstName},</p>
-        <p style="color:#444;margin:0 0 28px;font-size:15px;line-height:1.6">${data.body}</p>
-
-        <!-- CTA Button -->
-        <div style="text-align:center;margin:0 0 28px">
-          <a href="${data.ctaUrl}" style="display:inline-block;background:#2c2a2b;color:#ffffff;padding:14px 36px;border-radius:8px;text-decoration:none;font-weight:600;font-size:15px">${data.ctaLabel}</a>
-        </div>
-
-        <!-- Link fallback -->
-        <p style="color:#999;font-size:12px;line-height:1.5;margin:0 0 16px">If the button doesn&rsquo;t work, copy and paste this link into your browser:</p>
-        <p style="color:#2563eb;font-size:12px;word-break:break-all;margin:0 0 24px"><a href="${data.ctaUrl}" style="color:#2563eb">${data.ctaUrl}</a></p>
-
-        ${data.footnote ? `<p style="color:#999;font-size:12px;margin:0">${data.footnote}</p>` : ''}
-      </div>
-    </div>
-  `;
+  return emailChrome(body, 'BenchBuddy &middot; You&rsquo;re receiving this because you requested access to your account.');
 }
 
 export function buildVerifyEmail(firstName: string, verifyUrl: string): { subject: string; html: string } {
@@ -45,7 +27,7 @@ export function buildVerifyEmail(firstName: string, verifyUrl: string): { subjec
     html: buildAuthEmail({
       firstName,
       heading: 'Verify your email',
-      body: 'Thanks for signing up for BenchBuddy! Please verify your email address to get started. Click the button below to confirm your account.',
+      body: 'Thanks for signing up for BenchBuddy! Please verify your email address to get started.',
       ctaLabel: 'Verify Email',
       ctaUrl: verifyUrl,
       footnote: 'This link expires in 24 hours. If you didn&rsquo;t create a BenchBuddy account, you can safely ignore this email.',
@@ -97,5 +79,39 @@ export function buildReserveMagicLinkEmail(
       ctaUrl: magicUrl,
       footnote: 'This link expires in 15 minutes. If you didn&rsquo;t request this, you can safely ignore this email.',
     }),
+  };
+}
+
+export function buildHolderWelcomeEmail(
+  firstName: string,
+  email: string,
+): { subject: string; html: string } {
+  const FONT_STYLE = `font-family:${FONT};`;
+  const body = `
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+  <tr><td style="font-size:16px;font-weight:700;color:#1B1716;padding-bottom:4px;${FONT_STYLE}">Hi ${firstName},</td></tr>
+  <tr><td style="font-size:15px;color:#1B1716;line-height:1.55;padding-bottom:16px;${FONT_STYLE}">Welcome to BenchBuddy &mdash; you&rsquo;re one step away from sharing your season.</td></tr>
+  <tr><td style="font-size:14px;color:#8E8985;padding-bottom:2px;${FONT_STYLE}">Here&rsquo;s what you used to sign in:</td></tr>
+</table>
+
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:12px 0 16px;">
+  <tr><td style="font-size:13px;color:#8E8985;${FONT_STYLE}padding-bottom:2px;">Email</td></tr>
+  <tr><td style="font-size:14px;font-weight:600;color:#1B1716;${FONT_STYLE}">${email}</td></tr>
+</table>
+
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+  <tr><td style="font-size:15px;color:#1B1716;line-height:1.55;${FONT_STYLE}">When you&rsquo;re ready, set up your tickets and share a link. They claim the games they want, and you always know where your tickets are going.</td></tr>
+</table>
+
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-top:24px;">
+  <tr><td align="center" bgcolor="#2C2A2B" style="background-color:#2C2A2B;border-radius:8px;">
+    <!--[if !mso]><!--><a href="https://getbenchbuddy.com/packages/new" style="display:inline-block;background-color:#2C2A2B;color:#FFFFFF;${FONT_STYLE}font-size:14px;font-weight:600;text-decoration:none;padding:12px 28px;border-radius:8px;">Set up my tickets</a><!--<![endif]-->
+  </td></tr>
+</table>
+`;
+
+  return {
+    subject: 'Welcome to BenchBuddy',
+    html: emailChrome(body, 'BenchBuddy &middot; You&rsquo;re receiving this because you created a BenchBuddy account. If you didn&rsquo;t create this account, you can ignore this email.'),
   };
 }
