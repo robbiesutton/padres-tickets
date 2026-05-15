@@ -29,21 +29,6 @@ jobs:
     name: E2E tests (Playwright)
     needs: [unit]
     runs-on: ubuntu-latest
-    # All env vars the Next.js app needs to start and handle requests.
-    # Non-critical services (Resend, Stripe, AVFMS) get placeholder values —
-    # the smoke suite doesn't trigger those code paths.
-    env:
-      DATABASE_URL: ${{ secrets.NEON_PREVIEW_DATABASE_URL }}
-      NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET_CI }}
-      NEXTAUTH_URL: http://localhost:3000
-      RESEND_API_KEY: ci-placeholder
-      STRIPE_SECRET_KEY: ci-placeholder
-      STRIPE_PUBLISHABLE_KEY: ci-placeholder
-      STRIPE_WEBHOOK_SECRET: ci-placeholder
-      STRIPE_PRICE_ANNUAL_ID: ci-placeholder
-      CRON_SECRET: ${{ secrets.CRON_SECRET }}
-      AVFMS_API_KEY: ci-placeholder
-
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -51,38 +36,61 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci --legacy-peer-deps
-      - run: npx prisma generate
       - run: npx playwright install chromium --with-deps
 
-      # Seed the Neon dev-clean branch with deterministic test data
-      - name: Seed test database
-        run: npx prisma migrate deploy && npm run db:seed:test
+      # Vercel auto-deploys every push. Poll Vercel's own API (not GitHub's)
+      # to find the existing deployment for this SHA and wait until READY.
+      - name: Get Vercel preview URL
+        id: deploy
         env:
-          TEST_EMAIL_DOMAIN: ${{ secrets.MAILOSAUR_SERVER_ID }}.mailosaur.net
-          NODE_ENV: test
-
-      # Build and start Next.js locally — no Vercel dependency
-      - name: Build Next.js
-        run: npm run build
-
-      - name: Start Next.js
-        run: npm run start &
-
-      - name: Wait for app to be ready
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_TEAM_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          SHA: ${{ github.sha }}
         run: |
-          for i in $(seq 1 30); do
-            if curl -sf http://localhost:3000 -o /dev/null; then
-              echo "App ready on attempt $i"; exit 0
+          echo "Polling Vercel API for deployment of SHA $SHA..."
+          for i in $(seq 1 60); do
+            RESPONSE=$(curl -sf \
+              -H "Authorization: Bearer $VERCEL_TOKEN" \
+              "https://api.vercel.com/v6/deployments?teamId=$VERCEL_TEAM_ID&projectId=$VERCEL_PROJECT_ID&meta-githubCommitSha=$SHA&limit=1")
+
+            STATE=$(echo "$RESPONSE" | jq -r '.deployments[0].readyState // empty')
+            URL=$(echo "$RESPONSE" | jq -r '.deployments[0].url // empty')
+
+            echo "Attempt $i: state=${STATE:-not found yet}"
+
+            if [ "$STATE" = "READY" ] && [ -n "$URL" ]; then
+              echo "url=https://$URL" >> "$GITHUB_OUTPUT"
+              echo "Preview ready: https://$URL"
+              exit 0
+            elif [ "$STATE" = "ERROR" ] || [ "$STATE" = "CANCELED" ]; then
+              echo "Deployment failed with state: $STATE"
+              exit 1
             fi
-            echo "Waiting... ($i/30)"; sleep 3
+            sleep 10
           done
-          echo "App did not start within 90 seconds"; exit 1
+          echo "Timed out waiting for Vercel deployment (10 minutes)"
+          exit 1
+        timeout-minutes: 12
+
+      # Hit the root URL until serverless functions are warm before tests run
+      - name: Warm up preview
+        run: |
+          URL="${{ steps.deploy.outputs.url }}"
+          for i in $(seq 1 12); do
+            STATUS=$(curl -sf -o /dev/null -w "%{http_code}" "$URL" || echo "000")
+            if echo "$STATUS" | grep -qE "^(200|302|307)"; then
+              echo "Preview warm (HTTP $STATUS)"; exit 0
+            fi
+            echo "Attempt $i/12 — status=$STATUS, waiting 5s..."; sleep 5
+          done
+          echo "Preview did not warm up"; exit 1
         timeout-minutes: 2
 
       - name: Run Playwright tests
         run: npx playwright test --project=chromium-desktop
         env:
-          PLAYWRIGHT_BASE_URL: http://localhost:3000
+          PLAYWRIGHT_BASE_URL: ${{ steps.deploy.outputs.url }}
           MAILOSAUR_API_KEY: ${{ secrets.MAILOSAUR_API_KEY }}
           MAILOSAUR_SERVER_ID: ${{ secrets.MAILOSAUR_SERVER_ID }}
           TEST_EMAIL_DOMAIN: ${{ secrets.MAILOSAUR_SERVER_ID }}.mailosaur.net
