@@ -10,6 +10,7 @@ import { getTeamColors, isColorDark } from '@/lib/team-colors';
 import { getOpponentAbbr } from '@/lib/game-utils';
 import { ScoreTicker } from '@/components/score-ticker';
 import { DESIGN_MODE, mockHolder } from '@/lib/mock-data';
+import { SHOW_PACKAGE_SWITCHER } from '@/lib/feature-flags';
 
 interface PackageForNav {
   id: string;
@@ -693,7 +694,7 @@ export default function DashboardLayout({
 
           <div className="flex items-center gap-2 md:gap-3">
             {/* Package switcher (if multiple) */}
-            {packages.length > 1 && (
+            {SHOW_PACKAGE_SWITCHER && packages.length > 1 && (
               <select
                 value={selectedPkgId || ''}
                 onChange={(e) => {

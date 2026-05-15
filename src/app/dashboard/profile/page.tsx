@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { useDashboardContext } from '../layout';
 import { getTeamColors, isColorDark } from '@/lib/team-colors';
 import { getOpponentAbbr } from '@/lib/game-utils';
+import { SHOW_PACKAGE_SWITCHER } from '@/lib/feature-flags';
 
 interface SubscriptionInfo {
   plan: 'FREE' | 'PRO';
@@ -351,7 +352,7 @@ export default function ProfilePage() {
       <>
         <div className="flex items-center justify-between mb-1">
           <h2 className="text-lg font-medium text-[#2c2a2b]">Seat Info</h2>
-          {packages.length > 1 && (
+          {SHOW_PACKAGE_SWITCHER && packages.length > 1 && (
             <select value={selectedPkgId || ''} onChange={(e) => handlePkgChange(e.target.value)} className="rounded-lg border border-[#eceae5] px-3 py-1.5 text-sm">
               {packages.map((p) => <option key={p.id} value={p.id}>{p.team} — {p.section}</option>)}
             </select>
