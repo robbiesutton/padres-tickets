@@ -12,47 +12,74 @@ import { Client } from '@notionhq/client';
 
 // ─── Types ───────────────────────────────────────────────
 
-interface TestResult {
-  title: string[];
-  status: 'passed' | 'failed' | 'skipped' | 'timedOut';
+interface TestRawResult {
+  status: string; // 'passed' | 'failed' | 'timedOut' | 'skipped'
   retry: number;
   duration: number;
   errors?: { message: string }[];
+}
+
+interface TestCase {
+  // Playwright 1.49+: computed status uses 'expected'/'unexpected'/'flaky'/'skipped'
+  // Raw result status (results[0].status) uses 'passed'/'failed'/'timedOut'
+  status: string;
+  results: TestRawResult[];
 }
 
 interface SuiteResult {
   title: string;
   file: string;
   suites?: SuiteResult[];
-  specs?: { title: string; tests: TestResult[] }[];
+  specs?: { title: string; ok: boolean; tests: TestCase[] }[];
+}
+
+interface PlaywrightStats {
+  expected: number;   // tests that passed as expected
+  unexpected: number; // tests that failed
+  flaky: number;
+  skipped: number;
+  duration: number;
 }
 
 interface PlaywrightReport {
-  stats: { expected: number; unexpected: number; skipped: number; duration: number };
+  stats: PlaywrightStats;
   suites: SuiteResult[];
 }
 
 // ─── Helpers ─────────────────────────────────────────────
 
-function loadReport(): PlaywrightReport {
+function loadReport(): PlaywrightReport | null {
   const reportPath = path.join(process.cwd(), 'playwright-report', 'results.json');
   if (!fs.existsSync(reportPath)) {
     console.warn('No results.json found — skipping reporter');
-    process.exit(0);
+    return null;
   }
   return JSON.parse(fs.readFileSync(reportPath, 'utf-8'));
 }
 
-function flattenResults(suites: SuiteResult[]): { file: string; title: string; status: string; flaky: boolean }[] {
-  const results: { file: string; title: string; status: string; flaky: boolean }[] = [];
+function testPassed(t: TestCase): boolean {
+  // Playwright 1.49+ computed status: 'expected' means passed as expected
+  // Also check raw results[0].status for older formats
+  return t.status === 'expected' || t.status === 'passed' ||
+    t.results?.[0]?.status === 'passed';
+}
+
+function testFailed(t: TestCase): boolean {
+  return t.status === 'unexpected' || t.status === 'failed' || t.status === 'timedOut' ||
+    t.results?.[0]?.status === 'failed' || t.results?.[0]?.status === 'timedOut';
+}
+
+function flattenResults(suites: SuiteResult[]): { file: string; title: string; status: string }[] {
+  const results: { file: string; title: string; status: string }[] = [];
   function walk(suite: SuiteResult) {
     for (const spec of suite.specs || []) {
       const tests = spec.tests || [];
-      const passed = tests.some((t) => t.status === 'passed');
-      const failed = tests.some((t) => t.status === 'failed' || t.status === 'timedOut');
-      const flaky = passed && tests.length > 1;
-      const status = failed ? 'failed' : flaky ? 'flaky' : passed ? 'passed' : 'skipped';
-      results.push({ file: suite.file || '', title: spec.title, status, flaky });
+      const anyPassed = tests.some(testPassed);
+      const anyFailed = tests.some(testFailed);
+      // Flaky = passed on retry (more than one result entry, and ultimately passed)
+      const flaky = anyPassed && tests.some((t) => t.results && t.results.length > 1);
+      const status = anyFailed ? 'failed' : flaky ? 'flaky' : anyPassed ? 'passed' : 'skipped';
+      results.push({ file: suite.file || '', title: spec.title, status });
     }
     for (const sub of suite.suites || []) walk(sub);
   }
@@ -68,12 +95,23 @@ function statusEmoji(status: string): string {
 
 async function main() {
   const report = loadReport();
-  const results = flattenResults(report.suites);
+  if (!report) process.exit(0);
 
-  const passed = results.filter((r) => r.status === 'passed').length;
-  const failed = results.filter((r) => r.status === 'failed').length;
-  const flaky = results.filter((r) => r.status === 'flaky').length;
+  // Use stats directly — they're accurate regardless of JSON structure quirks
+  const passed = report.stats.expected ?? 0;
+  const failed = report.stats.unexpected ?? 0;
+  const flaky = report.stats.flaky ?? 0;
+  const total = passed + failed + flaky + (report.stats.skipped ?? 0);
+
+  // Skip creating a page if no tests ran (e.g. reporter ran on a failed CI job
+  // where Playwright never actually executed)
+  if (total === 0) {
+    console.log('No tests ran — skipping Notion page creation.');
+    process.exit(0);
+  }
+
   const overall = failed > 0 ? 'FAIL' : flaky > 0 ? 'AT RISK' : 'PASS';
+  const results = flattenResults(report.suites);
 
   const prNumber = process.env.PR_NUMBER || 'N/A';
   const branch = process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME || 'unknown';
@@ -81,7 +119,8 @@ async function main() {
   const runDate = new Date().toISOString().slice(0, 10);
   const title = `BenchBuddy PR #${prNumber} — ${runDate} — ${passed} passed, ${failed} failed`;
 
-  console.log(`\n${overall}: ${passed} passed / ${failed} failed / ${flaky} flaky\n`);
+  console.log(`\n${overall}: ${passed} passed / ${failed} failed / ${flaky} flaky (${total} total)\n`);
+  results.forEach((r) => console.log(`  ${statusEmoji(r.status)} ${r.title}`));
 
   // ─── Notion page ─────────────────────────────────────
 
@@ -130,7 +169,7 @@ async function main() {
   const repo = process.env.GITHUB_REPOSITORY;
 
   if (githubToken && repo && prNumber !== 'N/A') {
-    const body = `## E2E Results: ${overall}\n\n${passed} passed · ${failed} failed · ${flaky} flaky\n\n${results.map((r) => `- ${statusEmoji(r.status)} ${r.title}`).join('\n')}`;
+    const commentBody = `## E2E Results: ${overall}\n\n${passed} passed · ${failed} failed · ${flaky} flaky\n\n${results.map((r) => `- ${statusEmoji(r.status)} ${r.title}`).join('\n')}`;
 
     try {
       await fetch(`https://api.github.com/repos/${repo}/issues/${prNumber}/comments`, {
@@ -140,7 +179,7 @@ async function main() {
           'Content-Type': 'application/json',
           Accept: 'application/vnd.github+json',
         },
-        body: JSON.stringify({ body }),
+        body: JSON.stringify({ body: commentBody }),
       });
       console.log('Posted PR comment.');
     } catch (err) {
@@ -148,7 +187,6 @@ async function main() {
     }
   }
 
-  // Exit non-zero if tests failed (so the CI job fails)
   process.exit(failed > 0 ? 1 : 0);
 }
 
