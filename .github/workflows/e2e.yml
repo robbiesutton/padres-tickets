@@ -46,7 +46,9 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_TEAM_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-          SHA: ${{ github.sha }}
+          # pull_request events have a synthetic merge SHA in github.sha —
+          # use the actual branch HEAD SHA that Vercel deploys from instead
+          SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           echo "Polling Vercel API for deployment of SHA $SHA..."
           for i in $(seq 1 60); do
