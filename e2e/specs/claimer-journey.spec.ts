@@ -78,7 +78,7 @@ test.describe('Claimer journey', () => {
       await expect(page).toHaveURL(new RegExp(`/share/${TEST_SLUG}`), { timeout: 15000 });
 
       // Switch to list view to see game cards
-      const listToggle = page.getByTestId('view-toggle-list');
+      const listToggle = page.locator('[data-testid="view-toggle-list"]:visible');
       await listToggle.first().click();
 
       const sharePage = new SharePage(page);
@@ -100,7 +100,7 @@ test.describe('Claimer journey', () => {
       await expect(page).toHaveURL(new RegExp(`/share/${TEST_SLUG}`), { timeout: 15000 });
 
       // Switch to list view
-      await page.getByTestId('view-toggle-list').first().click();
+      await page.locator('[data-testid="view-toggle-list"]:visible').click();
       await expect(page.getByTestId('game-list')).toBeVisible();
 
       // Click Claim on the first available game
@@ -125,7 +125,7 @@ test.describe('Claimer journey', () => {
       });
 
       await expect(page).toHaveURL(new RegExp(`/share/${TEST_SLUG}`), { timeout: 15000 });
-      await page.getByTestId('view-toggle-list').first().click();
+      await page.locator('[data-testid="view-toggle-list"]:visible').click();
 
       // Claim a game then release it
       const claimButton = page.getByTestId('game-card-claim').first();

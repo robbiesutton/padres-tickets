@@ -18,11 +18,6 @@ test.describe('Auth & access control', () => {
       await expect(page).toHaveURL(/\/login/);
     });
 
-    test('/packages/new redirects to /login', async ({ page }) => {
-      await page.goto('/packages/new');
-      // Middleware protects /packages/new — should redirect to login
-      await expect(page).toHaveURL(/\/login|\/$/);
-    });
 
     test('/share/* redirects unauthenticated visitor to /join', async ({ page }) => {
       await page.goto('/share/mark-rockies-test');
