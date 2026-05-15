@@ -24,7 +24,7 @@ function letterRows(start: string, end: string): string[] {
   return rows;
 }
 
-function sections(prefix: string, start: number, end: number, level: string, rows: string[], tags?: string[]): StadiumSection[] {
+function _sections(prefix: string, start: number, end: number, level: string, rows: string[], tags?: string[]): StadiumSection[] {
   return Array.from({ length: end - start + 1 }, (_, i) => ({
     id: `${prefix}${start + i}`,
     name: `Section ${prefix}${start + i}`,

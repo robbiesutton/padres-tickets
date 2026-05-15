@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, createContext, useContext } from 'react';
+import { useState, useEffect, useRef, createContext, useContext, startTransition } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -75,8 +75,10 @@ function SeatInfoPillDropdown({ pkg, isDark, navColor, teamAccent, onPkgUpdate }
   const isEmpty = !pkg.seatPhotoUrl && !pkg.description && pkg.perks.length === 0;
 
   useEffect(() => {
-    setDescription(pkg.description || '');
-    setPerks(pkg.perks || []);
+    startTransition(() => {
+      setDescription(pkg.description || '');
+      setPerks(pkg.perks || []);
+    });
   }, [pkg.description, pkg.perks]);
 
   useEffect(() => {
@@ -339,6 +341,7 @@ function SeatInfoPillDropdown({ pkg, isDark, navColor, teamAccent, onPkgUpdate }
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function MobileSeatInfoDrawer({ pkg, navColor, teamAccent, onPkgUpdate }: {
   pkg: PackageForNav;
   navColor: string;
@@ -356,8 +359,10 @@ function MobileSeatInfoDrawer({ pkg, navColor, teamAccent, onPkgUpdate }: {
   const isEmpty = !pkg.seatPhotoUrl && !pkg.description && pkg.perks.length === 0;
 
   useEffect(() => {
-    setDescription(pkg.description || '');
-    setPerks(pkg.perks || []);
+    startTransition(() => {
+      setDescription(pkg.description || '');
+      setPerks(pkg.perks || []);
+    });
   }, [pkg.description, pkg.perks]);
 
   function togglePerk(perk: string) {
@@ -602,7 +607,7 @@ export default function DashboardLayout({
   const userInitial =
     session?.user?.name?.charAt(0)?.toUpperCase() ||
     (DESIGN_MODE ? mockHolder.firstName.charAt(0).toUpperCase() : '');
-  const isProfile = pathname === '/dashboard/profile';
+  const _isProfile = pathname === '/dashboard/profile';
   const isDashboard = pathname === '/dashboard';
   const [packages, setPackages] = useState<PackageForNav[]>([]);
   const [selectedPkgId, setSelectedPkgId] = useState<string | null>(null);

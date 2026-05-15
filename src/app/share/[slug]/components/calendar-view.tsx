@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState } from 'react';
 import type { Game, PackageInfo } from '../types';
 import { useCalendar } from '../hooks/use-calendar';
 import { CalendarGrid } from './calendar-grid';
@@ -49,6 +49,7 @@ export function CalendarView({
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null);
+  const [containerRect, setContainerRect] = useState<DOMRect | null>(null);
 
   const { grids, canGoBack, canGoForward, displayMonths } = useCalendar(
     allGames,
@@ -103,15 +104,18 @@ export function CalendarView({
     if (expandedGameId === id) {
       onCloseExpansion();
       setAnchorRect(null);
+      setContainerRect(null);
     } else {
       onSelectGame(id);
       setAnchorRect(cellRect);
+      setContainerRect(containerRef.current?.getBoundingClientRect() ?? null);
     }
   }
 
   function handleClose() {
     onCloseExpansion();
     setAnchorRect(null);
+    setContainerRect(null);
   }
 
   async function handleClaim() {
@@ -190,11 +194,12 @@ export function CalendarView({
         {/* Popover */}
         {expandedGame && (
           <CalendarPopover
+            key={expandedGame.id}
             game={expandedGame}
             pkg={pkg}
             isReservedByMe={!!isReservedByMe}
             anchorRect={anchorRect}
-            containerRect={containerRef.current?.getBoundingClientRect() ?? null}
+            containerRect={containerRect}
             onClose={handleClose}
             onClaim={handleClaim}
             onRelease={handleRelease}

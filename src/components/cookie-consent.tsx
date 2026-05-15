@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, startTransition } from 'react';
 import Link from 'next/link';
 
 type ConsentStatus = 'pending' | 'accepted' | 'rejected' | 'custom';
@@ -36,7 +36,7 @@ export function CookieConsent() {
   useEffect(() => {
     const prefs = getStoredPrefs();
     if (prefs) {
-      setStatus(prefs.analytics ? 'accepted' : 'rejected');
+      startTransition(() => setStatus(prefs.analytics ? 'accepted' : 'rejected'));
     }
   }, []);
 
@@ -142,7 +142,7 @@ export function useAnalyticsConsent(): boolean {
 
   useEffect(() => {
     const prefs = getStoredPrefs();
-    setAllowed(prefs?.analytics ?? false);
+    startTransition(() => setAllowed(prefs?.analytics ?? false));
 
     function handleChange(e: Event) {
       const detail = (e as CustomEvent<CookiePrefs>).detail;
