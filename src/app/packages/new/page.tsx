@@ -468,7 +468,7 @@ export default function NewPackagePage() {
   const [selectedSeats, setSelectedSeats] = useState<Set<number>>(DESIGN ? new Set([1, 2]) : new Set());
   const [seatPhotoUrl, setSeatPhotoUrl] = useState<string | null>(null);
   const [seatDescription, setSeatDescription] = useState('');
-  const [seatPerks, setSeatPerks] = useState<string[]>(DESIGN ? ['Shaded seats', 'Craft beer'] : []);
+  const [seatPerks, setSeatPerks] = useState<string[]>([]);
 
   // Step 3: Games
   const [schedule, setSchedule] = useState<ScheduleGame[]>(DESIGN ? MOCK_SCHEDULE : []);
@@ -952,6 +952,63 @@ export default function NewPackagePage() {
 
           {/* Seat multi-select */}
           <SeatMultiSelect selectedSeats={selectedSeats} onToggle={toggleSeat} />
+
+          {/* Seat info */}
+          <div className="mt-4">
+            <FormLabel>Seat Photo <span className="font-normal">(Optional)</span></FormLabel>
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              className="relative w-full h-[160px] rounded-lg border-[1.5px] border-dashed border-[#eceae5] bg-white overflow-hidden cursor-pointer transition-all hover:border-[#b5b1ab]"
+            >
+              {seatPhotoUrl ? (
+                <Image src={seatPhotoUrl} alt="View from seat" fill className="object-cover" sizes="100vw" unoptimized />
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full gap-2 text-[#8e8985]">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                    <circle cx="8.5" cy="8.5" r="1.5" />
+                    <path d="M21 15l-5-5L5 21" />
+                  </svg>
+                  <span className="text-sm">Upload a photo of your view</span>
+                </div>
+              )}
+            </div>
+            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
+          </div>
+
+          <div className="mt-4">
+            <FormLabel>Description <span className="font-normal">(Optional)</span></FormLabel>
+            <textarea
+              value={seatDescription}
+              onChange={(e) => setSeatDescription(e.target.value)}
+              placeholder="Describe your seats..."
+              rows={3}
+              className="w-full px-4 py-3 bg-white border-[1.5px] border-[#eceae5] rounded-lg text-[15px] text-[#1a1a1a] resize-none transition-all hover:border-[#b5b1ab] focus:border-[#2c2a2b] focus:outline-none focus:ring-[3px] focus:ring-[#2c2a2b]/10"
+            />
+          </div>
+
+          <div className="mt-4">
+            <FormLabel>Perks <span className="font-normal">(Optional)</span></FormLabel>
+            <div className="flex flex-wrap gap-2">
+              {AVAILABLE_PERKS.map((perk) => {
+                const selected = seatPerks.includes(perk);
+                return (
+                  <button
+                    key={perk}
+                    type="button"
+                    onClick={() => togglePerk(perk)}
+                    className={`h-9 px-3.5 rounded-full text-xs font-semibold border transition-all cursor-pointer ${
+                      selected
+                        ? 'bg-[#2c2a2b] text-white border-[#2c2a2b]'
+                        : 'bg-white text-[#1a1a1a] border-[#eceae5] hover:border-[#b5b1ab]'
+                    }`}
+                  >
+                    {perk}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
           <StepActions>
             <PrimaryButton onClick={() => goToStep(3)} disabled={!selectedSection || !row || selectedSeats.size === 0}>
