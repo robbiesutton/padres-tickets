@@ -1,4 +1,3 @@
-import type { Game } from '@/app/share/[slug]/types';
 
 export const MONTH_NAMES = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -112,7 +111,7 @@ export function formatShortDate(dateStr: string): {
   };
 }
 
-export function formatPrice(pricePerTicket: number | null, seatCount: number): string {
+export function formatPrice(pricePerTicket: number | null, _seatCount: number): string {
   if (pricePerTicket === null) return '';
   if (pricePerTicket === 0) return 'Free';
   return `$${pricePerTicket}`;

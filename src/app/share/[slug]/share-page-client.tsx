@@ -5,14 +5,12 @@ import { useSession } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
 import type { Game, PackageInfo, ViewMode, ActiveTab } from './types';
 import {
-  isGameAvailable,
   MONTH_NAMES,
   getGameMonthYear,
   getOpponentAbbr,
 } from './utils';
 import { getTeamColors } from './team-colors';
 import { ShareHeader } from './components/share-header';
-import { SeatInfoBar } from './components/seat-info-bar';
 import { Toolbar } from './components/toolbar';
 import { ListView } from './components/list-view';
 import { CalendarView } from './components/calendar-view';
@@ -208,7 +206,7 @@ function SharePageInner({ packageInfo, games: initialGames, opponents }: Props) 
     if (reservedId) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setReservedGames((prev) => new Map([...prev, [reservedId, '']]));
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+       
       setExpandedGameId(reservedId);
       window.history.replaceState(null, '', window.location.pathname);
     }

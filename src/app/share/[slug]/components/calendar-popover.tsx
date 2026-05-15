@@ -6,7 +6,6 @@ import type { Game, PackageInfo } from '../types';
 import {
   getOpponentAbbr,
   getOpponentColor,
-  formatShortDate,
   formatTime,
 } from '../utils';
 import { getTeamColors } from '../team-colors';
@@ -57,12 +56,6 @@ export function CalendarPopover({
     return () => document.removeEventListener('keydown', handleEsc);
   }, [onClose]);
 
-  // Reset confirmed state when game changes
-  useEffect(() => {
-    setJustConfirmed(false);
-  }, [game.id]);
-
-  const { dow, day, month } = formatShortDate(game.date);
   const abbr = getOpponentAbbr(game.opponent);
   const color = getOpponentColor(game.opponent);
   const { primary: teamPrimary } = getTeamColors(pkg.team);

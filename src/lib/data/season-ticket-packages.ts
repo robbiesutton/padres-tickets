@@ -41,7 +41,7 @@ function halfSeason(teamAbbr: string, count = 40): SeasonPackage {
   };
 }
 
-function weekend(teamAbbr: string, count = 28): SeasonPackage {
+function _weekend(teamAbbr: string, count = 28): SeasonPackage {
   return {
     id: `${teamAbbr.toLowerCase()}-weekend`,
     name: 'Weekend Plan',
@@ -52,7 +52,7 @@ function weekend(teamAbbr: string, count = 28): SeasonPackage {
   };
 }
 
-function miniPlan(
+function _miniPlan(
   teamAbbr: string,
   count = 20,
   name = 'Mini Plan',
