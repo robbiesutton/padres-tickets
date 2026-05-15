@@ -39,38 +39,67 @@ jobs:
       - run: npm ci --legacy-peer-deps
       - run: npx playwright install chromium --with-deps
 
-      # Deploy preview to Vercel via REST API (deterministic URL from response)
-      - name: Deploy to Vercel preview
+      # Vercel auto-deploys every PR push via its GitHub integration.
+      # Poll GitHub's deployments API until the preview is ready, then grab the URL.
+      - name: Wait for Vercel preview deployment
         id: deploy
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SHA: ${{ github.sha }}
+          REPO: ${{ github.repository }}
         run: |
-          DEPLOYMENT=$(curl -sf -X POST "https://api.vercel.com/v13/deployments" \
-            -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d '{
-              "name": "benchbuddy",
-              "gitSource": {
-                "type": "github",
-                "repoId": "${{ github.repository_id }}",
-                "ref": "${{ github.head_ref || github.ref_name }}",
-                "sha": "${{ github.sha }}"
-              },
-              "projectId": "${{ secrets.VERCEL_PROJECT_ID }}",
-              "teamId": "${{ secrets.VERCEL_ORG_ID }}"
-            }')
-          URL="https://$(echo "$DEPLOYMENT" | jq -r '.url')"
-          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "Waiting for Vercel to deploy SHA $SHA..."
+          for i in $(seq 1 60); do
+            # Find a deployment for this SHA in any Preview environment
+            STATUSES=$(curl -sf \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/$REPO/deployments?sha=$SHA&per_page=10" \
+              | jq '[.[] | select(.environment | test("preview|Preview"; "i"))]')
 
-      # Wait for preview to be warm (avoids cold-start false failures)
-      - name: Wait for preview to be ready
-        run: |
-          for i in $(seq 1 24); do
-            if curl -sf "${{ steps.deploy.outputs.url }}/api/auth/check-email" -o /dev/null -w "%{http_code}" | grep -qE "^(200|405)"; then
-              echo "Preview is ready"; exit 0
+            DEPLOYMENT_ID=$(echo "$STATUSES" | jq -r '.[0].id // empty')
+
+            if [ -n "$DEPLOYMENT_ID" ]; then
+              STATE=$(curl -sf \
+                -H "Authorization: Bearer $GH_TOKEN" \
+                -H "Accept: application/vnd.github+json" \
+                "https://api.github.com/repos/$REPO/deployments/$DEPLOYMENT_ID/statuses" \
+                | jq -r '.[0].state // empty')
+
+              TARGET_URL=$(curl -sf \
+                -H "Authorization: Bearer $GH_TOKEN" \
+                -H "Accept: application/vnd.github+json" \
+                "https://api.github.com/repos/$REPO/deployments/$DEPLOYMENT_ID/statuses" \
+                | jq -r '.[0].target_url // empty')
+
+              echo "Attempt $i: state=$STATE url=$TARGET_URL"
+
+              if [ "$STATE" = "success" ] && [ -n "$TARGET_URL" ]; then
+                echo "url=$TARGET_URL" >> "$GITHUB_OUTPUT"
+                echo "Preview ready: $TARGET_URL"
+                exit 0
+              fi
+            else
+              echo "Attempt $i: no deployment found yet for SHA $SHA"
             fi
-            echo "Attempt $i/24 — waiting 5s..."; sleep 5
+            sleep 10
           done
-          echo "Preview did not become ready in 2 minutes"; exit 1
-        timeout-minutes: 3
+          echo "Timed out waiting for Vercel preview (10 minutes)"
+          exit 1
+        timeout-minutes: 12
+
+      # Warm-up: ensure serverless functions are awake before tests run
+      - name: Warm up preview
+        run: |
+          for i in $(seq 1 12); do
+            STATUS=$(curl -sf -o /dev/null -w "%{http_code}" "${{ steps.deploy.outputs.url }}/api/auth/check-email" || echo "000")
+            if echo "$STATUS" | grep -qE "^(200|405|400)"; then
+              echo "Preview warm ($STATUS)"; exit 0
+            fi
+            echo "Attempt $i/12 — status=$STATUS, waiting 5s..."; sleep 5
+          done
+          echo "Preview did not warm up in time"; exit 1
+        timeout-minutes: 2
 
       # Seed the Neon preview branch DB
       - name: Seed test database
