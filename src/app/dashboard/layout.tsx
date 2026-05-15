@@ -153,7 +153,7 @@ function SeatInfoPillDropdown({ pkg, isDark, navColor, teamAccent, onPkgUpdate }
           {getOpponentAbbr(pkg.team)}
         </div>
         <span className={`text-sm font-medium ${isDark ? 'text-white' : 'text-[#2c2a2b]'}`}>
-          Sec {pkg.section} &middot; Row {pkg.row} &middot; Seats {pkg.seats}
+          My seats
         </span>
         <svg
           className={`shrink-0 transition-transform duration-200 ${pillOpen ? 'rotate-180' : ''}`}
@@ -415,7 +415,7 @@ function MobileSeatInfoDrawer({ pkg, navColor, teamAccent, onPkgUpdate }: {
           {getOpponentAbbr(pkg.team)}
         </div>
         <span className="text-base font-medium text-[#2c2a2b] flex-1">
-          Sec {pkg.section} &middot; Row {pkg.row} &middot; Seats {pkg.seats}
+          My seats
         </span>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="shrink-0">
           <path d="M6 9l6 6 6-6" stroke="#8e8985" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
