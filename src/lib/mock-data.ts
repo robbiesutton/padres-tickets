@@ -8,6 +8,11 @@
 export const DESIGN_MODE =
   process.env.NEXT_PUBLIC_DESIGN_MODE === 'true';
 
+// Design-mode persona toggle.
+// true  → view the app as the holder (Robbie) — full sidebar: Profile, Seat Info, Subscription, Shared with me
+// false → view the app as a claimer (Margo) — sidebar: Profile, Shared with me only
+export const MOCK_AS_HOLDER = true;
+
 // ── Identifiers ──────────────────────────────────────────
 
 export const MOCK_USER_ID = 'design-user-holder-001';
