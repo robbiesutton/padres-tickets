@@ -6,8 +6,7 @@ on:
   push:
     branches: [main]
 
-# Cancel in-progress runs on the same branch to avoid burning parallel CI
-# minutes and Mailosaur quota on rapid force-pushes.
+# Cancel in-progress runs on force-pushes to avoid burning Mailosaur quota
 concurrency:
   group: e2e-${{ github.ref }}
   cancel-in-progress: true
@@ -30,6 +29,21 @@ jobs:
     name: E2E tests (Playwright)
     needs: [unit]
     runs-on: ubuntu-latest
+    # All env vars the Next.js app needs to start and handle requests.
+    # Non-critical services (Resend, Stripe, AVFMS) get placeholder values —
+    # the smoke suite doesn't trigger those code paths.
+    env:
+      DATABASE_URL: ${{ secrets.NEON_PREVIEW_DATABASE_URL }}
+      NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET_CI }}
+      NEXTAUTH_URL: http://localhost:3000
+      RESEND_API_KEY: ci-placeholder
+      STRIPE_SECRET_KEY: ci-placeholder
+      STRIPE_PUBLISHABLE_KEY: ci-placeholder
+      STRIPE_WEBHOOK_SECRET: ci-placeholder
+      STRIPE_PRICE_ANNUAL_ID: ci-placeholder
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
+      AVFMS_API_KEY: ci-placeholder
+
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -37,88 +51,41 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci --legacy-peer-deps
+      - run: npx prisma generate
       - run: npx playwright install chromium --with-deps
 
-      # Vercel auto-deploys every PR push via its GitHub integration.
-      # Poll GitHub's deployments API until the preview is ready, then grab the URL.
-      - name: Wait for Vercel preview deployment
-        id: deploy
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SHA: ${{ github.sha }}
-          REPO: ${{ github.repository }}
-        run: |
-          echo "Waiting for Vercel to deploy SHA $SHA..."
-          for i in $(seq 1 60); do
-            # Find a deployment for this SHA in any Preview environment
-            STATUSES=$(curl -sf \
-              -H "Authorization: Bearer $GH_TOKEN" \
-              -H "Accept: application/vnd.github+json" \
-              "https://api.github.com/repos/$REPO/deployments?sha=$SHA&per_page=10" \
-              | jq '[.[] | select(.environment | test("preview|Preview"; "i"))]')
-
-            DEPLOYMENT_ID=$(echo "$STATUSES" | jq -r '.[0].id // empty')
-
-            if [ -n "$DEPLOYMENT_ID" ]; then
-              STATE=$(curl -sf \
-                -H "Authorization: Bearer $GH_TOKEN" \
-                -H "Accept: application/vnd.github+json" \
-                "https://api.github.com/repos/$REPO/deployments/$DEPLOYMENT_ID/statuses" \
-                | jq -r '.[0].state // empty')
-
-              TARGET_URL=$(curl -sf \
-                -H "Authorization: Bearer $GH_TOKEN" \
-                -H "Accept: application/vnd.github+json" \
-                "https://api.github.com/repos/$REPO/deployments/$DEPLOYMENT_ID/statuses" \
-                | jq -r '.[0].target_url // empty')
-
-              echo "Attempt $i: state=$STATE url=$TARGET_URL"
-
-              if [ "$STATE" = "success" ] && [ -n "$TARGET_URL" ]; then
-                echo "url=$TARGET_URL" >> "$GITHUB_OUTPUT"
-                echo "Preview ready: $TARGET_URL"
-                exit 0
-              fi
-            else
-              echo "Attempt $i: no deployment found yet for SHA $SHA"
-            fi
-            sleep 10
-          done
-          echo "Timed out waiting for Vercel preview (10 minutes)"
-          exit 1
-        timeout-minutes: 12
-
-      # Warm-up: ensure serverless functions are awake before tests run
-      - name: Warm up preview
-        run: |
-          for i in $(seq 1 12); do
-            STATUS=$(curl -sf -o /dev/null -w "%{http_code}" "${{ steps.deploy.outputs.url }}/api/auth/check-email" || echo "000")
-            if echo "$STATUS" | grep -qE "^(200|405|400)"; then
-              echo "Preview warm ($STATUS)"; exit 0
-            fi
-            echo "Attempt $i/12 — status=$STATUS, waiting 5s..."; sleep 5
-          done
-          echo "Preview did not warm up in time"; exit 1
-        timeout-minutes: 2
-
-      # Seed the Neon preview branch DB
+      # Seed the Neon dev-clean branch with deterministic test data
       - name: Seed test database
         run: npx prisma migrate deploy && npm run db:seed:test
         env:
-          DATABASE_URL: ${{ secrets.NEON_PREVIEW_DATABASE_URL }}
           TEST_EMAIL_DOMAIN: ${{ secrets.MAILOSAUR_SERVER_ID }}.mailosaur.net
           NODE_ENV: test
 
-      # Run the suite
+      # Build and start Next.js locally — no Vercel dependency
+      - name: Build Next.js
+        run: npm run build
+
+      - name: Start Next.js
+        run: npm run start &
+
+      - name: Wait for app to be ready
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:3000 -o /dev/null; then
+              echo "App ready on attempt $i"; exit 0
+            fi
+            echo "Waiting... ($i/30)"; sleep 3
+          done
+          echo "App did not start within 90 seconds"; exit 1
+        timeout-minutes: 2
+
       - name: Run Playwright tests
         run: npx playwright test --project=chromium-desktop
         env:
-          PLAYWRIGHT_BASE_URL: ${{ steps.deploy.outputs.url }}
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
           MAILOSAUR_API_KEY: ${{ secrets.MAILOSAUR_API_KEY }}
           MAILOSAUR_SERVER_ID: ${{ secrets.MAILOSAUR_SERVER_ID }}
           TEST_EMAIL_DOMAIN: ${{ secrets.MAILOSAUR_SERVER_ID }}.mailosaur.net
-          STRIPE_SECRET_KEY_TEST: ${{ secrets.STRIPE_SECRET_KEY_TEST }}
-          STRIPE_WEBHOOK_SECRET_TEST: ${{ secrets.STRIPE_WEBHOOK_SECRET_TEST }}
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
 
       - name: Upload Playwright report
