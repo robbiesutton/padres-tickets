@@ -75,16 +75,17 @@ jobs:
           exit 1
         timeout-minutes: 12
 
-      # Hit the root URL until serverless functions are warm before tests run
+      # Hit the root URL until serverless functions respond (any HTTP code is fine —
+      # 401 means Vercel deployment protection is on but the server IS up)
       - name: Warm up preview
         run: |
           URL="${{ steps.deploy.outputs.url }}"
           for i in $(seq 1 12); do
-            STATUS=$(curl -sf -o /dev/null -w "%{http_code}" "$URL" || echo "000")
-            if echo "$STATUS" | grep -qE "^(200|302|307)"; then
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
+            if echo "$STATUS" | grep -qE "^[2345]"; then
               echo "Preview warm (HTTP $STATUS)"; exit 0
             fi
-            echo "Attempt $i/12 — status=$STATUS, waiting 5s..."; sleep 5
+            echo "Attempt $i/12 — status=${STATUS:-no response}, waiting 5s..."; sleep 5
           done
           echo "Preview did not warm up"; exit 1
         timeout-minutes: 2
