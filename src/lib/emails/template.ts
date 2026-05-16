@@ -43,7 +43,11 @@ export function greeting(firstName: string, message: string): string {
 </table>`;
 }
 
-export function gameDetailBlock(dayStr: string, opponent: string, timeVenue: string): string {
+export function gameDetailBlock(
+  dayStr: string,
+  opponent: string,
+  timeVenue: string
+): string {
   return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:20px 0;">
   <tr><td style="border-left:3px solid #E5AB00;padding-left:16px;">
     <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
@@ -62,11 +66,6 @@ export function ctaButton(url: string, label: string): string {
     <!--[if !mso]><!--><a href="${url}" style="display:inline-block;background-color:#2C2A2B;color:#FFFFFF;font-family:${FONT};font-size:14px;font-weight:600;text-decoration:none;padding:12px 28px;border-radius:8px;">${label}</a><!--<![endif]-->
   </td></tr>
 </table>`;
-}
-
-export function detailRow(label: string, value: string): string {
-  return `<tr><td style="font-size:13px;color:#8E8985;font-family:${FONT};padding-bottom:2px;">${label}</td></tr>
-<tr><td style="font-size:14px;font-weight:600;color:#1B1716;font-family:${FONT};padding-bottom:6px;">${value}</td></tr>`;
 }
 
 export function bodyText(text: string): string {

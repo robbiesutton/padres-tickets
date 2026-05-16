@@ -8,7 +8,11 @@ const BASE_URL = process.env.NEXTAUTH_URL || 'http://localhost:3000';
 
 function formatGameDay(date: Date): string {
   return date
-    .toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+    .toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+    })
     .toUpperCase()
     .replace(',', '');
 }
@@ -27,7 +31,7 @@ export async function sendClaimNotifications(claimId: string) {
           package: {
             include: {
               user: true,
-                games: { select: { status: true } },
+              games: { select: { status: true } },
             },
           },
         },
@@ -50,9 +54,16 @@ export async function sendClaimNotifications(claimId: string) {
   const gameDayStr = formatGameDay(game.date);
   const timeVenue = formatTimeVenue(game.time, venue);
 
-  const totalGames = pkg.games.length;
-  const claimedCount = pkg.games.filter((g) => g.status === 'CLAIMED' || g.status === 'TRANSFERRED' || g.status === 'COMPLETE').length;
-  const availableCount = pkg.games.filter((g) => g.status === 'AVAILABLE').length;
+  const totalCount = pkg.games.length;
+  const claimedCount = pkg.games.filter(
+    (g) =>
+      g.status === 'CLAIMED' ||
+      g.status === 'TRANSFERRED' ||
+      g.status === 'COMPLETE'
+  ).length;
+  const availableCount = pkg.games.filter(
+    (g) => g.status === 'AVAILABLE'
+  ).length;
 
   // 1. Notify holder that a game was claimed (email-3)
   try {
@@ -64,11 +75,10 @@ export async function sendClaimNotifications(claimId: string) {
       gameDayStr,
       timeVenue,
       claimedCount,
-      totalCount: totalGames,
+      totalCount,
       availableCount,
       dashboardUrl: `${BASE_URL}/dashboard`,
     });
-
     await sendNotification(
       holder.id,
       'TRANSFER_ACTION',
@@ -96,7 +106,6 @@ export async function sendClaimNotifications(claimId: string) {
       pricePerTicket: game.pricePerTicket ? Number(game.pricePerTicket) : null,
       myGamesUrl: `${BASE_URL}/share/${pkg.shareLinkSlug}?tab=my-games`,
     });
-
     await sendNotification(
       claimer.id,
       'CLAIM_CREATED',

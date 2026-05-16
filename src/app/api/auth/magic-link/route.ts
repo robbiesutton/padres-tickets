@@ -39,7 +39,6 @@ export async function POST(request: NextRequest) {
         400
       );
     }
-
     user = await prisma.user.create({
       data: {
         firstName: firstName.trim(),
@@ -60,7 +59,7 @@ export async function POST(request: NextRequest) {
     html: magicEmail.html,
   });
 
-  // Send claimer welcome email for first-time users coming via a share link
+  // Send claimer welcome email for first-time users arriving via a share link
   if (isNewUser && packageSlug) {
     try {
       const pkg = await prisma.package.findUnique({
@@ -75,7 +74,11 @@ export async function POST(request: NextRequest) {
           shareUrl: `${BASE_URL}/share/${pkg.shareLinkSlug}`,
           claimerEmail: user.email,
         });
-        await sendEmail({ to: user.email, subject: welcome.subject, html: welcome.html });
+        await sendEmail({
+          to: user.email,
+          subject: welcome.subject,
+          html: welcome.html,
+        });
       }
     } catch (err) {
       console.error('Failed to send claimer welcome email:', err);

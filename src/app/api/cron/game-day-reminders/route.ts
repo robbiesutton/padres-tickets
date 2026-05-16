@@ -14,7 +14,11 @@ const BASE_URL = process.env.NEXTAUTH_URL || 'http://localhost:3000';
 
 function formatGameDay(date: Date): string {
   return date
-    .toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+    .toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+    })
     .toUpperCase()
     .replace(',', '');
 }
@@ -45,7 +49,6 @@ export async function POST(request: NextRequest) {
   const tomorrow = new Date(now);
   tomorrow.setDate(tomorrow.getDate() + 1);
 
-  // Games tomorrow (holder reminders — emails 6a/b/c)
   const tomorrowGames = await prisma.game.findMany({
     where: {
       date: { gte: startOfDay(tomorrow), lte: endOfDay(tomorrow) },
@@ -53,41 +56,29 @@ export async function POST(request: NextRequest) {
     },
     include: {
       package: {
-        include: {
-          user: { select: { firstName: true, email: true } },
-        },
+        include: { user: { select: { firstName: true, email: true } } },
       },
       claim: {
-        include: {
-          claimer: { select: { firstName: true, lastName: true } },
-        },
+        include: { claimer: { select: { firstName: true, lastName: true } } },
       },
     },
   });
 
-  // Games today (claimer reminders — email 5)
   const todayGames = await prisma.game.findMany({
     where: {
       date: { gte: startOfDay(now), lte: endOfDay(now) },
       status: 'CLAIMED',
     },
     include: {
-      package: {
-        include: {
-          user: { select: { firstName: true } },
-        },
-      },
+      package: { include: { user: { select: { firstName: true } } } },
       claim: {
-        include: {
-          claimer: { select: { firstName: true, email: true } },
-        },
+        include: { claimer: { select: { firstName: true, email: true } } },
       },
     },
   });
 
   let sent = 0;
 
-  // Holder tomorrow-game reminders
   for (const game of tomorrowGames) {
     const pkg = game.package;
     const holder = pkg.user;
@@ -108,7 +99,11 @@ export async function POST(request: NextRequest) {
           timeVenue,
           dashboardUrl,
         });
-        await sendEmail({ to: holder.email, subject: email.subject, html: email.html });
+        await sendEmail({
+          to: holder.email,
+          subject: email.subject,
+          html: email.html,
+        });
         sent++;
       } else if (game.status === 'AVAILABLE') {
         const email = buildHolderGameDayAvailableEmail({
@@ -118,7 +113,11 @@ export async function POST(request: NextRequest) {
           timeVenue,
           dashboardUrl,
         });
-        await sendEmail({ to: holder.email, subject: email.subject, html: email.html });
+        await sendEmail({
+          to: holder.email,
+          subject: email.subject,
+          html: email.html,
+        });
         sent++;
       } else if (game.status === 'GOING_MYSELF') {
         const email = buildHolderGameDayGoingEmail({
@@ -127,15 +126,21 @@ export async function POST(request: NextRequest) {
           gameDayStr,
           timeVenue,
         });
-        await sendEmail({ to: holder.email, subject: email.subject, html: email.html });
+        await sendEmail({
+          to: holder.email,
+          subject: email.subject,
+          html: email.html,
+        });
         sent++;
       }
     } catch (err) {
-      console.error(`Failed to send holder game-day email for game ${game.id}:`, err);
+      console.error(
+        `Failed to send holder game-day email for game ${game.id}:`,
+        err
+      );
     }
   }
 
-  // Claimer today-game reminders
   for (const game of todayGames) {
     if (!game.claim) continue;
     const pkg = game.package;
@@ -154,10 +159,17 @@ export async function POST(request: NextRequest) {
         section: pkg.section,
         row: pkg.row,
       });
-      await sendEmail({ to: claimer.email, subject: email.subject, html: email.html });
+      await sendEmail({
+        to: claimer.email,
+        subject: email.subject,
+        html: email.html,
+      });
       sent++;
     } catch (err) {
-      console.error(`Failed to send claimer game-day email for game ${game.id}:`, err);
+      console.error(
+        `Failed to send claimer game-day email for game ${game.id}:`,
+        err
+      );
     }
   }
 

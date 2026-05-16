@@ -1,4 +1,10 @@
-import { emailChrome, greeting, gameDetailBlock, ctaButton, bodyText } from './template';
+import {
+  emailChrome,
+  greeting,
+  gameDetailBlock,
+  ctaButton,
+  bodyText,
+} from './template';
 
 const FONT = `-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif`;
 
@@ -22,10 +28,12 @@ ${gameDetailBlock(data.gameDayStr, data.opponent, data.timeVenue)}
 ${bodyText(`That&rsquo;s ${data.claimedCount} of ${data.totalCount} games claimed so far, with ${data.availableCount} still available.`)}
 ${ctaButton(data.dashboardUrl, 'View my season')}
 `;
-
   return {
     subject: `${data.claimerName} claimed ${data.team} vs. ${data.opponent}`,
-    html: emailChrome(body, 'BenchBuddy &middot; You&rsquo;re receiving this because someone claimed a game from your season.'),
+    html: emailChrome(
+      body,
+      'BenchBuddy &middot; You&rsquo;re receiving this because someone claimed a game from your season.'
+    ),
   };
 }
 
@@ -54,7 +62,10 @@ export function buildTransferActionEmail(data: TransferActionEmailData) {
       : null;
 
   const stepsHtml = data.transferSteps
-    .map((step, i) => `<tr><td style="font-size:14px;color:#444;font-family:${FONT};padding-bottom:4px;">${i + 1}. ${step}</td></tr>`)
+    .map(
+      (step, i) =>
+        `<tr><td style="font-size:14px;color:#444;font-family:${FONT};padding-bottom:4px;">${i + 1}. ${step}</td></tr>`
+    )
     .join('');
 
   const paymentHtml = totalCost
@@ -92,6 +103,9 @@ ${ctaButton(data.transferDeepLink, 'Transfer Tickets Now')}
 
   return {
     subject: `Action needed: Transfer ${data.team} vs. ${data.opponent} tickets to ${data.claimerName}`,
-    html: emailChrome(body, `BenchBuddy &middot; You received this because ${data.claimerName} claimed your tickets.`),
+    html: emailChrome(
+      body,
+      `BenchBuddy &middot; You received this because ${data.claimerName} claimed your tickets.`
+    ),
   };
 }

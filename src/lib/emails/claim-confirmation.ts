@@ -26,9 +26,10 @@ export function buildClaimConfirmationEmail(data: ClaimConfirmationEmailData) {
     .filter(Boolean)
     .join(', ');
 
-  const priceLabel = data.pricePerTicket && data.pricePerTicket > 0
-    ? `$${data.pricePerTicket.toFixed(0)}/ticket`
-    : 'Free';
+  const priceLabel =
+    data.pricePerTicket && data.pricePerTicket > 0
+      ? `$${data.pricePerTicket.toFixed(0)}/ticket`
+      : 'Free';
 
   const body = `
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
@@ -49,9 +50,11 @@ ${gameDetailBlock(data.gameDayStr, data.opponent, data.timeVenue)}
 
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
   <tr><td style="font-size:14px;color:#8E8985;line-height:1.5;font-family:${FONT};">
-    ${data.pricePerTicket && data.pricePerTicket > 0
-      ? `If you need to coordinate payment, reach out to ${data.holderName} directly.`
-      : `${data.holderName} will send ticket transfer details before the game.`}
+    ${
+      data.pricePerTicket && data.pricePerTicket > 0
+        ? `If you need to coordinate payment, reach out to ${data.holderName} directly.`
+        : `${data.holderName} will send ticket transfer details before the game.`
+    }
   </td></tr>
 </table>
 
@@ -60,6 +63,9 @@ ${ctaButton(data.myGamesUrl, 'View my games')}
 
   return {
     subject: `You claimed ${data.team} vs. ${data.opponent} tickets!`,
-    html: emailChrome(body, 'BenchBuddy &middot; You&rsquo;re receiving this because you claimed a game through BenchBuddy.'),
+    html: emailChrome(
+      body,
+      'BenchBuddy &middot; You&rsquo;re receiving this because you claimed a game through BenchBuddy.'
+    ),
   };
 }
