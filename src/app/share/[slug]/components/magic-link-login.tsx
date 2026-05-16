@@ -36,12 +36,29 @@ export function MagicLinkLogin() {
 
   if (sent) {
     return (
-      <div data-testid="magic-link-sent" className="bg-card border border-border rounded-xl overflow-hidden">
+      <div
+        data-testid="magic-link-sent"
+        className="bg-card border border-border rounded-xl overflow-hidden"
+      >
         <div className="p-10 text-center">
           <div className="mx-auto mb-3 w-10 h-10 rounded-full bg-background flex items-center justify-center">
             <svg width="20" height="20" viewBox="0 0 16 16" fill="none">
-              <rect x="1.5" y="3" width="13" height="10" rx="1.5" stroke="#0F6E56" strokeWidth="1.2" />
-              <path d="M2 4l6 4.5L14 4" stroke="#0F6E56" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+              <rect
+                x="1.5"
+                y="3"
+                width="13"
+                height="10"
+                rx="1.5"
+                stroke="#0F6E56"
+                strokeWidth="1.2"
+              />
+              <path
+                d="M2 4l6 4.5L14 4"
+                stroke="#0F6E56"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </div>
           <div className="text-base font-medium text-foreground mb-1">
@@ -61,8 +78,22 @@ export function MagicLinkLogin() {
       <div className="p-10 text-center">
         <div className="mx-auto mb-3 w-10 h-10 rounded-full bg-background flex items-center justify-center">
           <svg width="20" height="20" viewBox="0 0 16 16" fill="none">
-            <rect x="1.5" y="3" width="13" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.2" />
-            <path d="M2 4l6 4.5L14 4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+            <rect
+              x="1.5"
+              y="3"
+              width="13"
+              height="10"
+              rx="1.5"
+              stroke="currentColor"
+              strokeWidth="1.2"
+            />
+            <path
+              d="M2 4l6 4.5L14 4"
+              stroke="currentColor"
+              strokeWidth="1.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </div>
         <div className="text-base font-medium text-foreground mb-1">
@@ -80,9 +111,7 @@ export function MagicLinkLogin() {
           onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
           className="w-full max-w-[320px] px-3 py-2.5 rounded-lg border border-border text-sm outline-none mx-auto block text-center mb-3 focus:border-navy"
         />
-        {error && (
-          <div className="text-xs text-error mb-2">{error}</div>
-        )}
+        {error && <div className="text-xs text-error mb-2">{error}</div>}
         <button
           data-testid="magic-link-submit"
           className="w-full max-w-[320px] py-[11px] rounded-lg bg-navy text-white border-none text-base font-medium cursor-pointer mx-auto block disabled:opacity-50"

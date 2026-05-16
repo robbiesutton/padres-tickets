@@ -19,7 +19,8 @@ export async function GET(
 
   const pkg = await prisma.package.findUnique({ where: { id } });
   if (!pkg) return jsonError('Package not found', 404);
-  if (!(await requirePackageOwner(id, user.id))) return jsonError('Forbidden', 403);
+  if (!(await requirePackageOwner(id, user.id)))
+    return jsonError('Forbidden', 403);
 
   // Aggregate stats using database queries
   const [statusCounts, , pastAvailable] = await Promise.all([

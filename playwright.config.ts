@@ -23,8 +23,15 @@ export default defineConfig({
       name: 'chromium-desktop',
       use: { ...devices['Desktop Chrome'] },
     },
-    // Added in Phase 2:
-    // { name: 'webkit-iphone-13', use: { ...devices['iPhone 13'] } },
-    // { name: 'chromium-pixel-5', use: { ...devices['Pixel 5'] } },
+    {
+      name: 'webkit-iphone-13',
+      use: { ...devices['iPhone 13'] },
+      grep: /@mobile/,
+    },
+    {
+      name: 'chromium-pixel-5',
+      use: { ...devices['Pixel 5'] },
+      grep: /@mobile/,
+    },
   ],
 });

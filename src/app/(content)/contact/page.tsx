@@ -3,7 +3,8 @@ import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'Contact Us — BenchBuddy',
-  description: 'Get in touch with the BenchBuddy team for support, feedback, or partnership inquiries.',
+  description:
+    'Get in touch with the BenchBuddy team for support, feedback, or partnership inquiries.',
 };
 
 export default function ContactPage() {
@@ -28,7 +29,10 @@ export default function ContactPage() {
             <h2 className="text-lg font-semibold mb-3">Get in Touch</h2>
             <div className="rounded-lg border border-foreground/10 p-4 max-w-sm">
               <p className="text-sm text-foreground/60">For anything at all</p>
-              <a href="mailto:hello@getbenchbuddy.com" className="font-medium text-brand-600 hover:underline">
+              <a
+                href="mailto:hello@getbenchbuddy.com"
+                className="font-medium text-brand-600 hover:underline"
+              >
                 hello@getbenchbuddy.com
               </a>
             </div>
@@ -57,7 +61,10 @@ export default function ContactPage() {
             <h2 className="text-lg font-semibold mb-2">Bug Reports</h2>
             <p className="text-sm text-foreground/70 mb-2">
               Found something broken? Let us know at{' '}
-              <a href="mailto:hello@getbenchbuddy.com" className="text-brand-600 hover:underline">
+              <a
+                href="mailto:hello@getbenchbuddy.com"
+                className="text-brand-600 hover:underline"
+              >
                 hello@getbenchbuddy.com
               </a>{' '}
               and include:

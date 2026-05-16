@@ -41,23 +41,43 @@ export default function ForgotPasswordPage() {
         <div className="w-full max-w-sm space-y-6 text-center">
           <div className="mx-auto w-12 h-12 rounded-full bg-[#E1F5EE] flex items-center justify-center">
             <svg width="24" height="24" viewBox="0 0 16 16" fill="none">
-              <rect x="1.5" y="3" width="13" height="10" rx="1.5" stroke="#0F6E56" strokeWidth="1.2" />
-              <path d="M2 4l6 4.5L14 4" stroke="#0F6E56" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+              <rect
+                x="1.5"
+                y="3"
+                width="13"
+                height="10"
+                rx="1.5"
+                stroke="#0F6E56"
+                strokeWidth="1.2"
+              />
+              <path
+                d="M2 4l6 4.5L14 4"
+                stroke="#0F6E56"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </div>
           <h1 className="text-2xl font-bold">Check your email</h1>
           <p className="text-sm text-[#8e8985]">
-            We sent a sign-in link to <strong>{email}</strong>. Click it to access your account.
+            We sent a sign-in link to <strong>{email}</strong>. Click it to
+            access your account.
           </p>
           <div className="space-y-2">
             <button
-              onClick={() => { setSent(false); setEmail(''); }}
+              onClick={() => {
+                setSent(false);
+                setEmail('');
+              }}
               className="text-sm text-[#2c2a2b] font-medium underline"
             >
               Use a different email
             </button>
             <p className="text-xs text-[#8e8985]">
-              <a href="/login" className="underline">Back to sign in</a>
+              <a href="/login" className="underline">
+                Back to sign in
+              </a>
             </p>
           </div>
         </div>

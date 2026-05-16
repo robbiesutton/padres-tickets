@@ -23,7 +23,8 @@ export async function GET(request: NextRequest) {
   });
 
   if (user) {
-    const currentPrefs = (user.notificationPrefs as Record<string, unknown>) || {};
+    const currentPrefs =
+      (user.notificationPrefs as Record<string, unknown>) || {};
     await prisma.user.update({
       where: { id: user.id },
       data: {

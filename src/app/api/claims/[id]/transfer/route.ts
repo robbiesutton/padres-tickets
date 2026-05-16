@@ -40,7 +40,9 @@ export async function PUT(
               team: true,
               members: {
                 where: { role: 'OWNER' },
-                include: { user: { select: { firstName: true, lastName: true } } },
+                include: {
+                  user: { select: { firstName: true, lastName: true } },
+                },
                 take: 1,
               },
             },
@@ -101,7 +103,9 @@ export async function PUT(
   // Log activity
   const claimerName = `${claim.claimer.firstName} ${claim.claimer.lastName}`;
   const ownerUser = pkg.members[0]?.user;
-  const holderName = ownerUser ? `${ownerUser.firstName} ${ownerUser.lastName}` : 'The ticket holder';
+  const holderName = ownerUser
+    ? `${ownerUser.firstName} ${ownerUser.lastName}`
+    : 'The ticket holder';
   const description =
     status === 'SENT'
       ? `${holderName} transferred ${claim.game.opponent} tickets to ${claimerName}`

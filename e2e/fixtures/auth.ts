@@ -1,32 +1,50 @@
 import { chromium, FullConfig } from '@playwright/test';
 import fs from 'fs';
 
-// Logs in as the seeded holder once and saves storageState.
-// Tests load it via: use: { storageState: 'e2e/.auth/holder.json' }
-// If login fails (e.g. seed not run, wrong NEXTAUTH_URL), a warning is printed
-// and the file is not written. Tests that require auth will fail individually.
-// Claimer (magic-link only) is handled per-test via Mailosaur in Phase 2.
+const HOLDER_EMAIL = process.env.TEST_HOLDER_EMAIL || 'holder@test.com';
+const HOLDER_PASSWORD = process.env.TEST_HOLDER_PASSWORD || 'password123';
+
+// Ensures holder@test.com exists and saves storageState.
+// API-first: POST /api/auth/signup (200=created, 409=exists — both OK),
+// then log in via UI to get the NextAuth JWT session cookie.
 export default async function globalSetup(config: FullConfig) {
   const baseURL = config.projects[0].use.baseURL || 'http://localhost:3000';
+  fs.mkdirSync('e2e/.auth', { recursive: true });
+
+  const bypassSecret = process.env.VERCEL_BYPASS_SECRET;
+  const extraHTTPHeaders: Record<string, string> = bypassSecret
+    ? { 'x-vercel-protection-bypass': bypassSecret }
+    : {};
 
   const browser = await chromium.launch();
+  const context = await browser.newContext({ baseURL, extraHTTPHeaders });
+
   try {
-    const page = await browser.newPage();
-    await page.goto(`${baseURL}/login`);
-    await page.getByTestId('login-email').fill(process.env.TEST_HOLDER_EMAIL || 'holder@test.com');
-    await page.getByTestId('login-password').fill(process.env.TEST_HOLDER_PASSWORD || 'password123');
+    const signupRes = await context.request.post('/api/auth/signup', {
+      data: { firstName: 'Mark', lastName: 'Thompson', email: HOLDER_EMAIL, password: HOLDER_PASSWORD, agreedToTerms: true, marketingOptIn: false },
+    });
+    console.log(`[globalSetup] Signup API → ${signupRes.status()}`);
+
+    const page = await context.newPage();
+    await page.goto('/login');
+    await page.getByTestId('login-email').fill(HOLDER_EMAIL);
+    await page.getByTestId('login-password').fill(HOLDER_PASSWORD);
     await page.getByTestId('login-submit').click();
 
-    await page.waitForURL(`${baseURL}/dashboard`, { timeout: 10000 });
-    await page.context().storageState({ path: 'e2e/.auth/holder.json' });
-    console.log('[globalSetup] Holder auth state saved to e2e/.auth/holder.json');
-  } catch {
-    console.warn('[globalSetup] WARNING: Could not log in as holder — auth-dependent tests will fail.');
-    console.warn('[globalSetup] Ensure seed-test.ts has been run and NEXTAUTH_URL matches the test server.');
-    // Write an empty state file so tests that declare storageState don't crash on file-not-found
-    fs.mkdirSync('e2e/.auth', { recursive: true });
+    try {
+      await page.waitForURL(/\/dashboard|\/packages\/new/, { timeout: 15000 });
+      await context.storageState({ path: 'e2e/.auth/holder.json' });
+      console.log('[globalSetup] Auth saved. URL:', page.url());
+    } catch {
+      const errorText = await page.getByTestId('login-error').textContent().catch(() => 'none');
+      console.warn(`[globalSetup] Login failed. URL: ${page.url()}, error: ${errorText}`);
+      fs.writeFileSync('e2e/.auth/holder.json', JSON.stringify({ cookies: [], origins: [] }));
+    }
+  } catch (err) {
+    console.warn('[globalSetup] Error:', err);
     fs.writeFileSync('e2e/.auth/holder.json', JSON.stringify({ cookies: [], origins: [] }));
   } finally {
+    await context.close();
     await browser.close();
   }
 }

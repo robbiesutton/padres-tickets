@@ -63,11 +63,13 @@ export async function GET(
       status: true,
       pricePerTicket: true,
       notes: true,
-      ...(showAll ? {
-        claim: {
-          select: { id: true, claimerUserId: true, status: true },
-        },
-      } : {}),
+      ...(showAll
+        ? {
+            claim: {
+              select: { id: true, claimerUserId: true, status: true },
+            },
+          }
+        : {}),
     },
   });
 

@@ -4,7 +4,10 @@ import { requireAuth, jsonError, jsonSuccess } from '@/lib/api-utils';
 import { generateUniqueSlug } from '@/lib/services/slug';
 import { getTeamById } from '@/lib/data/mlb-teams';
 import { getHomeSchedule } from '@/lib/services/schedule';
-import { getSeatViewPhotos, getBestSeatViewUrl } from '@/lib/services/seat-views';
+import {
+  getSeatViewPhotos,
+  getBestSeatViewUrl,
+} from '@/lib/services/seat-views';
 import { DESIGN_MODE, mockPackage } from '@/lib/mock-data';
 
 export async function GET() {
@@ -33,8 +36,8 @@ export async function GET() {
   });
 
   const packages = memberships
-    .filter(m => m.package.status === 'ACTIVE')
-    .map(m => ({
+    .filter((m) => m.package.status === 'ACTIVE')
+    .map((m) => ({
       ...m.package,
       _count: m.package._count,
     }));
@@ -189,10 +192,14 @@ export async function POST(request: NextRequest) {
             time: g.time,
             opponent: g.opponent,
             opponentLogo: null as string | null,
-            pricePerTicket: override?.pricePerTicket ?? (defaultPricePerTicket
-              ? parseFloat(defaultPricePerTicket)
-              : null),
-            status: (override?.status || 'AVAILABLE') as 'AVAILABLE' | 'GOING_MYSELF',
+            pricePerTicket:
+              override?.pricePerTicket ??
+              (defaultPricePerTicket
+                ? parseFloat(defaultPricePerTicket)
+                : null),
+            status: (override?.status || 'AVAILABLE') as
+              | 'AVAILABLE'
+              | 'GOING_MYSELF',
           };
         });
 

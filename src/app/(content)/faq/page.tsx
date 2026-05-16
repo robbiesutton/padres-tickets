@@ -3,7 +3,8 @@ import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'FAQ — BenchBuddy',
-  description: 'Frequently asked questions about BenchBuddy — how it works, ticket transfers, payments, and more.',
+  description:
+    'Frequently asked questions about BenchBuddy — how it works, ticket transfers, payments, and more.',
 };
 
 const faqs = [
@@ -13,7 +14,7 @@ const faqs = [
   },
   {
     q: 'Does BenchBuddy transfer my tickets?',
-    a: 'No. BenchBuddy helps you coordinate who gets which games, but the actual ticket transfer must be done through your team\'s official app (e.g., the MLB Ballpark App, Ticketmaster). BenchBuddy provides step-by-step instructions for your specific team\'s transfer process.',
+    a: "No. BenchBuddy helps you coordinate who gets which games, but the actual ticket transfer must be done through your team's official app (e.g., the MLB Ballpark App, Ticketmaster). BenchBuddy provides step-by-step instructions for your specific team's transfer process.",
   },
   {
     q: 'Does money flow through BenchBuddy?',
@@ -21,7 +22,7 @@ const faqs = [
   },
   {
     q: 'Is this allowed by my team?',
-    a: 'BenchBuddy facilitates sharing among friends and family at face value — which is generally permitted by most season ticket agreements. However, every team\'s policies are different. We encourage you to review your specific season ticket holder agreement. BenchBuddy is not a resale platform and does not facilitate commercial ticket distribution.',
+    a: "BenchBuddy facilitates sharing among friends and family at face value — which is generally permitted by most season ticket agreements. However, every team's policies are different. We encourage you to review your specific season ticket holder agreement. BenchBuddy is not a resale platform and does not facilitate commercial ticket distribution.",
   },
   {
     q: 'How do I get reimbursed?',
@@ -33,18 +34,18 @@ const faqs = [
   },
   {
     q: 'Do my friends need an account?',
-    a: 'They can browse available games without an account. To claim a game, they just need to provide their email — we\'ll send them a confirmation link. No password required for claimers.',
+    a: "They can browse available games without an account. To claim a game, they just need to provide their email — we'll send them a confirmation link. No password required for claimers.",
   },
   {
     q: 'Which teams are supported?',
-    a: 'All 30 MLB teams are supported. When you set up your season tickets, your team\'s full home schedule loads automatically. We include section-specific seating data and transfer instructions for every team.',
+    a: "All 30 MLB teams are supported. When you set up your season tickets, your team's full home schedule loads automatically. We include section-specific seating data and transfer instructions for every team.",
   },
   {
     q: 'Can I share tickets for multiple seat locations?',
     a: 'Yes. You can set up multiple sets of season tickets — one for each set of seats. Each gets its own share link and game schedule.',
   },
   {
-    q: 'What if someone claims a game and then can\'t go?',
+    q: "What if someone claims a game and then can't go?",
     a: 'Claimers can release their claim at any time from the share page. This makes the game available again for others in your circle. The holder gets notified when a game is released.',
   },
   {

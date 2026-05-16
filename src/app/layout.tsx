@@ -62,7 +62,10 @@ export default function RootLayout({
       className={`${dmSans.variable} ${inter.variable} ${syne.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <Script src="https://mcp.figma.com/mcp/html-to-design/capture.js" strategy="afterInteractive" />
+        <Script
+          src="https://mcp.figma.com/mcp/html-to-design/capture.js"
+          strategy="afterInteractive"
+        />
         <Providers>
           <div className="flex-1 flex flex-col">{children}</div>
           <ConditionalTicker />

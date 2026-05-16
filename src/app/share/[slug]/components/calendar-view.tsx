@@ -63,7 +63,9 @@ export function CalendarView({
     const d = new Date(g.date);
     return (
       filteredIds.has(g.id) &&
-      displayMonths.some((dm) => dm.month === d.getMonth() && dm.year === d.getFullYear())
+      displayMonths.some(
+        (dm) => dm.month === d.getMonth() && dm.year === d.getFullYear()
+      )
     );
   });
   const allTaken =
@@ -151,7 +153,10 @@ export function CalendarView({
     <div>
       {allTaken && <SoldOutBar />}
 
-      <div ref={containerRef} className="bg-card md:border md:border-border md:rounded-xl px-4 py-6 md:px-10 md:py-8 relative">
+      <div
+        ref={containerRef}
+        className="bg-card md:border md:border-border md:rounded-xl px-4 py-6 md:px-10 md:py-8 relative"
+      >
         {/* Side arrows */}
         <button
           className="absolute top-2 left-0 md:top-4 md:left-4 w-11 h-11 md:w-8 md:h-8 rounded-full border border-[#8e8985] bg-white cursor-pointer flex items-center justify-center disabled:opacity-30 disabled:cursor-default hover:bg-[#f5f4f2] transition-colors z-10"
@@ -159,7 +164,13 @@ export function CalendarView({
           disabled={!canGoBack}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path d="M15 6l-6 6 6 6" stroke="#8e8985" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path
+              d="M15 6l-6 6 6 6"
+              stroke="#8e8985"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </button>
         <button
@@ -168,7 +179,13 @@ export function CalendarView({
           disabled={!canGoForward}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path d="M9 6l6 6-6 6" stroke="#8e8985" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path
+              d="M9 6l6 6-6 6"
+              stroke="#8e8985"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </button>
 

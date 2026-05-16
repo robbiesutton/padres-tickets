@@ -9,7 +9,13 @@ import {
   FormLabel,
 } from '@/components/setup-layout';
 
-type FieldKey = 'firstName' | 'lastName' | 'email' | 'phone' | 'password' | 'terms';
+type FieldKey =
+  | 'firstName'
+  | 'lastName'
+  | 'email'
+  | 'phone'
+  | 'password'
+  | 'terms';
 type Errors = Partial<Record<FieldKey, string>>;
 type Touched = Partial<Record<FieldKey, boolean>>;
 
@@ -35,7 +41,8 @@ function validatePhone(value: string): string | null {
   if (!v) return 'Please enter a valid phone number';
   if (v.startsWith('+')) {
     const digits = v.slice(1).replace(/\D/g, '');
-    if (digits.length < 10 || digits.length > 15) return 'Please enter a valid phone number';
+    if (digits.length < 10 || digits.length > 15)
+      return 'Please enter a valid phone number';
     return null;
   }
   const digits = v.replace(/\D/g, '');
@@ -61,7 +68,11 @@ function formatPhone(value: string): string {
 
 export default function SignupPage() {
   const [form, setForm] = useState({
-    firstName: '', lastName: '', email: '', phone: '', password: '',
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    password: '',
   });
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [marketingOptIn, setMarketingOptIn] = useState(false);
@@ -77,17 +88,29 @@ export default function SignupPage() {
   const phoneRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
 
-  function runValidator(field: FieldKey, value: string, agreed: boolean = agreedToTerms): string | null {
-    if (field === 'firstName') return validateName(value) ? 'Please enter your first name' : null;
-    if (field === 'lastName') return validateName(value) ? 'Please enter your last name' : null;
+  function runValidator(
+    field: FieldKey,
+    value: string,
+    agreed: boolean = agreedToTerms
+  ): string | null {
+    if (field === 'firstName')
+      return validateName(value) ? 'Please enter your first name' : null;
+    if (field === 'lastName')
+      return validateName(value) ? 'Please enter your last name' : null;
     if (field === 'email') return validateEmail(value);
     if (field === 'phone') return validatePhone(value);
     if (field === 'password') return validatePassword(value);
-    if (field === 'terms') return agreed ? null : 'Please agree to the Terms of Service and Privacy Policy to continue';
+    if (field === 'terms')
+      return agreed
+        ? null
+        : 'Please agree to the Terms of Service and Privacy Policy to continue';
     return null;
   }
 
-  function setFieldValue(field: 'firstName' | 'lastName' | 'email' | 'phone' | 'password', value: string) {
+  function setFieldValue(
+    field: 'firstName' | 'lastName' | 'email' | 'phone' | 'password',
+    value: string
+  ) {
     const newValue = field === 'phone' ? formatPhone(value) : value;
     setForm((prev) => ({ ...prev, [field]: newValue }));
     // Rule B (re-validate on input after first error): if field is touched OR password (which is Rule B from start), re-run validator.
@@ -98,7 +121,9 @@ export default function SignupPage() {
     }
   }
 
-  function handleBlur(field: 'firstName' | 'lastName' | 'email' | 'phone' | 'password') {
+  function handleBlur(
+    field: 'firstName' | 'lastName' | 'email' | 'phone' | 'password'
+  ) {
     setTouched((prev) => ({ ...prev, [field]: true }));
     const err = runValidator(field, form[field]);
     setErrors((prev) => ({ ...prev, [field]: err ?? undefined }));
@@ -110,20 +135,38 @@ export default function SignupPage() {
 
     // Validate every field; collect errors.
     const next: Errors = {};
-    (['firstName', 'lastName', 'email', 'phone', 'password'] as const).forEach((f) => {
-      const err = runValidator(f, form[f]);
-      if (err) next[f] = err;
-    });
-    if (!agreedToTerms) next.terms = 'Please agree to the Terms of Service and Privacy Policy to continue';
+    (['firstName', 'lastName', 'email', 'phone', 'password'] as const).forEach(
+      (f) => {
+        const err = runValidator(f, form[f]);
+        if (err) next[f] = err;
+      }
+    );
+    if (!agreedToTerms)
+      next.terms =
+        'Please agree to the Terms of Service and Privacy Policy to continue';
 
     setErrors(next);
-    setTouched({ firstName: true, lastName: true, email: true, phone: true, password: true, terms: true });
+    setTouched({
+      firstName: true,
+      lastName: true,
+      email: true,
+      phone: true,
+      password: true,
+      terms: true,
+    });
 
     if (Object.keys(next).length > 0) {
-      const refMap = { firstName: firstNameRef, lastName: lastNameRef, email: emailRef, phone: phoneRef, password: passwordRef };
-      const order: Array<'firstName' | 'lastName' | 'email' | 'phone' | 'password'> = [
-        'firstName', 'lastName', 'email', 'phone', 'password',
-      ];
+      // Focus first invalid field in DOM order.
+      const refMap = {
+        firstName: firstNameRef,
+        lastName: lastNameRef,
+        email: emailRef,
+        phone: phoneRef,
+        password: passwordRef,
+      };
+      const order: Array<
+        'firstName' | 'lastName' | 'email' | 'phone' | 'password'
+      > = ['firstName', 'lastName', 'email', 'phone', 'password'];
       const firstInvalid = order.find((f) => next[f]);
       if (firstInvalid) refMap[firstInvalid].current?.focus();
       return;
@@ -160,28 +203,53 @@ export default function SignupPage() {
   }
 
   // Password field gets error styling as soon as the user has typed something invalid (Rule B from start).
-  const passwordHasError = form.password.length > 0 && !!validatePassword(form.password);
+  const passwordHasError =
+    form.password.length > 0 && !!validatePassword(form.password);
   const passwordReqMet = form.password.length >= 8;
 
   return (
     <SetupLayout showSidebar={false}>
-      <Link href="/" className="fixed top-6 left-6 flex items-center gap-1.5 text-sm font-medium text-[#8e8985] hover:text-[#2c2a2b] no-underline transition-colors z-10">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
+      <Link
+        href="/"
+        className="fixed top-6 left-6 flex items-center gap-1.5 text-sm font-medium text-[#8e8985] hover:text-[#2c2a2b] no-underline transition-colors z-10"
+      >
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M15 18l-6-6 6-6" />
+        </svg>
         Back
       </Link>
       <div className="flex flex-col flex-1 md:justify-center max-w-[380px] mx-auto w-full pt-12 md:pt-0">
         <div className="text-center">
           <StepHeadline>Create your account</StepHeadline>
-          <StepSubhead>Start sharing your season tickets with friends and family.</StepSubhead>
+          <StepSubhead>
+            Start sharing your season tickets with friends and family.
+          </StepSubhead>
         </div>
 
         {submitError && (
-          <div data-testid="signup-error" className="rounded-lg bg-[#FEE2E2] text-[#DC2626] px-4 py-3 text-sm font-medium mb-4">
+          <div
+            data-testid="signup-error"
+            className="rounded-lg bg-[#FEE2E2] text-[#DC2626] px-4 py-3 text-sm font-medium mb-4"
+          >
             {submitError}
           </div>
         )}
 
-        <form data-testid="signup-form" onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
+        <form
+          data-testid="signup-form"
+          onSubmit={handleSubmit}
+          className="flex flex-col gap-4"
+          noValidate
+        >
           <div className="grid grid-cols-2 gap-3">
             <div>
               <FormLabel>First name</FormLabel>
@@ -195,9 +263,13 @@ export default function SignupPage() {
                 onBlur={() => handleBlur('firstName')}
                 className={inputClass(!!errors.firstName)}
                 aria-invalid={!!errors.firstName}
-                aria-describedby={errors.firstName ? 'err-firstName' : undefined}
+                aria-describedby={
+                  errors.firstName ? 'err-firstName' : undefined
+                }
               />
-              {errors.firstName && <FieldError id="err-firstName">{errors.firstName}</FieldError>}
+              {errors.firstName && (
+                <FieldError id="err-firstName">{errors.firstName}</FieldError>
+              )}
             </div>
             <div>
               <FormLabel>Last name</FormLabel>
@@ -213,7 +285,9 @@ export default function SignupPage() {
                 aria-invalid={!!errors.lastName}
                 aria-describedby={errors.lastName ? 'err-lastName' : undefined}
               />
-              {errors.lastName && <FieldError id="err-lastName">{errors.lastName}</FieldError>}
+              {errors.lastName && (
+                <FieldError id="err-lastName">{errors.lastName}</FieldError>
+              )}
             </div>
           </div>
 
@@ -232,7 +306,9 @@ export default function SignupPage() {
               aria-invalid={!!errors.email}
               aria-describedby={errors.email ? 'err-email' : undefined}
             />
-            {errors.email && <FieldError id="err-email">{errors.email}</FieldError>}
+            {errors.email && (
+              <FieldError id="err-email">{errors.email}</FieldError>
+            )}
           </div>
 
           <div>
@@ -249,7 +325,9 @@ export default function SignupPage() {
               aria-invalid={!!errors.phone}
               aria-describedby={errors.phone ? 'err-phone' : undefined}
             />
-            {errors.phone && <FieldError id="err-phone">{errors.phone}</FieldError>}
+            {errors.phone && (
+              <FieldError id="err-phone">{errors.phone}</FieldError>
+            )}
           </div>
 
           <div>
@@ -267,14 +345,22 @@ export default function SignupPage() {
                 aria-invalid={passwordHasError}
                 aria-describedby="pwd-reqs"
               />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[13px] font-medium text-[#8e8985] hover:text-[#2c2a2b] bg-transparent border-none cursor-pointer">
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[13px] font-medium text-[#8e8985] hover:text-[#2c2a2b] bg-transparent border-none cursor-pointer"
+              >
                 {showPassword ? 'Hide' : 'Show'}
               </button>
             </div>
             <div id="pwd-reqs" className="mt-2 flex flex-col gap-1.5">
-              <PasswordReq met={passwordReqMet}>At least 8 characters</PasswordReq>
+              <PasswordReq met={passwordReqMet}>
+                At least 8 characters
+              </PasswordReq>
             </div>
-            {touched.password && errors.password && <FieldError>{errors.password}</FieldError>}
+            {touched.password && errors.password && (
+              <FieldError>{errors.password}</FieldError>
+            )}
           </div>
 
           {/* Consent */}
@@ -288,20 +374,45 @@ export default function SignupPage() {
                   onChange={(e) => {
                     setAgreedToTerms(e.target.checked);
                     if (touched.terms) {
-                      setErrors((prev) => ({ ...prev, terms: e.target.checked ? undefined : 'Please agree to the Terms of Service and Privacy Policy to continue' }));
+                      setErrors((prev) => ({
+                        ...prev,
+                        terms: e.target.checked
+                          ? undefined
+                          : 'Please agree to the Terms of Service and Privacy Policy to continue',
+                      }));
                     }
                   }}
                   className="mt-0.5 w-5 h-5 accent-[#2c2a2b] shrink-0"
                   aria-invalid={!!errors.terms}
                 />
                 <span className="text-[#8e8985] leading-relaxed">
-                  I agree to the <a href="/terms" target="_blank" className="text-[#8e8985] underline">Terms of Service</a> and <a href="/privacy" target="_blank" className="text-[#8e8985] underline">Privacy Policy</a>
+                  I agree to the{' '}
+                  <a
+                    href="/terms"
+                    target="_blank"
+                    className="text-[#8e8985] underline"
+                  >
+                    Terms of Service
+                  </a>{' '}
+                  and{' '}
+                  <a
+                    href="/privacy"
+                    target="_blank"
+                    className="text-[#8e8985] underline"
+                  >
+                    Privacy Policy
+                  </a>
                 </span>
               </label>
               {errors.terms && <FieldError>{errors.terms}</FieldError>}
             </div>
             <label className="flex items-start gap-2.5 text-sm cursor-pointer">
-              <input type="checkbox" checked={marketingOptIn} onChange={(e) => setMarketingOptIn(e.target.checked)} className="mt-0.5 w-5 h-5 accent-[#2c2a2b] shrink-0" />
+              <input
+                type="checkbox"
+                checked={marketingOptIn}
+                onChange={(e) => setMarketingOptIn(e.target.checked)}
+                className="mt-0.5 w-5 h-5 accent-[#2c2a2b] shrink-0"
+              />
               <span className="text-[#8e8985] leading-relaxed">
                 I&apos;d like to receive updates from BenchBuddy
               </span>
@@ -319,17 +430,41 @@ export default function SignupPage() {
         </form>
 
         <p className="text-center text-sm text-[#8e8985] mt-6 pb-8">
-          Already have an account? <a href="/login" className="text-[#8e8985] underline">Sign in</a>
+          Already have an account?{' '}
+          <a href="/login" className="text-[#8e8985] underline">
+            Sign in
+          </a>
         </p>
       </div>
     </SetupLayout>
   );
 }
 
-function FieldError({ children, id }: { children: React.ReactNode; id?: string }) {
+function FieldError({
+  children,
+  id,
+}: {
+  children: React.ReactNode;
+  id?: string;
+}) {
   return (
-    <p id={id} role="alert" className="mt-2 flex items-start gap-1.5 text-[13px] font-medium text-[#dc2626]">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="mt-0.5 shrink-0">
+    <p
+      id={id}
+      role="alert"
+      className="mt-2 flex items-start gap-1.5 text-[13px] font-medium text-[#dc2626]"
+    >
+      <svg
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden
+        className="mt-0.5 shrink-0"
+      >
         <circle cx="12" cy="12" r="10" />
         <line x1="12" y1="8" x2="12" y2="12" />
         <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -339,9 +474,18 @@ function FieldError({ children, id }: { children: React.ReactNode; id?: string }
   );
 }
 
-function PasswordReq({ met, children }: { met: boolean; children: React.ReactNode }) {
+function PasswordReq({
+  met,
+  children,
+}: {
+  met: boolean;
+  children: React.ReactNode;
+}) {
   return (
-    <div className="flex items-center gap-2 text-[13px]" style={{ fontWeight: 400 }}>
+    <div
+      className="flex items-center gap-2 text-[13px]"
+      style={{ fontWeight: 400 }}
+    >
       <span
         className="flex items-center justify-center rounded-full shrink-0"
         style={{
@@ -353,7 +497,16 @@ function PasswordReq({ met, children }: { met: boolean; children: React.ReactNod
         aria-hidden
       >
         {met && (
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="10"
+            height="10"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#fff"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <polyline points="20 6 9 17 4 12" />
           </svg>
         )}

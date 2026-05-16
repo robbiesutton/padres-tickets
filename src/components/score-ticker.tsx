@@ -20,14 +20,36 @@ interface ScoreData {
 }
 
 const TEAM_COLORS: Record<string, string> = {
-  LAD: '#005A9C', SF: '#FD5A1E', AZ: '#A71930', COL: '#33006F',
-  SEA: '#0C7B8B', MIL: '#12284B', CHC: '#0E3386', STL: '#C41E3A',
-  HOU: '#EB6E1F', ATL: '#CE1141', NYM: '#002D72', PHI: '#E81828',
-  CIN: '#C6011F', NYY: '#003087', BOS: '#BD3039', TB: '#092C5C',
-  BAL: '#DF4601', TOR: '#134A8E', DET: '#0C2C56', MIN: '#002B5C',
-  CWS: '#27251F', KC: '#004687', CLE: '#00385D', TEX: '#003278',
-  OAK: '#003831', LAA: '#BA0021', WSH: '#AB0003', PIT: '#FDB827',
-  SD: '#FFC425', MIA: '#00A3E0',
+  LAD: '#005A9C',
+  SF: '#FD5A1E',
+  AZ: '#A71930',
+  COL: '#33006F',
+  SEA: '#0C7B8B',
+  MIL: '#12284B',
+  CHC: '#0E3386',
+  STL: '#C41E3A',
+  HOU: '#EB6E1F',
+  ATL: '#CE1141',
+  NYM: '#002D72',
+  PHI: '#E81828',
+  CIN: '#C6011F',
+  NYY: '#003087',
+  BOS: '#BD3039',
+  TB: '#092C5C',
+  BAL: '#DF4601',
+  TOR: '#134A8E',
+  DET: '#0C2C56',
+  MIN: '#002B5C',
+  CWS: '#27251F',
+  KC: '#004687',
+  CLE: '#00385D',
+  TEX: '#003278',
+  OAK: '#003831',
+  LAA: '#BA0021',
+  WSH: '#AB0003',
+  PIT: '#FDB827',
+  SD: '#FFC425',
+  MIA: '#00A3E0',
 };
 
 function getColor(abbr: string): string {
@@ -87,7 +109,11 @@ export function ScoreTicker({ bgColor }: { bgColor?: string } = {}) {
               >
                 {featured.awayAbbr}
               </div>
-              <span className={`text-[9px] ${bgColor && isColorDark(bgColor) ? 'text-white/60' : 'text-white/35'}`}>vs</span>
+              <span
+                className={`text-[9px] ${bgColor && isColorDark(bgColor) ? 'text-white/60' : 'text-white/35'}`}
+              >
+                vs
+              </span>
               <div
                 className="w-7 h-7 rounded-full flex items-center justify-center text-[9px] font-bold text-white"
                 style={{ backgroundColor: getColor(featured.homeAbbr) }}
@@ -129,7 +155,9 @@ export function ScoreTicker({ bgColor }: { bgColor?: string } = {}) {
               {(() => {
                 const d = new Date(featured.gameDate);
                 if (isNaN(d.getTime())) return featured.gameDate;
-                const dow = d.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
+                const dow = d
+                  .toLocaleDateString('en-US', { weekday: 'short' })
+                  .toUpperCase();
                 const mon = d.toLocaleDateString('en-US', { month: 'short' });
                 const day = d.getDate();
                 return `${dow}, ${mon} ${day}`;
@@ -143,11 +171,23 @@ export function ScoreTicker({ bgColor }: { bgColor?: string } = {}) {
       <div className="flex-1 overflow-hidden flex items-center relative">
         <div
           className={`absolute left-0 top-0 bottom-0 w-10 z-[1] ${bgColor ? '' : 'bg-gradient-to-r from-navy to-transparent'}`}
-          style={bgColor ? { background: `linear-gradient(to right, ${bgColor}, transparent)` } : undefined}
+          style={
+            bgColor
+              ? {
+                  background: `linear-gradient(to right, ${bgColor}, transparent)`,
+                }
+              : undefined
+          }
         />
         <div
           className={`absolute right-0 top-0 bottom-0 w-10 z-[1] ${bgColor ? '' : 'bg-gradient-to-l from-navy to-transparent'}`}
-          style={bgColor ? { background: `linear-gradient(to left, ${bgColor}, transparent)` } : undefined}
+          style={
+            bgColor
+              ? {
+                  background: `linear-gradient(to left, ${bgColor}, transparent)`,
+                }
+              : undefined
+          }
         />
         <div
           className="flex gap-3 whitespace-nowrap"
@@ -173,9 +213,7 @@ export function ScoreTicker({ bgColor }: { bgColor?: string } = {}) {
               <span className="text-[13px] font-semibold text-white/90">
                 {g.homeScore ?? '-'}
               </span>
-              <span className="text-[10px] text-white/35 ml-1">
-                {g.status}
-              </span>
+              <span className="text-[10px] text-white/35 ml-1">{g.status}</span>
             </div>
           ))}
         </div>
@@ -183,8 +221,12 @@ export function ScoreTicker({ bgColor }: { bgColor?: string } = {}) {
 
       <style jsx>{`
         @keyframes tickerScroll {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
         }
       `}</style>
     </div>

@@ -28,7 +28,10 @@ export function EmptyState({
   let pills: { month: number; count: number }[] = [];
 
   if (opponentFilter.length > 0 && monthName) {
-    const oppLabel = opponentFilter.length === 1 ? opponentFilter[0] : `${opponentFilter.length} opponents`;
+    const oppLabel =
+      opponentFilter.length === 1
+        ? opponentFilter[0]
+        : `${opponentFilter.length} opponents`;
     title = `No ${oppLabel} games in ${monthName}`;
     const oppGames = games.filter(
       (g) => opponentFilter.includes(g.opponent) && isGameAvailable(g)
@@ -45,7 +48,10 @@ export function EmptyState({
         .map(([month, count]) => ({ month, count }));
     }
   } else if (opponentFilter.length > 0) {
-    const oppLabel = opponentFilter.length === 1 ? opponentFilter[0] : `${opponentFilter.length} opponents`;
+    const oppLabel =
+      opponentFilter.length === 1
+        ? opponentFilter[0]
+        : `${opponentFilter.length} opponents`;
     title = `No ${oppLabel} games available`;
   } else if (monthName) {
     title = `No games in ${monthName}`;
@@ -66,9 +72,7 @@ export function EmptyState({
   return (
     <div className="flex flex-col gap-8 items-center py-8">
       <div className="flex flex-col gap-4 items-center">
-        <p className="text-base font-medium text-black text-center">
-          {title}
-        </p>
+        <p className="text-base font-medium text-black text-center">{title}</p>
         {pills.length > 0 && (
           <div className="flex items-center gap-2 p-1 flex-wrap justify-center">
             <span className="text-sm font-normal text-[#2c2a2b]">
@@ -83,15 +87,25 @@ export function EmptyState({
                 <span className="text-[11px] font-medium leading-4">
                   {MONTH_NAMES[month]}
                 </span>
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#2c2a2b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="M12 5l7 7-7 7" /></svg>
+                <svg
+                  width="10"
+                  height="10"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#2c2a2b"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M5 12h14" />
+                  <path d="M12 5l7 7-7 7" />
+                </svg>
               </button>
             ))}
           </div>
         )}
       </div>
-      <PrimaryButton onClick={onClearFilters}>
-        Clear all filters
-      </PrimaryButton>
+      <PrimaryButton onClick={onClearFilters}>Clear all filters</PrimaryButton>
     </div>
   );
 }
