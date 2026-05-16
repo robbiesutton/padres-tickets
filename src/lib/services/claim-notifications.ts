@@ -1,12 +1,25 @@
 import { prisma } from '@/lib/db';
 import { sendNotification } from './notifications';
-import { createToken } from './tokens';
-import { buildTransferActionEmail } from '@/lib/emails/transfer-action';
+import { buildGameClaimedEmail } from '@/lib/emails/transfer-action';
 import { buildClaimConfirmationEmail } from '@/lib/emails/claim-confirmation';
-import { getTicketingInfo } from '@/lib/data/ticketing-platforms';
 import { MLB_TEAMS } from '@/lib/data/mlb-teams';
 
 const BASE_URL = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+
+function formatGameDay(date: Date): string {
+  return date
+    .toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+    })
+    .toUpperCase()
+    .replace(',', '');
+}
+
+function formatTimeVenue(time: string | null, venue: string): string {
+  return time ? `${time} · ${venue}` : venue;
+}
 
 export async function sendClaimNotifications(claimId: string) {
   const claim = await prisma.claim.findUnique({
@@ -18,6 +31,7 @@ export async function sendClaimNotifications(claimId: string) {
           package: {
             include: {
               user: true,
+              games: { select: { status: true } },
             },
           },
         },
@@ -32,85 +46,75 @@ export async function sendClaimNotifications(claimId: string) {
   const holder = pkg.user;
   const claimer = claim.claimer;
 
-  const gameDate = game.date.toLocaleDateString('en-US', {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-  });
-
   const holderName = `${holder.firstName} ${holder.lastName}`;
   const claimerName = `${claimer.firstName} ${claimer.lastName}`;
 
-  // Find team ticketing info
   const team = MLB_TEAMS.find((t) => t.name === pkg.team);
-  const ticketingInfo = team ? getTicketingInfo(team.id) : null;
+  const venue = team?.venue ?? 'the ballpark';
+  const gameDayStr = formatGameDay(game.date);
+  const timeVenue = formatTimeVenue(game.time, venue);
 
-  // 1. Send transfer action email to holder
+  const totalCount = pkg.games.length;
+  const claimedCount = pkg.games.filter(
+    (g) =>
+      g.status === 'CLAIMED' ||
+      g.status === 'TRANSFERRED' ||
+      g.status === 'COMPLETE'
+  ).length;
+  const availableCount = pkg.games.filter(
+    (g) => g.status === 'AVAILABLE'
+  ).length;
+
+  // 1. Notify holder that a game was claimed (email-3)
   try {
-    // Create a one-time-use token for the "mark as transferred" link
-    const actionToken = await createToken(holder.id, 'MAGIC_LINK');
-    const markTransferredUrl = `${BASE_URL}/api/games/${game.id}/mark-transferred?token=${actionToken.token}`;
-
-    const transferEmail = buildTransferActionEmail({
-      holderName,
+    const email = buildGameClaimedEmail({
+      holderFirstName: holder.firstName,
       claimerName,
-      claimerEmail: claimer.email,
       team: pkg.team,
       opponent: game.opponent,
-      gameDate,
-      section: pkg.section,
-      row: pkg.row,
-      seats: pkg.seats,
-      seatCount: pkg.seatCount,
-      pricePerTicket: game.pricePerTicket ? Number(game.pricePerTicket) : null,
-      platformName: ticketingInfo?.platformDisplayName ?? 'your ticketing app',
-      transferSteps: ticketingInfo?.holderTransferSteps ?? [
-        'Open your ticketing app',
-        'Find the game and transfer the tickets',
-        "Enter the recipient's email",
-      ],
-      transferDeepLink:
-        ticketingInfo?.transferDeepLink ?? 'https://www.mlb.com/tickets',
-      markTransferredUrl,
+      gameDayStr,
+      timeVenue,
+      claimedCount,
+      totalCount,
+      availableCount,
+      dashboardUrl: `${BASE_URL}/dashboard`,
     });
-
     await sendNotification(
       holder.id,
       'TRANSFER_ACTION',
       holder.email,
-      transferEmail.subject,
-      transferEmail.html,
+      email.subject,
+      email.html,
       { claimId: claim.id, gameId: game.id }
     );
   } catch (error) {
-    console.error('Failed to send transfer action email:', error);
+    console.error('Failed to send game claimed email to holder:', error);
   }
 
-  // 2. Send claim confirmation email to claimer
+  // 2. Confirm to claimer that they got the game (email-4)
   try {
-    const confirmEmail = buildClaimConfirmationEmail({
-      claimerName,
+    const email = buildClaimConfirmationEmail({
+      claimerName: claimer.firstName,
       holderName,
       team: pkg.team,
       opponent: game.opponent,
-      gameDate,
+      gameDayStr,
+      timeVenue,
       section: pkg.section,
       row: pkg.row,
       seatCount: pkg.seatCount,
       pricePerTicket: game.pricePerTicket ? Number(game.pricePerTicket) : null,
-      myGamesUrl: `${BASE_URL}/dashboard/my-games`,
+      myGamesUrl: `${BASE_URL}/share/${pkg.shareLinkSlug}?tab=my-games`,
     });
-
     await sendNotification(
       claimer.id,
       'CLAIM_CREATED',
       claimer.email,
-      confirmEmail.subject,
-      confirmEmail.html,
+      email.subject,
+      email.html,
       { claimId: claim.id, gameId: game.id }
     );
   } catch (error) {
-    console.error('Failed to send claim confirmation email:', error);
+    console.error('Failed to send claim confirmation email to claimer:', error);
   }
 }
