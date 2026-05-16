@@ -1135,6 +1135,7 @@ function SharePreviewCard() {
         }}
         aria-hidden
       >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/benchbuddy-lockup-white.svg"
           alt=""

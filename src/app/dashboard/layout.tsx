@@ -341,6 +341,7 @@ function SeatInfoPillDropdown({ pkg, isDark, navColor, teamAccent, onPkgUpdate }
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function MobileSeatInfoDrawer({ pkg, navColor, teamAccent, onPkgUpdate }: {
   pkg: PackageForNav;
   navColor: string;
