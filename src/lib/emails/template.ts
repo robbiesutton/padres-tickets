@@ -43,7 +43,11 @@ export function greeting(firstName: string, message: string): string {
 </table>`;
 }
 
-export function gameDetailBlock(dayStr: string, opponent: string, timeVenue: string): string {
+export function gameDetailBlock(
+  dayStr: string,
+  opponent: string,
+  timeVenue: string
+): string {
   return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:20px 0;">
   <tr><td style="border-left:3px solid #E5AB00;padding-left:16px;">
     <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">

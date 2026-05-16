@@ -34,7 +34,10 @@ export async function POST(request: NextRequest) {
 
   if (!user) {
     if (!firstName || !lastName) {
-      return jsonError('First name and last name are required for new accounts', 400);
+      return jsonError(
+        'First name and last name are required for new accounts',
+        400
+      );
     }
     user = await prisma.user.create({
       data: {
@@ -50,7 +53,11 @@ export async function POST(request: NextRequest) {
   const magicUrl = `${BASE_URL}/api/auth/magic-link/verify?token=${tokenRecord.token}`;
   const magicEmail = buildMagicLinkEmail(user.firstName, magicUrl);
 
-  await sendEmail({ to: user.email, subject: magicEmail.subject, html: magicEmail.html });
+  await sendEmail({
+    to: user.email,
+    subject: magicEmail.subject,
+    html: magicEmail.html,
+  });
 
   // Send claimer welcome email for first-time users arriving via a share link
   if (isNewUser && packageSlug) {
@@ -67,7 +74,11 @@ export async function POST(request: NextRequest) {
           shareUrl: `${BASE_URL}/share/${pkg.shareLinkSlug}`,
           claimerEmail: user.email,
         });
-        await sendEmail({ to: user.email, subject: welcome.subject, html: welcome.html });
+        await sendEmail({
+          to: user.email,
+          subject: welcome.subject,
+          html: welcome.html,
+        });
       }
     } catch (err) {
       console.error('Failed to send claimer welcome email:', err);

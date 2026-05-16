@@ -1,4 +1,10 @@
-import { emailChrome, greeting, gameDetailBlock, ctaButton, bodyText } from './template';
+import {
+  emailChrome,
+  greeting,
+  gameDetailBlock,
+  ctaButton,
+  bodyText,
+} from './template';
 
 const FONT = `-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif`;
 
@@ -14,7 +20,11 @@ interface ClaimerGameDayEmailData {
 }
 
 export function buildClaimerGameDayEmail(data: ClaimerGameDayEmailData) {
-  const seatLabel = [`Section ${data.section}`, data.row ? `Row ${data.row}` : null, data.seatNumbers ? `Seats ${data.seatNumbers}` : null]
+  const seatLabel = [
+    `Section ${data.section}`,
+    data.row ? `Row ${data.row}` : null,
+    data.seatNumbers ? `Seats ${data.seatNumbers}` : null,
+  ]
     .filter(Boolean)
     .join(', ');
 
@@ -31,7 +41,10 @@ ${gameDetailBlock(data.gameDayStr, data.opponent, data.timeVenue)}
 `;
   return {
     subject: `Today: ${data.opponent} game`,
-    html: emailChrome(body, 'BenchBuddy &middot; You&rsquo;re receiving this because you have a game today.'),
+    html: emailChrome(
+      body,
+      'BenchBuddy &middot; You&rsquo;re receiving this because you have a game today.'
+    ),
   };
 }
 
@@ -53,7 +66,10 @@ ${ctaButton(data.dashboardUrl, 'View my season')}
 `;
   return {
     subject: `Tomorrow: ${data.claimerName} is going to vs. ${data.opponent}`,
-    html: emailChrome(body, 'BenchBuddy &middot; You&rsquo;re receiving this because you have a game tomorrow.'),
+    html: emailChrome(
+      body,
+      'BenchBuddy &middot; You&rsquo;re receiving this because you have a game tomorrow.'
+    ),
   };
 }
 
@@ -66,7 +82,9 @@ interface HolderGameDayAvailableData {
   dashboardUrl: string;
 }
 
-export function buildHolderGameDayAvailableEmail(data: HolderGameDayAvailableData) {
+export function buildHolderGameDayAvailableEmail(
+  data: HolderGameDayAvailableData
+) {
   const body = `
 ${greeting(data.holderFirstName, 'Quick heads up &mdash; tomorrow&rsquo;s game is still available.')}
 ${gameDetailBlock(data.gameDayStr, data.opponent, data.timeVenue)}
@@ -75,7 +93,10 @@ ${ctaButton(data.dashboardUrl, 'View my season')}
 `;
   return {
     subject: `Tomorrow: vs. ${data.opponent} is still available`,
-    html: emailChrome(body, 'BenchBuddy &middot; You&rsquo;re receiving this because you have a game tomorrow.'),
+    html: emailChrome(
+      body,
+      'BenchBuddy &middot; You&rsquo;re receiving this because you have a game tomorrow.'
+    ),
   };
 }
 
@@ -97,7 +118,10 @@ ${gameDetailBlock(data.gameDayStr, data.opponent, data.timeVenue)}
 `;
   return {
     subject: `Tomorrow: vs. ${data.opponent}`,
-    html: emailChrome(body, 'BenchBuddy &middot; You&rsquo;re receiving this because you have a game tomorrow.'),
+    html: emailChrome(
+      body,
+      'BenchBuddy &middot; You&rsquo;re receiving this because you have a game tomorrow.'
+    ),
   };
 }
 
@@ -120,6 +144,9 @@ ${ctaButton(data.shareUrl, 'Browse available games')}
 `;
   return {
     subject: `Heads up: vs. ${data.opponent} is no longer yours`,
-    html: emailChrome(body, 'BenchBuddy &middot; You&rsquo;re receiving this because a game you claimed has been updated.'),
+    html: emailChrome(
+      body,
+      'BenchBuddy &middot; You&rsquo;re receiving this because a game you claimed has been updated.'
+    ),
   };
 }

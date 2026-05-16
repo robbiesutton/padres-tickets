@@ -14,7 +14,11 @@ const BASE_URL = process.env.NEXTAUTH_URL || 'http://localhost:3000';
 
 function formatGameDay(date: Date): string {
   return date
-    .toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+    .toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+    })
     .toUpperCase()
     .replace(',', '');
 }
@@ -51,8 +55,12 @@ export async function POST(request: NextRequest) {
       status: { in: ['CLAIMED', 'AVAILABLE', 'GOING_MYSELF'] },
     },
     include: {
-      package: { include: { user: { select: { firstName: true, email: true } } } },
-      claim: { include: { claimer: { select: { firstName: true, lastName: true } } } },
+      package: {
+        include: { user: { select: { firstName: true, email: true } } },
+      },
+      claim: {
+        include: { claimer: { select: { firstName: true, lastName: true } } },
+      },
     },
   });
 
@@ -63,7 +71,9 @@ export async function POST(request: NextRequest) {
     },
     include: {
       package: { include: { user: { select: { firstName: true } } } },
-      claim: { include: { claimer: { select: { firstName: true, email: true } } } },
+      claim: {
+        include: { claimer: { select: { firstName: true, email: true } } },
+      },
     },
   });
 
@@ -81,20 +91,53 @@ export async function POST(request: NextRequest) {
     try {
       if (game.status === 'CLAIMED' && game.claim) {
         const claimerName = `${game.claim.claimer.firstName} ${game.claim.claimer.lastName}`;
-        const email = buildHolderGameDayClaimedEmail({ holderFirstName: holder.firstName, claimerName, opponent: game.opponent, gameDayStr, timeVenue, dashboardUrl });
-        await sendEmail({ to: holder.email, subject: email.subject, html: email.html });
+        const email = buildHolderGameDayClaimedEmail({
+          holderFirstName: holder.firstName,
+          claimerName,
+          opponent: game.opponent,
+          gameDayStr,
+          timeVenue,
+          dashboardUrl,
+        });
+        await sendEmail({
+          to: holder.email,
+          subject: email.subject,
+          html: email.html,
+        });
         sent++;
       } else if (game.status === 'AVAILABLE') {
-        const email = buildHolderGameDayAvailableEmail({ holderFirstName: holder.firstName, opponent: game.opponent, gameDayStr, timeVenue, dashboardUrl });
-        await sendEmail({ to: holder.email, subject: email.subject, html: email.html });
+        const email = buildHolderGameDayAvailableEmail({
+          holderFirstName: holder.firstName,
+          opponent: game.opponent,
+          gameDayStr,
+          timeVenue,
+          dashboardUrl,
+        });
+        await sendEmail({
+          to: holder.email,
+          subject: email.subject,
+          html: email.html,
+        });
         sent++;
       } else if (game.status === 'GOING_MYSELF') {
-        const email = buildHolderGameDayGoingEmail({ holderFirstName: holder.firstName, opponent: game.opponent, gameDayStr, timeVenue });
-        await sendEmail({ to: holder.email, subject: email.subject, html: email.html });
+        const email = buildHolderGameDayGoingEmail({
+          holderFirstName: holder.firstName,
+          opponent: game.opponent,
+          gameDayStr,
+          timeVenue,
+        });
+        await sendEmail({
+          to: holder.email,
+          subject: email.subject,
+          html: email.html,
+        });
         sent++;
       }
     } catch (err) {
-      console.error(`Failed to send holder game-day email for game ${game.id}:`, err);
+      console.error(
+        `Failed to send holder game-day email for game ${game.id}:`,
+        err
+      );
     }
   }
 
@@ -108,13 +151,31 @@ export async function POST(request: NextRequest) {
     const timeVenue = formatTimeVenue(game.time, venue);
 
     try {
-      const email = buildClaimerGameDayEmail({ claimerFirstName: claimer.firstName, opponent: game.opponent, gameDayStr, timeVenue, section: pkg.section, row: pkg.row });
-      await sendEmail({ to: claimer.email, subject: email.subject, html: email.html });
+      const email = buildClaimerGameDayEmail({
+        claimerFirstName: claimer.firstName,
+        opponent: game.opponent,
+        gameDayStr,
+        timeVenue,
+        section: pkg.section,
+        row: pkg.row,
+      });
+      await sendEmail({
+        to: claimer.email,
+        subject: email.subject,
+        html: email.html,
+      });
       sent++;
     } catch (err) {
-      console.error(`Failed to send claimer game-day email for game ${game.id}:`, err);
+      console.error(
+        `Failed to send claimer game-day email for game ${game.id}:`,
+        err
+      );
     }
   }
 
-  return jsonSuccess({ tomorrowGamesChecked: tomorrowGames.length, todayGamesChecked: todayGames.length, sent });
+  return jsonSuccess({
+    tomorrowGamesChecked: tomorrowGames.length,
+    todayGamesChecked: todayGames.length,
+    sent,
+  });
 }

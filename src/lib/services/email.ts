@@ -12,7 +12,11 @@ function getUnsubscribeUrl(email: string): string {
   return `${process.env.NEXTAUTH_URL}/api/email/unsubscribe?email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`;
 }
 
-function wrapWithFooter(html: string, to: string, isMarketing: boolean): string {
+function wrapWithFooter(
+  html: string,
+  to: string,
+  isMarketing: boolean
+): string {
   // Complete HTML documents (designer templates) already include their own footer.
   if (html.trimEnd().toLowerCase().endsWith('</html>')) return html;
 
@@ -26,7 +30,12 @@ function wrapWithFooter(html: string, to: string, isMarketing: boolean): string 
   return html + footer;
 }
 
-export async function sendEmail({ to, subject, html, isMarketing = false }: SendEmailOptions) {
+export async function sendEmail({
+  to,
+  subject,
+  html,
+  isMarketing = false,
+}: SendEmailOptions) {
   const wrappedHtml = wrapWithFooter(html, to, isMarketing);
 
   if (process.env.NODE_ENV === 'production' && process.env.RESEND_API_KEY) {

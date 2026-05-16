@@ -30,7 +30,7 @@ ${ctaButton(data.shareUrl, 'See available games')}
     subject: `${data.holderFirstName} shared ${data.team} tickets with you`,
     html: emailChrome(
       body,
-      `BenchBuddy &middot; You&rsquo;re receiving this because you joined BenchBuddy through ${data.holderFirstName}&rsquo;s share link. If you didn&rsquo;t create this account, you can ignore this email.`,
+      `BenchBuddy &middot; You&rsquo;re receiving this because you joined BenchBuddy through ${data.holderFirstName}&rsquo;s share link. If you didn&rsquo;t create this account, you can ignore this email.`
     ),
   };
 }

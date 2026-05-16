@@ -8,7 +8,11 @@ const BASE_URL = process.env.NEXTAUTH_URL || 'http://localhost:3000';
 
 function formatGameDay(date: Date): string {
   return date
-    .toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+    .toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+    })
     .toUpperCase()
     .replace(',', '');
 }
@@ -52,9 +56,14 @@ export async function sendClaimNotifications(claimId: string) {
 
   const totalCount = pkg.games.length;
   const claimedCount = pkg.games.filter(
-    (g) => g.status === 'CLAIMED' || g.status === 'TRANSFERRED' || g.status === 'COMPLETE'
+    (g) =>
+      g.status === 'CLAIMED' ||
+      g.status === 'TRANSFERRED' ||
+      g.status === 'COMPLETE'
   ).length;
-  const availableCount = pkg.games.filter((g) => g.status === 'AVAILABLE').length;
+  const availableCount = pkg.games.filter(
+    (g) => g.status === 'AVAILABLE'
+  ).length;
 
   // 1. Notify holder that a game was claimed (email-3)
   try {
@@ -70,7 +79,14 @@ export async function sendClaimNotifications(claimId: string) {
       availableCount,
       dashboardUrl: `${BASE_URL}/dashboard`,
     });
-    await sendNotification(holder.id, 'TRANSFER_ACTION', holder.email, email.subject, email.html, { claimId: claim.id, gameId: game.id });
+    await sendNotification(
+      holder.id,
+      'TRANSFER_ACTION',
+      holder.email,
+      email.subject,
+      email.html,
+      { claimId: claim.id, gameId: game.id }
+    );
   } catch (error) {
     console.error('Failed to send game claimed email to holder:', error);
   }
@@ -90,7 +106,14 @@ export async function sendClaimNotifications(claimId: string) {
       pricePerTicket: game.pricePerTicket ? Number(game.pricePerTicket) : null,
       myGamesUrl: `${BASE_URL}/share/${pkg.shareLinkSlug}?tab=my-games`,
     });
-    await sendNotification(claimer.id, 'CLAIM_CREATED', claimer.email, email.subject, email.html, { claimId: claim.id, gameId: game.id });
+    await sendNotification(
+      claimer.id,
+      'CLAIM_CREATED',
+      claimer.email,
+      email.subject,
+      email.html,
+      { claimId: claim.id, gameId: game.id }
+    );
   } catch (error) {
     console.error('Failed to send claim confirmation email to claimer:', error);
   }
