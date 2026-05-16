@@ -219,8 +219,22 @@ export function GameExpansionPanel({
           </div>
           <div className="p-6 bg-background text-sm text-muted flex items-center gap-[5px]">
             <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-              <rect x="1.5" y="3" width="13" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.2" />
-              <path d="M2 4l6 4.5L14 4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+              <rect
+                x="1.5"
+                y="3"
+                width="13"
+                height="10"
+                rx="1.5"
+                stroke="currentColor"
+                strokeWidth="1.2"
+              />
+              <path
+                d="M2 4l6 4.5L14 4"
+                stroke="currentColor"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
             Seller will contact you about payment details
           </div>
@@ -230,8 +244,22 @@ export function GameExpansionPanel({
         <div className="p-8 text-center">
           <div className="mx-auto mb-3 w-10 h-10 rounded-full bg-green-light flex items-center justify-center">
             <svg width="20" height="20" viewBox="0 0 16 16" fill="none">
-              <rect x="1.5" y="3" width="13" height="10" rx="1.5" stroke="#0F6E56" strokeWidth="1.2" />
-              <path d="M2 4l6 4.5L14 4" stroke="#0F6E56" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+              <rect
+                x="1.5"
+                y="3"
+                width="13"
+                height="10"
+                rx="1.5"
+                stroke="#0F6E56"
+                strokeWidth="1.2"
+              />
+              <path
+                d="M2 4l6 4.5L14 4"
+                stroke="#0F6E56"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </div>
           <div className="text-base font-medium text-foreground mb-1">
@@ -264,26 +292,20 @@ export function GameExpansionPanel({
         <div className="grid grid-cols-2">
           <div className="p-6">
             <div className="mb-2.5">
-              <div className="text-sm text-muted mb-[3px]">
-                Date &amp; time
-              </div>
+              <div className="text-sm text-muted mb-[3px]">Date &amp; time</div>
               <div className="text-base text-foreground font-medium">
                 {dow}, {monthName} {d.getDate()}, {d.getFullYear()} &middot;{' '}
                 {formatTime(game.time)}
               </div>
             </div>
             <div className="mb-2.5">
-              <div className="text-sm text-muted mb-[3px]">
-                Location
-              </div>
+              <div className="text-sm text-muted mb-[3px]">Location</div>
               <div className="text-base text-foreground font-medium">
                 Petco Park, San Diego
               </div>
             </div>
             <div>
-              <div className="text-sm text-muted mb-[3px]">
-                Delivery
-              </div>
+              <div className="text-sm text-muted mb-[3px]">Delivery</div>
               <div className="text-base text-foreground font-medium">
                 Mobile transfer via MLB Ballpark app
               </div>
@@ -292,9 +314,7 @@ export function GameExpansionPanel({
           <div className="p-6 border-l border-border">
             {step.step === 'email' || step.step === 'sending' ? (
               <>
-                <div className="text-sm text-muted mb-[3px]">
-                  Your info
-                </div>
+                <div className="text-sm text-muted mb-[3px]">Your info</div>
                 <div className="flex gap-2 mb-2">
                   <input
                     type="text"
@@ -332,9 +352,7 @@ export function GameExpansionPanel({
               </>
             ) : (
               <>
-                <div className="text-sm text-muted mb-[3px]">
-                  Pricing
-                </div>
+                <div className="text-sm text-muted mb-[3px]">Pricing</div>
                 <div className="flex justify-between text-base text-foreground py-[3px]">
                   <span>Price per ticket</span>
                   <span>${game.pricePerTicket ?? 0}</span>
@@ -349,7 +367,11 @@ export function GameExpansionPanel({
                 </div>
                 <button
                   className="w-full mt-3 py-2.5 rounded-lg bg-navy text-white border-none text-base font-medium cursor-pointer transition-opacity hover:opacity-[0.88] disabled:opacity-50"
-                  onClick={isAuthenticated ? handleDirectClaim : () => setStep({ step: 'email' })}
+                  onClick={
+                    isAuthenticated
+                      ? handleDirectClaim
+                      : () => setStep({ step: 'email' })
+                  }
                   disabled={loading}
                 >
                   {loading ? 'Claiming...' : 'Claim this game'}

@@ -21,7 +21,10 @@ function ResetPasswordForm() {
           <p className="text-sm text-[#8e8985]">
             This link is missing or invalid. Please request a new one.
           </p>
-          <a href="/forgot-password" className="text-sm text-[#2c2a2b] font-medium underline">
+          <a
+            href="/forgot-password"
+            className="text-sm text-[#2c2a2b] font-medium underline"
+          >
             Request new link
           </a>
         </div>
@@ -49,7 +52,9 @@ function ResetPasswordForm() {
         setSuccess(true);
       } else {
         const data = await res.json();
-        setError(data.error || 'Failed to reset password. The link may have expired.');
+        setError(
+          data.error || 'Failed to reset password. The link may have expired.'
+        );
       }
     } catch {
       setError('Network error. Please try again.');
@@ -64,7 +69,13 @@ function ResetPasswordForm() {
         <div className="w-full max-w-sm space-y-6 text-center">
           <div className="mx-auto w-12 h-12 rounded-full bg-[#E1F5EE] flex items-center justify-center">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path d="M5 13l4 4L19 7" stroke="#0F6E56" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              <path
+                d="M5 13l4 4L19 7"
+                stroke="#0F6E56"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </div>
           <h1 className="text-2xl font-bold">Password reset</h1>
@@ -122,7 +133,9 @@ function ResetPasswordForm() {
                 {showPassword ? 'Hide' : 'Show'}
               </button>
             </div>
-            <p className="mt-1 text-xs text-[#8e8985]">Must be at least 8 characters</p>
+            <p className="mt-1 text-xs text-[#8e8985]">
+              Must be at least 8 characters
+            </p>
           </div>
           <button
             type="submit"

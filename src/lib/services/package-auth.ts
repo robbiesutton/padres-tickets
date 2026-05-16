@@ -42,8 +42,8 @@ export async function getUserPackagesWithRole(userId: string) {
   });
 
   return memberships
-    .filter(m => m.package.status === 'ACTIVE')
-    .map(m => ({
+    .filter((m) => m.package.status === 'ACTIVE')
+    .map((m) => ({
       id: m.package.id,
       shareLinkSlug: m.package.shareLinkSlug,
       team: m.package.team,

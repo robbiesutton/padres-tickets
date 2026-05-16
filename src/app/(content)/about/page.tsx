@@ -3,7 +3,8 @@ import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'About — BenchBuddy',
-  description: 'BenchBuddy helps season ticket holders share games with friends and family. Built by a ticket holder, for ticket holders.',
+  description:
+    'BenchBuddy helps season ticket holders share games with friends and family. Built by a ticket holder, for ticket holders.',
 };
 
 export default function AboutPage() {
@@ -34,10 +35,10 @@ export default function AboutPage() {
           </p>
 
           <p>
-            BenchBuddy fixes that. It&apos;s the coordination layer between
-            you and your people. Share a link with your circle, let them browse
-            and claim games, and BenchBuddy makes it easy — helping remind you
-            how much and who&apos;s going to anything.
+            BenchBuddy fixes that. It&apos;s the coordination layer between you
+            and your people. Share a link with your circle, let them browse and
+            claim games, and BenchBuddy makes it easy — helping remind you how
+            much and who&apos;s going to anything.
           </p>
 
           <h2 className="text-lg font-semibold text-foreground mt-8">
@@ -46,16 +47,17 @@ export default function AboutPage() {
 
           <p>
             BenchBuddy is not a ticket marketplace. We don&apos;t sell tickets,
-            process payments, or facilitate transactions with strangers. We&apos;re
-            a tool for friends sharing with friends — the way season tickets were
-            meant to work.
+            process payments, or facilitate transactions with strangers.
+            We&apos;re a tool for friends sharing with friends — the way season
+            tickets were meant to work.
           </p>
 
           <p>
             All ticket transfers happen through your team&apos;s official app
             (like the MLB Ballpark App). All payments happen directly between
-            you and the people you share with via Venmo, Zelle, or however you prefer.
-            BenchBuddy just makes sure everyone knows who&apos;s going where.
+            you and the people you share with via Venmo, Zelle, or however you
+            prefer. BenchBuddy just makes sure everyone knows who&apos;s going
+            where.
           </p>
 
           <h2 className="text-lg font-semibold text-foreground mt-8">

@@ -47,7 +47,8 @@ export async function GET(
   });
 
   if (!pkg) return jsonError('Package not found', 404);
-  if (!(await requirePackageOwner(id, user.id))) return jsonError('Forbidden', 403);
+  if (!(await requirePackageOwner(id, user.id)))
+    return jsonError('Forbidden', 403);
 
   // Remap CLAIMED → GOING_MYSELF when the claimer is the holder
   const holderEmail = user.email;
@@ -82,7 +83,8 @@ export async function PUT(
 
   const pkg = await prisma.package.findUnique({ where: { id } });
   if (!pkg) return jsonError('Package not found', 404);
-  if (!(await requirePackageOwner(id, user.id))) return jsonError('Forbidden', 403);
+  if (!(await requirePackageOwner(id, user.id)))
+    return jsonError('Forbidden', 403);
 
   const body = await request.json();
   const {
@@ -111,7 +113,8 @@ export async function PUT(
       : null;
   }
   if (status !== undefined) updateData.status = status;
-  if (seatPhotoUrl !== undefined) updateData.seatPhotoUrl = seatPhotoUrl || null;
+  if (seatPhotoUrl !== undefined)
+    updateData.seatPhotoUrl = seatPhotoUrl || null;
   if (description !== undefined) updateData.description = description || null;
   if (perks !== undefined) updateData.perks = Array.isArray(perks) ? perks : [];
 
@@ -145,7 +148,8 @@ export async function DELETE(
 
   const pkg = await prisma.package.findUnique({ where: { id } });
   if (!pkg) return jsonError('Package not found', 404);
-  if (!(await requirePackageOwner(id, user.id))) return jsonError('Forbidden', 403);
+  if (!(await requirePackageOwner(id, user.id)))
+    return jsonError('Forbidden', 403);
 
   // Cascade deletes games and claims via Prisma schema
   await prisma.package.delete({ where: { id } });

@@ -11,7 +11,8 @@ import {
 } from '@/components/setup-layout';
 import { AuthFormSkeleton } from '@/components/skeleton';
 
-const inputClass = "block w-full h-12 px-4 bg-white border-[1.5px] border-[#eceae5] rounded-lg text-base font-medium text-[#1a1a1a] outline-none transition-all hover:border-[#b5b1ab] focus:border-[#2c2a2b] focus:ring-[3px] focus:ring-[#2c2a2b]/10";
+const inputClass =
+  'block w-full h-12 px-4 bg-white border-[1.5px] border-[#eceae5] rounded-lg text-base font-medium text-[#1a1a1a] outline-none transition-all hover:border-[#b5b1ab] focus:border-[#2c2a2b] focus:ring-[3px] focus:ring-[#2c2a2b]/10';
 
 function LoginForm() {
   const router = useRouter();
@@ -23,12 +24,25 @@ function LoginForm() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault(); setError(''); setLoading(true);
-    const result = await signIn('credentials', { email, password, redirect: false });
-    if (result?.error) { setLoading(false); setError('Invalid email or password'); return; }
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    const result = await signIn('credentials', {
+      email,
+      password,
+      redirect: false,
+    });
+    if (result?.error) {
+      setLoading(false);
+      setError('Invalid email or password');
+      return;
+    }
 
     // If there's an explicit redirect target, use it
-    if (from) { router.push(from.startsWith('/') ? from : `/share/${from}`); return; }
+    if (from) {
+      router.push(from.startsWith('/') ? from : `/share/${from}`);
+      return;
+    }
 
     // Send all users to dashboard — it handles role-based routing
     router.push('/dashboard');
@@ -37,10 +51,21 @@ function LoginForm() {
   return (
     <SetupLayout showSidebar={false}>
       <button
-        onClick={() => { window.location.href = '/'; }}
+        onClick={() => {
+          window.location.href = '/';
+        }}
         className="fixed top-6 left-6 flex items-center gap-1.5 text-sm font-medium text-[#8e8985] hover:text-[#2c2a2b] bg-transparent border-none cursor-pointer transition-colors z-10"
       >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <path d="M15 18l-6-6 6-6" />
         </svg>
         Back
@@ -52,22 +77,48 @@ function LoginForm() {
         </div>
 
         {error && (
-          <div data-testid="login-error" className="rounded-lg bg-[#FEE2E2] text-[#DC2626] px-4 py-3 text-sm font-medium mb-4">
+          <div
+            data-testid="login-error"
+            className="rounded-lg bg-[#FEE2E2] text-[#DC2626] px-4 py-3 text-sm font-medium mb-4"
+          >
             {error}
-            {error.includes('sign up') && <a href="/signup" className="ml-1 font-medium underline">Sign up</a>}
+            {error.includes('sign up') && (
+              <a href="/signup" className="ml-1 font-medium underline">
+                Sign up
+              </a>
+            )}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
             <FormLabel>Email</FormLabel>
-            <input data-testid="login-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass} autoFocus />
+            <input
+              data-testid="login-email"
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={inputClass}
+              autoFocus
+            />
           </div>
           <div>
             <FormLabel>Password</FormLabel>
             <div className="relative">
-              <input data-testid="login-password" type={showPassword ? 'text' : 'password'} required value={password} onChange={(e) => setPassword(e.target.value)} className={`${inputClass} pr-16`} />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[13px] font-medium text-[#8e8985] hover:text-[#2c2a2b] bg-transparent border-none cursor-pointer">
+              <input
+                data-testid="login-password"
+                type={showPassword ? 'text' : 'password'}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className={`${inputClass} pr-16`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[13px] font-medium text-[#8e8985] hover:text-[#2c2a2b] bg-transparent border-none cursor-pointer"
+              >
                 {showPassword ? 'Hide' : 'Show'}
               </button>
             </div>
@@ -83,9 +134,18 @@ function LoginForm() {
         </form>
 
         <div className="flex flex-col gap-2 text-center text-sm mt-8">
-          <a data-testid="forgot-password-link" href="/forgot-password" className="text-[#8e8985] underline">Forgot password?</a>
+          <a
+            data-testid="forgot-password-link"
+            href="/forgot-password"
+            className="text-[#8e8985] underline"
+          >
+            Forgot password?
+          </a>
           <p className="text-[#8e8985]">
-            Don&apos;t have an account? <a href="/signup" className="text-[#8e8985] underline">Sign up</a>
+            Don&apos;t have an account?{' '}
+            <a href="/signup" className="text-[#8e8985] underline">
+              Sign up
+            </a>
           </p>
         </div>
       </div>

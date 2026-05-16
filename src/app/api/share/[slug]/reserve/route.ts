@@ -40,7 +40,13 @@ export async function POST(
   // Verify game belongs to this package and is available
   const game = await prisma.game.findUnique({
     where: { id: gameId },
-    select: { packageId: true, status: true, opponent: true, date: true, time: true },
+    select: {
+      packageId: true,
+      status: true,
+      opponent: true,
+      date: true,
+      time: true,
+    },
   });
 
   if (!game || game.packageId !== pkg.id) {

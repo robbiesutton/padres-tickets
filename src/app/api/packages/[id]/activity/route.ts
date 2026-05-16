@@ -9,7 +9,10 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   if (DESIGN_MODE) {
-    return jsonSuccess({ activities: mockActivities, total: mockActivities.length });
+    return jsonSuccess({
+      activities: mockActivities,
+      total: mockActivities.length,
+    });
   }
 
   const user = await requireAuth();
@@ -19,7 +22,8 @@ export async function GET(
 
   const pkg = await prisma.package.findUnique({ where: { id } });
   if (!pkg) return jsonError('Package not found', 404);
-  if (!(await requirePackageOwner(id, user.id))) return jsonError('Forbidden', 403);
+  if (!(await requirePackageOwner(id, user.id)))
+    return jsonError('Forbidden', 403);
 
   const limit = parseInt(request.nextUrl.searchParams.get('limit') || '20', 10);
   const offset = parseInt(

@@ -1,7 +1,12 @@
 'use client';
 
 import type { CalendarMonth, CalendarCell } from '../types';
-import { DAY_LABELS, getOpponentAbbr, getOpponentColor, isGameClaimed } from '../utils';
+import {
+  DAY_LABELS,
+  getOpponentAbbr,
+  getOpponentColor,
+  isGameClaimed,
+} from '../utils';
 
 interface Props {
   month: CalendarMonth;
@@ -108,11 +113,7 @@ export function CalendarGrid({
           }
 
           return (
-            <div
-              key={day}
-              className={cellClass}
-              onClick={handleClick}
-            >
+            <div key={day} className={cellClass} onClick={handleClick}>
               {isReserved ? (
                 <>
                   {/* Reserved default: green filled circle with white check */}
@@ -134,9 +135,13 @@ export function CalendarGrid({
                     className={`w-[34px] h-[34px] md:w-[42px] md:h-[42px] rounded-full flex items-center justify-center text-[11px] md:text-[13px] font-bold group-hover:hidden ${
                       isTaken || dimmed ? 'opacity-[0.12]' : ''
                     } ${isSelected ? 'text-[#1a1a1a]' : 'text-white'}`}
-                    style={isSelected
-                      ? { border: `2px solid ${color}`, backgroundColor: 'transparent' }
-                      : { backgroundColor: color }
+                    style={
+                      isSelected
+                        ? {
+                            border: `2px solid ${color}`,
+                            backgroundColor: 'transparent',
+                          }
+                        : { backgroundColor: color }
                     }
                   >
                     {abbr}

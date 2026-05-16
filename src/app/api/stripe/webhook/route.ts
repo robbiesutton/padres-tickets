@@ -46,7 +46,9 @@ export async function POST(request: NextRequest) {
           stripePriceId: subscription.items.data[0]?.price.id,
           status: subscription.status === 'trialing' ? 'TRIALING' : 'ACTIVE',
           billingCycle: 'ANNUAL',
-          currentPeriodEnd: new Date(subscription.items.data[0].current_period_end * 1000),
+          currentPeriodEnd: new Date(
+            subscription.items.data[0].current_period_end * 1000
+          ),
           trialEnd: subscription.trial_end
             ? new Date(subscription.trial_end * 1000)
             : null,
@@ -59,7 +61,9 @@ export async function POST(request: NextRequest) {
           stripePriceId: subscription.items.data[0]?.price.id,
           status: subscription.status === 'trialing' ? 'TRIALING' : 'ACTIVE',
           billingCycle: 'ANNUAL',
-          currentPeriodEnd: new Date(subscription.items.data[0].current_period_end * 1000),
+          currentPeriodEnd: new Date(
+            subscription.items.data[0].current_period_end * 1000
+          ),
           trialEnd: subscription.trial_end
             ? new Date(subscription.trial_end * 1000)
             : null,
@@ -76,7 +80,10 @@ export async function POST(request: NextRequest) {
       });
       if (!existing) break;
 
-      const statusMap: Record<string, 'ACTIVE' | 'TRIALING' | 'CANCELLED' | 'PAST_DUE'> = {
+      const statusMap: Record<
+        string,
+        'ACTIVE' | 'TRIALING' | 'CANCELLED' | 'PAST_DUE'
+      > = {
         active: 'ACTIVE',
         trialing: 'TRIALING',
         past_due: 'PAST_DUE',
@@ -88,7 +95,9 @@ export async function POST(request: NextRequest) {
         where: { stripeSubscriptionId: subscription.id },
         data: {
           status: statusMap[subscription.status] || 'ACTIVE',
-          currentPeriodEnd: new Date(subscription.items.data[0].current_period_end * 1000),
+          currentPeriodEnd: new Date(
+            subscription.items.data[0].current_period_end * 1000
+          ),
           cancelAtPeriodEnd: subscription.cancel_at_period_end,
           trialEnd: subscription.trial_end
             ? new Date(subscription.trial_end * 1000)

@@ -13,7 +13,8 @@ export async function GET(
   const { id } = await params;
   const pkg = await prisma.package.findUnique({ where: { id } });
   if (!pkg) return jsonError('Package not found', 404);
-  if (!(await requirePackageOwner(id, user.id))) return jsonError('Forbidden', 403);
+  if (!(await requirePackageOwner(id, user.id)))
+    return jsonError('Forbidden', 403);
 
   const searchParams = request.nextUrl.searchParams;
   const status = searchParams.get('status');
@@ -50,7 +51,8 @@ export async function POST(
   const { id } = await params;
   const pkg = await prisma.package.findUnique({ where: { id } });
   if (!pkg) return jsonError('Package not found', 404);
-  if (!(await requirePackageOwner(id, user.id))) return jsonError('Forbidden', 403);
+  if (!(await requirePackageOwner(id, user.id)))
+    return jsonError('Forbidden', 403);
 
   const body = await request.json();
   const { date, time, opponent, pricePerTicket, status, notes } = body;

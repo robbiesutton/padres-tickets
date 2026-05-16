@@ -44,7 +44,12 @@ export async function createClaim(
 
       // Check membership to determine if this is a self-claim by the owner
       const membership = await tx.packageMember.findUnique({
-        where: { packageId_userId: { packageId: game.packageId, userId: claimerUserId } },
+        where: {
+          packageId_userId: {
+            packageId: game.packageId,
+            userId: claimerUserId,
+          },
+        },
       });
       if (membership?.revokedAt) throw new Error('Access revoked');
       const isOwner = membership && isOwnerRole(membership.role);
@@ -59,7 +64,8 @@ export async function createClaim(
       }
 
       // Determine payment status based on price
-      const isFree = isOwner || !game.pricePerTicket || Number(game.pricePerTicket) === 0;
+      const isFree =
+        isOwner || !game.pricePerTicket || Number(game.pricePerTicket) === 0;
       const paymentStatus = isFree ? 'WAIVED' : 'UNPAID';
 
       // Create the claim
@@ -106,7 +112,9 @@ export async function createClaim(
           include: {
             package: { select: { id: true } },
             claim: {
-              include: { claimer: { select: { firstName: true, lastName: true } } },
+              include: {
+                claimer: { select: { firstName: true, lastName: true } },
+              },
             },
           },
         });
@@ -122,7 +130,9 @@ export async function createClaim(
             { gameId, claimId: result.claim.id } as Prisma.InputJsonValue
           );
         }
-      } catch { /* best-effort */ }
+      } catch {
+        /* best-effort */
+      }
     })();
 
     // Send claim notification emails only for non-holder claims
@@ -210,7 +220,9 @@ export async function releaseClaim(
             { gameId: txResult.gameId, claimId } as Prisma.InputJsonValue
           );
         }
-      } catch { /* best-effort */ }
+      } catch {
+        /* best-effort */
+      }
     })();
 
     return { success: true };

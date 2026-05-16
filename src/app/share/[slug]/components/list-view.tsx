@@ -34,12 +34,18 @@ export function ListView({
     if (cancelledGameIds.has(g.id)) return false;
     // Show games the user has claimed (optimistic or from SSR)
     if (reservedGames.has(g.id)) return true;
-    if (g.claim?.claimerUserId === currentUserId && g.claim?.status !== 'RELEASED') return true;
+    if (
+      g.claim?.claimerUserId === currentUserId &&
+      g.claim?.status !== 'RELEASED'
+    )
+      return true;
     return false;
   });
   const grouped = groupGamesByMonth(visibleGames);
   const { primary: teamPrimary } = getTeamColors(pkg.team);
-  const selectedGame = selectedGameId ? visibleGames.find(g => g.id === selectedGameId) : null;
+  const selectedGame = selectedGameId
+    ? visibleGames.find((g) => g.id === selectedGameId)
+    : null;
 
   async function handleReserve(gameId: string) {
     // Optimistic update — flip UI to claimed state immediately
@@ -84,13 +90,17 @@ export function ListView({
           {/* Month header */}
           <div className="flex items-center gap-2 mb-4">
             <div className="flex items-center gap-2 pl-1">
-              <div className="w-[3px] h-4 rounded-sm" style={{ backgroundColor: getTeamColors(pkg.team).accent }} />
+              <div
+                className="w-[3px] h-4 rounded-sm"
+                style={{ backgroundColor: getTeamColors(pkg.team).accent }}
+              />
               <span className="text-xl font-semibold text-black">
                 {monthLabel}
               </span>
             </div>
             <span className="text-sm font-medium text-[#8e8985] leading-5">
-              &bull; {monthGames.length} game{monthGames.length !== 1 ? 's' : ''}
+              &bull; {monthGames.length} game
+              {monthGames.length !== 1 ? 's' : ''}
             </span>
           </div>
 
@@ -98,11 +108,13 @@ export function ListView({
           <div className="flex flex-col gap-2">
             {monthGames.map((game) => {
               const isCancelled = cancelledGameIds.has(game.id);
-              const isReservedByMe = !isCancelled && (
-                reservedGames.has(game.id) ||
-                (game.claim?.claimerUserId === currentUserId && game.claim?.status !== 'RELEASED')
-              );
-              const isTakenByOthers = !isReservedByMe && !isCancelled && !!game.claim;
+              const isReservedByMe =
+                !isCancelled &&
+                (reservedGames.has(game.id) ||
+                  (game.claim?.claimerUserId === currentUserId &&
+                    game.claim?.status !== 'RELEASED'));
+              const isTakenByOthers =
+                !isReservedByMe && !isCancelled && !!game.claim;
 
               return (
                 <GameCard
@@ -128,7 +140,16 @@ export function ListView({
           className="flex items-center gap-1.5 text-sm font-medium text-[#8e8985] bg-transparent border-none cursor-pointer active:text-[#2c2a2b] transition-colors"
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <path d="M18 15l-6-6-6 6" />
           </svg>
           Back to top

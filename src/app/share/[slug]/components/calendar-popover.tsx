@@ -3,11 +3,7 @@
 import { useRef, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { Game, PackageInfo } from '../types';
-import {
-  getOpponentAbbr,
-  getOpponentColor,
-  formatTime,
-} from '../utils';
+import { getOpponentAbbr, getOpponentColor, formatTime } from '../utils';
 import { getTeamColors } from '../team-colors';
 
 interface Props {
@@ -56,7 +52,6 @@ export function CalendarPopover({
     return () => document.removeEventListener('keydown', handleEsc);
   }, [onClose]);
 
-
   const abbr = getOpponentAbbr(game.opponent);
   const color = getOpponentColor(game.opponent);
   const { primary: teamPrimary } = getTeamColors(pkg.team);
@@ -66,7 +61,9 @@ export function CalendarPopover({
   // Position for desktop popover (only when anchor rects available)
   const hasPosition = anchorRect && containerRect;
   const popoverWidth = 300;
-  const cellCenterY = hasPosition ? anchorRect.top - containerRect.top + anchorRect.height / 2 : 0;
+  const cellCenterY = hasPosition
+    ? anchorRect.top - containerRect.top + anchorRect.height / 2
+    : 0;
   const cellRight = hasPosition ? anchorRect.right - containerRect.left : 0;
   const cellLeft = hasPosition ? anchorRect.left - containerRect.left : 0;
   const containerWidth = hasPosition ? containerRect.width : 0;
@@ -112,7 +109,12 @@ export function CalendarPopover({
               vs {game.opponent}
             </div>
             <div className="text-sm font-medium text-[#8e8985]">
-              {new Date(game.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+              {new Date(game.date).toLocaleDateString('en-US', {
+                weekday: 'long',
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric',
+              })}
             </div>
           </div>
         </div>
@@ -121,8 +123,18 @@ export function CalendarPopover({
           onClick={onClose}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path d="M18 6L6 18" stroke="#8e8985" strokeWidth="2" strokeLinecap="round" />
-            <path d="M6 6l12 12" stroke="#8e8985" strokeWidth="2" strokeLinecap="round" />
+            <path
+              d="M18 6L6 18"
+              stroke="#8e8985"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+            <path
+              d="M6 6l12 12"
+              stroke="#8e8985"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
           </svg>
         </button>
       </div>
@@ -138,10 +150,13 @@ export function CalendarPopover({
             </div>
             {totalPrice !== null && (
               <div className="text-[#2c2a2b] font-medium">
-                {pkg.seatCount} ticket{pkg.seatCount !== 1 ? 's' : ''} · ${totalPrice} total
+                {pkg.seatCount} ticket{pkg.seatCount !== 1 ? 's' : ''} · $
+                {totalPrice} total
               </div>
             )}
-            <div className="md:hidden">{pkg.holderName}&apos;s Season Tickets</div>
+            <div className="md:hidden">
+              {pkg.holderName}&apos;s Season Tickets
+            </div>
           </div>
 
           <button
@@ -163,10 +178,13 @@ export function CalendarPopover({
             </div>
             {totalPrice !== null && (
               <div className="text-[#2c2a2b] font-medium">
-                {pkg.seatCount} ticket{pkg.seatCount !== 1 ? 's' : ''} · ${totalPrice} total
+                {pkg.seatCount} ticket{pkg.seatCount !== 1 ? 's' : ''} · $
+                {totalPrice} total
               </div>
             )}
-            <div className="md:hidden">{pkg.holderName}&apos;s Season Tickets</div>
+            <div className="md:hidden">
+              {pkg.holderName}&apos;s Season Tickets
+            </div>
           </div>
 
           <button
@@ -187,9 +205,7 @@ export function CalendarPopover({
       <div className="absolute inset-0 bg-black/30" onClick={onClose} />
       <div
         ref={popoverRef}
-        className={`absolute bottom-0 left-0 right-0 rounded-t-2xl shadow-[0_-8px_30px_rgba(0,0,0,0.12)] animate-slide-up ${
-          'bg-white'
-        }`}
+        className={`absolute bottom-0 left-0 right-0 rounded-t-2xl shadow-[0_-8px_30px_rgba(0,0,0,0.12)] animate-slide-up ${'bg-white'}`}
       >
         {popoverContent}
       </div>

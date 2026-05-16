@@ -24,7 +24,14 @@ function letterRows(start: string, end: string): string[] {
   return rows;
 }
 
-function _sections(prefix: string, start: number, end: number, level: string, rows: string[], tags?: string[]): StadiumSection[] {
+function _sections(
+  prefix: string,
+  start: number,
+  end: number,
+  level: string,
+  rows: string[],
+  tags?: string[]
+): StadiumSection[] {
   return Array.from({ length: end - start + 1 }, (_, i) => ({
     id: `${prefix}${start + i}`,
     name: `Section ${prefix}${start + i}`,
@@ -34,7 +41,13 @@ function _sections(prefix: string, start: number, end: number, level: string, ro
   }));
 }
 
-function sectionsNoPrefix(start: number, end: number, level: string, rows: string[], tags?: string[]): StadiumSection[] {
+function sectionsNoPrefix(
+  start: number,
+  end: number,
+  level: string,
+  rows: string[],
+  tags?: string[]
+): StadiumSection[] {
   return Array.from({ length: end - start + 1 }, (_, i) => ({
     id: String(start + i),
     name: `Section ${start + i}`,
@@ -73,13 +86,27 @@ const fenwayPark: StadiumSeating = {
     // Loge Box - sections 98-165 (rows AA-RR, ~18 rows)
     ...sectionsNoPrefix(98, 165, 'Loge Box', numRows(1, 18)),
     // Grandstand - sections 1-33 (rows 1-18)
-    ...sectionsNoPrefix(1, 33, 'Grandstand', numRows(1, 18)).map(s => ({ ...s, id: `GS${s.id}`, name: `Grandstand ${s.id}` })),
+    ...sectionsNoPrefix(1, 33, 'Grandstand', numRows(1, 18)).map((s) => ({
+      ...s,
+      id: `GS${s.id}`,
+      name: `Grandstand ${s.id}`,
+    })),
     // Bleachers - sections 34-43 (rows 1-40)
     ...sectionsNoPrefix(34, 43, 'Bleachers', numRows(1, 40)),
     // Right Field Roof Box / Pavilion
-    { id: 'RFRB', name: 'Right Field Roof Box', level: 'Right Field Roof', rows: numRows(1, 5) },
+    {
+      id: 'RFRB',
+      name: 'Right Field Roof Box',
+      level: 'Right Field Roof',
+      rows: numRows(1, 5),
+    },
     { id: 'PVL', name: 'Pavilion Box', level: 'Pavilion', rows: numRows(1, 7) },
-    { id: 'PVLR', name: 'Pavilion Reserved', level: 'Pavilion', rows: numRows(1, 7) },
+    {
+      id: 'PVLR',
+      name: 'Pavilion Reserved',
+      level: 'Pavilion',
+      rows: numRows(1, 7),
+    },
   ],
 };
 
@@ -111,7 +138,12 @@ const tropicanaField: StadiumSeating = {
     // 300 Level - sections 300-324
     ...sectionsNoPrefix(300, 324, 'Upper Level', numRows(1, 26)),
     // Standing Room
-    { id: 'SRO', name: 'Standing Room Only', level: 'Standing Room', rows: ['SRO'] },
+    {
+      id: 'SRO',
+      name: 'Standing Room Only',
+      level: 'Standing Room',
+      rows: ['SRO'],
+    },
   ],
 };
 
@@ -121,7 +153,9 @@ const rogersCentre: StadiumSeating = {
     // 100 Level - Field Level infield 108-141, outfield 101-107 & 142-148
     ...sectionsNoPrefix(101, 148, 'Field Level', numRows(1, 30)),
     // Premium field sections 1-5, 16-19, 21-26, 29-32
-    ...sectionsNoPrefix(1, 32, 'Field Level - Premium', numRows(1, 15), ['Premium']),
+    ...sectionsNoPrefix(1, 32, 'Field Level - Premium', numRows(1, 15), [
+      'Premium',
+    ]),
     // 200 Level - sections 204-244 (infield 220-228, corners 218-219 & 229-230, ends 204-211 & 237-244)
     ...sectionsNoPrefix(204, 244, 'Club Level', numRows(1, 12)),
     // 500 Level - sections 504-544 (center 521-527, corners 515-519 & 528-533, ends 504-514 & 534-544)
@@ -205,13 +239,55 @@ const minuteMaidPark: StadiumSeating = {
   venue: 'Minute Maid Park',
   sections: [
     // Diamond Club - sections AA, A-F (behind home plate, premium)
-    { id: 'AA', name: 'Diamond Club AA', level: 'Diamond Club', rows: numRows(1, 9), tags: ['Premium'] },
-    { id: 'A', name: 'Diamond Club A', level: 'Diamond Club', rows: numRows(1, 9), tags: ['Premium'] },
-    { id: 'B', name: 'Diamond Club B', level: 'Diamond Club', rows: numRows(1, 9), tags: ['Premium'] },
-    { id: 'C', name: 'Diamond Club C', level: 'Diamond Club', rows: numRows(1, 9), tags: ['Premium'] },
-    { id: 'D', name: 'Diamond Club D', level: 'Diamond Club', rows: numRows(1, 9), tags: ['Premium'] },
-    { id: 'E', name: 'Diamond Club E', level: 'Diamond Club', rows: numRows(1, 9), tags: ['Premium'] },
-    { id: 'F', name: 'Diamond Club F', level: 'Diamond Club', rows: numRows(1, 9), tags: ['Premium'] },
+    {
+      id: 'AA',
+      name: 'Diamond Club AA',
+      level: 'Diamond Club',
+      rows: numRows(1, 9),
+      tags: ['Premium'],
+    },
+    {
+      id: 'A',
+      name: 'Diamond Club A',
+      level: 'Diamond Club',
+      rows: numRows(1, 9),
+      tags: ['Premium'],
+    },
+    {
+      id: 'B',
+      name: 'Diamond Club B',
+      level: 'Diamond Club',
+      rows: numRows(1, 9),
+      tags: ['Premium'],
+    },
+    {
+      id: 'C',
+      name: 'Diamond Club C',
+      level: 'Diamond Club',
+      rows: numRows(1, 9),
+      tags: ['Premium'],
+    },
+    {
+      id: 'D',
+      name: 'Diamond Club D',
+      level: 'Diamond Club',
+      rows: numRows(1, 9),
+      tags: ['Premium'],
+    },
+    {
+      id: 'E',
+      name: 'Diamond Club E',
+      level: 'Diamond Club',
+      rows: numRows(1, 9),
+      tags: ['Premium'],
+    },
+    {
+      id: 'F',
+      name: 'Diamond Club F',
+      level: 'Diamond Club',
+      rows: numRows(1, 9),
+      tags: ['Premium'],
+    },
     // Field Level (100s) - left field 105-116, behind plate 118-120, right field 122-134, outfield 100-104 & 150-156
     ...sectionsNoPrefix(100, 156, 'Field Level', numRows(1, 40)),
     // Insperity Club - sections 70-75 (back of lower level behind plate)
@@ -247,7 +323,13 @@ const sutterHealthPark: StadiumSeating = {
     // Club Level (200s) - sections 201-206 (Solon Club, right field)
     ...sectionsNoPrefix(201, 206, 'Club Level', numRows(1, 10), ['Premium']),
     // Dugout Club (behind plate, sections 108-116)
-    { id: 'DC', name: 'Dugout Club', level: 'Dugout Club', rows: numRows(1, 5), tags: ['Premium'] },
+    {
+      id: 'DC',
+      name: 'Dugout Club',
+      level: 'Dugout Club',
+      rows: numRows(1, 5),
+      tags: ['Premium'],
+    },
   ],
 };
 
@@ -261,8 +343,18 @@ const tMobilePark: StadiumSeating = {
     // Upper Level (300s) - center 320-340, corners 306-319 & 341-347
     ...sectionsNoPrefix(306, 347, 'Upper Level', numRows(1, 29)),
     // Bleachers (above left field and below center field scoreboard)
-    { id: 'LFB', name: 'Left Field Bleachers', level: 'Bleachers', rows: numRows(1, 20) },
-    { id: 'CFB', name: 'Center Field Bleachers', level: 'Bleachers', rows: numRows(1, 20) },
+    {
+      id: 'LFB',
+      name: 'Left Field Bleachers',
+      level: 'Bleachers',
+      rows: numRows(1, 20),
+    },
+    {
+      id: 'CFB',
+      name: 'Center Field Bleachers',
+      level: 'Bleachers',
+      rows: numRows(1, 20),
+    },
   ],
 };
 
@@ -272,10 +364,34 @@ const globeLifeField: StadiumSeating = {
     // Field Level - sections 1-25 (single/double digit, 16 rows typical)
     ...sectionsNoPrefix(1, 25, 'Field Level', numRows(1, 20), ['Field Level']),
     // Sky Boxes - SB1-SB4 (left field foul territory)
-    { id: 'SB1', name: 'Sky Box 1', level: 'Sky Box', rows: numRows(1, 3), tags: ['Premium'] },
-    { id: 'SB2', name: 'Sky Box 2', level: 'Sky Box', rows: numRows(1, 3), tags: ['Premium'] },
-    { id: 'SB3', name: 'Sky Box 3', level: 'Sky Box', rows: numRows(1, 3), tags: ['Premium'] },
-    { id: 'SB4', name: 'Sky Box 4', level: 'Sky Box', rows: numRows(1, 3), tags: ['Premium'] },
+    {
+      id: 'SB1',
+      name: 'Sky Box 1',
+      level: 'Sky Box',
+      rows: numRows(1, 3),
+      tags: ['Premium'],
+    },
+    {
+      id: 'SB2',
+      name: 'Sky Box 2',
+      level: 'Sky Box',
+      rows: numRows(1, 3),
+      tags: ['Premium'],
+    },
+    {
+      id: 'SB3',
+      name: 'Sky Box 3',
+      level: 'Sky Box',
+      rows: numRows(1, 3),
+      tags: ['Premium'],
+    },
+    {
+      id: 'SB4',
+      name: 'Sky Box 4',
+      level: 'Sky Box',
+      rows: numRows(1, 3),
+      tags: ['Premium'],
+    },
     // Mezzanine Level (100s) - center 112-115, ends 107-111 & 116-120, corners 101-106 & 121-134
     ...sectionsNoPrefix(101, 134, 'Mezzanine Level', numRows(1, 20)),
     // Pavilion Level (200s) - center 212-222, corners 201-211 & 223-244
@@ -323,7 +439,9 @@ const citiField: StadiumSeating = {
   venue: 'Citi Field',
   sections: [
     // Delta Sky360 Club (sections 11-19, rows 1-20)
-    ...sectionsNoPrefix(11, 19, 'Delta Sky360 Club', numRows(1, 20), ['Premium']),
+    ...sectionsNoPrefix(11, 19, 'Delta Sky360 Club', numRows(1, 20), [
+      'Premium',
+    ]),
     // Field Level - end sections (106-114, rows 1-31)
     ...sectionsNoPrefix(106, 114, 'Field Level', numRows(1, 31)),
     // Field Level - corner/outfield sections (120-143, rows 1-33)
@@ -343,13 +461,55 @@ const citizensBankPark: StadiumSeating = {
   venue: 'Citizens Bank Park',
   sections: [
     // Diamond Club (sections A-G, rows 1-19)
-    { id: 'A', name: 'Diamond Club A', level: 'Diamond Club', rows: numRows(1, 19), tags: ['Premium'] },
-    { id: 'B', name: 'Diamond Club B', level: 'Diamond Club', rows: numRows(1, 19), tags: ['Premium'] },
-    { id: 'C', name: 'Diamond Club C', level: 'Diamond Club', rows: numRows(1, 19), tags: ['Premium'] },
-    { id: 'D', name: 'Diamond Club D', level: 'Diamond Club', rows: numRows(1, 19), tags: ['Premium'] },
-    { id: 'E', name: 'Diamond Club E', level: 'Diamond Club', rows: numRows(1, 19), tags: ['Premium'] },
-    { id: 'F', name: 'Diamond Club F', level: 'Diamond Club', rows: numRows(1, 19), tags: ['Premium'] },
-    { id: 'G', name: 'Diamond Club G', level: 'Diamond Club', rows: numRows(1, 19), tags: ['Premium'] },
+    {
+      id: 'A',
+      name: 'Diamond Club A',
+      level: 'Diamond Club',
+      rows: numRows(1, 19),
+      tags: ['Premium'],
+    },
+    {
+      id: 'B',
+      name: 'Diamond Club B',
+      level: 'Diamond Club',
+      rows: numRows(1, 19),
+      tags: ['Premium'],
+    },
+    {
+      id: 'C',
+      name: 'Diamond Club C',
+      level: 'Diamond Club',
+      rows: numRows(1, 19),
+      tags: ['Premium'],
+    },
+    {
+      id: 'D',
+      name: 'Diamond Club D',
+      level: 'Diamond Club',
+      rows: numRows(1, 19),
+      tags: ['Premium'],
+    },
+    {
+      id: 'E',
+      name: 'Diamond Club E',
+      level: 'Diamond Club',
+      rows: numRows(1, 19),
+      tags: ['Premium'],
+    },
+    {
+      id: 'F',
+      name: 'Diamond Club F',
+      level: 'Diamond Club',
+      rows: numRows(1, 19),
+      tags: ['Premium'],
+    },
+    {
+      id: 'G',
+      name: 'Diamond Club G',
+      level: 'Diamond Club',
+      rows: numRows(1, 19),
+      tags: ['Premium'],
+    },
     // Field Level (sections 101-145, rows 1-36)
     ...sectionsNoPrefix(101, 145, 'Field Level', numRows(1, 36)),
     // Hall of Fame Club (sections 206-237, rows 1-10)
@@ -400,7 +560,9 @@ const greatAmericanBallPark: StadiumSeating = {
   venue: 'Great American Ball Park',
   sections: [
     // Diamond Seats (sections 1-5, rows A-I)
-    ...sectionsNoPrefix(1, 5, 'Diamond Seats', letterRows('A', 'I'), ['Premium']),
+    ...sectionsNoPrefix(1, 5, 'Diamond Seats', letterRows('A', 'I'), [
+      'Premium',
+    ]),
     // Sun/Moon Deck premium (sections 22-25)
     ...sectionsNoPrefix(22, 25, 'Sun/Moon Deck', numRows(1, 10), ['Premium']),
     // Lower Level (sections 101-146, rows A-Z + AA-KK)
@@ -496,7 +658,7 @@ const dodgerStadium: StadiumSeating = {
     ...sectionsNoPrefix(101, 170, 'Loge Level', numRows(1, 12)),
     ...sectionsNoPrefix(201, 260, 'Club Level', numRows(1, 8)),
     ...sectionsNoPrefix(301, 315, 'Reserve Level', numRows(1, 25)),
-    ...sectionsNoPrefix(1, 60, 'Top Deck', numRows(1, 20)).map(s => ({
+    ...sectionsNoPrefix(1, 60, 'Top Deck', numRows(1, 20)).map((s) => ({
       ...s,
       id: `TD${s.id}`,
       name: `Top Deck ${s.id.replace('TD', '')}`,
@@ -508,12 +670,31 @@ const dodgerStadium: StadiumSeating = {
 const petcoPark: StadiumSeating = {
   venue: 'Petco Park',
   sections: [
-    ...sectionsNoPrefix(101, 132, 'Field Level', numRows(1, 30), ['Field Level']),
-    ...sectionsNoPrefix(200, 230, 'Toyota Terrace', numRows(1, 8), ['Club Access']),
+    ...sectionsNoPrefix(101, 132, 'Field Level', numRows(1, 30), [
+      'Field Level',
+    ]),
+    ...sectionsNoPrefix(200, 230, 'Toyota Terrace', numRows(1, 8), [
+      'Club Access',
+    ]),
     ...sectionsNoPrefix(301, 332, 'Upper Level', numRows(1, 20)),
-    { id: 'LFB', name: 'Left Field Bleachers', level: 'Bleachers', rows: numRows(1, 10) },
-    { id: 'RFB', name: 'Right Field Bleachers', level: 'Bleachers', rows: numRows(1, 10) },
-    { id: 'PH', name: 'Park in the Park', level: 'General Admission', rows: ['GA'] },
+    {
+      id: 'LFB',
+      name: 'Left Field Bleachers',
+      level: 'Bleachers',
+      rows: numRows(1, 10),
+    },
+    {
+      id: 'RFB',
+      name: 'Right Field Bleachers',
+      level: 'Bleachers',
+      rows: numRows(1, 10),
+    },
+    {
+      id: 'PH',
+      name: 'Park in the Park',
+      level: 'General Admission',
+      rows: ['GA'],
+    },
   ],
 };
 
@@ -523,15 +704,60 @@ const oraclePark: StadiumSeating = {
     ...sectionsNoPrefix(101, 152, 'Lower Box', numRows(1, 30)),
     ...sectionsNoPrefix(201, 235, 'Club Level', numRows(1, 8)),
     ...sectionsNoPrefix(301, 335, 'View Level', numRows(1, 16)),
-    { id: 'BL130', name: 'Bleachers 130', level: 'Bleachers', rows: numRows(1, 50) },
-    { id: 'BL131', name: 'Bleachers 131', level: 'Bleachers', rows: numRows(1, 50) },
-    { id: 'BL136', name: 'Bleachers 136', level: 'Bleachers', rows: numRows(1, 50) },
-    { id: 'BL137', name: 'Bleachers 137', level: 'Bleachers', rows: numRows(1, 50) },
-    { id: 'BL138', name: 'Bleachers 138', level: 'Bleachers', rows: numRows(1, 50) },
-    { id: 'BL139', name: 'Bleachers 139', level: 'Bleachers', rows: numRows(1, 50) },
-    { id: 'BL140', name: 'Bleachers 140', level: 'Bleachers', rows: numRows(1, 50) },
-    { id: 'BL141', name: 'Bleachers 141', level: 'Bleachers', rows: numRows(1, 50) },
-    { id: 'BL142', name: 'Bleachers 142', level: 'Bleachers', rows: numRows(1, 50) },
+    {
+      id: 'BL130',
+      name: 'Bleachers 130',
+      level: 'Bleachers',
+      rows: numRows(1, 50),
+    },
+    {
+      id: 'BL131',
+      name: 'Bleachers 131',
+      level: 'Bleachers',
+      rows: numRows(1, 50),
+    },
+    {
+      id: 'BL136',
+      name: 'Bleachers 136',
+      level: 'Bleachers',
+      rows: numRows(1, 50),
+    },
+    {
+      id: 'BL137',
+      name: 'Bleachers 137',
+      level: 'Bleachers',
+      rows: numRows(1, 50),
+    },
+    {
+      id: 'BL138',
+      name: 'Bleachers 138',
+      level: 'Bleachers',
+      rows: numRows(1, 50),
+    },
+    {
+      id: 'BL139',
+      name: 'Bleachers 139',
+      level: 'Bleachers',
+      rows: numRows(1, 50),
+    },
+    {
+      id: 'BL140',
+      name: 'Bleachers 140',
+      level: 'Bleachers',
+      rows: numRows(1, 50),
+    },
+    {
+      id: 'BL141',
+      name: 'Bleachers 141',
+      level: 'Bleachers',
+      rows: numRows(1, 50),
+    },
+    {
+      id: 'BL142',
+      name: 'Bleachers 142',
+      level: 'Bleachers',
+      rows: numRows(1, 50),
+    },
   ],
 };
 
