@@ -11,8 +11,12 @@ export default async function globalSetup(config: FullConfig) {
   const baseURL = config.projects[0].use.baseURL || 'http://localhost:3000';
   fs.mkdirSync('e2e/.auth', { recursive: true });
 
+  const bypassHeader = process.env.VERCEL_BYPASS_SECRET
+    ? { 'x-vercel-protection-bypass': process.env.VERCEL_BYPASS_SECRET }
+    : {};
+
   const browser = await chromium.launch();
-  const context = await browser.newContext({ baseURL });
+  const context = await browser.newContext({ baseURL, extraHTTPHeaders: bypassHeader });
 
   try {
     const signupRes = await context.request.post('/api/auth/signup', {
