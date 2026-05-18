@@ -116,22 +116,37 @@ export function Toolbar({
       {mobileFiltersOpen && createPortal(
         <div className="md:hidden fixed inset-0 z-50">
           <div className="absolute inset-0 bg-black/30" onClick={() => setMobileFiltersOpen(false)} />
-          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-[0_-8px_30px_rgba(0,0,0,0.12)] animate-slide-up">
-            <div className="flex justify-center pt-3 pb-1">
-              <div className="w-10 h-1 rounded-full bg-[#dcd7d4]" />
+          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-[0_-4px_16px_rgba(0,0,0,0.08)] animate-slide-up max-h-[85vh] overflow-y-auto">
+            {/* Chrome */}
+            <div className="relative">
+              {/* Drag handle */}
+              <div className="flex justify-center pt-3">
+                <div className="w-10 h-1 rounded-full bg-[#DCD7D4]" />
+              </div>
+              {/* Close X */}
+              <button
+                onClick={() => setMobileFiltersOpen(false)}
+                title="Close"
+                className="absolute top-3 right-3 w-11 h-11 flex items-center justify-center bg-transparent border-none cursor-pointer z-10"
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M18 6L6 18" stroke="#8E8985" strokeWidth="2.5" strokeLinecap="round" />
+                  <path d="M6 6l12 12" stroke="#8E8985" strokeWidth="2.5" strokeLinecap="round" />
+                </svg>
+              </button>
             </div>
-            <div className="px-4 pt-2 pb-8">
-              <h3 className="text-lg font-semibold text-[#2c2a2b] mb-6">Filters</h3>
-              <div className="flex flex-col gap-4">
+            <div className="px-6 pt-2 pb-5">
+              <h3 className="text-[18px] font-bold text-[#1B1716] mb-5">Filters</h3>
+              <div className="flex flex-col gap-5">
                 <div>
-                  <label className="block text-xs font-semibold text-[#8e8985] mb-2 pl-1">Opponent</label>
+                  <label className="block text-[13px] font-medium text-[#8E8985] mb-3">Opponent</label>
                   <select className={sheetSelectClass} value={opponentFilter[0] || ''} onChange={(e) => onOpponentFilterChange(e.target.value ? [e.target.value] : [])}>
                     <option value="">All opponents</option>
                     {opponents.map((o) => <option key={o} value={o}>{o}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-[#8e8985] mb-2 pl-1">Month</label>
+                  <label className="block text-[13px] font-medium text-[#8E8985] mb-3">Month</label>
                   <select className={sheetSelectClass} value={monthFilter[0] || ''} onChange={(e) => onMonthFilterChange(e.target.value ? [e.target.value] : [])}>
                     <option value="">All months</option>
                     {months.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
@@ -140,15 +155,14 @@ export function Toolbar({
               </div>
               <button
                 onClick={() => setMobileFiltersOpen(false)}
-                className="w-full h-12 mt-6 rounded-lg text-base font-semibold text-white cursor-pointer border-none transition-opacity hover:opacity-90"
-                style={{ backgroundColor: teamPrimary || '#2c2a2b' }}
+                className="w-full h-[52px] mt-5 rounded-[10px] bg-[#2C2A2B] text-base font-semibold text-white cursor-pointer border-none transition-opacity hover:opacity-90"
               >
                 Apply filters
               </button>
               {hasActiveFilters && (
                 <button
                   onClick={() => { onOpponentFilterChange([]); onMonthFilterChange([]); setMobileFiltersOpen(false); }}
-                  className="w-full mt-3 text-sm font-medium text-[#8e8985] bg-transparent border-none cursor-pointer py-2"
+                  className="w-full mt-3 text-sm font-medium text-[#8E8985] bg-transparent border-none cursor-pointer py-2"
                 >
                   Clear filters
                 </button>
