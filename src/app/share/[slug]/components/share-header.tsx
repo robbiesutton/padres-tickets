@@ -127,20 +127,20 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
         <div className="hidden md:block relative">
           <div
             ref={pillRef}
-            className={`flex items-center gap-2 h-10 pl-1.5 pr-3 rounded-lg border cursor-pointer transition-colors ${
+            className={`flex items-center gap-1.5 h-10 pl-1 pr-2.5 rounded-lg border cursor-pointer transition-colors ${
               pillOpen ? 'border-white/30 bg-white/15' : 'border-white/20 hover:bg-white/10'
             }`}
             onClick={() => { setPillOpen(!pillOpen); setSeatInfoOpen(false); }}
           >
-            <div className="w-7 h-7 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0" style={{ backgroundColor: teamAccent, color: navColor }}>
+            <div className="w-[34px] h-[34px] rounded-full flex items-center justify-center text-[11px] font-bold shrink-0" style={{ backgroundColor: teamAccent, color: navColor }}>
               {getOpponentAbbr(pkg.team)}
             </div>
-            <span className={`text-sm font-medium ${isDark ? 'text-white' : 'text-[#1B1716]'}`}>
+            <span className={`text-xs font-medium ${isDark ? 'text-white' : 'text-[#1B1716]'}`}>
               {pillLabel}
             </span>
             <svg
               className={`shrink-0 transition-transform duration-200 ${pillOpen ? 'rotate-180' : ''}`}
-              width="14" height="14" viewBox="0 0 24 24" fill="none"
+              width="12" height="12" viewBox="0 0 24 24" fill="none"
             >
               <path d="M6 9l6 6 6-6" stroke={isDark ? 'rgba(255,255,255,0.5)' : '#8e8985'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
@@ -162,7 +162,7 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
               pillOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'
             }`}
           >
-            <div className="relative pt-14 px-6 pb-6">
+            <div className="relative pt-2 px-6 pb-2">
               {/* Close X — its own chrome zone above content */}
               <button
                 onClick={() => setPillOpen(false)}
@@ -368,7 +368,7 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
           >
             My games
             {reservedCount > 0 && (
-              <span className="w-5 h-5 rounded-full bg-[#0F6F57] text-white text-xs font-semibold flex items-center justify-center">
+              <span className="h-6 w-6 rounded-md bg-[#2d6a4f] text-white text-[11px] font-bold flex items-center justify-center">
                 {reservedCount}
               </span>
             )}
@@ -377,7 +377,7 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
         {/* Account avatar */}
         <a
           href={`/dashboard/profile?from=share&slug=${pkg.slug}`}
-          className="w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all text-sm font-semibold"
+          className="w-[34px] h-[34px] md:w-[42px] md:h-[42px] rounded-full flex items-center justify-center cursor-pointer transition-all text-[11px] md:text-[13px] font-bold"
           style={{ backgroundColor: teamAccent, color: navColor }}
         >
           {userInitial}

@@ -116,46 +116,49 @@ export function Toolbar({
       {mobileFiltersOpen && createPortal(
         <div className="md:hidden fixed inset-0 z-50">
           <div className="absolute inset-0 bg-black/30" onClick={() => setMobileFiltersOpen(false)} />
-          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-[0_-4px_16px_rgba(0,0,0,0.08)] animate-slide-up max-h-[85vh] overflow-y-auto">
-            {/* Chrome */}
-            <div className="relative">
-              {/* Drag handle */}
-              <div className="flex justify-center pt-3">
-                <div className="w-10 h-1 rounded-full bg-[#DCD7D4]" />
-              </div>
-              {/* Close X */}
+          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-[0_-4px_16px_rgba(0,0,0,0.08)] animate-slide-up max-h-[85vh] flex flex-col overflow-hidden">
+            {/* Chrome strip — close X only */}
+            <div className="relative h-14 shrink-0">
               <button
                 onClick={() => setMobileFiltersOpen(false)}
                 title="Close"
-                className="absolute top-3 right-3 w-11 h-11 flex items-center justify-center bg-transparent border-none cursor-pointer z-10"
+                className="absolute top-1.5 right-1.5 w-11 h-11 flex items-center justify-center bg-transparent border-none cursor-pointer z-10"
               >
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <path d="M18 6L6 18" stroke="#8E8985" strokeWidth="2.5" strokeLinecap="round" />
-                  <path d="M6 6l12 12" stroke="#8E8985" strokeWidth="2.5" strokeLinecap="round" />
+                  <path d="M18 6L6 18" stroke="#1B1716" strokeWidth="2.5" strokeLinecap="round" />
+                  <path d="M6 6l12 12" stroke="#1B1716" strokeWidth="2.5" strokeLinecap="round" />
                 </svg>
               </button>
             </div>
-            <div className="px-6 pt-2 pb-5">
-              <h3 className="text-[18px] font-bold text-[#1B1716] mb-5">Filters</h3>
-              <div className="flex flex-col gap-5">
-                <div>
-                  <label className="block text-[13px] font-medium text-[#8E8985] mb-3">Opponent</label>
-                  <select className={sheetSelectClass} value={opponentFilter[0] || ''} onChange={(e) => onOpponentFilterChange(e.target.value ? [e.target.value] : [])}>
-                    <option value="">All opponents</option>
-                    {opponents.map((o) => <option key={o} value={o}>{o}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-[13px] font-medium text-[#8E8985] mb-3">Month</label>
-                  <select className={sheetSelectClass} value={monthFilter[0] || ''} onChange={(e) => onMonthFilterChange(e.target.value ? [e.target.value] : [])}>
-                    <option value="">All months</option>
-                    {months.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
-                  </select>
+
+            {/* Scrollable body */}
+            <div className="flex-1 overflow-y-auto">
+              <div className="px-6 pb-5">
+                <h3 className="text-[18px] font-bold text-[#1B1716] mb-5">Filters</h3>
+                <div className="flex flex-col gap-5">
+                  <div>
+                    <label className="block text-[13px] font-medium text-[#8E8985] mb-3">Opponent</label>
+                    <select className={sheetSelectClass} value={opponentFilter[0] || ''} onChange={(e) => onOpponentFilterChange(e.target.value ? [e.target.value] : [])}>
+                      <option value="">All opponents</option>
+                      {opponents.map((o) => <option key={o} value={o}>{o}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[13px] font-medium text-[#8E8985] mb-3">Month</label>
+                    <select className={sheetSelectClass} value={monthFilter[0] || ''} onChange={(e) => onMonthFilterChange(e.target.value ? [e.target.value] : [])}>
+                      <option value="">All months</option>
+                      {months.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
+                    </select>
+                  </div>
                 </div>
               </div>
+            </div>
+
+            {/* Sticky CTA footer */}
+            <div className="shrink-0 px-6 pb-5 bg-white">
               <button
                 onClick={() => setMobileFiltersOpen(false)}
-                className="w-full h-[52px] mt-5 rounded-[10px] bg-[#2C2A2B] text-base font-semibold text-white cursor-pointer border-none transition-opacity hover:opacity-90"
+                className="w-full h-[52px] rounded-[10px] bg-[#2C2A2B] text-base font-semibold text-white cursor-pointer border-none transition-opacity hover:opacity-90"
               >
                 Apply filters
               </button>
