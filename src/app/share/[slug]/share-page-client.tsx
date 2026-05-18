@@ -99,23 +99,24 @@ function MobileSeatInfoPill({ pkg, activeTab }: { pkg: PackageInfo; activeTab: A
       {open && createPortal(
         <div className="fixed inset-0 z-50 md:hidden">
           <div className="absolute inset-0 bg-black/30" onClick={() => setOpen(false)} />
-          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-[0_-4px_16px_rgba(0,0,0,0.08)] animate-slide-up max-h-[85vh] overflow-y-auto">
-            <div className="relative">
-              {/* Drag handle */}
-              <div className="flex justify-center pt-3">
-                <div className="w-10 h-1 rounded-full bg-[#DCD7D4]" />
-              </div>
+          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-[0_-4px_16px_rgba(0,0,0,0.08)] animate-slide-up max-h-[85vh] flex flex-col overflow-hidden">
+            {/* Chrome strip — close X only */}
+            <div className="relative h-14 shrink-0">
               <button
-                className="absolute top-3 right-3 w-11 h-11 flex items-center justify-center bg-transparent border-none cursor-pointer z-10"
+                className="absolute top-1.5 right-1.5 w-11 h-11 flex items-center justify-center bg-transparent border-none cursor-pointer z-10"
                 onClick={() => setOpen(false)}
                 title="Close"
               >
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <path d="M18 6L6 18" stroke="#8E8985" strokeWidth="2.5" strokeLinecap="round" />
-                  <path d="M6 6l12 12" stroke="#8E8985" strokeWidth="2.5" strokeLinecap="round" />
+                  <path d="M18 6L6 18" stroke="#1B1716" strokeWidth="2.5" strokeLinecap="round" />
+                  <path d="M6 6l12 12" stroke="#1B1716" strokeWidth="2.5" strokeLinecap="round" />
                 </svg>
               </button>
-              <div className="px-6 pt-2 pb-5 flex flex-col gap-5">
+            </div>
+
+            {/* Scrollable body */}
+            <div className="flex-1 overflow-y-auto">
+              <div className="px-6 pb-5 flex flex-col gap-5">
                 {isCompletelyEmpty ? (
                   /* Empty fallback (rule 9) */
                   <div className="text-center py-6 px-2">
@@ -214,17 +215,19 @@ function MobileSeatInfoPill({ pkg, activeTab }: { pkg: PackageInfo; activeTab: A
                         ))}
                       </div>
                     </div>
-
-                    {/* Got it, view games CTA */}
-                    <button
-                      onClick={dismissFTU}
-                      className="w-full h-[52px] bg-[#2C2A2B] text-white border-none rounded-[10px] text-base font-semibold cursor-pointer active:opacity-90"
-                    >
-                      Got it, view games
-                    </button>
                   </>
                 )}
               </div>
+            </div>
+
+            {/* Sticky CTA footer */}
+            <div className="shrink-0 px-6 pb-5 bg-white">
+              <button
+                onClick={dismissFTU}
+                className="w-full h-[52px] bg-[#2C2A2B] text-white border-none rounded-[10px] text-base font-semibold cursor-pointer active:opacity-90"
+              >
+                Got it, view games
+              </button>
             </div>
           </div>
         </div>,
@@ -479,9 +482,16 @@ function SharePageInner({ packageInfo, games: initialGames, opponents }: Props) 
                 {holderFirstName ? <>{holderFirstName}&apos;s season</> : 'Your shared season'}
               </h1>
               <p className="mt-2 text-base text-[#8e8985]">
-                Claim the games you want.
+                {holderFirstName
+                  ? `Claim the games you want. Pay ${holderFirstName} directly after, and ${holderFirstName} sends the tickets before game day.`
+                  : 'Claim the games you want.'}
               </p>
             </div>
+            {holderFirstName && (
+              <p className="md:hidden text-[14px] leading-[1.5] text-[#8e8985] mb-4">
+                {`Pay ${holderFirstName} directly. Tickets transfer before game day.`}
+              </p>
+            )}
             <Toolbar
               viewMode={viewMode}
               onViewChange={(mode) => {
@@ -525,6 +535,7 @@ function SharePageInner({ packageInfo, games: initialGames, opponents }: Props) 
                 opponentFilter={opponentFilter}
                 monthFilter={monthFilter}
                 onClearFilters={handleClearFilters}
+                onSwitchToMyGames={() => setActiveTab('my-games')}
               />
             ) : (
               <>
@@ -547,6 +558,7 @@ function SharePageInner({ packageInfo, games: initialGames, opponents }: Props) 
                       currentUserId={currentUserId}
                       onReserved={handleReserved}
                       onCancelled={handleCancelled}
+                      onSwitchToMyGames={() => setActiveTab('my-games')}
                     />
                   </div>
                 )}
