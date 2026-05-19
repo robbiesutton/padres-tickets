@@ -119,6 +119,18 @@ jobs:
           path: playwright-report/
           retention-days: 30
 
+      # Visual baselines are committed to e2e/specs/__screenshots__/.
+      # On first run (no baseline), Playwright writes new PNGs here.
+      # Download this artifact → commit → future runs diff against them.
+      - name: Upload visual baselines (new screenshots only)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-baselines
+          path: e2e/specs/__screenshots__/
+          retention-days: 30
+          if-no-files-found: ignore
+
   report:
     name: Notion reporter
     needs: [e2e]
