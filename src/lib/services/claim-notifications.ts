@@ -53,7 +53,7 @@ export async function sendClaimNotifications(claimId: string) {
     const markTransferredUrl = `${BASE_URL}/api/games/${game.id}/mark-transferred?token=${actionToken.token}`;
 
     const transferEmail = buildTransferActionEmail({
-      holderName,
+      holderFirstName: holder.firstName,
       claimerName,
       claimerEmail: claimer.email,
       team: pkg.team,

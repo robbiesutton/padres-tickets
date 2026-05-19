@@ -42,12 +42,13 @@ describe('Email templates', () => {
       holderName: 'Mark Thompson',
       team: 'Colorado Rockies',
       opponent: 'Los Angeles Dodgers',
-      gameDayStr: 'Friday, July 10, 2026',
-      timeVenue: '6:10 PM · Coors Field',
+      gameDate: 'Friday, July 10, 2026',
       section: '143',
       row: '10',
       seatCount: 2,
       pricePerTicket: 45 as number | null,
+      venmoHandle: null as string | null,
+      zelleInfo: null as string | null,
       myGamesUrl: 'https://benchbuddy.app/dashboard/my-games',
     };
 
