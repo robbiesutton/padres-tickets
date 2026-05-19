@@ -1599,6 +1599,7 @@ export default function NewPackagePage() {
 
           <StepActions>
             <PrimaryButton
+              data-testid="package-step1-continue"
               onClick={() => {
                 loadSchedule();
                 goToStep(2);
@@ -1725,6 +1726,7 @@ export default function NewPackagePage() {
 
           <StepActions>
             <PrimaryButton
+              data-testid="package-step2-continue"
               onClick={() => goToStep(3)}
               disabled={!selectedSection || !row || selectedSeats.size === 0}
             >
@@ -1821,7 +1823,11 @@ export default function NewPackagePage() {
           </div>
 
           <StepActions>
-            <PrimaryButton onClick={() => goToStep(4)} disabled={!defaultPrice}>
+            <PrimaryButton
+              data-testid="package-step3-finish"
+              onClick={() => goToStep(4)}
+              disabled={!defaultPrice}
+            >
               Continue →
             </PrimaryButton>
           </StepActions>
@@ -1932,6 +1938,7 @@ export default function NewPackagePage() {
                 applyBulkPrice();
                 createPackage();
               }}
+              data-testid="package-step3-finish"
               disabled={loading}
             >
               {loading ? 'Creating...' : 'Finish setup →'}

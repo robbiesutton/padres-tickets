@@ -31,7 +31,7 @@ function validateEmail(value: string): string | null {
 
 function validatePhone(value: string): string | null {
   const v = value.trim();
-  if (!v) return 'Please enter a valid phone number';
+  if (!v) return null; // phone is optional
   if (v.startsWith('+')) {
     const digits = v.slice(1).replace(/\D/g, '');
     if (digits.length < 10 || digits.length > 15)
@@ -284,7 +284,10 @@ function JoinForm() {
         </div>
 
         {submitError && (
-          <div className="rounded-lg bg-[#FEE2E2] text-[#DC2626] px-4 py-3 text-sm font-medium mb-4">
+          <div
+            data-testid="join-error"
+            className="rounded-lg bg-[#FEE2E2] text-[#DC2626] px-4 py-3 text-sm font-medium mb-4"
+          >
             {submitError}
           </div>
         )}

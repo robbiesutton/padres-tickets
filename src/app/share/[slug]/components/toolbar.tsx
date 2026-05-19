@@ -85,6 +85,7 @@ export function Toolbar({
       <div className="md:hidden flex items-center gap-2 mb-4">
         <div className="relative flex h-11 bg-[#f5f4f2] rounded-lg p-[3px] gap-[3px]">
           <button
+            data-testid="view-toggle-calendar"
             className={`relative z-10 w-[44px] h-[38px] flex items-center justify-center rounded-md border-none cursor-pointer transition-all ${
               viewMode === 'calendar'
                 ? 'bg-white shadow-sm text-[#2c2a2b]'
@@ -131,6 +132,7 @@ export function Toolbar({
             </svg>
           </button>
           <button
+            data-testid="view-toggle-list"
             className={`relative z-10 w-[44px] h-[38px] flex items-center justify-center rounded-md border-none cursor-pointer transition-all ${
               viewMode === 'list'
                 ? 'bg-white shadow-sm text-[#2c2a2b]'
@@ -307,6 +309,7 @@ export function Toolbar({
       <div className="hidden md:flex md:items-center md:gap-4 mb-4 flex-wrap">
         <div className="relative flex w-auto h-11 bg-[#f5f4f2] rounded-lg p-[3px] gap-[3px]">
           <button
+            data-testid="view-toggle-calendar"
             className={`relative z-10 w-[38px] h-[38px] flex items-center justify-center rounded-md border-none cursor-pointer transition-all text-sm font-medium ${
               viewMode === 'calendar'
                 ? 'bg-white shadow-sm text-[#2c2a2b]'
@@ -353,6 +356,7 @@ export function Toolbar({
             </svg>
           </button>
           <button
+            data-testid="view-toggle-list"
             className={`relative z-10 w-[38px] h-[38px] flex items-center justify-center rounded-md border-none cursor-pointer transition-all text-sm font-medium ${
               viewMode === 'list'
                 ? 'bg-white shadow-sm text-[#2c2a2b]'

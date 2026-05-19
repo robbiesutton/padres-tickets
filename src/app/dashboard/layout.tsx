@@ -1126,6 +1126,7 @@ export default function DashboardLayout({
             {/* Account avatar */}
             <Link
               href="/dashboard/profile"
+              data-testid="account-avatar"
               className="w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all text-sm font-semibold"
               style={{ backgroundColor: teamAccent, color: navColor }}
             >
