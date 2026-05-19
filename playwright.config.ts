@@ -21,17 +21,17 @@ export default defineConfig({
       ? { 'x-vercel-protection-bypass': process.env.VERCEL_BYPASS_SECRET }
       : {},
   },
-  // Visual regression baselines stored alongside specs for easy review in PRs
-  snapshotPathTemplate: 'e2e/specs/__screenshots__/{testFilePath}/{arg}{ext}',
-  // On first run (no baseline), record the screenshot without failing
-  updateSnapshots: 'missing',
+  // Visual baselines stored alongside specs for easy review in PRs.
+  // Bootstrap step in e2e.yml creates baselines on first run via --update-snapshots.
+  snapshotPathTemplate:
+    'e2e/specs/__screenshots__/{testFilePath}/{arg}{ext}',
   globalSetup: './e2e/fixtures/auth.ts',
   projects: [
     {
       name: 'chromium-desktop',
       use: { ...devices['Desktop Chrome'] },
     },
-    // Visual regression runs chromium-desktop only (via grepInvert in visual.spec.ts)
+    // Visual regression runs chromium-desktop only (mobile projects filter by @mobile)
     {
       name: 'webkit-iphone-13',
       use: { ...devices['iPhone 13'] },
