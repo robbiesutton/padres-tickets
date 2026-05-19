@@ -91,12 +91,28 @@ export function CalendarPopover({
   function preClaimCopy() {
     const total = totalPrice ?? 0;
     if (hasVenmo && !hasZelle) {
-      return `By claiming, you'll Venmo ${holderFirstName} $${total} after tickets transfer before game day.`;
+      return `By claiming, you'll Venmo ${holderFirstName} $${total} after. Tickets transfer before game day.`;
     }
     if (hasZelle && !hasVenmo) {
-      return `By claiming, you'll Zelle ${holderFirstName} $${total} after tickets transfer before game day.`;
+      return `By claiming, you'll Zelle ${holderFirstName} $${total} after. Tickets transfer before game day.`;
     }
-    return `By claiming, you'll pay ${holderFirstName} $${total} after tickets transfer before game day.`;
+    return `By claiming, you'll pay ${holderFirstName} $${total} directly after. Tickets transfer before game day.`;
+  }
+
+  function postClaimCopy() {
+    const total = totalPrice ?? 0;
+    const venmo = pkg.venmoHandle?.trim() || '';
+    const zelle = pkg.zelleInfo?.trim() || '';
+    if (hasVenmo && hasZelle) {
+      return `Pay ${holderFirstName} $${total} via Venmo ${venmo} or Zelle ${zelle}, whichever you prefer. ${holderFirstName} will then transfer the tickets to you a few days before the game.`;
+    }
+    if (hasVenmo) {
+      return `Pay ${holderFirstName} $${total} via Venmo ${venmo}. ${holderFirstName} will then transfer the tickets to you a few days before the game.`;
+    }
+    if (hasZelle) {
+      return `Pay ${holderFirstName} $${total} via Zelle ${zelle}. ${holderFirstName} will then transfer the tickets to you a few days before the game.`;
+    }
+    return `Coordinate with ${holderFirstName} on how to pay $${total}. ${holderFirstName} will transfer the tickets to you a few days before the game.`;
   }
 
   function handleClaimClick() {
@@ -163,6 +179,11 @@ export function CalendarPopover({
                 {pkg.seatCount} ticket{pkg.seatCount !== 1 ? 's' : ''} · ${totalPrice} total
               </div>
             )}
+          </div>
+
+          {/* Payment instructions */}
+          <div className="bg-[#F5F4F2] rounded-lg px-3.5 py-3 mb-5 text-sm leading-[1.5] text-[#1B1716]">
+            {postClaimCopy()}
           </div>
 
           <button
