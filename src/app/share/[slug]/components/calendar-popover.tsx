@@ -117,7 +117,9 @@ export function CalendarPopover({
   // Position for desktop popover (only when anchor rects available)
   const hasPosition = anchorRect && containerRect;
   const popoverWidth = 300;
-  const cellCenterY = hasPosition ? anchorRect.top - containerRect.top + anchorRect.height / 2 : 0;
+  const cellCenterY = hasPosition
+    ? anchorRect.top - containerRect.top + anchorRect.height / 2
+    : 0;
   const cellRight = hasPosition ? anchorRect.right - containerRect.left : 0;
   const cellLeft = hasPosition ? anchorRect.left - containerRect.left : 0;
   const containerWidth = hasPosition ? containerRect.width : 0;
@@ -175,7 +177,9 @@ export function CalendarPopover({
           )}
           <div>
             <div className="text-base font-bold text-[#2c2a2b]">
-              {mode === 'confirmation' ? `You're in for ${monthDay}` : `vs ${game.opponent}`}
+              {mode === 'confirmation'
+                ? `You're in for ${monthDay}`
+                : `vs ${game.opponent}`}
             </div>
             <div className="text-sm font-medium text-[#8e8985]">
               {mode === 'confirmation' ? `vs ${game.opponent}` : longDate}
@@ -187,8 +191,18 @@ export function CalendarPopover({
           onClick={onClose}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path d="M18 6L6 18" stroke="#8e8985" strokeWidth="2" strokeLinecap="round" />
-            <path d="M6 6l12 12" stroke="#8e8985" strokeWidth="2" strokeLinecap="round" />
+            <path
+              d="M18 6L6 18"
+              stroke="#8e8985"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+            <path
+              d="M6 6l12 12"
+              stroke="#8e8985"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
           </svg>
         </button>
       </div>
@@ -202,7 +216,8 @@ export function CalendarPopover({
         </div>
         {totalPrice !== null && (
           <div className="text-[#2c2a2b] font-medium">
-            {pkg.seatCount} ticket{pkg.seatCount !== 1 ? 's' : ''} · ${totalPrice} total
+            {pkg.seatCount} ticket{pkg.seatCount !== 1 ? 's' : ''} · $
+            {totalPrice} total
           </div>
         )}
       </div>
@@ -275,8 +290,18 @@ export function CalendarPopover({
             title="Close"
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path d="M18 6L6 18" stroke="#1B1716" strokeWidth="2.5" strokeLinecap="round" />
-              <path d="M6 6l12 12" stroke="#1B1716" strokeWidth="2.5" strokeLinecap="round" />
+              <path
+                d="M18 6L6 18"
+                stroke="#1B1716"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+              />
+              <path
+                d="M6 6l12 12"
+                stroke="#1B1716"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+              />
             </svg>
           </button>
         </div>
@@ -289,7 +314,13 @@ export function CalendarPopover({
               {showGreenCheck ? (
                 <div className="w-14 h-14 rounded-full bg-[#0f6f57] flex items-center justify-center shrink-0">
                   <svg viewBox="0 0 16 16" width={28} height={28} fill="none">
-                    <path d="M3.5 8.5L6.5 11.5L12.5 4.5" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                    <path
+                      d="M3.5 8.5L6.5 11.5L12.5 4.5"
+                      stroke="#fff"
+                      strokeWidth="2.2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                   </svg>
                 </div>
               ) : (
@@ -302,7 +333,9 @@ export function CalendarPopover({
               )}
               <div>
                 <div className="text-[18px] font-bold text-[#1B1716] leading-tight">
-                  {mode === 'confirmation' ? `You're in for ${monthDay}` : `vs ${game.opponent}`}
+                  {mode === 'confirmation'
+                    ? `You're in for ${monthDay}`
+                    : `vs ${game.opponent}`}
                 </div>
                 <div className="text-sm font-normal text-[#8E8985] mt-1">
                   {mode === 'confirmation' ? `vs ${game.opponent}` : longDate}
@@ -312,13 +345,17 @@ export function CalendarPopover({
 
             {/* Body context rows */}
             <div className="flex flex-col gap-3">
-              <div className="text-[15px] text-[#8E8985]">{formatTime(game.time)} · Petco Park</div>
               <div className="text-[15px] text-[#8E8985]">
-                Section {pkg.section}{pkg.row ? ` · Row ${pkg.row}` : ''} · Seats {pkg.seats}
+                {formatTime(game.time)} · Petco Park
+              </div>
+              <div className="text-[15px] text-[#8E8985]">
+                Section {pkg.section}
+                {pkg.row ? ` · Row ${pkg.row}` : ''} · Seats {pkg.seats}
               </div>
               {totalPrice !== null && (
                 <div className="text-[15px] text-[#1B1716]">
-                  {pkg.seatCount} ticket{pkg.seatCount !== 1 ? 's' : ''} · ${totalPrice} total
+                  {pkg.seatCount} ticket{pkg.seatCount !== 1 ? 's' : ''} · $
+                  {totalPrice} total
                 </div>
               )}
             </div>
@@ -389,7 +426,13 @@ export function CalendarPopover({
           {showGreenCheck ? (
             <div className="w-14 h-14 rounded-full bg-[#0f6f57] flex items-center justify-center shrink-0">
               <svg viewBox="0 0 16 16" width={28} height={28} fill="none">
-                <path d="M3.5 8.5L6.5 11.5L12.5 4.5" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                <path
+                  d="M3.5 8.5L6.5 11.5L12.5 4.5"
+                  stroke="#fff"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
             </div>
           ) : (
@@ -402,7 +445,9 @@ export function CalendarPopover({
           )}
           <div>
             <div className="text-xl font-bold text-[#1B1716] leading-tight">
-              {mode === 'confirmation' ? `You're in for ${monthDay}` : `vs ${game.opponent}`}
+              {mode === 'confirmation'
+                ? `You're in for ${monthDay}`
+                : `vs ${game.opponent}`}
             </div>
             <div className="text-sm font-normal text-[#8E8985] mt-1">
               {mode === 'confirmation' ? `vs ${game.opponent}` : longDate}
@@ -415,21 +460,35 @@ export function CalendarPopover({
           title="Close"
         >
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-            <path d="M18 6L6 18" stroke="#1B1716" strokeWidth="2" strokeLinecap="round" />
-            <path d="M6 6l12 12" stroke="#1B1716" strokeWidth="2" strokeLinecap="round" />
+            <path
+              d="M18 6L6 18"
+              stroke="#1B1716"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+            <path
+              d="M6 6l12 12"
+              stroke="#1B1716"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
           </svg>
         </button>
       </div>
 
       {/* Detail rows */}
       <div className="flex flex-col gap-2 mb-5">
-        <div className="text-sm text-[#8E8985]">{formatTime(game.time)} &bull; Petco Park</div>
         <div className="text-sm text-[#8E8985]">
-          Section {pkg.section}{pkg.row ? ` · Row ${pkg.row}` : ''} · Seats {pkg.seats}
+          {formatTime(game.time)} &bull; Petco Park
+        </div>
+        <div className="text-sm text-[#8E8985]">
+          Section {pkg.section}
+          {pkg.row ? ` · Row ${pkg.row}` : ''} · Seats {pkg.seats}
         </div>
         {totalPrice !== null && (
           <div className="text-sm text-[#1B1716] font-medium">
-            {pkg.seatCount} ticket{pkg.seatCount !== 1 ? 's' : ''} · ${totalPrice} total
+            {pkg.seatCount} ticket{pkg.seatCount !== 1 ? 's' : ''} · $
+            {totalPrice} total
           </div>
         )}
       </div>
@@ -508,7 +567,9 @@ export function CalendarPopover({
         <div
           ref={desktopRef}
           className={`hidden md:block absolute z-50 min-w-[280px] max-w-[380px] w-max rounded-xl border shadow-[0_8px_30px_rgba(0,0,0,0.12)] ${
-            showGreenCheck ? 'bg-white border-[#0f6f57]' : 'bg-white border-[#e5e3df]'
+            showGreenCheck
+              ? 'bg-white border-[#0f6f57]'
+              : 'bg-white border-[#e5e3df]'
           }`}
           style={{
             left: `${left}px`,

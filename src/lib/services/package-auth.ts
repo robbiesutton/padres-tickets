@@ -32,7 +32,16 @@ export async function getUserPackagesWithRole(userId: string) {
           _count: { select: { games: true, members: true } },
           members: {
             where: { role: 'OWNER' },
-            include: { user: { select: { firstName: true, lastName: true, venmoHandle: true, zelleInfo: true } } },
+            include: {
+              user: {
+                select: {
+                  firstName: true,
+                  lastName: true,
+                  venmoHandle: true,
+                  zelleInfo: true,
+                },
+              },
+            },
             take: 1,
           },
         },

@@ -237,7 +237,8 @@ export function GameExpansionPanel({
               />
             </svg>
             {(() => {
-              const holderFirst = pkg.holderName?.trim().split(/\s+/)[0] || 'The holder';
+              const holderFirst =
+                pkg.holderName?.trim().split(/\s+/)[0] || 'The holder';
               const venmo = pkg.venmoHandle?.trim() || '';
               const zelle = pkg.zelleInfo?.trim() || '';
               if (venmo && zelle) {

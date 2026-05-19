@@ -25,10 +25,9 @@ export default function Home() {
       { ref: feedbackRef, set: setFeedbackVisible },
     ];
     const observers = refs.map(({ ref, set }) => {
-      const observer = new IntersectionObserver(
-        ([entry]) => { if (entry.isIntersecting) set(true); },
-        options
-      );
+      const observer = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting) set(true);
+      }, options);
       if (ref.current) observer.observe(ref.current);
       return observer;
     });
@@ -41,8 +40,12 @@ export default function Home() {
   useEffect(() => {
     if (!mobileMenuOpen) return;
     function handleClick(e: MouseEvent) {
-      if (mobileMenuRef.current && !mobileMenuRef.current.contains(e.target as Node) &&
-          hamburgerRef.current && !hamburgerRef.current.contains(e.target as Node)) {
+      if (
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(e.target as Node) &&
+        hamburgerRef.current &&
+        !hamburgerRef.current.contains(e.target as Node)
+      ) {
         setMobileMenuOpen(false);
       }
     }
@@ -70,7 +73,9 @@ export default function Home() {
       try {
         const res = await fetch(`/api/share/${slug}/check`);
         if (!res.ok) {
-          setLinkError("We couldn't find that link. Double-check it and try again.");
+          setLinkError(
+            "We couldn't find that link. Double-check it and try again."
+          );
           return;
         }
       } catch {
@@ -162,11 +167,30 @@ export default function Home() {
           className="md:hidden w-10 h-10 flex items-center justify-center bg-transparent border-none cursor-pointer"
         >
           {mobileMenuOpen ? (
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M18 6L6 18" /><path d="M6 6l12 12" />
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="white"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M18 6L6 18" />
+              <path d="M6 6l12 12" />
             </svg>
           ) : (
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="white"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M3 12h18M3 6h18M3 18h18" />
             </svg>
           )}
@@ -175,7 +199,10 @@ export default function Home() {
 
       {/* Mobile menu dropdown */}
       {mobileMenuOpen && (
-        <div ref={mobileMenuRef} className="md:hidden px-5 md:px-8 pb-4 flex flex-col gap-3 bg-[#1B1716]">
+        <div
+          ref={mobileMenuRef}
+          className="md:hidden px-5 md:px-8 pb-4 flex flex-col gap-3 bg-[#1B1716]"
+        >
           <a
             href="/login"
             className="h-11 flex items-center justify-center rounded-lg text-sm font-medium text-white/70 hover:text-white transition-colors"
@@ -193,106 +220,109 @@ export default function Home() {
 
       {/* Hero */}
       <section className="relative lg:h-[650px] flex items-center overflow-hidden bg-[#1B1716]">
-
         {/* Content */}
         <div className="relative z-10 px-5 md:px-8 w-full">
           <div className="max-w-7xl mx-auto flex flex-col lg:flex-row lg:justify-center items-center gap-8 md:gap-16 lg:gap-24">
-          <div className="max-w-xl flex flex-col gap-0 md:gap-6 py-12 md:py-16 lg:py-20">
-            {/* Alert */}
-            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#E41837]/20 bg-[#E41837]/10 text-sm font-medium text-white/70 w-fit whitespace-nowrap">
-              <span className="relative flex w-2 h-2">
-                <span className="absolute inset-0 rounded-full bg-[#E41837] animate-ping opacity-75" />
-                <span className="relative w-2 h-2 rounded-full bg-[#E41837]" />
+            <div className="max-w-xl flex flex-col gap-0 md:gap-6 py-12 md:py-16 lg:py-20">
+              {/* Alert */}
+              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#E41837]/20 bg-[#E41837]/10 text-sm font-medium text-white/70 w-fit whitespace-nowrap">
+                <span className="relative flex w-2 h-2">
+                  <span className="absolute inset-0 rounded-full bg-[#E41837] animate-ping opacity-75" />
+                  <span className="relative w-2 h-2 rounded-full bg-[#E41837]" />
+                </span>
+                First year free during early access
               </span>
-              First year free during early access
-            </span>
 
-            {/* Headline */}
-            <h1
-              className="mt-6 md:mt-0 text-3xl md:text-5xl lg:text-4xl xl:text-6xl font-bold text-white leading-[1.08] tracking-tight"
-              style={{ fontFamily: 'var(--font-syne), sans-serif' }}
-            >
-              Share your season tickets.
-            </h1>
-
-            {/* Subtitle */}
-            <p className="md:hidden mt-4 max-w-lg text-base text-white/50 leading-relaxed">
-              Share your link. They claim the games they want. No group texts, no crazy fees.
-            </p>
-            <p className="hidden md:block -mt-0 max-w-lg text-base text-white/50 leading-relaxed">
-              Share your personal link and let them claim the games they want. No wasted tickets, no group texts, no crazy fees.
-            </p>
-
-            {/* CTA */}
-            <div className="mt-8">
-              <a
-                href="/signup"
-                className="group inline-flex w-full md:w-auto items-center justify-center md:justify-start gap-2 h-12 md:h-10 px-4 rounded-lg bg-white text-[#2c2a2b] text-base font-bold hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors"
+              {/* Headline */}
+              <h1
+                className="mt-6 md:mt-0 text-3xl md:text-5xl lg:text-4xl xl:text-6xl font-bold text-white leading-[1.08] tracking-tight"
+                style={{ fontFamily: 'var(--font-syne), sans-serif' }}
               >
-                Share my tickets
-                <span className="text-[#2c2a2b] transition-transform duration-200 group-hover:translate-x-0.5">&rarr;</span>
-              </a>
-            </div>
+                Share your season tickets.
+              </h1>
 
-            {/* Secondary link */}
-            <div className="mt-5 md:mt-0 flex items-center gap-2 text-base md:text-sm">
-              <span className="text-white/40">Got a link from a friend?</span>
-              <button
-                onClick={() => setShowLinkInput(true)}
-                className="text-white/70 underline underline-offset-2 hover:text-white transition-colors bg-transparent border-none cursor-pointer text-base md:text-sm py-2"
-              >
-                Enter it here
-              </button>
-            </div>
+              {/* Subtitle */}
+              <p className="md:hidden mt-4 max-w-lg text-base text-white/50 leading-relaxed">
+                Share your link. They claim the games they want. No group texts,
+                no crazy fees.
+              </p>
+              <p className="hidden md:block -mt-0 max-w-lg text-base text-white/50 leading-relaxed">
+                Share your personal link and let them claim the games they want.
+                No wasted tickets, no group texts, no crazy fees.
+              </p>
 
-            {showLinkInput && (
-              <div className="mt-5 md:mt-0 max-w-md space-y-3">
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={sharedLink}
-                    onChange={(e) => setSharedLink(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && !validating && handleGoToLink()}
-                    disabled={validating}
-                    placeholder="e.g. benchbuddy.com/share/mark-rockies"
-                    className="flex-1 h-12 md:h-11 px-3 rounded-lg border border-white/20 bg-white/10 text-white text-base md:text-sm outline-none placeholder:text-white/30 focus:border-white/40"
-                    autoFocus
-                  />
-                  <button
-                    onClick={handleGoToLink}
-                    disabled={validating}
-                    className="h-12 md:h-10 px-4 rounded-lg bg-white text-[#2c2a2b] text-base font-medium hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {validating ? 'Checking...' : 'Go'}
-                  </button>
-                </div>
-                {linkError && (
-                  <p className="text-sm text-[#E41837]">{linkError}</p>
-                )}
+              {/* CTA */}
+              <div className="mt-8">
+                <a
+                  href="/signup"
+                  className="group inline-flex w-full md:w-auto items-center justify-center md:justify-start gap-2 h-12 md:h-10 px-4 rounded-lg bg-white text-[#2c2a2b] text-base font-bold hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors"
+                >
+                  Share my tickets
+                  <span className="text-[#2c2a2b] transition-transform duration-200 group-hover:translate-x-0.5">
+                    &rarr;
+                  </span>
+                </a>
               </div>
-            )}
 
-          </div>
+              {/* Secondary link */}
+              <div className="mt-5 md:mt-0 flex items-center gap-2 text-base md:text-sm">
+                <span className="text-white/40">Got a link from a friend?</span>
+                <button
+                  onClick={() => setShowLinkInput(true)}
+                  className="text-white/70 underline underline-offset-2 hover:text-white transition-colors bg-transparent border-none cursor-pointer text-base md:text-sm py-2"
+                >
+                  Enter it here
+                </button>
+              </div>
 
-          {/* Hero visual — floating claimer calendar (desktop only) */}
-          <div className="hidden lg:flex lg:w-[520px] lg:ml-4 lg:shrink-0 relative items-center justify-center lg:pb-0 lg:p-0">
-            {/* Gold halo */}
-            <div
-              aria-hidden
-              className="absolute pointer-events-none"
-              style={{
-                width: 800,
-                height: 800,
-                left: '50%',
-                top: '50%',
-                transform: 'translate(-50%, -50%)',
-                background:
-                  'radial-gradient(closest-side, rgba(212, 160, 23, 0.10), rgba(212, 160, 23, 0.04) 55%, transparent 75%)',
-              }}
-            />
-            <HeroCalendar />
-          </div>
+              {showLinkInput && (
+                <div className="mt-5 md:mt-0 max-w-md space-y-3">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={sharedLink}
+                      onChange={(e) => setSharedLink(e.target.value)}
+                      onKeyDown={(e) =>
+                        e.key === 'Enter' && !validating && handleGoToLink()
+                      }
+                      disabled={validating}
+                      placeholder="e.g. benchbuddy.com/share/mark-rockies"
+                      className="flex-1 h-12 md:h-11 px-3 rounded-lg border border-white/20 bg-white/10 text-white text-base md:text-sm outline-none placeholder:text-white/30 focus:border-white/40"
+                      autoFocus
+                    />
+                    <button
+                      onClick={handleGoToLink}
+                      disabled={validating}
+                      className="h-12 md:h-10 px-4 rounded-lg bg-white text-[#2c2a2b] text-base font-medium hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {validating ? 'Checking...' : 'Go'}
+                    </button>
+                  </div>
+                  {linkError && (
+                    <p className="text-sm text-[#E41837]">{linkError}</p>
+                  )}
+                </div>
+              )}
+            </div>
 
+            {/* Hero visual — floating claimer calendar (desktop only) */}
+            <div className="hidden lg:flex lg:w-[520px] lg:ml-4 lg:shrink-0 relative items-center justify-center lg:pb-0 lg:p-0">
+              {/* Gold halo */}
+              <div
+                aria-hidden
+                className="absolute pointer-events-none"
+                style={{
+                  width: 800,
+                  height: 800,
+                  left: '50%',
+                  top: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  background:
+                    'radial-gradient(closest-side, rgba(212, 160, 23, 0.10), rgba(212, 160, 23, 0.04) 55%, transparent 75%)',
+                }}
+              />
+              <HeroCalendar />
+            </div>
           </div>
         </div>
       </section>
@@ -303,9 +333,19 @@ export default function Home() {
           {/* Row 1 — Share */}
           <div className="flex flex-col md:flex-row md:items-center md:gap-16 lg:gap-24">
             <div className="flex-1 mb-10 md:mb-0">
-              <p className="text-xs font-semibold text-[#810100] uppercase tracking-widest mb-3">Share</p>
-              <h2 className="text-2xl md:text-3xl font-bold text-[#1B1716] mb-4" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>Text a link, share your season</h2>
-              <p className="text-base text-[#8e8985] leading-relaxed max-w-md">Get a unique link with a calendar of your available games. Send it to anyone via text, email, or any app.</p>
+              <p className="text-xs font-semibold text-[#810100] uppercase tracking-widest mb-3">
+                Share
+              </p>
+              <h2
+                className="text-2xl md:text-3xl font-bold text-[#1B1716] mb-4"
+                style={{ fontFamily: 'var(--font-syne), sans-serif' }}
+              >
+                Text a link, share your season
+              </h2>
+              <p className="text-base text-[#8e8985] leading-relaxed max-w-md">
+                Get a unique link with a calendar of your available games. Send
+                it to anyone via text, email, or any app.
+              </p>
             </div>
             <div className="flex-1 flex justify-center">
               <div className="flex flex-col items-end" style={{ gap: 6 }}>
@@ -318,9 +358,19 @@ export default function Home() {
           {/* Row 2 — Claim */}
           <div className="flex flex-col md:flex-row-reverse md:items-center md:gap-16 lg:gap-24">
             <div className="flex-1 mb-10 md:mb-0">
-              <p className="text-xs font-semibold text-[#810100] uppercase tracking-widest mb-3">Claim</p>
-              <h2 className="text-2xl md:text-3xl font-bold text-[#1B1716] mb-4" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>They pick a game and claim it</h2>
-              <p className="text-base text-[#8e8985] leading-relaxed max-w-md">They see every available date, the opponent, the time, and the price. One tap to claim. You get notified instantly.</p>
+              <p className="text-xs font-semibold text-[#810100] uppercase tracking-widest mb-3">
+                Claim
+              </p>
+              <h2
+                className="text-2xl md:text-3xl font-bold text-[#1B1716] mb-4"
+                style={{ fontFamily: 'var(--font-syne), sans-serif' }}
+              >
+                They pick a game and claim it
+              </h2>
+              <p className="text-base text-[#8e8985] leading-relaxed max-w-md">
+                They see every available date, the opponent, the time, and the
+                price. One tap to claim. You get notified instantly.
+              </p>
             </div>
             <div className="flex-1 flex justify-center">
               {/* Claim popover — mirrors /share/padres-section203 */}
@@ -338,15 +388,30 @@ export default function Home() {
                 <div className="flex items-center gap-3 mb-4">
                   <div
                     className="rounded-full flex items-center justify-center shrink-0"
-                    style={{ width: 48, height: 48, backgroundColor: '#33006F' }}
+                    style={{
+                      width: 48,
+                      height: 48,
+                      backgroundColor: '#33006F',
+                    }}
                   >
-                    <span className="text-white font-bold tracking-wide" style={{ fontSize: 14 }}>COL</span>
+                    <span
+                      className="text-white font-bold tracking-wide"
+                      style={{ fontSize: 14 }}
+                    >
+                      COL
+                    </span>
                   </div>
                   <div className="min-w-0">
-                    <div className="text-[18px] font-bold text-[#1B1716]" style={{ lineHeight: 1.2 }}>
+                    <div
+                      className="text-[18px] font-bold text-[#1B1716]"
+                      style={{ lineHeight: 1.2 }}
+                    >
                       vs Colorado Rockies
                     </div>
-                    <div className="text-[14px] text-[#8E8985]" style={{ marginTop: 2 }}>
+                    <div
+                      className="text-[14px] text-[#8E8985]"
+                      style={{ marginTop: 2 }}
+                    >
                       Tuesday, April 7, 2026
                     </div>
                   </div>
@@ -354,9 +419,15 @@ export default function Home() {
 
                 {/* Detail lines */}
                 <div className="flex flex-col gap-1.5 mb-4">
-                  <div className="text-[14px] text-[#1B1716]">7:10 PM &bull; Petco Park</div>
-                  <div className="text-[14px] text-[#8E8985]">Section 203 &middot; Row 5 &middot; Seats 1-2</div>
-                  <div className="text-[14px] font-semibold text-[#1B1716]">2 tickets &middot; $90 total</div>
+                  <div className="text-[14px] text-[#1B1716]">
+                    7:10 PM &bull; Petco Park
+                  </div>
+                  <div className="text-[14px] text-[#8E8985]">
+                    Section 203 &middot; Row 5 &middot; Seats 1-2
+                  </div>
+                  <div className="text-[14px] font-semibold text-[#1B1716]">
+                    2 tickets &middot; $90 total
+                  </div>
                 </div>
 
                 {/* Claim button */}
@@ -383,9 +454,20 @@ export default function Home() {
       <section className="bg-white py-10 md:py-[72px] lg:py-24 px-5 md:px-8">
         <div className="max-w-[1120px] mx-auto flex flex-col md:grid md:grid-cols-[1fr_1.4fr] md:gap-12 md:items-center">
           <div className="mb-10 md:mb-0">
-            <p className="text-xs font-semibold text-[#810100] uppercase tracking-widest mb-3">Track and manage</p>
-            <h2 className="text-2xl md:text-3xl font-bold text-[#1B1716] mb-4" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>Always know where your tickets are going</h2>
-            <p className="text-base text-[#8e8985] leading-relaxed max-w-md">See who claimed what, which games are still available, and your full season at a glance. You have full control to easily manage your tickets.</p>
+            <p className="text-xs font-semibold text-[#810100] uppercase tracking-widest mb-3">
+              Track and manage
+            </p>
+            <h2
+              className="text-2xl md:text-3xl font-bold text-[#1B1716] mb-4"
+              style={{ fontFamily: 'var(--font-syne), sans-serif' }}
+            >
+              Always know where your tickets are going
+            </h2>
+            <p className="text-base text-[#8e8985] leading-relaxed max-w-md">
+              See who claimed what, which games are still available, and your
+              full season at a glance. You have full control to easily manage
+              your tickets.
+            </p>
           </div>
           <div className="flex justify-center">
             <div
@@ -407,13 +489,18 @@ export default function Home() {
       </section>
 
       {/* How it works */}
-      <section ref={howItWorksRef} className="px-5 md:px-8 py-10 md:py-[72px] lg:py-24 bg-[#F5F4F2]">
+      <section
+        ref={howItWorksRef}
+        className="px-5 md:px-8 py-10 md:py-[72px] lg:py-24 bg-[#F5F4F2]"
+      >
         <div className="max-w-[1120px] mx-auto">
           <p
             className="text-[20px] font-semibold text-[#810100] uppercase tracking-widest mb-4 transition-all duration-700"
             style={{
               opacity: howItWorksVisible ? 1 : 0,
-              transform: howItWorksVisible ? 'translateY(0)' : 'translateY(24px)',
+              transform: howItWorksVisible
+                ? 'translateY(0)'
+                : 'translateY(24px)',
             }}
           >
             How it works
@@ -423,7 +510,9 @@ export default function Home() {
             style={{
               fontFamily: 'var(--font-syne), sans-serif',
               opacity: howItWorksVisible ? 1 : 0,
-              transform: howItWorksVisible ? 'translateY(0)' : 'translateY(24px)',
+              transform: howItWorksVisible
+                ? 'translateY(0)'
+                : 'translateY(24px)',
             }}
           >
             Share in three steps
@@ -454,7 +543,9 @@ export default function Home() {
                 className="transition-all duration-700 flex flex-col md:grid md:[grid-row:span_4] md:[grid-template-rows:subgrid] md:gap-y-0"
                 style={{
                   opacity: howItWorksVisible ? 1 : 0,
-                  transform: howItWorksVisible ? 'translateY(0)' : 'translateY(32px)',
+                  transform: howItWorksVisible
+                    ? 'translateY(0)'
+                    : 'translateY(32px)',
                   transitionDelay: `${300 + i * 150}ms`,
                 }}
               >
@@ -476,9 +567,11 @@ export default function Home() {
         </div>
       </section>
 
-
       {/* Pricing */}
-      <section ref={pricingRef} className="px-5 md:px-8 py-10 md:py-[72px] lg:py-24 bg-white">
+      <section
+        ref={pricingRef}
+        className="px-5 md:px-8 py-10 md:py-[72px] lg:py-24 bg-white"
+      >
         <div className="max-w-[1120px] mx-auto flex flex-col md:flex-row md:items-center md:gap-16">
           {/* Left — text content */}
           <div className="flex-1 mb-10 md:mb-0">
@@ -486,7 +579,9 @@ export default function Home() {
               className="text-[20px] font-semibold text-[#810100] uppercase tracking-widest mb-4 transition-all duration-700"
               style={{
                 opacity: pricingVisible ? 1 : 0,
-                transform: pricingVisible ? 'translateY(0)' : 'translateY(24px)',
+                transform: pricingVisible
+                  ? 'translateY(0)'
+                  : 'translateY(24px)',
               }}
             >
               Pricing
@@ -496,7 +591,9 @@ export default function Home() {
               style={{
                 fontFamily: 'var(--font-syne), sans-serif',
                 opacity: pricingVisible ? 1 : 0,
-                transform: pricingVisible ? 'translateY(0)' : 'translateY(24px)',
+                transform: pricingVisible
+                  ? 'translateY(0)'
+                  : 'translateY(24px)',
                 transitionDelay: '150ms',
               }}
             >
@@ -506,11 +603,14 @@ export default function Home() {
               className="text-base text-[#6b6764] leading-relaxed max-w-sm transition-all duration-700"
               style={{
                 opacity: pricingVisible ? 1 : 0,
-                transform: pricingVisible ? 'translateY(0)' : 'translateY(24px)',
+                transform: pricingVisible
+                  ? 'translateY(0)'
+                  : 'translateY(24px)',
                 transitionDelay: '300ms',
               }}
             >
-              Sign up during early access and get your entire first year on us. No credit card required.
+              Sign up during early access and get your entire first year on us.
+              No credit card required.
             </p>
           </div>
 
@@ -541,12 +641,17 @@ export default function Home() {
             <div className="mb-8">
               <div
                 className="font-bold leading-none text-[#1B1716]"
-                style={{ fontFamily: 'var(--font-syne), sans-serif', fontSize: 48 }}
+                style={{
+                  fontFamily: 'var(--font-syne), sans-serif',
+                  fontSize: 48,
+                }}
               >
                 $0
               </div>
               <p className="text-[14px] text-[#8E8985] mt-2">per year</p>
-              <p className="text-[13px] text-[#8E8985] mt-1">$39.99/year after early access</p>
+              <p className="text-[13px] text-[#8E8985] mt-1">
+                $39.99/year after early access
+              </p>
             </div>
 
             {/* Benefits */}
@@ -557,8 +662,20 @@ export default function Home() {
                 'Cancel anytime',
               ].map((benefit) => (
                 <div key={benefit} className="flex items-start gap-3">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="shrink-0 mt-0.5">
-                    <path d="M5 13l4 4L19 7" stroke="#810100" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    className="shrink-0 mt-0.5"
+                  >
+                    <path
+                      d="M5 13l4 4L19 7"
+                      stroke="#810100"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                   </svg>
                   <span className="text-sm text-[#1B1716]">{benefit}</span>
                 </div>
@@ -574,21 +691,28 @@ export default function Home() {
                 borderRadius: 8,
                 padding: 14,
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#2C2A2B'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#1B1716'; }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#2C2A2B';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#1B1716';
+              }}
             >
               Start free for a year
             </a>
             <p className="text-xs text-[#8E8985] text-center">
-              Cancel anytime. You won&apos;t be charged until your free year ends.
+              Cancel anytime. You won&apos;t be charged until your free year
+              ends.
             </p>
           </div>
         </div>
       </section>
 
-
       {/* Feedback */}
-      <section ref={feedbackRef} className="relative py-10 md:py-[72px] lg:py-24 overflow-hidden">
+      <section
+        ref={feedbackRef}
+        className="relative py-10 md:py-[72px] lg:py-24 overflow-hidden"
+      >
         {/* Background image */}
         <style>{`
           @keyframes panCrowd {
@@ -638,8 +762,8 @@ export default function Home() {
               transitionDelay: '300ms',
             }}
           >
-            We&apos;re in early access and building this for you. Got ideas, found
-            a bug, or want to tell us what&apos;s working?
+            We&apos;re in early access and building this for you. Got ideas,
+            found a bug, or want to tell us what&apos;s working?
           </p>
           <a
             href="mailto:hello@getbenchbuddy.com"
@@ -654,7 +778,6 @@ export default function Home() {
           </a>
         </div>
       </section>
-
     </div>
   );
 }
@@ -678,8 +801,27 @@ const TEAM_ACCENT = '#FFC425'; // Padres gold
 
 function DashboardPanel() {
   const games: PanelGame[] = [
-    { dow: 'FRI', date: '3', time: '7:10 PM', oppAbbr: 'SF', oppColor: '#FD5A1E', opponent: 'vs San Francisco Giants', price: 55, status: 'claimed', claimerName: 'Margo Coleman' },
-    { dow: 'SAT', date: '4', time: '5:40 PM', oppAbbr: 'COL', oppColor: '#33006F', opponent: 'vs Colorado Rockies', price: 55, status: 'available' },
+    {
+      dow: 'FRI',
+      date: '3',
+      time: '7:10 PM',
+      oppAbbr: 'SF',
+      oppColor: '#FD5A1E',
+      opponent: 'vs San Francisco Giants',
+      price: 55,
+      status: 'claimed',
+      claimerName: 'Margo Coleman',
+    },
+    {
+      dow: 'SAT',
+      date: '4',
+      time: '5:40 PM',
+      oppAbbr: 'COL',
+      oppColor: '#33006F',
+      opponent: 'vs Colorado Rockies',
+      price: 55,
+      status: 'available',
+    },
   ];
 
   return (
@@ -707,7 +849,16 @@ function DashboardPanel() {
           className="flex items-center gap-1.5 text-[13px] font-medium text-[#8E8985] bg-transparent border-none cursor-pointer hover:text-[#2c2a2b] transition-colors shrink-0"
           aria-label="Share your link"
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" />
             <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" />
           </svg>
@@ -743,7 +894,10 @@ function DashboardPanel() {
 
       {/* Month section header */}
       <div className="flex items-center gap-2 mb-3">
-        <div className="w-1 h-4 rounded-sm" style={{ backgroundColor: '#E5AB00' }} />
+        <div
+          className="w-1 h-4 rounded-sm"
+          style={{ backgroundColor: '#E5AB00' }}
+        />
         <span className="text-sm font-semibold text-[#1B1716]">April 2026</span>
         <span className="text-sm text-[#8E8985]">· 11 games</span>
       </div>
@@ -766,7 +920,8 @@ function TrackAndManageMobileMockup() {
         borderRadius: 16,
         border: '1px solid #E8E4DF',
         padding: 16,
-        boxShadow: '0 32px 64px -20px rgba(0, 0, 0, 0.5), 0 8px 24px -4px rgba(0, 0, 0, 0.3)',
+        boxShadow:
+          '0 32px 64px -20px rgba(0, 0, 0, 0.5), 0 8px 24px -4px rgba(0, 0, 0, 0.3)',
       }}
     >
       {/* Header */}
@@ -777,7 +932,17 @@ function TrackAndManageMobileMockup() {
         >
           My season
         </span>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8E8985" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#8E8985"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden
+        >
           <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" />
           <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" />
         </svg>
@@ -808,26 +973,47 @@ function TrackAndManageMobileMockup() {
         }}
       >
         <div className="flex flex-col items-center w-[40px] shrink-0">
-          <span className="text-[10px] font-semibold uppercase text-[#8E8985] tracking-wide">FRI</span>
-          <span className="text-[22px] font-bold text-[#1B1716] leading-none">3</span>
-          <span className="text-[10px] font-medium text-[#8E8985] uppercase mt-0.5">Apr</span>
+          <span className="text-[10px] font-semibold uppercase text-[#8E8985] tracking-wide">
+            FRI
+          </span>
+          <span className="text-[22px] font-bold text-[#1B1716] leading-none">
+            3
+          </span>
+          <span className="text-[10px] font-medium text-[#8E8985] uppercase mt-0.5">
+            Apr
+          </span>
         </div>
         <div
           className="rounded-full flex items-center justify-center shrink-0"
           style={{ width: 36, height: 36, backgroundColor: '#005A9C' }}
         >
-          <span className="text-white text-[11px] font-bold tracking-wide">LAD</span>
+          <span className="text-white text-[11px] font-bold tracking-wide">
+            LAD
+          </span>
         </div>
         <div className="flex flex-col min-w-0 flex-1">
-          <span className="text-[14px] font-bold text-[#1B1716] truncate">vs LA Dodgers</span>
-          <span className="text-[12px] text-[#8E8985] truncate">7:10 PM &bull; Margo Coleman</span>
+          <span className="text-[14px] font-bold text-[#1B1716] truncate">
+            vs LA Dodgers
+          </span>
+          <span className="text-[12px] text-[#8E8985] truncate">
+            7:10 PM &bull; Margo Coleman
+          </span>
         </div>
         <div
           className="rounded-full flex items-center justify-center shrink-0"
           style={{ width: 28, height: 28, backgroundColor: '#2d6a4f' }}
           aria-hidden
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#fff"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <polyline points="20 6 9 17 4 12" />
           </svg>
         </div>
@@ -836,7 +1022,15 @@ function TrackAndManageMobileMockup() {
   );
 }
 
-function StatCard({ value, label, highlight }: { value: string; label: string; highlight: boolean }) {
+function StatCard({
+  value,
+  label,
+  highlight,
+}: {
+  value: string;
+  label: string;
+  highlight: boolean;
+}) {
   const accent = TEAM_ACCENT;
   const bg = highlight ? `${accent}26` : 'rgba(255,255,255,0.08)'; // 26 ~= 15% alpha hex
   const borderColor = highlight ? `${accent}4D` : 'rgba(255,255,255,0.10)'; // 4D ~= 30% alpha
@@ -859,7 +1053,15 @@ function StatCard({ value, label, highlight }: { value: string; label: string; h
   );
 }
 
-function PillChip({ dotColor, label, count }: { dotColor: string; label: string; count: number }) {
+function PillChip({
+  dotColor,
+  label,
+  count,
+}: {
+  dotColor: string;
+  label: string;
+  count: number;
+}) {
   return (
     <div
       className="inline-flex items-center gap-1.5 shrink-0"
@@ -870,18 +1072,27 @@ function PillChip({ dotColor, label, count }: { dotColor: string; label: string;
         padding: '8px 14px',
       }}
     >
-      <span className="rounded-full shrink-0" style={{ width: 7, height: 7, backgroundColor: dotColor }} />
-      <span className="text-[13px] text-[#1B1716] whitespace-nowrap">{label}</span>
-      <span className="text-[12px] text-[#8E8985] whitespace-nowrap font-medium">{count}</span>
+      <span
+        className="rounded-full shrink-0"
+        style={{ width: 7, height: 7, backgroundColor: dotColor }}
+      />
+      <span className="text-[13px] text-[#1B1716] whitespace-nowrap">
+        {label}
+      </span>
+      <span className="text-[12px] text-[#8E8985] whitespace-nowrap font-medium">
+        {count}
+      </span>
     </div>
   );
 }
 
 function GameRow({ game }: { game: PanelGame }) {
   const statusText =
-    game.status === 'going' ? 'Going Myself' :
-    game.status === 'claimed' ? game.claimerName ?? 'Claimed' :
-    'Available';
+    game.status === 'going'
+      ? 'Going Myself'
+      : game.status === 'claimed'
+        ? (game.claimerName ?? 'Claimed')
+        : 'Available';
 
   return (
     <div
@@ -895,9 +1106,15 @@ function GameRow({ game }: { game: PanelGame }) {
     >
       {/* Date block */}
       <div className="flex flex-col items-center w-[40px] md:w-[52px] shrink-0">
-        <span className="text-[10px] font-semibold uppercase text-[#8E8985] tracking-wide">{game.dow}</span>
-        <span className="text-[22px] md:text-[24px] font-bold text-[#1B1716] leading-none">{game.date}</span>
-        <span className="text-[10px] md:text-[11px] font-medium text-[#8E8985] uppercase mt-0.5">Apr</span>
+        <span className="text-[10px] font-semibold uppercase text-[#8E8985] tracking-wide">
+          {game.dow}
+        </span>
+        <span className="text-[22px] md:text-[24px] font-bold text-[#1B1716] leading-none">
+          {game.date}
+        </span>
+        <span className="text-[10px] md:text-[11px] font-medium text-[#8E8985] uppercase mt-0.5">
+          Apr
+        </span>
       </div>
 
       {/* Team badge */}
@@ -905,7 +1122,9 @@ function GameRow({ game }: { game: PanelGame }) {
         className="rounded-full flex items-center justify-center shrink-0"
         style={{ width: 36, height: 36, backgroundColor: game.oppColor }}
       >
-        <span className="text-white text-[11px] md:text-[12px] font-bold tracking-wide">{game.oppAbbr}</span>
+        <span className="text-white text-[11px] md:text-[12px] font-bold tracking-wide">
+          {game.oppAbbr}
+        </span>
       </div>
 
       {/* Game info */}
@@ -937,9 +1156,27 @@ function GameRow({ game }: { game: PanelGame }) {
 
 function StatusPill({ status }: { status: Status }) {
   const config = {
-    going:     { label: 'Going Myself', dot: '#2C2A2B', bg: '#E8E5E0', text: '#2C2A2B', lock: false },
-    available: { label: 'Available',    dot: '#E5AB00', bg: '#FDF6E3', text: '#2C2A2B', lock: false },
-    claimed:   { label: 'Claimed',      dot: '#4A7C59', bg: '#E8F5E4', text: '#2D6A4F', lock: true  },
+    going: {
+      label: 'Going Myself',
+      dot: '#2C2A2B',
+      bg: '#E8E5E0',
+      text: '#2C2A2B',
+      lock: false,
+    },
+    available: {
+      label: 'Available',
+      dot: '#E5AB00',
+      bg: '#FDF6E3',
+      text: '#2C2A2B',
+      lock: false,
+    },
+    claimed: {
+      label: 'Claimed',
+      dot: '#4A7C59',
+      bg: '#E8F5E4',
+      text: '#2D6A4F',
+      lock: true,
+    },
   } as const;
   const c = config[status];
   return (
@@ -951,17 +1188,43 @@ function StatusPill({ status }: { status: Status }) {
         padding: '6px 10px',
       }}
     >
-      <span className="rounded-full shrink-0" style={{ width: 7, height: 7, backgroundColor: c.dot }} />
-      <span className="text-[12px] md:text-[13px] font-medium whitespace-nowrap" style={{ color: c.text }}>
+      <span
+        className="rounded-full shrink-0"
+        style={{ width: 7, height: 7, backgroundColor: c.dot }}
+      />
+      <span
+        className="text-[12px] md:text-[13px] font-medium whitespace-nowrap"
+        style={{ color: c.text }}
+      >
         {c.label}
       </span>
       {c.lock && (
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={c.text} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <svg
+          width="11"
+          height="11"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke={c.text}
+          strokeWidth="2.2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden
+        >
           <rect x="4" y="11" width="16" height="10" rx="2" />
           <path d="M8 11V7a4 4 0 018 0v4" />
         </svg>
       )}
-      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={c.text} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <svg
+        width="10"
+        height="10"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={c.text}
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden
+      >
         <polyline points="6 9 12 15 18 9" />
       </svg>
     </div>
@@ -982,7 +1245,10 @@ function SetupSnippet() {
         boxShadow: SNIPPET_SHADOW,
       }}
     >
-      <p className="text-[10px] font-semibold uppercase text-[#8E8985] mb-2.5" style={{ letterSpacing: '0.05em' }}>
+      <p
+        className="text-[10px] font-semibold uppercase text-[#8E8985] mb-2.5"
+        style={{ letterSpacing: '0.05em' }}
+      >
         Set up
       </p>
       <div className="flex items-center gap-2 mb-2">
@@ -990,11 +1256,17 @@ function SetupSnippet() {
           className="rounded-full flex items-center justify-center shrink-0"
           style={{ width: 28, height: 28, backgroundColor: '#d4a017' }}
         >
-          <span className="text-[12px] font-bold tracking-wide text-white">SD</span>
+          <span className="text-[12px] font-bold tracking-wide text-white">
+            SD
+          </span>
         </div>
-        <span className="text-[14px] font-bold text-[#1B1716] truncate">San Diego Padres</span>
+        <span className="text-[14px] font-bold text-[#1B1716] truncate">
+          San Diego Padres
+        </span>
       </div>
-      <p className="text-[12px] text-[#8E8985] mb-4">Sec 203 · Row 5 · Seats 1-2</p>
+      <p className="text-[12px] text-[#8E8985] mb-4">
+        Sec 203 · Row 5 · Seats 1-2
+      </p>
       <button
         type="button"
         className="w-full text-white text-[12px] font-medium border-none cursor-pointer flex items-center justify-center gap-1"
@@ -1005,7 +1277,17 @@ function SetupSnippet() {
         }}
       >
         Continue
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <svg
+          width="10"
+          height="10"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden
+        >
           <polyline points="9 6 15 12 9 18" />
         </svg>
       </button>
@@ -1024,7 +1306,10 @@ function ShareLinkSnippet() {
         boxShadow: SNIPPET_SHADOW,
       }}
     >
-      <p className="text-[10px] font-semibold uppercase text-[#8E8985] mb-2.5" style={{ letterSpacing: '0.05em' }}>
+      <p
+        className="text-[10px] font-semibold uppercase text-[#8E8985] mb-2.5"
+        style={{ letterSpacing: '0.05em' }}
+      >
         Your link
       </p>
       <div
@@ -1036,11 +1321,24 @@ function ShareLinkSnippet() {
           padding: '10px 12px',
         }}
       >
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8E8985" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="shrink-0">
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#8E8985"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden
+          className="shrink-0"
+        >
           <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" />
           <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" />
         </svg>
-        <span className="text-[12px] text-[#1B1716] truncate">benchbuddy.com/coleman-2026</span>
+        <span className="text-[12px] text-[#1B1716] truncate">
+          benchbuddy.com/coleman-2026
+        </span>
       </div>
       <button
         type="button"
@@ -1070,9 +1368,15 @@ function ClaimToastSnippet() {
     >
       {/* Date block */}
       <div className="flex flex-col items-center w-[36px] shrink-0">
-        <span className="text-[10px] font-semibold uppercase text-[#8E8985] tracking-wide">FRI</span>
-        <span className="text-[24px] font-bold text-[#1B1716] leading-none">3</span>
-        <span className="text-[11px] font-medium text-[#8E8985] mt-0.5">Apr</span>
+        <span className="text-[10px] font-semibold uppercase text-[#8E8985] tracking-wide">
+          FRI
+        </span>
+        <span className="text-[24px] font-bold text-[#1B1716] leading-none">
+          3
+        </span>
+        <span className="text-[11px] font-medium text-[#8E8985] mt-0.5">
+          Apr
+        </span>
       </div>
 
       {/* Claimed check circle (replaces team badge) */}
@@ -1081,15 +1385,28 @@ function ClaimToastSnippet() {
         style={{ width: 36, height: 36, backgroundColor: '#2d6a4f' }}
         aria-hidden
       >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#ffffff"
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <polyline points="20 6 9 17 4 12" />
         </svg>
       </div>
 
       {/* Game info */}
       <div className="flex flex-col min-w-0 flex-1">
-        <span className="text-[14px] font-bold text-[#1B1716] truncate">vs LA Dodgers</span>
-        <span className="text-[12px] text-[#8E8985] truncate">7:10 PM &bull; Margo Coleman</span>
+        <span className="text-[14px] font-bold text-[#1B1716] truncate">
+          vs LA Dodgers
+        </span>
+        <span className="text-[12px] text-[#8E8985] truncate">
+          7:10 PM &bull; Margo Coleman
+        </span>
       </div>
     </div>
   );
@@ -1144,11 +1461,19 @@ function SharePreviewCard() {
 
       {/* Content */}
       <div style={{ padding: '14px 24px' }}>
-        <p className="text-[15px] text-[#1B1716]" style={{ fontWeight: 600, lineHeight: 1.3, textWrap: 'balance' }}>
+        <p
+          className="text-[15px] text-[#1B1716]"
+          style={{ fontWeight: 600, lineHeight: 1.3, textWrap: 'balance' }}
+        >
           Robbie shared Padres tickets with you
         </p>
-        <p className="text-[12px] text-[#8E8985]" style={{ marginTop: 4 }}>getbenchbuddy.com</p>
-        <p className="text-[13px]" style={{ color: '#555555', lineHeight: 1.4, marginTop: 4 }}>
+        <p className="text-[12px] text-[#8E8985]" style={{ marginTop: 4 }}>
+          getbenchbuddy.com
+        </p>
+        <p
+          className="text-[13px]"
+          style={{ color: '#555555', lineHeight: 1.4, marginTop: 4 }}
+        >
           Browse available games and claim the ones you want.
         </p>
       </div>
@@ -1194,7 +1519,13 @@ const APRIL_GAMES: Record<number, HeroDay> = {
 const PADRES_PRIMARY = '#2F241D';
 const CLAIMED_GREEN = '#0f6f57';
 
-function HeroCheck({ size = 22, color = '#fff' }: { size?: number; color?: string }) {
+function HeroCheck({
+  size = 22,
+  color = '#fff',
+}: {
+  size?: number;
+  color?: string;
+}) {
   return (
     <svg viewBox="0 0 16 16" width={size} height={size} fill="none" aria-hidden>
       <path
@@ -1224,7 +1555,8 @@ function HeroAnimatedColCell({
         className="w-[36px] h-[36px] md:w-[40px] md:h-[40px] rounded-full flex items-center justify-center text-[11px] md:text-[12px] font-bold text-white relative"
         style={{
           backgroundColor: claimed ? CLAIMED_GREEN : TEAM_COLORS.COL,
-          transition: 'background-color 320ms ease, transform 320ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+          transition:
+            'background-color 320ms ease, transform 320ms cubic-bezier(0.34, 1.56, 0.64, 1)',
           transform: claimed ? 'scale(1)' : 'scale(1)',
         }}
       >
@@ -1242,7 +1574,8 @@ function HeroAnimatedColCell({
             position: 'absolute',
             opacity: claimed ? 1 : 0,
             transform: claimed ? 'scale(1)' : 'scale(0.7)',
-            transition: 'opacity 220ms ease 120ms, transform 280ms cubic-bezier(0.34, 1.56, 0.64, 1) 100ms',
+            transition:
+              'opacity 220ms ease 120ms, transform 280ms cubic-bezier(0.34, 1.56, 0.64, 1) 100ms',
           }}
         >
           <HeroCheck size={20} />
@@ -1285,7 +1618,13 @@ function HeroDayCell({ day, data }: { day: number; data: HeroDay }) {
 // Custom cursor — black arrow with white outline, drop shadow.
 function HeroCursor() {
   return (
-    <svg width="22" height="22" viewBox="0 0 22 22" style={{ filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.35))' }} aria-hidden>
+    <svg
+      width="22"
+      height="22"
+      viewBox="0 0 22 22"
+      style={{ filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.35))' }}
+      aria-hidden
+    >
       <path
         d="M3 2 L3 18 L7.5 13.5 L10.5 19.5 L13 18 L10 12 L16 12 Z"
         fill="#1B1716"
@@ -1322,7 +1661,8 @@ function HeroPopover({
         transform: `translateY(-50%) scale(${visible ? 1 : 0.92})`,
         transformOrigin: 'left center',
         opacity: visible ? 1 : 0,
-        transition: 'opacity 220ms ease, transform 240ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+        transition:
+          'opacity 220ms ease, transform 240ms cubic-bezier(0.34, 1.56, 0.64, 1)',
         pointerEvents: 'none',
         zIndex: 30,
       }}
@@ -1345,32 +1685,57 @@ function HeroPopover({
                 transition: 'background-color 320ms ease',
               }}
             >
-              <span style={{ position: 'absolute', opacity: confirmed ? 0 : 1, transition: 'opacity 220ms ease' }}>COL</span>
+              <span
+                style={{
+                  position: 'absolute',
+                  opacity: confirmed ? 0 : 1,
+                  transition: 'opacity 220ms ease',
+                }}
+              >
+                COL
+              </span>
               <span
                 style={{
                   position: 'absolute',
                   opacity: confirmed ? 1 : 0,
                   transform: confirmed ? 'scale(1)' : 'scale(0.7)',
-                  transition: 'opacity 220ms ease 120ms, transform 280ms cubic-bezier(0.34, 1.56, 0.64, 1) 100ms',
+                  transition:
+                    'opacity 220ms ease 120ms, transform 280ms cubic-bezier(0.34, 1.56, 0.64, 1) 100ms',
                 }}
               >
                 <HeroCheck size={22} />
               </span>
             </div>
             <div>
-              <div className="text-[15px] font-bold text-[#2c2a2b]" style={{ lineHeight: 1.2 }}>
+              <div
+                className="text-[15px] font-bold text-[#2c2a2b]"
+                style={{ lineHeight: 1.2 }}
+              >
                 vs Colorado Rockies
               </div>
-              <div className="text-[12px] text-[#8e8985]" style={{ marginTop: 2 }}>
+              <div
+                className="text-[12px] text-[#8e8985]"
+                style={{ marginTop: 2 }}
+              >
                 Tuesday, April 7, 2026
               </div>
             </div>
           </div>
 
-          <div className="text-[12px] text-[#8e8985]" style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 16 }}>
+          <div
+            className="text-[12px] text-[#8e8985]"
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 4,
+              marginBottom: 16,
+            }}
+          >
             <div>7:10 PM &bull; Petco Park</div>
             <div>Section 203 &middot; Row 5 &middot; Seats 1-2</div>
-            <div className="text-[#2c2a2b] font-medium">2 tickets &middot; $90 total</div>
+            <div className="text-[#2c2a2b] font-medium">
+              2 tickets &middot; $90 total
+            </div>
           </div>
 
           <div
@@ -1381,13 +1746,16 @@ function HeroPopover({
               backgroundColor: confirmed ? '#fff' : PADRES_PRIMARY,
               color: confirmed ? CLAIMED_GREEN : '#fff',
               border: confirmed ? `1.5px solid ${CLAIMED_GREEN}` : 'none',
-              transform: claimPressed && !confirmed ? 'scale(0.98)' : 'scale(1)',
+              transform:
+                claimPressed && !confirmed ? 'scale(0.98)' : 'scale(1)',
               transition:
                 'background-color 240ms ease, color 240ms ease, border-color 240ms ease, transform 120ms ease',
             }}
           >
             {confirmed ? (
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <span
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
+              >
                 <HeroCheck size={14} color={CLAIMED_GREEN} />
                 Claimed
               </span>
@@ -1407,7 +1775,13 @@ function HeroCalendar() {
   const claimBtnRef = useRef<HTMLDivElement | null>(null);
 
   const [animationsEnabled, setAnimationsEnabled] = useState(true);
-  const [cursor, setCursor] = useState({ x: 60, y: 50, visible: false, duration: 0, pressed: false });
+  const [cursor, setCursor] = useState({
+    x: 60,
+    y: 50,
+    visible: false,
+    duration: 0,
+    pressed: false,
+  });
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
   const [claimed, setClaimed] = useState(false);
@@ -1416,7 +1790,9 @@ function HeroCalendar() {
   // Decide animation eligibility + run loop in one effect (avoids race
   // between detection and loop on first mount).
   useEffect(() => {
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const reduced = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches;
     const isMobile = window.matchMedia('(max-width: 767px)').matches;
     if (reduced || isMobile) {
       startTransition(() => {
@@ -1468,7 +1844,14 @@ function HeroCalendar() {
         setClaimed(false);
         setConfirmed(false);
         setPopoverOpen(false);
-        setCursor((c) => ({ ...c, visible: false, duration: 0, pressed: false, x: 60, y: 50 }));
+        setCursor((c) => ({
+          ...c,
+          visible: false,
+          duration: 0,
+          pressed: false,
+          x: 60,
+          y: 50,
+        }));
         await wait(500);
         if (cancelled) return;
 
@@ -1584,11 +1967,17 @@ function HeroCalendar() {
       <div>
         <div
           className="text-[18px] md:text-[20px] font-bold text-[#1B1716] text-left"
-          style={{ fontFamily: 'var(--font-syne), sans-serif', marginBottom: 4 }}
+          style={{
+            fontFamily: 'var(--font-syne), sans-serif',
+            marginBottom: 4,
+          }}
         >
           Adam&apos;s season
         </div>
-        <div className="text-[13px] text-[#8e8985] text-left" style={{ marginBottom: 14 }}>
+        <div
+          className="text-[13px] text-[#8e8985] text-left"
+          style={{ marginBottom: 14 }}
+        >
           April 2026
         </div>
         <div className="grid grid-cols-7" style={{ gap: 4 }}>
@@ -1607,9 +1996,21 @@ function HeroCalendar() {
           {Array.from({ length: 30 }).map((_, i) => {
             const day = i + 1;
             if (day === 7) {
-              return <HeroAnimatedColCell key={day} badgeRef={colBadgeRef} claimed={claimed} />;
+              return (
+                <HeroAnimatedColCell
+                  key={day}
+                  badgeRef={colBadgeRef}
+                  claimed={claimed}
+                />
+              );
             }
-            return <HeroDayCell key={day} day={day} data={APRIL_GAMES[day] ?? null} />;
+            return (
+              <HeroDayCell
+                key={day}
+                day={day}
+                data={APRIL_GAMES[day] ?? null}
+              />
+            );
           })}
         </div>
       </div>
