@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import type { PackageInfo } from '../types';
 import { getOpponentAbbr } from '../utils';
+import { getTeamColors } from '../team-colors';
 
 interface Props {
   pkg: PackageInfo;
@@ -12,9 +13,11 @@ interface Props {
 
 export function SeatInfoBar({ pkg }: Props) {
   const [expanded, setExpanded] = useState(false);
+  const [hovered, setHovered] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
   const teamAbbr = getOpponentAbbr(pkg.team);
+  const { primary: teamPrimary, accent: teamAccent } = getTeamColors(pkg.team);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -38,13 +41,20 @@ export function SeatInfoBar({ pkg }: Props) {
       {/* Trigger bar */}
       <div
         ref={barRef}
-        className={`flex items-center h-12 px-4 md:px-6 py-3 rounded-xl border border-solid cursor-pointer transition-colors ${
-          expanded ? 'border-[#FFC425] bg-[#FFC425]/10' : 'border-[#FFC425] bg-[#FFC425]/10 hover:bg-[#FFC425]/15'
-        }`}
+        className="flex items-center h-12 px-4 md:px-6 py-3 rounded-xl border border-solid cursor-pointer transition-colors"
+        style={{
+          borderColor: teamAccent,
+          backgroundColor: `${teamAccent}${!expanded && hovered ? '26' : '1A'}`,
+        }}
         onClick={() => setExpanded(!expanded)}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
       >
         <div className="flex items-center gap-2 flex-1">
-          <div className="w-[30px] h-[30px] rounded-full bg-[#2F241D] flex items-center justify-center text-[10px] font-bold text-white shrink-0">
+          <div
+            className="w-[30px] h-[30px] rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0"
+            style={{ backgroundColor: teamPrimary }}
+          >
             {teamAbbr}
           </div>
           <div className="text-base font-semibold text-[#2c2a2b] whitespace-nowrap">

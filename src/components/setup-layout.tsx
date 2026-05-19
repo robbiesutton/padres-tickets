@@ -14,7 +14,7 @@ interface Props {
 function CheckIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-      <path d="M5 13l4 4L19 7" stroke="#d4a017" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M5 13l4 4L19 7" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -29,7 +29,7 @@ export function SetupLayout({ steps, currentStep = 1, children, showSidebar = tr
       {showSidebar && (
         <aside className="hidden md:flex w-[320px] shrink-0 flex-col items-center justify-center px-8 py-12 relative overflow-hidden" style={{ backgroundColor: '#2c2a2b' }}>
           {/* Subtle radial glow */}
-          <div className="absolute inset-0" style={{ background: 'radial-gradient(circle at 30% 70%, rgba(212,160,23,0.12), transparent 70%)' }} />
+          <div className="absolute inset-0" style={{ background: 'radial-gradient(circle at 30% 70%, rgba(139,37,0,0.12), transparent 70%)' }} />
 
           {/* Logo + tagline */}
           <div className="relative z-10 flex flex-col items-center text-center mb-10">
@@ -57,7 +57,7 @@ export function SetupLayout({ steps, currentStep = 1, children, showSidebar = tr
                       <div
                         className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
                           isDone
-                            ? 'bg-[#d4a017] text-[#2c2a2b]'
+                            ? 'bg-[#2d6a4f] text-white'
                             : isActive
                               ? 'bg-white text-[#2c2a2b]'
                               : 'bg-white/[0.12] text-white/40'
@@ -69,7 +69,7 @@ export function SetupLayout({ steps, currentStep = 1, children, showSidebar = tr
                       <span
                         className={`text-[13px] font-semibold ${
                           isDone
-                            ? 'text-[#d4a017]'
+                            ? 'text-[#2d6a4f]'
                             : isActive
                               ? 'text-white'
                               : 'text-white/[0.35]'
@@ -82,7 +82,7 @@ export function SetupLayout({ steps, currentStep = 1, children, showSidebar = tr
                     {i < steps.length - 1 && (
                       <div
                         className={`w-[2px] h-3 ml-[13px] ${
-                          isDone ? 'bg-[#d4a017]' : 'bg-white/[0.1]'
+                          isDone ? 'bg-[#2d6a4f]' : 'bg-white/[0.1]'
                         }`}
                       />
                     )}
