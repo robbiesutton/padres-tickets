@@ -3,6 +3,7 @@
 :root {
   --background: #fefefe;
   --foreground: #1A1A1A;
+  --drawer-vertical-padding: 24px;
 }
 
 @theme inline {

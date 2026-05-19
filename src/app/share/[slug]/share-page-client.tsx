@@ -146,14 +146,14 @@ function MobileSeatInfoPill({ pkg, activeTab }: { pkg: PackageInfo; activeTab: A
                     {/* Description */}
                     {pkg.description && (
                       <div>
-                        <p className="text-[11px] font-bold tracking-[0.04em] uppercase text-[#8E8985] mb-3">Description</p>
+                        <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">Description</p>
                         <p className="text-[14px] leading-[1.5] text-[#1B1716]">{pkg.description}</p>
                       </div>
                     )}
 
                     {/* Your seats */}
                     <div>
-                      <p className="text-[11px] font-bold tracking-[0.04em] uppercase text-[#8E8985] mb-3">Your seats</p>
+                      <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">Your seats</p>
                       <div className="flex flex-col text-[14px]">
                         <div className="flex items-center justify-between py-2">
                           <span className="text-[#8e8985]">Section</span>
@@ -179,7 +179,7 @@ function MobileSeatInfoPill({ pkg, activeTab }: { pkg: PackageInfo; activeTab: A
                     {/* How to pay */}
                     {hasPayment && (
                       <div>
-                        <p className="text-[11px] font-bold tracking-[0.04em] uppercase text-[#8E8985] mb-3">{payHeading}</p>
+                        <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">{payHeading}</p>
                         <div className="flex flex-col text-[14px]">
                           {pkg.venmoHandle?.trim() && (
                             <div className="flex items-center justify-between py-2">
@@ -199,7 +199,7 @@ function MobileSeatInfoPill({ pkg, activeTab }: { pkg: PackageInfo; activeTab: A
 
                     {/* How it works */}
                     <div>
-                      <p className="text-[11px] font-bold tracking-[0.04em] uppercase text-[#8E8985] mb-3">How it works</p>
+                      <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">How it works</p>
                       <div className="bg-[#F5F4F2] rounded-[10px] px-4 py-3.5 flex flex-col gap-2.5">
                         {[
                           'Pick a game from the schedule.',
@@ -301,6 +301,19 @@ function SharePageInner({ packageInfo, games: initialGames, opponents }: Props) 
       }
     } catch { /* ignore */ }
   }, [packageInfo.slug, currentUserId]);
+
+  // Dev affordance: ?ftu=reset clears the FTU localStorage key and reloads,
+  // letting designers re-trigger the first-time experience without DevTools.
+  useEffect(() => {
+    if (searchParams.get('ftu') !== 'reset') return;
+    try {
+      window.localStorage.removeItem(`bb-claimer-ftu-${packageInfo.slug}-seen`);
+    } catch {}
+    const url = new URL(window.location.href);
+    url.searchParams.delete('ftu');
+    window.history.replaceState(null, '', url.pathname + url.search);
+    window.location.reload();
+  }, [searchParams, packageInfo.slug]);
 
   // Handle ?reserved= URL param from magic link redirect
   useEffect(() => {
@@ -535,7 +548,6 @@ function SharePageInner({ packageInfo, games: initialGames, opponents }: Props) 
                 opponentFilter={opponentFilter}
                 monthFilter={monthFilter}
                 onClearFilters={handleClearFilters}
-                onSwitchToMyGames={() => setActiveTab('my-games')}
               />
             ) : (
               <>
@@ -558,7 +570,6 @@ function SharePageInner({ packageInfo, games: initialGames, opponents }: Props) 
                       currentUserId={currentUserId}
                       onReserved={handleReserved}
                       onCancelled={handleCancelled}
-                      onSwitchToMyGames={() => setActiveTab('my-games')}
                     />
                   </div>
                 )}

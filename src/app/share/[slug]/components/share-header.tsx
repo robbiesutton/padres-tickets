@@ -164,14 +164,17 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
               pillOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'
             }`}
           >
-            <div className="relative pt-2 px-6 pb-2">
+            {/* Vertical padding intentionally locked to 24px (--drawer-vertical-padding) so the close X
+                has a tight chrome zone, not a dead zone, and the bottom mirrors the top.
+                This has regressed twice; do not change without design review. */}
+            <div className="relative px-6 py-6" style={{ paddingTop: 'var(--drawer-vertical-padding)', paddingBottom: 'var(--drawer-vertical-padding)' }}>
               {/* Close X — its own chrome zone above content */}
               <button
                 onClick={() => setPillOpen(false)}
                 title="Close"
-                className="absolute top-4 right-4 w-8 h-8 rounded-lg bg-transparent hover:bg-[#F5F4F2] border-none cursor-pointer flex items-center justify-center text-[#1B1716] z-10"
+                className="absolute top-1 right-1 w-11 h-11 rounded-lg bg-transparent hover:bg-[#F5F4F2] border-none cursor-pointer flex items-center justify-center text-[#1B1716] z-10"
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M18 6L6 18" />
                   <path d="M6 6l12 12" />
                 </svg>
@@ -195,28 +198,26 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
                         View from Section {pkg.section}
                       </div>
                     </div>
-                    {isFTU && (
-                      <div>
-                        <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">How it works</p>
-                        <div className="bg-[#F5F4F2] rounded-[10px] px-4 py-3.5 flex flex-col gap-2.5">
-                          {[
-                            'Pick a game from the schedule.',
-                            claimStep,
-                            'Tickets arrive before game day.',
-                          ].map((step, i) => (
-                            <div key={i} className="flex gap-3 items-start text-[13px] leading-[1.4] text-[#1B1716]">
-                              <div className="w-5 h-5 rounded-full bg-[#810100] text-white flex items-center justify-center text-[11px] font-bold shrink-0">
-                                {i + 1}
-                              </div>
-                              <div>{step}</div>
+                    <div>
+                      <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">How it works</p>
+                      <div className="bg-[#F5F4F2] rounded-[10px] px-4 py-3.5 flex flex-col gap-2.5">
+                        {[
+                          'Pick a game from the schedule.',
+                          claimStep,
+                          'Tickets arrive before game day.',
+                        ].map((step, i) => (
+                          <div key={i} className="flex gap-3 items-start text-[13px] leading-[1.4] text-[#1B1716]">
+                            <div className="w-5 h-5 rounded-full bg-[#810100] text-white flex items-center justify-center text-[11px] font-bold shrink-0">
+                              {i + 1}
                             </div>
-                          ))}
-                        </div>
+                            <div>{step}</div>
+                          </div>
+                        ))}
                       </div>
-                    )}
+                    </div>
                   </div>
 
-                  {/* Right column — content + (FTU only) Got it */}
+                  {/* Right column — content + CTA */}
                   <div className="flex flex-col gap-[18px]">
                     {pkg.description && (
                       <div>
@@ -266,14 +267,12 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
                         </div>
                       </div>
                     )}
-                    {isFTU && (
-                      <button
-                        onClick={dismissFTU}
-                        className="self-end mt-auto bg-[#1B1716] text-white border-none rounded-[10px] px-[22px] py-3 text-sm font-semibold cursor-pointer hover:opacity-90 transition-opacity"
-                      >
-                        Got it, view games
-                      </button>
-                    )}
+                    <button
+                      onClick={dismissFTU}
+                      className="self-end mt-auto bg-[#1B1716] text-white border-none rounded-[10px] px-[22px] py-3 text-sm font-semibold cursor-pointer hover:opacity-90 transition-opacity"
+                    >
+                      Got it, view games
+                    </button>
                   </div>
                 </div>
               ) : (
@@ -327,33 +326,29 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
                       </div>
                     </div>
                   )}
-                  {isFTU && (
-                    <>
-                      <div>
-                        <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">How it works</p>
-                        <div className="bg-[#F5F4F2] rounded-[10px] px-4 py-3.5 flex flex-col gap-2.5">
-                          {[
-                            'Pick a game from the schedule.',
-                            claimStep,
-                            'Tickets arrive before game day.',
-                          ].map((step, i) => (
-                            <div key={i} className="flex gap-3 items-start text-[13px] leading-[1.4] text-[#1B1716]">
-                              <div className="w-5 h-5 rounded-full bg-[#810100] text-white flex items-center justify-center text-[11px] font-bold shrink-0">
-                                {i + 1}
-                              </div>
-                              <div>{step}</div>
-                            </div>
-                          ))}
+                  <div>
+                    <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">How it works</p>
+                    <div className="bg-[#F5F4F2] rounded-[10px] px-4 py-3.5 flex flex-col gap-2.5">
+                      {[
+                        'Pick a game from the schedule.',
+                        claimStep,
+                        'Tickets arrive before game day.',
+                      ].map((step, i) => (
+                        <div key={i} className="flex gap-3 items-start text-[13px] leading-[1.4] text-[#1B1716]">
+                          <div className="w-5 h-5 rounded-full bg-[#810100] text-white flex items-center justify-center text-[11px] font-bold shrink-0">
+                            {i + 1}
+                          </div>
+                          <div>{step}</div>
                         </div>
-                      </div>
-                      <button
-                        onClick={dismissFTU}
-                        className="w-full bg-[#1B1716] text-white border-none rounded-[10px] py-3 text-sm font-semibold cursor-pointer hover:opacity-90 transition-opacity"
-                      >
-                        Got it, view games
-                      </button>
-                    </>
-                  )}
+                      ))}
+                    </div>
+                  </div>
+                  <button
+                    onClick={dismissFTU}
+                    className="w-full bg-[#1B1716] text-white border-none rounded-[10px] py-3 text-sm font-semibold cursor-pointer hover:opacity-90 transition-opacity"
+                  >
+                    Got it, view games
+                  </button>
                 </div>
               )}
             </div>
