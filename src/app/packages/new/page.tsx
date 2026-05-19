@@ -995,7 +995,7 @@ export default function NewPackagePage() {
 
 
           <StepHeadline>Pricing &amp; payment</StepHeadline>
-          <StepSubhead>Set your default price and how you&apos;d like to get paid. Payment info is optional and editable anytime in your Profile.</StepSubhead>
+          <StepSubhead>Set your default price and how you&apos;d like to get paid. Payment details are optional and editable anytime in your Profile.</StepSubhead>
 
           {/* Default price */}
           <div>

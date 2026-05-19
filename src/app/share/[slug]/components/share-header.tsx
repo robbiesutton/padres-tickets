@@ -127,17 +127,19 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
         <div className="hidden md:block relative">
           <div
             ref={pillRef}
-            className={`flex items-center gap-1.5 h-10 pl-1 pr-2.5 rounded-lg border cursor-pointer transition-colors ${
+            className={`flex items-center justify-between w-[280px] h-12 pl-1.5 pr-3 rounded-lg border cursor-pointer transition-colors ${
               pillOpen ? 'border-white/30 bg-white/15' : 'border-white/20 hover:bg-white/10'
             }`}
             onClick={() => { setPillOpen(!pillOpen); setSeatInfoOpen(false); }}
           >
-            <div className="w-[34px] h-[34px] rounded-full flex items-center justify-center text-[11px] font-bold shrink-0" style={{ backgroundColor: teamAccent, color: navColor }}>
-              {getOpponentAbbr(pkg.team)}
+            <div className="flex items-center gap-1.5">
+              <div className="w-[34px] h-[34px] rounded-full flex items-center justify-center text-[11px] font-bold shrink-0" style={{ backgroundColor: teamAccent, color: navColor }}>
+                {getOpponentAbbr(pkg.team)}
+              </div>
+              <span className={`text-base font-medium ${isDark ? 'text-white' : 'text-[#1B1716]'}`}>
+                {pillLabel}
+              </span>
             </div>
-            <span className={`text-xs font-medium ${isDark ? 'text-white' : 'text-[#1B1716]'}`}>
-              {pillLabel}
-            </span>
             <svg
               className={`shrink-0 transition-transform duration-200 ${pillOpen ? 'rotate-180' : ''}`}
               width="12" height="12" viewBox="0 0 24 24" fill="none"
@@ -377,7 +379,7 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
         {/* Account avatar */}
         <a
           href={`/dashboard/profile?from=share&slug=${pkg.slug}`}
-          className="w-[34px] h-[34px] md:w-[42px] md:h-[42px] rounded-full flex items-center justify-center cursor-pointer transition-all text-[11px] md:text-[13px] font-bold"
+          className="w-[34px] h-[34px] rounded-full flex items-center justify-center cursor-pointer transition-all text-[11px] font-bold"
           style={{ backgroundColor: teamAccent, color: navColor }}
         >
           {userInitial}

@@ -36,12 +36,12 @@ const ALL_NAV_ITEMS = [
       <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" />
     </svg>
   )},
-  { id: 'seat-info', label: 'Seat Info', requiresOwner: true, icon: (
+  { id: 'seat-info', label: 'Seats', requiresOwner: true, icon: (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" /><line x1="4" y1="22" x2="4" y2="15" />
     </svg>
   )},
-  { id: 'payment-info', label: 'Payment Info', requiresOwner: true, icon: (
+  { id: 'payment-info', label: 'Payments', requiresOwner: true, icon: (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <path d="M21 12V7H5a2 2 0 010-4h14v4" /><path d="M3 5v14a2 2 0 002 2h16v-5" /><path d="M18 12a2 2 0 000 4h4v-4z" />
     </svg>
@@ -232,16 +232,16 @@ export default function ProfilePage() {
     if (!selectedPkgId) return; setSavingSeat(true); setMessage(null);
     const res = await fetch(`/api/packages/${selectedPkgId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ seatPhotoUrl: seatForm.seatPhotoUrl, description: seatForm.description }) });
     setSavingSeat(false);
-    if (res.ok) setMessage({ type: 'success', text: 'Seat info saved!' });
-    else { const data = await res.json(); setMessage({ type: 'error', text: data.error || 'Failed to save seat info' }); }
+    if (res.ok) setMessage({ type: 'success', text: 'Changes saved!' });
+    else { const data = await res.json(); setMessage({ type: 'error', text: data.error || 'Failed to save changes' }); }
   }
 
   async function handleSavePaymentInfo() {
     setSavingPayment(true); setMessage(null);
     const res = await fetch('/api/users/me', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
     setSavingPayment(false);
-    if (res.ok) { const data = await res.json(); setProfile(data); setMessage({ type: 'success', text: 'Payment info saved!' }); }
-    else { const data = await res.json(); setMessage({ type: 'error', text: data.error || 'Failed to save payment info' }); }
+    if (res.ok) { const data = await res.json(); setProfile(data); setMessage({ type: 'success', text: 'Changes saved!' }); }
+    else { const data = await res.json(); setMessage({ type: 'error', text: data.error || 'Failed to save changes' }); }
   }
 
   function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -336,7 +336,7 @@ export default function ProfilePage() {
   function renderPaymentInfo() {
     return (
       <>
-        <h2 className="text-lg font-medium text-[#2c2a2b] mb-2">Payment Info</h2>
+        <h2 className="text-lg font-medium text-[#2c2a2b] mb-2">Payments</h2>
         <p className="text-sm text-[#3d3a38] mb-6 md:mb-8">This info is shown to anyone who opens your share link so they know how to pay you.</p>
         <div className="space-y-4">
           <div>
@@ -348,7 +348,7 @@ export default function ProfilePage() {
             <input type="text" value={form.zelleInfo} onChange={(e) => update('zelleInfo', e.target.value)} placeholder="(555) 555-5555" className={inputClass} />
           </div>
           <button type="button" onClick={handleSavePaymentInfo} disabled={savingPayment} className="w-full md:w-auto h-12 md:h-10 px-5 rounded-lg bg-[#2c2a2b] text-sm font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors disabled:opacity-50">
-            {savingPayment ? 'Saving...' : 'Save payment info'}
+            {savingPayment ? 'Saving...' : 'Save changes'}
           </button>
         </div>
       </>
@@ -359,7 +359,7 @@ export default function ProfilePage() {
     return (
       <>
         <div className="flex items-center justify-between mb-1">
-          <h2 className="text-lg font-medium text-[#2c2a2b]">Seat Info</h2>
+          <h2 className="text-lg font-medium text-[#2c2a2b]">Seats</h2>
           {SHOW_PACKAGE_SWITCHER && packages.length > 1 && (
             <select value={selectedPkgId || ''} onChange={(e) => handlePkgChange(e.target.value)} className="rounded-lg border border-[#eceae5] px-3 py-1.5 text-sm">
               {packages.map((p) => <option key={p.id} value={p.id}>{p.team} — {p.section}</option>)}
@@ -404,7 +404,7 @@ export default function ProfilePage() {
             <textarea value={seatForm.description} onChange={(e) => setSeatForm((prev) => ({ ...prev, description: e.target.value }))} placeholder="Describe your seats..." rows={3} className={`${inputClass} resize-none`} />
           </div>
           <button type="button" onClick={handleSaveSeatInfo} disabled={savingSeat} className="w-full md:w-auto h-12 md:h-10 px-5 rounded-lg bg-[#2c2a2b] text-sm font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors disabled:opacity-50">
-            {savingSeat ? 'Saving...' : 'Save seat info'}
+            {savingSeat ? 'Saving...' : 'Save changes'}
           </button>
         </div>
       </>

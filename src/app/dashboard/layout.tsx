@@ -153,7 +153,7 @@ function SeatInfoPillDropdown({ pkg, isDark, navColor, teamAccent, holderFirstNa
   }
 
   const showHeader = editing ? wasFilled : !isEmpty;
-  const headerTitle = editing ? 'Edit seat info' : 'My seats';
+  const headerTitle = editing ? 'Edit seats' : 'My seats';
   const payHeading = holderFirstName?.trim() ? `How to pay ${holderFirstName.trim()}` : 'How to pay';
   const hasPayment = !!(pkg.venmoHandle?.trim() || pkg.zelleInfo?.trim());
 
@@ -164,23 +164,25 @@ function SeatInfoPillDropdown({ pkg, isDark, navColor, teamAccent, holderFirstNa
     <div className="hidden md:block relative">
       <div
         ref={pillRef}
-        className={`flex items-center gap-2 h-10 pl-1.5 pr-3 rounded-lg border cursor-pointer transition-colors ${
+        className={`flex items-center justify-between w-[280px] h-12 pl-1.5 pr-3 rounded-lg border cursor-pointer transition-colors ${
           pillOpen ? 'border-white/30 bg-white/15' : 'border-white/20 hover:bg-white/10'
         }`}
         onClick={() => setPillOpen(!pillOpen)}
       >
-        <div
-          className="w-7 h-7 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0"
-          style={{ backgroundColor: teamAccent, color: navColor }}
-        >
-          {getOpponentAbbr(pkg.team)}
+        <div className="flex items-center gap-1.5">
+          <div
+            className="w-[34px] h-[34px] rounded-full flex items-center justify-center text-[11px] font-bold shrink-0"
+            style={{ backgroundColor: teamAccent, color: navColor }}
+          >
+            {getOpponentAbbr(pkg.team)}
+          </div>
+          <span className={`text-base font-medium ${isDark ? 'text-white' : 'text-[#1B1716]'}`}>
+            My seats
+          </span>
         </div>
-        <span className={`text-sm font-medium ${isDark ? 'text-white' : 'text-[#1B1716]'}`}>
-          My seats
-        </span>
         <svg
           className={`shrink-0 transition-transform duration-200 ${pillOpen ? 'rotate-180' : ''}`}
-          width="14" height="14" viewBox="0 0 24 24" fill="none"
+          width="12" height="12" viewBox="0 0 24 24" fill="none"
         >
           <path d="M6 9l6 6 6-6" stroke={isDark ? 'rgba(255,255,255,0.5)' : '#8e8985'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
@@ -206,7 +208,7 @@ function SeatInfoPillDropdown({ pkg, isDark, navColor, teamAccent, holderFirstNa
                 {!editing && (
                   <button
                     onClick={() => startEditing(true)}
-                    title="Edit seat info"
+                    title="Edit seats"
                     className="w-8 h-8 rounded-lg bg-[#F5F4F2] hover:bg-[#DCD7D4] border-none cursor-pointer flex items-center justify-center text-[#1B1716]"
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -677,7 +679,7 @@ function MobileSeatInfoDrawer({ pkg, navColor, teamAccent, onPkgUpdate }: {
                         <path d="M12 20h9" />
                         <path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
                       </svg>
-                      Edit seat info
+                      Edit seats
                     </button>
                   </>
                 )}
@@ -823,7 +825,7 @@ export default function DashboardLayout({
             {/* Account avatar */}
             <Link
               href="/dashboard/profile"
-              className="w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all text-sm font-semibold"
+              className="w-10 h-10 md:w-[34px] md:h-[34px] rounded-full flex items-center justify-center cursor-pointer transition-all text-sm font-semibold md:text-[11px] md:font-bold"
               style={{ backgroundColor: teamAccent, color: navColor }}
             >
               {userInitial}
