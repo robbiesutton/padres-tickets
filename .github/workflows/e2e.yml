@@ -100,6 +100,31 @@ jobs:
           TEST_EMAIL_DOMAIN: ${{ secrets.MAILOSAUR_SERVER_ID }}.mailosaur.net
           NODE_ENV: test
 
+      # If no visual baselines exist in the repo, create them from this
+      # deployment and commit back to the branch. Future runs compare
+      # against the committed PNGs and catch regressions.
+      - name: Bootstrap visual baselines (first run only)
+        run: |
+          BASELINE_COUNT=$(find e2e/specs/__screenshots__ -name "*.png" 2>/dev/null | wc -l | tr -d ' ')
+          if [ "$BASELINE_COUNT" = "0" ]; then
+            echo "No baselines committed yet — generating initial screenshots..."
+            npx playwright test e2e/specs/visual.spec.ts \
+              --update-snapshots \
+              --project=chromium-desktop || true
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git config user.name "github-actions[bot]"
+            git add e2e/specs/__screenshots__/
+            git diff --cached --quiet || \
+              git commit -m "chore: add initial visual regression baselines [skip ci]"
+            git push origin HEAD || true
+            echo "Baselines committed — comparison mode active from next run."
+          else
+            echo "Baselines present ($BASELINE_COUNT files) — comparison mode."
+          fi
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ steps.deploy.outputs.url }}
+          VERCEL_BYPASS_SECRET: ${{ secrets.VERCEL_BYPASS_SECRET }}
+
       - name: Run Playwright tests
         run: npx playwright test
         env:
@@ -118,6 +143,18 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
+
+      # Visual baselines are committed to e2e/specs/__screenshots__/.
+      # On first run (no baseline), Playwright writes new PNGs here.
+      # Download this artifact → commit → future runs diff against them.
+      - name: Upload visual baselines (new screenshots only)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-baselines
+          path: e2e/specs/__screenshots__/
+          retention-days: 30
+          if-no-files-found: ignore
 
   report:
     name: Notion reporter

@@ -44,4 +44,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Playwright generated output (baselines in __screenshots__ ARE committed)
+/test-results/
+/playwright-report/
+/e2e/.auth/
+
 /src/generated/prisma
