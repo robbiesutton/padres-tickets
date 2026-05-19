@@ -310,10 +310,10 @@ function SharePageInner({ packageInfo, games: initialGames, opponents }: Props) 
   useEffect(() => {
     const reservedId = searchParams.get('reserved');
     if (reservedId) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setReservedGames((prev) => new Map([...prev, [reservedId, '']]));
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setExpandedGameId(reservedId);
+      startTransition(() => {
+        setReservedGames((prev) => new Map([...prev, [reservedId, '']]));
+        setExpandedGameId(reservedId);
+      });
       window.history.replaceState(null, '', window.location.pathname);
     }
     const reserveError = searchParams.get('reserveError');

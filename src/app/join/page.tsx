@@ -245,6 +245,7 @@ function JoinForm() {
               <FormLabel>First name</FormLabel>
               <input
                 ref={firstNameRef}
+                data-testid="join-first-name"
                 type="text"
                 autoComplete="given-name"
                 value={form.firstName}
@@ -260,6 +261,7 @@ function JoinForm() {
               <FormLabel>Last name</FormLabel>
               <input
                 ref={lastNameRef}
+                data-testid="join-last-name"
                 type="text"
                 autoComplete="family-name"
                 value={form.lastName}
@@ -277,6 +279,7 @@ function JoinForm() {
             <FormLabel>Email</FormLabel>
             <input
               ref={emailRef}
+              data-testid="join-email"
               type="email"
               autoComplete="email"
               inputMode="email"
@@ -312,6 +315,7 @@ function JoinForm() {
             <div className="relative">
               <input
                 ref={passwordRef}
+                data-testid="join-password"
                 type={showPassword ? 'text' : 'password'}
                 autoComplete="new-password"
                 value={form.password}
@@ -334,7 +338,7 @@ function JoinForm() {
           {/* Consent */}
           <div className="flex flex-col gap-3">
             <label className="flex items-start gap-2.5 text-sm cursor-pointer">
-              <input type="checkbox" checked={agreedToTerms} onChange={(e) => setAgreedToTerms(e.target.checked)} className="mt-0.5 w-5 h-5 accent-[#2c2a2b] shrink-0" />
+              <input data-testid="join-terms-checkbox" type="checkbox" checked={agreedToTerms} onChange={(e) => setAgreedToTerms(e.target.checked)} className="mt-0.5 w-5 h-5 accent-[#2c2a2b] shrink-0" />
               <span className="text-[#8e8985] leading-relaxed">
                 I agree to the <a href="/terms" target="_blank" className="text-[#8e8985] underline">Terms of Service</a> and <a href="/privacy" target="_blank" className="text-[#8e8985] underline">Privacy Policy</a>
               </span>
@@ -348,6 +352,7 @@ function JoinForm() {
           </div>
 
           <button
+            data-testid="join-submit"
             type="submit"
             disabled={loading || !agreedToTerms}
             className="w-full h-12 rounded-lg bg-[#2c2a2b] text-white text-sm font-medium cursor-pointer border-none transition-all hover:bg-[#dcd7d4] hover:text-[#2c2a2b] disabled:opacity-50 disabled:cursor-not-allowed"
