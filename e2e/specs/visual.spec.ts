@@ -134,3 +134,61 @@ test.describe('Share page', () => {
     });
   });
 });
+
+// Mobile visual regression — runs on iPhone 13 + Pixel 5 via @mobile grep
+// Captures the key screens a claimer and holder encounter on a phone.
+test.describe('@mobile Mobile visual regression', () => {
+  test('@mobile join page on mobile', async ({ page }) => {
+    await page.goto('/join');
+    await expect(page.getByTestId('join-email')).toBeVisible();
+    await expect(page).toHaveScreenshot('mobile-join.png', {
+      maxDiffPixelRatio: 0.01,
+    });
+  });
+
+  test('@mobile login page on mobile', async ({ page }) => {
+    await page.goto('/login');
+    await expect(page.getByTestId('login-email')).toBeVisible();
+    await expect(page).toHaveScreenshot('mobile-login.png', {
+      maxDiffPixelRatio: 0.01,
+    });
+  });
+
+  test('@mobile share page (unauthenticated redirect) on mobile', async ({
+    page,
+  }) => {
+    await page.goto('/share/mark-rockies-test');
+    await page.waitForLoadState('networkidle');
+    await expect(page).toHaveScreenshot('mobile-share-redirect.png', {
+      maxDiffPixelRatio: 0.01,
+    });
+  });
+
+  test.describe('@mobile Authenticated mobile views', () => {
+    test.use({ storageState: 'e2e/.auth/holder.json' });
+
+    test('@mobile dashboard on mobile', async ({ page }) => {
+      await page.goto('/dashboard');
+      await expect(page.getByTestId('dashboard-nav')).toBeVisible();
+      await page.waitForLoadState('networkidle');
+      await expect(page).toHaveScreenshot('mobile-dashboard.png', {
+        maxDiffPixelRatio: 0.01,
+      });
+    });
+
+    test('@mobile share page list view on mobile', async ({ page }) => {
+      await page.goto('/share/mark-rockies-test');
+      await page.waitForLoadState('networkidle');
+      const listToggle = page.locator(
+        '[data-testid="view-toggle-list"]:visible'
+      );
+      if ((await listToggle.count()) > 0) {
+        await listToggle.first().click();
+        await page.waitForLoadState('networkidle');
+      }
+      await expect(page).toHaveScreenshot('mobile-share-list.png', {
+        maxDiffPixelRatio: 0.01,
+      });
+    });
+  });
+});
