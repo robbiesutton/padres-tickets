@@ -118,7 +118,7 @@ export function Toolbar({
           <div className="absolute inset-0 bg-black/30" onClick={() => setMobileFiltersOpen(false)} />
           <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-[0_-4px_16px_rgba(0,0,0,0.08)] animate-slide-up max-h-[85vh] flex flex-col overflow-hidden">
             {/* Chrome strip — close X only */}
-            <div className="relative h-14 shrink-0">
+            <div className="relative h-10 shrink-0">
               <button
                 onClick={() => setMobileFiltersOpen(false)}
                 title="Close"

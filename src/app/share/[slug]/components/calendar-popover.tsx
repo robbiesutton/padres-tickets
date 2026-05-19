@@ -210,84 +210,9 @@ export function CalendarPopover({
       <div className="absolute inset-0 bg-black/30" onClick={onClose} />
       <div
         ref={popoverRef}
-        className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-[0_-4px_16px_rgba(0,0,0,0.08)] animate-slide-up max-h-[85vh] flex flex-col overflow-hidden"
+        className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-[0_-4px_16px_rgba(0,0,0,0.08)] animate-slide-up max-h-[85vh] overflow-y-auto"
       >
-        {/* Chrome strip — close X only */}
-        <div className="relative h-14 shrink-0">
-          <button
-            className="absolute top-1.5 right-1.5 w-11 h-11 flex items-center justify-center bg-transparent border-none cursor-pointer z-10"
-            onClick={onClose}
-            title="Close"
-          >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path d="M18 6L6 18" stroke="#1B1716" strokeWidth="2.5" strokeLinecap="round" />
-              <path d="M6 6l12 12" stroke="#1B1716" strokeWidth="2.5" strokeLinecap="round" />
-            </svg>
-          </button>
-        </div>
-
-        {/* Scrollable body */}
-        <div className="flex-1 overflow-y-auto">
-          <div className="px-6 pb-5 flex flex-col gap-5">
-            {/* Header: 56px badge + opponent title + date */}
-            <div className="flex items-center gap-3">
-              {reserved ? (
-                <div className="w-14 h-14 rounded-full bg-[#0f6f57] flex items-center justify-center shrink-0">
-                  <svg viewBox="0 0 16 16" width={28} height={28} fill="none">
-                    <path d="M3.5 8.5L6.5 11.5L12.5 4.5" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </div>
-              ) : (
-                <div
-                  className="w-14 h-14 rounded-full flex items-center justify-center text-base font-bold text-white shrink-0"
-                  style={{ backgroundColor: color }}
-                >
-                  {abbr}
-                </div>
-              )}
-              <div>
-                <div className="text-[18px] font-bold text-[#1B1716] leading-tight">
-                  vs {game.opponent}
-                </div>
-                <div className="text-sm font-normal text-[#8E8985] mt-1">
-                  {new Date(game.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
-                </div>
-              </div>
-            </div>
-
-            {/* Body context rows */}
-            <div className="flex flex-col gap-3">
-              <div className="text-[15px] text-[#8E8985]">{formatTime(game.time)} · Petco Park</div>
-              <div className="text-[15px] text-[#8E8985]">
-                Section {pkg.section}{pkg.row ? ` · Row ${pkg.row}` : ''} · Seats {pkg.seats}
-              </div>
-              {totalPrice !== null && (
-                <div className="text-[15px] text-[#1B1716]">
-                  {pkg.seatCount} ticket{pkg.seatCount !== 1 ? 's' : ''} · ${totalPrice} total
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Sticky CTA footer */}
-        <div className="shrink-0 px-6 pb-5 bg-white">
-          {reserved ? (
-            <button
-              className="w-full h-[52px] rounded-[10px] bg-transparent text-[#1B1716] text-base font-semibold border-[1.5px] border-solid border-[#1B1716] cursor-pointer flex items-center justify-center hover:bg-[#f5f4f2] transition-colors"
-              onClick={onRelease}
-            >
-              Release
-            </button>
-          ) : (
-            <button
-              className="w-full h-[52px] rounded-[10px] bg-[#2C2A2B] text-white text-base font-semibold border-none cursor-pointer flex items-center justify-center hover:opacity-90 transition-opacity"
-              onClick={handleClaimClick}
-            >
-              Claim
-            </button>
-          )}
-        </div>
+        {popoverContent}
       </div>
     </div>,
     document.body
