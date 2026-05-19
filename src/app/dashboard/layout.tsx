@@ -15,6 +15,7 @@ import { usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { getTeamColors, isColorDark } from '@/lib/team-colors';
 import { getOpponentAbbr } from '@/lib/game-utils';
+import { TESTIDS } from '@/lib/testids';
 import { ScoreTicker } from '@/components/score-ticker';
 import { DESIGN_MODE, mockHolder } from '@/lib/mock-data';
 import { SHOW_PACKAGE_SWITCHER } from '@/lib/feature-flags';
@@ -1050,7 +1051,7 @@ export default function DashboardLayout({
     >
       <div className="flex flex-1 flex-col">
         <header
-          data-testid="dashboard-nav"
+          data-testid={TESTIDS.dashboardNav}
           className="h-[60px] md:h-[77px] flex items-center justify-between px-4 md:px-8 sticky top-0 z-50 shadow-[0_1px_3px_rgba(0,0,0,0.06)]"
           style={{ backgroundColor: navColor }}
         >
@@ -1126,7 +1127,7 @@ export default function DashboardLayout({
             {/* Account avatar */}
             <Link
               href="/dashboard/profile"
-              data-testid="account-avatar"
+              data-testid={TESTIDS.accountAvatar}
               className="w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all text-sm font-semibold"
               style={{ backgroundColor: teamAccent, color: navColor }}
             >

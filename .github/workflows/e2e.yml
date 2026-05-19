@@ -2,9 +2,9 @@ name: E2E Tests
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, design]
   push:
-    branches: [main]
+    branches: [main, design]
 
 # Cancel in-progress runs on force-pushes to avoid burning Mailosaur quota
 concurrency:
@@ -101,7 +101,14 @@ jobs:
           NODE_ENV: test
 
       - name: Run Playwright tests
-        run: npx playwright test
+        # On the design branch run only @smoke tests — fast, no Mailosaur/DB needed.
+        # Full suite runs on PRs into main where the complete test contract applies.
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/design" ]; then
+            npx playwright test --grep "@smoke"
+          else
+            npx playwright test
+          fi
         env:
           PLAYWRIGHT_BASE_URL: ${{ steps.deploy.outputs.url }}
           VERCEL_BYPASS_SECRET: ${{ secrets.VERCEL_BYPASS_SECRET }}

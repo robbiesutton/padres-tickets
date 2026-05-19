@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { SetupLayout, FormLabel } from '@/components/setup-layout';
+import { TESTIDS } from '@/lib/testids';
 import { AuthFormSkeleton, Bone } from '@/components/skeleton';
 import { getTeamColors } from '@/lib/team-colors';
 import { getOpponentAbbr } from '@/lib/game-utils';
@@ -285,7 +286,7 @@ function JoinForm() {
 
         {submitError && (
           <div
-            data-testid="join-error"
+            data-testid={TESTIDS.joinError}
             className="rounded-lg bg-[#FEE2E2] text-[#DC2626] px-4 py-3 text-sm font-medium mb-4"
           >
             {submitError}
@@ -302,7 +303,7 @@ function JoinForm() {
               <FormLabel>First name</FormLabel>
               <input
                 ref={firstNameRef}
-                data-testid="join-first-name"
+                data-testid={TESTIDS.joinFirstName}
                 type="text"
                 autoComplete="given-name"
                 value={form.firstName}
@@ -322,7 +323,7 @@ function JoinForm() {
               <FormLabel>Last name</FormLabel>
               <input
                 ref={lastNameRef}
-                data-testid="join-last-name"
+                data-testid={TESTIDS.joinLastName}
                 type="text"
                 autoComplete="family-name"
                 value={form.lastName}
@@ -342,7 +343,7 @@ function JoinForm() {
             <FormLabel>Email</FormLabel>
             <input
               ref={emailRef}
-              data-testid="join-email"
+              data-testid={TESTIDS.joinEmail}
               type="email"
               autoComplete="email"
               inputMode="email"
@@ -382,7 +383,7 @@ function JoinForm() {
             <div className="relative">
               <input
                 ref={passwordRef}
-                data-testid="join-password"
+                data-testid={TESTIDS.joinPassword}
                 type={showPassword ? 'text' : 'password'}
                 autoComplete="new-password"
                 value={form.password}
@@ -414,7 +415,7 @@ function JoinForm() {
           <div className="flex flex-col gap-3">
             <label className="flex items-start gap-2.5 text-sm cursor-pointer">
               <input
-                data-testid="join-terms-checkbox"
+                data-testid={TESTIDS.joinTermsCheckbox}
                 type="checkbox"
                 checked={agreedToTerms}
                 onChange={(e) => setAgreedToTerms(e.target.checked)}
@@ -453,7 +454,7 @@ function JoinForm() {
           </div>
 
           <button
-            data-testid="join-submit"
+            data-testid={TESTIDS.joinSubmit}
             type="submit"
             disabled={loading || !agreedToTerms}
             className="w-full h-12 rounded-lg bg-[#2c2a2b] text-white text-sm font-medium cursor-pointer border-none transition-all hover:bg-[#dcd7d4] hover:text-[#2c2a2b] disabled:opacity-50 disabled:cursor-not-allowed"

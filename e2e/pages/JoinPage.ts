@@ -1,4 +1,5 @@
 import { Page, expect } from '@playwright/test';
+import { TESTIDS } from '../../src/lib/testids';
 
 export class JoinPage {
   constructor(private page: Page) {}
@@ -9,15 +10,15 @@ export class JoinPage {
   }
 
   async fill(opts: { firstName: string; lastName: string; email: string; password: string }) {
-    await this.page.getByTestId('join-first-name').fill(opts.firstName);
-    await this.page.getByTestId('join-last-name').fill(opts.lastName);
-    await this.page.getByTestId('join-email').fill(opts.email);
-    await this.page.getByTestId('join-password').fill(opts.password);
-    await this.page.getByTestId('join-terms-checkbox').check();
+    await this.page.getByTestId(TESTIDS.joinFirstName).fill(opts.firstName);
+    await this.page.getByTestId(TESTIDS.joinLastName).fill(opts.lastName);
+    await this.page.getByTestId(TESTIDS.joinEmail).fill(opts.email);
+    await this.page.getByTestId(TESTIDS.joinPassword).fill(opts.password);
+    await this.page.getByTestId(TESTIDS.joinTermsCheckbox).check();
   }
 
   async submit() {
-    await this.page.getByTestId('join-submit').click();
+    await this.page.getByTestId(TESTIDS.joinSubmit).click();
   }
 
   async createAccount(opts: { firstName: string; lastName: string; email: string; password: string }) {
@@ -26,7 +27,7 @@ export class JoinPage {
   }
 
   error() {
-    return this.page.getByTestId('join-error');
+    return this.page.getByTestId(TESTIDS.joinError);
   }
 
   async assertRedirectedToShare(slug: string) {
