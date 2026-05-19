@@ -1,4 +1,5 @@
 import { Page, expect } from '@playwright/test';
+import { TESTIDS } from '../../src/lib/testids';
 
 export class DashboardPage {
   constructor(private page: Page) {}
@@ -8,15 +9,15 @@ export class DashboardPage {
   }
 
   nav() {
-    return this.page.getByTestId('dashboard-nav');
+    return this.page.getByTestId(TESTIDS.dashboardNav);
   }
 
   accountAvatar() {
-    return this.page.getByTestId('account-avatar');
+    return this.page.getByTestId(TESTIDS.accountAvatar);
   }
 
   packageSwitcher() {
-    return this.page.getByTestId('package-switcher');
+    return this.page.getByTestId(TESTIDS.packageSwitcher);
   }
 
   async assertVisible() {

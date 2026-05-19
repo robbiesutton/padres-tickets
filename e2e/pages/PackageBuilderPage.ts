@@ -1,4 +1,5 @@
 import { Page, expect } from '@playwright/test';
+import { TESTIDS } from '../../src/lib/testids';
 
 export class PackageBuilderPage {
   constructor(private page: Page) {}
@@ -8,15 +9,15 @@ export class PackageBuilderPage {
   }
 
   step1Continue() {
-    return this.page.getByTestId('package-step1-continue');
+    return this.page.getByTestId(TESTIDS.packageStep1Continue);
   }
 
   step2Continue() {
-    return this.page.getByTestId('package-step2-continue');
+    return this.page.getByTestId(TESTIDS.packageStep2Continue);
   }
 
   step3Finish() {
-    return this.page.getByTestId('package-step3-finish');
+    return this.page.getByTestId(TESTIDS.packageStep3Finish);
   }
 
   async assertOnStep(n: 1 | 2 | 3) {

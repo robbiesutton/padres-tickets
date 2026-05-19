@@ -3,12 +3,17 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
+import { TESTIDS } from '@/lib/testids';
+import Image from 'next/image';
 import {
   SetupLayout,
   StepHeadline,
   StepSubhead,
   StepActions,
   PrimaryButton,
+  GhostButton,
+  SkipLink,
+  InlineNote,
   FormLabel,
   FormSelect,
 } from '@/components/setup-layout';
@@ -56,7 +61,7 @@ interface ScheduleGame {
   opponent: string;
 }
 
-type Step = 1 | 2 | 3;
+type Step = 1 | 2 | 3 | 4;
 
 // ─── Constants ──────────────────────────────────────────
 
@@ -88,6 +93,7 @@ const MONTH_NAMES = [
 const STEPS = [
   { label: 'Your tickets' },
   { label: 'Your seats' },
+  { label: 'Pricing & payment' },
   { label: 'Confirmation' },
 ];
 
@@ -462,10 +468,9 @@ function SeatMultiSelect({
 
 // ─── Wizard Game Card ──────────────────────────────────
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function WizardGameCard({
   game,
-  index: _index,
+  index,
   isAvail,
   price,
   onToggleAvailability,
@@ -719,6 +724,7 @@ function WizardGameCard({
 
 export default function NewPackagePage() {
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [step, setStep] = useState<Step>(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -742,14 +748,14 @@ export default function NewPackagePage() {
   const [sections, setSections] = useState<StadiumSection[]>(
     DESIGN ? MOCK_SECTIONS : []
   );
-  const [, setSectionsLoading] = useState(false);
+  const [sectionsLoading, setSectionsLoading] = useState(false);
   const [selectedSection, setSelectedSection] = useState<StadiumSection | null>(
     DESIGN ? MOCK_SECTIONS[1] : null
   );
   const [rows, setRows] = useState<string[]>(
     DESIGN ? ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'] : []
   );
-  const [, setRowsLoading] = useState(false);
+  const [rowsLoading, setRowsLoading] = useState(false);
   const [sectionTags, setSectionTags] = useState<string[]>(
     DESIGN ? ['Shaded seats', 'Craft beer'] : []
   );
@@ -758,10 +764,7 @@ export default function NewPackagePage() {
     DESIGN ? new Set([1, 2]) : new Set()
   );
   const [seatPhotoUrl, setSeatPhotoUrl] = useState<string | null>(null);
-  const [seatDescription, _setSeatDescription] = useState('');
-  const [seatPerks, setSeatPerks] = useState<string[]>(
-    DESIGN ? ['Shaded seats', 'Craft beer'] : []
-  );
+  const [seatDescription, setSeatDescription] = useState('');
 
   // Step 3: Games
   const [schedule, setSchedule] = useState<ScheduleGame[]>(
@@ -770,7 +773,7 @@ export default function NewPackagePage() {
   const [selectedGames, setSelectedGames] = useState<Set<number>>(
     DESIGN ? new Set(MOCK_SCHEDULE.map((_, i) => i)) : new Set()
   );
-  const [, setScheduleLoading] = useState(false);
+  const [scheduleLoading, setScheduleLoading] = useState(false);
   const [availability, setAvailability] = useState<
     Record<number, 'available' | 'keeping'>
   >(DESIGN ? initAvailability() : {});
@@ -779,28 +782,29 @@ export default function NewPackagePage() {
   const [prices, setPrices] = useState<Record<number, number>>(
     DESIGN ? initPrices() : {}
   );
-  const [bulkPrice, _setBulkPrice] = useState(DESIGN ? '45' : '');
+  const [bulkPrice, setBulkPrice] = useState(DESIGN ? '45' : '');
+  const [showPerGame, setShowPerGame] = useState(false);
   const [defaultPrice, setDefaultPrice] = useState('45');
 
   // Step 5: Payment
-  const [venmoHandle, _setVenmoHandle] = useState(
+  const [venmoHandle, setVenmoHandle] = useState(
     DESIGN ? '@robbie-sutton' : ''
   );
-  const [zelleInfo, _setZelleInfo] = useState(
-    DESIGN ? 'robbie@benchbuddy.app' : ''
-  );
+  const [zelleInfo, setZelleInfo] = useState(DESIGN ? '(619) 555-0142' : '');
 
   // Celebration
-  const [linkSlug, _setLinkSlug] = useState(DESIGN ? 'padres-section203' : '');
-  const [, setSlugAvailable] = useState<boolean | null>(DESIGN ? true : null);
+  const [linkSlug, setLinkSlug] = useState(DESIGN ? 'padres-section203' : '');
+  const [slugAvailable, setSlugAvailable] = useState<boolean | null>(
+    DESIGN ? true : null
+  );
   const [copied, setCopied] = useState(false);
   const [result, setResult] = useState<{
     shareLink: string;
     gamesCreated: number;
   } | null>(null);
   const [firstName, setFirstName] = useState(DESIGN ? 'Robbie' : '');
-  const [, setSubscribed] = useState(true);
-  const [, setSubLoading] = useState(false);
+  const [subscribed, setSubscribed] = useState(true);
+  const [subLoading, setSubLoading] = useState(false);
 
   // ─── Data Loading ──────────────────────────────────────
 
@@ -926,7 +930,7 @@ export default function NewPackagePage() {
 
   // ─── Derived Data ──────────────────────────────────────
 
-  const _gamesByMonth = useMemo(() => {
+  const gamesByMonth = useMemo(() => {
     const grouped: Record<string, { game: ScheduleGame; index: number }[]> = {};
     schedule.forEach((game, index) => {
       const d = new Date(game.date);
@@ -937,7 +941,7 @@ export default function NewPackagePage() {
     return grouped;
   }, [schedule]);
 
-  const _availableCount = useMemo(
+  const availableCount = useMemo(
     () =>
       Array.from(selectedGames).filter((i) => availability[i] === 'available')
         .length,
@@ -968,7 +972,7 @@ export default function NewPackagePage() {
     setLeague(value);
   }
 
-  function _toggleGame(index: number) {
+  function toggleGame(index: number) {
     setSelectedGames((prev) => {
       const next = new Set(prev);
       if (next.has(index)) next.delete(index);
@@ -976,13 +980,13 @@ export default function NewPackagePage() {
       return next;
     });
   }
-  function _toggleAvailability(index: number) {
+  function toggleAvailability(index: number) {
     setAvailability((prev) => ({
       ...prev,
       [index]: prev[index] === 'available' ? 'keeping' : 'available',
     }));
   }
-  function _setAllAvailability(value: 'available' | 'keeping') {
+  function setAllAvailability(value: 'available' | 'keeping') {
     setAvailability((prev) => {
       const next = { ...prev };
       selectedGames.forEach((i) => {
@@ -999,11 +1003,6 @@ export default function NewPackagePage() {
       return next;
     });
   }
-  function _togglePerk(perk: string) {
-    setSeatPerks((prev) =>
-      prev.includes(perk) ? prev.filter((p) => p !== perk) : [...prev, perk]
-    );
-  }
 
   function applyBulkPrice() {
     const price = parseInt(bulkPrice) || 0;
@@ -1016,7 +1015,7 @@ export default function NewPackagePage() {
     });
   }
 
-  function _handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
@@ -1082,12 +1081,6 @@ export default function NewPackagePage() {
           season,
           autoLoadSchedule: true,
           seatPhotoUrl: seatPhotoUrl || undefined,
-          perks:
-            seatPerks.length > 0
-              ? seatPerks
-              : sectionTags.length > 0
-                ? sectionTags
-                : undefined,
           description:
             seatDescription ||
             (selectedSection
@@ -1111,7 +1104,7 @@ export default function NewPackagePage() {
     }
   }
 
-  async function _handleSubscribe() {
+  async function handleSubscribe() {
     setSubLoading(true);
     try {
       const res = await fetch('/api/stripe/checkout', { method: 'POST' });
@@ -1180,7 +1173,7 @@ export default function NewPackagePage() {
             <div className="rounded-xl border border-[#dcd7d4] overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.04)] bg-[#fefefe]">
               {/* Mobile nav bar */}
               {(() => {
-                const { primary: teamPrimary, accent: _teamAccent } =
+                const { primary: teamPrimary, accent: teamAccent } =
                   getTeamColors(selectedTeam?.name || 'San Diego Padres');
                 return (
                   <div
@@ -1418,6 +1411,8 @@ export default function NewPackagePage() {
 
   // ─── Wizard Steps ──────────────────────────────────────
 
+  const totalSteps = 4;
+
   return (
     <SetupLayout steps={STEPS} currentStep={step} showSidebar={false}>
       {/* Back button */}
@@ -1605,7 +1600,7 @@ export default function NewPackagePage() {
 
           <StepActions>
             <PrimaryButton
-              data-testid="package-step1-continue"
+              data-testid={TESTIDS.packageStep1Continue}
               onClick={() => {
                 loadSchedule();
                 goToStep(2);
@@ -1670,9 +1665,69 @@ export default function NewPackagePage() {
             onToggle={toggleSeat}
           />
 
+          {/* Seat info */}
+          <div className="mt-4">
+            <FormLabel>
+              Seat Photo <span className="font-normal">(Optional)</span>
+            </FormLabel>
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              className="relative w-full h-[160px] rounded-lg border-[1.5px] border-dashed border-[#eceae5] bg-white overflow-hidden cursor-pointer transition-all hover:border-[#b5b1ab]"
+            >
+              {seatPhotoUrl ? (
+                <Image
+                  src={seatPhotoUrl}
+                  alt="View from seat"
+                  fill
+                  className="object-cover"
+                  sizes="100vw"
+                  unoptimized
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full gap-2 text-[#8e8985]">
+                  <svg
+                    width="28"
+                    height="28"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                    <circle cx="8.5" cy="8.5" r="1.5" />
+                    <path d="M21 15l-5-5L5 21" />
+                  </svg>
+                  <span className="text-sm">Upload a photo of your view</span>
+                </div>
+              )}
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handlePhotoUpload}
+            />
+          </div>
+
+          <div className="mt-4">
+            <FormLabel>
+              Description <span className="font-normal">(Optional)</span>
+            </FormLabel>
+            <textarea
+              value={seatDescription}
+              onChange={(e) => setSeatDescription(e.target.value)}
+              placeholder="Describe your seats..."
+              rows={3}
+              className="w-full px-4 py-3 bg-white border-[1.5px] border-[#eceae5] rounded-lg text-[15px] text-[#1a1a1a] resize-none transition-all hover:border-[#b5b1ab] focus:border-[#2c2a2b] focus:outline-none focus:ring-[3px] focus:ring-[#2c2a2b]/10"
+            />
+          </div>
+
           <StepActions>
             <PrimaryButton
-              data-testid="package-step2-continue"
+              data-testid={TESTIDS.packageStep2Continue}
               onClick={() => goToStep(3)}
               disabled={!selectedSection || !row || selectedSeats.size === 0}
             >
@@ -1682,18 +1737,115 @@ export default function NewPackagePage() {
         </div>
       )}
 
-      {/* ── Step 3: Customize ── */}
+      {/* ── Step 3: Pricing & payment ── */}
       {step === 3 && (
+        <div className="flex flex-col flex-1">
+          <StepHeadline>Pricing &amp; payment</StepHeadline>
+          <StepSubhead>
+            Set your default price and how you&apos;d like to get paid. Payment
+            info is optional and editable anytime in your Profile.
+          </StepSubhead>
+
+          {/* Default price */}
+          <div>
+            <FormLabel>Default price per ticket</FormLabel>
+            <div className="flex items-center gap-2 mt-1">
+              <div className="flex items-center h-[44px] rounded-lg border-[1.5px] border-[#eceae5] bg-white px-3 focus-within:border-[#2c2a2b] focus-within:ring-[3px] focus-within:ring-[#2c2a2b]/10 transition-all">
+                <span className="text-sm font-bold text-[#1a1a1a]">$</span>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={defaultPrice}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/[^0-9]/g, '');
+                    setDefaultPrice(val);
+                    const num = parseInt(val) || 0;
+                    setPrices((prev) => {
+                      const next = { ...prev };
+                      Object.keys(next).forEach((k) => {
+                        next[Number(k)] = num;
+                      });
+                      return next;
+                    });
+                  }}
+                  onBlur={() => {
+                    if (!defaultPrice) setDefaultPrice('0');
+                  }}
+                  style={{
+                    width: `${Math.max(2, defaultPrice.length || 1)}ch`,
+                  }}
+                  className="bg-transparent border-none outline-none text-sm font-bold text-[#1a1a1a] p-0 ml-0.5"
+                />
+              </div>
+              <span className="text-sm text-[#8e8985]">/ ticket</span>
+            </div>
+            <div className="mt-2 rounded-lg bg-[#e8f5e4] text-[#2d6a4f] px-4 py-3 text-sm font-medium leading-relaxed">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="#2d6a4f"
+                className="inline-block align-[-1px] mr-1.5"
+              >
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+              </svg>
+              <strong>${defaultPrice || '0'}/ticket</strong> applied to all{' '}
+              {selectedPackage?.gameCount || 81} games. You can adjust prices
+              for each game from My season.
+            </div>
+          </div>
+
+          {/* Venmo */}
+          <div className="mt-4">
+            <FormLabel>
+              Venmo <span className="font-normal">(Optional)</span>
+            </FormLabel>
+            <input
+              type="text"
+              value={venmoHandle}
+              onChange={(e) => setVenmoHandle(e.target.value)}
+              placeholder="@yourhandle"
+              className="w-full h-12 px-4 bg-white border-[1.5px] border-[#eceae5] rounded-lg text-[15px] text-[#1a1a1a] hover:border-[#b5b1ab] focus:border-[#2c2a2b] focus:outline-none focus:ring-[3px] focus:ring-[#2c2a2b]/10 transition-all"
+            />
+          </div>
+
+          {/* Zelle */}
+          <div className="mt-4">
+            <FormLabel>
+              Zelle <span className="font-normal">(Optional)</span>
+            </FormLabel>
+            <input
+              type="tel"
+              value={zelleInfo}
+              onChange={(e) => setZelleInfo(e.target.value)}
+              placeholder="(555) 555-5555"
+              className="w-full h-12 px-4 bg-white border-[1.5px] border-[#eceae5] rounded-lg text-[15px] text-[#1a1a1a] hover:border-[#b5b1ab] focus:border-[#2c2a2b] focus:outline-none focus:ring-[3px] focus:ring-[#2c2a2b]/10 transition-all"
+            />
+          </div>
+
+          <StepActions>
+            <PrimaryButton
+              data-testid={TESTIDS.packageStep3Finish}
+              onClick={() => goToStep(4)}
+              disabled={!defaultPrice}
+            >
+              Continue →
+            </PrimaryButton>
+          </StepActions>
+        </div>
+      )}
+
+      {/* ── Step 4: Confirmation ── */}
+      {step === 4 && (
         <div className="flex flex-col flex-1">
           <StepHeadline>Confirm your setup</StepHeadline>
           <p className="hidden md:block text-sm text-[#8e8985] leading-relaxed mb-4">
-            Make sure everything looks right, then set your default ticket
-            price.
+            Make sure everything looks right, then finish setup.
           </p>
           <div className="md:hidden mb-[10px]" />
 
           {/* Summary card */}
-          <div className="rounded-xl border border-[#dcd7d4] overflow-hidden mb-6">
+          <div className="rounded-xl border border-[#dcd7d4] overflow-hidden">
             {/* Team header */}
             {(() => {
               const { primary: teamPrimary, accent: teamAccent } =
@@ -1756,67 +1908,38 @@ export default function NewPackagePage() {
                   </span>
                 </div>
               )}
-            </div>
-          </div>
-
-          {/* Default price */}
-          <div className="mb-2">
-            <FormLabel>Default price per ticket</FormLabel>
-            <div className="flex items-center gap-2 mt-1">
-              <div className="flex items-center h-[44px] rounded-lg border-[1.5px] border-[#eceae5] bg-white px-3 focus-within:border-[#2c2a2b] focus-within:ring-[3px] focus-within:ring-[#2c2a2b]/10 transition-all">
-                <span className="text-sm font-bold text-[#1a1a1a]">$</span>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  value={defaultPrice}
-                  onChange={(e) => {
-                    const val = e.target.value.replace(/[^0-9]/g, '');
-                    setDefaultPrice(val);
-                    const num = parseInt(val) || 0;
-                    setPrices((prev) => {
-                      const next = { ...prev };
-                      Object.keys(next).forEach((k) => {
-                        next[Number(k)] = num;
-                      });
-                      return next;
-                    });
-                  }}
-                  onBlur={() => {
-                    if (!defaultPrice) setDefaultPrice('0');
-                  }}
-                  style={{
-                    width: `${Math.max(2, defaultPrice.length || 1)}ch`,
-                  }}
-                  className="bg-transparent border-none outline-none text-sm font-bold text-[#1a1a1a] p-0 ml-0.5"
-                />
+              <div className="flex items-center justify-between px-5 py-3.5">
+                <span className="text-sm text-[#8e8985]">Default price</span>
+                <span className="text-sm font-bold text-[#2c2a2b]">
+                  ${defaultPrice || '0'} / ticket
+                </span>
               </div>
-              <span className="text-sm text-[#8e8985]">/ ticket</span>
+              {venmoHandle.trim() && (
+                <div className="flex items-center justify-between px-5 py-3.5">
+                  <span className="text-sm text-[#8e8985]">Venmo</span>
+                  <span className="text-sm font-bold text-[#2c2a2b]">
+                    {venmoHandle}
+                  </span>
+                </div>
+              )}
+              {zelleInfo.trim() && (
+                <div className="flex items-center justify-between px-5 py-3.5">
+                  <span className="text-sm text-[#8e8985]">Zelle</span>
+                  <span className="text-sm font-bold text-[#2c2a2b]">
+                    {zelleInfo}
+                  </span>
+                </div>
+              )}
             </div>
-          </div>
-
-          {/* Info callout */}
-          <div className="rounded-lg bg-[#e8f5e4] text-[#2d6a4f] px-4 py-3 text-sm font-medium leading-relaxed">
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="#2d6a4f"
-              className="inline-block align-[-1px] mr-1.5"
-            >
-              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-            </svg>
-            <strong>${defaultPrice || '0'}/ticket</strong> applied to all{' '}
-            {selectedPackage?.gameCount || 81} games. You can adjust prices for
-            each game from My season.
           </div>
 
           <StepActions>
             <PrimaryButton
-              data-testid="package-step3-finish"
               onClick={() => {
                 applyBulkPrice();
                 createPackage();
               }}
+              data-testid={TESTIDS.packageStep3Finish}
               disabled={loading}
             >
               {loading ? 'Creating...' : 'Finish setup →'}

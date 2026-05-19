@@ -1,12 +1,25 @@
 'use client';
 
-import { useState, useMemo, useEffect, useCallback, Suspense } from 'react';
+import {
+  useState,
+  useMemo,
+  useEffect,
+  useCallback,
+  startTransition,
+  Suspense,
+} from 'react';
 import { useSession } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
 import type { Game, PackageInfo, ViewMode, ActiveTab } from './types';
-import { MONTH_NAMES, getGameMonthYear, getOpponentAbbr } from './utils';
+import {
+  isGameAvailable,
+  MONTH_NAMES,
+  getGameMonthYear,
+  getOpponentAbbr,
+} from './utils';
 import { getTeamColors } from './team-colors';
 import { ShareHeader } from './components/share-header';
+import { SeatInfoBar } from './components/seat-info-bar';
 import { Toolbar } from './components/toolbar';
 import { ListView } from './components/list-view';
 import { CalendarView } from './components/calendar-view';
@@ -19,10 +32,64 @@ import { Bone } from '@/components/skeleton';
 import { createPortal } from 'react-dom';
 import Image from 'next/image';
 
-function MobileSeatInfoPill({ pkg }: { pkg: PackageInfo }) {
+function MobileSeatInfoPill({
+  pkg,
+  activeTab,
+}: {
+  pkg: PackageInfo;
+  activeTab: ActiveTab;
+}) {
   const [open, setOpen] = useState(false);
   const { primary, accent } = getTeamColors(pkg.team);
   const abbr = getOpponentAbbr(pkg.team);
+
+  const firstName = pkg.holderName?.trim().split(/\s+/)[0] || '';
+  const pillLabel = firstName ? `${firstName}'s seats` : 'These seats';
+  const payHeading = firstName ? `How to pay ${firstName}` : 'How to pay';
+  const claimStep = firstName
+    ? `Claim it, then pay ${firstName} directly.`
+    : 'Claim it, then pay the holder directly.';
+
+  const hasPhoto = !!pkg.seatPhotoUrl;
+  const hasPayment = !!(pkg.venmoHandle?.trim() || pkg.zelleInfo?.trim());
+  const isCompletelyEmpty =
+    !pkg.seatPhotoUrl && !pkg.description && !pkg.venmoHandle && !pkg.zelleInfo;
+  const sectionDisplay = `${pkg.section} · Field Level`;
+
+  const FTU_KEY = `bb-claimer-ftu-${pkg.slug}-seen`;
+  const [hasSeenFTU, setHasSeenFTU] = useState(true);
+  useEffect(() => {
+    if (activeTab !== 'available') {
+      startTransition(() => setOpen(false));
+      return;
+    }
+    if (window.matchMedia('(min-width: 768px)').matches) return;
+    try {
+      const seen = !!window.localStorage.getItem(FTU_KEY);
+      startTransition(() => {
+        setHasSeenFTU(seen);
+        if (!seen) {
+          window.localStorage.setItem(FTU_KEY, '1');
+          setOpen(true);
+        }
+      });
+    } catch {
+      startTransition(() => {
+        setHasSeenFTU(false);
+        setOpen(true);
+      });
+    }
+  }, [FTU_KEY, activeTab]);
+
+  function dismissFTU() {
+    try {
+      window.localStorage.setItem(FTU_KEY, '1');
+    } catch {}
+    setHasSeenFTU(true);
+    setOpen(false);
+  }
+
+  const isFTU = !hasSeenFTU;
 
   return (
     <div className="md:hidden">
@@ -41,8 +108,8 @@ function MobileSeatInfoPill({ pkg }: { pkg: PackageInfo }) {
         >
           {abbr}
         </div>
-        <span className="text-base font-medium text-[#2c2a2b] flex-1">
-          Sec {pkg.section} &middot; Row {pkg.row} &middot; Seats {pkg.seats}
+        <span className="text-base font-medium text-[#1B1716] flex-1">
+          {pillLabel}
         </span>
         <svg
           width="16"
@@ -64,110 +131,182 @@ function MobileSeatInfoPill({ pkg }: { pkg: PackageInfo }) {
       {/* Drawer */}
       {open &&
         createPortal(
-          <div className="fixed inset-0 z-50">
+          <div className="fixed inset-0 z-50 md:hidden">
             <div
               className="absolute inset-0 bg-black/30"
               onClick={() => setOpen(false)}
             />
-            <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-[0_-8px_30px_rgba(0,0,0,0.12)] animate-slide-up max-h-[85vh] overflow-y-auto">
-              <div className="relative">
+            <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-[0_-4px_16px_rgba(0,0,0,0.08)] animate-slide-up max-h-[85vh] flex flex-col overflow-hidden">
+              {/* Chrome strip — close X only */}
+              <div className="relative h-14 shrink-0">
                 <button
-                  className="absolute top-3 right-2 w-11 h-11 flex items-center justify-center bg-transparent border-none cursor-pointer z-10"
+                  className="absolute top-1.5 right-1.5 w-11 h-11 flex items-center justify-center bg-transparent border-none cursor-pointer z-10"
                   onClick={() => setOpen(false)}
+                  title="Close"
                 >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                     <path
                       d="M18 6L6 18"
-                      stroke="#8e8985"
+                      stroke="#1B1716"
                       strokeWidth="2.5"
                       strokeLinecap="round"
                     />
                     <path
                       d="M6 6l12 12"
-                      stroke="#8e8985"
+                      stroke="#1B1716"
                       strokeWidth="2.5"
                       strokeLinecap="round"
                     />
                   </svg>
                 </button>
-                <div className="px-4 pt-5 pb-6 flex flex-col gap-4">
-                  {/* Seat photo */}
-                  <div className="w-full h-[180px] relative overflow-hidden rounded-lg">
-                    {pkg.seatPhotoUrl ? (
-                      <Image
-                        src={pkg.seatPhotoUrl}
-                        alt="View from seat"
-                        fill
-                        className="object-cover"
-                        sizes="100vw"
-                        unoptimized
-                      />
-                    ) : (
-                      <div
-                        className="w-full h-full relative"
-                        style={{
-                          backgroundImage:
-                            'linear-gradient(143deg, rgb(74,122,58) 0%, rgb(122,170,90) 50%, rgb(74,122,58) 100%)',
-                        }}
-                      >
-                        <div
-                          className="absolute bottom-0 left-0 right-0 h-[35%]"
-                          style={{
-                            backgroundImage:
-                              'linear-gradient(167deg, rgb(196,149,90) 0%, rgb(212,165,106) 100%)',
-                          }}
-                        />
-                        <div className="absolute bottom-[35%] left-[15%] w-[70%] h-[2px] bg-[#e8d8b8] rounded" />
+              </div>
+
+              {/* Scrollable body */}
+              <div className="flex-1 overflow-y-auto">
+                <div className="px-6 pb-5 flex flex-col gap-5">
+                  {isCompletelyEmpty ? (
+                    /* Empty fallback (rule 9) */
+                    <div className="text-center py-6 px-2">
+                      <p className="text-[15px] text-[#1B1716] leading-relaxed">
+                        {firstName
+                          ? `${firstName} is still setting things up.`
+                          : 'The holder is still setting things up.'}{' '}
+                        Check back soon.
+                      </p>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Seat photo (only if uploaded) */}
+                      {hasPhoto && (
+                        <div className="w-full h-[240px] relative overflow-hidden rounded-xl">
+                          <Image
+                            src={pkg.seatPhotoUrl as string}
+                            alt="View from seat"
+                            fill
+                            className="object-cover"
+                            sizes="100vw"
+                            unoptimized
+                          />
+                          <div className="absolute bottom-3 left-3 bg-black/65 text-white text-xs font-semibold px-2.5 py-1 rounded-md">
+                            View from Section {pkg.section}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Description */}
+                      {pkg.description && (
+                        <div>
+                          <p className="text-[11px] font-bold tracking-[0.04em] uppercase text-[#8E8985] mb-3">
+                            Description
+                          </p>
+                          <p className="text-[14px] leading-[1.5] text-[#1B1716]">
+                            {pkg.description}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Your seats */}
+                      <div>
+                        <p className="text-[11px] font-bold tracking-[0.04em] uppercase text-[#8E8985] mb-3">
+                          Your seats
+                        </p>
+                        <div className="flex flex-col text-[14px]">
+                          <div className="flex items-center justify-between py-2">
+                            <span className="text-[#8e8985]">Section</span>
+                            <span className="font-bold text-[#1B1716]">
+                              {sectionDisplay}
+                            </span>
+                          </div>
+                          {pkg.row && (
+                            <div className="flex items-center justify-between py-2 border-t border-[#E5E1DD]">
+                              <span className="text-[#8e8985]">Row</span>
+                              <span className="font-bold text-[#1B1716]">
+                                Row {pkg.row}
+                              </span>
+                            </div>
+                          )}
+                          <div className="flex items-center justify-between py-2 border-t border-[#E5E1DD]">
+                            <span className="text-[#8e8985]">Seats</span>
+                            <span className="font-bold text-[#1B1716]">
+                              Seats {pkg.seats}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between py-2 border-t border-[#E5E1DD]">
+                            <span className="text-[#8e8985]">
+                              Ticket delivery
+                            </span>
+                            <span className="font-bold text-[#1B1716]">
+                              MLB Ballpark App
+                            </span>
+                          </div>
+                        </div>
                       </div>
-                    )}
-                    <div className="absolute bottom-3 left-3 bg-[#2c2a2b]/80 text-white text-xs font-medium px-2.5 py-1 rounded-md">
-                      View from Section {pkg.section}
-                    </div>
-                  </div>
 
-                  {/* Description */}
-                  {pkg.description && (
-                    <p className="text-base font-normal text-black leading-relaxed pb-4 border-b border-[#f5f4f2]">
-                      {pkg.description}
-                    </p>
-                  )}
+                      {/* How to pay */}
+                      {hasPayment && (
+                        <div>
+                          <p className="text-[11px] font-bold tracking-[0.04em] uppercase text-[#8E8985] mb-3">
+                            {payHeading}
+                          </p>
+                          <div className="flex flex-col text-[14px]">
+                            {pkg.venmoHandle?.trim() && (
+                              <div className="flex items-center justify-between py-2">
+                                <span className="text-[#8e8985]">Venmo</span>
+                                <span className="font-bold text-[#1B1716]">
+                                  {pkg.venmoHandle}
+                                </span>
+                              </div>
+                            )}
+                            {pkg.zelleInfo?.trim() && (
+                              <div
+                                className={`flex items-center justify-between py-2 ${pkg.venmoHandle?.trim() ? 'border-t border-[#E5E1DD]' : ''}`}
+                              >
+                                <span className="text-[#8e8985]">Zelle</span>
+                                <span className="font-bold text-[#1B1716]">
+                                  {pkg.zelleInfo}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
 
-                  {/* Details table */}
-                  <div className="flex flex-col gap-3 text-sm leading-6 pb-4 border-b border-[#f5f4f2]">
-                    <div className="flex items-center justify-between">
-                      <span className="font-normal text-black">Seats</span>
-                      <span className="font-bold text-black">
-                        Seats {pkg.seats}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="font-normal text-black">Level</span>
-                      <span className="font-bold text-black">Field Level</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="font-normal text-black">
-                        Ticket delivery
-                      </span>
-                      <span className="font-bold text-black">
-                        MLB Ballpark App
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Perks */}
-                  {pkg.perks.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {pkg.perks.map((perk) => (
-                        <span
-                          key={perk}
-                          className="inline-flex items-center justify-center text-xs font-medium text-[#8e8985] h-8 px-3 border border-[#8e8985]/75 rounded-full whitespace-nowrap"
-                        >
-                          {perk}
-                        </span>
-                      ))}
-                    </div>
+                      {/* How it works */}
+                      <div>
+                        <p className="text-[11px] font-bold tracking-[0.04em] uppercase text-[#8E8985] mb-3">
+                          How it works
+                        </p>
+                        <div className="bg-[#F5F4F2] rounded-[10px] px-4 py-3.5 flex flex-col gap-2.5">
+                          {[
+                            'Pick a game from the schedule.',
+                            claimStep,
+                            'Tickets arrive before game day.',
+                          ].map((step, i) => (
+                            <div
+                              key={i}
+                              className="flex gap-3 items-start text-[14px] leading-[1.4] text-[#1B1716]"
+                            >
+                              <div className="w-5 h-5 rounded-full bg-[#810100] text-white flex items-center justify-center text-[11px] font-bold shrink-0">
+                                {i + 1}
+                              </div>
+                              <div>{step}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </>
                   )}
                 </div>
+              </div>
+
+              {/* Sticky CTA footer */}
+              <div className="shrink-0 px-6 pb-5 bg-white">
+                <button
+                  onClick={dismissFTU}
+                  className="w-full h-[52px] bg-[#2C2A2B] text-white border-none rounded-[10px] text-base font-semibold cursor-pointer active:opacity-90"
+                >
+                  Got it, view games
+                </button>
               </div>
             </div>
           </div>,
@@ -263,10 +402,10 @@ function SharePageInner({
   useEffect(() => {
     const reservedId = searchParams.get('reserved');
     if (reservedId) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setReservedGames((prev) => new Map([...prev, [reservedId, '']]));
-
-      setExpandedGameId(reservedId);
+      startTransition(() => {
+        setReservedGames((prev) => new Map([...prev, [reservedId, '']]));
+        setExpandedGameId(reservedId);
+      });
       window.history.replaceState(null, '', window.location.pathname);
     }
     const reserveError = searchParams.get('reserveError');
@@ -433,7 +572,7 @@ function SharePageInner({
 
       {/* Mobile seat info pill */}
       <div className="md:hidden px-4 pt-4 pb-0">
-        <MobileSeatInfoPill pkg={packageInfo} />
+        <MobileSeatInfoPill pkg={packageInfo} activeTab={activeTab} />
       </div>
 
       <div className="max-w-[1024px] mx-auto w-full px-4 pt-4 pb-6 md:px-10 md:pt-8 md:pb-10 overflow-x-hidden flex-1">
@@ -452,9 +591,16 @@ function SharePageInner({
                 )}
               </h1>
               <p className="mt-2 text-base text-[#8e8985]">
-                Claim the games you want.
+                {holderFirstName
+                  ? `Claim the games you want. Pay ${holderFirstName} directly after, and ${holderFirstName} sends the tickets before game day.`
+                  : 'Claim the games you want.'}
               </p>
             </div>
+            {holderFirstName && (
+              <p className="md:hidden text-[14px] leading-[1.5] text-[#8e8985] mb-4">
+                {`Pay ${holderFirstName} directly. Tickets transfer before game day.`}
+              </p>
+            )}
             <Toolbar
               viewMode={viewMode}
               onViewChange={(mode) => {
@@ -498,6 +644,7 @@ function SharePageInner({
                 opponentFilter={opponentFilter}
                 monthFilter={monthFilter}
                 onClearFilters={handleClearFilters}
+                onSwitchToMyGames={() => setActiveTab('my-games')}
               />
             ) : (
               <>
@@ -520,6 +667,7 @@ function SharePageInner({
                       currentUserId={currentUserId}
                       onReserved={handleReserved}
                       onCancelled={handleCancelled}
+                      onSwitchToMyGames={() => setActiveTab('my-games')}
                     />
                   </div>
                 )}

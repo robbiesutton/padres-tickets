@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { useDashboardContext } from '../layout';
 import { getTeamColors, isColorDark } from '@/lib/team-colors';
 import { getOpponentAbbr } from '@/lib/game-utils';
+import { SHOW_PACKAGE_SWITCHER } from '@/lib/feature-flags';
 
 interface SubscriptionInfo {
   plan: 'FREE' | 'PRO';
@@ -28,17 +29,6 @@ interface UserProfile {
   zelleInfo: string | null;
   subscription: SubscriptionInfo | null;
 }
-
-const AVAILABLE_PERKS = [
-  'Shaded seats',
-  'Behind home plate',
-  'Premium',
-  'Craft beer nearby',
-  'Easy parking',
-  'Club access',
-  'Great for kids',
-  'Aisle seats',
-];
 
 const ALL_NAV_ITEMS = [
   {
@@ -78,6 +68,27 @@ const ALL_NAV_ITEMS = [
       >
         <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
         <line x1="4" y1="22" x2="4" y2="15" />
+      </svg>
+    ),
+  },
+  {
+    id: 'payment-info',
+    label: 'Payment Info',
+    requiresOwner: true,
+    icon: (
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M21 12V7H5a2 2 0 010-4h14v4" />
+        <path d="M3 5v14a2 2 0 002 2h16v-5" />
+        <path d="M18 12a2 2 0 000 4h4v-4z" />
       </svg>
     ),
   },
@@ -272,6 +283,7 @@ export default function ProfilePage() {
   });
   const [saving, setSaving] = useState(false);
   const [savingSeat, setSavingSeat] = useState(false);
+  const [savingPayment, setSavingPayment] = useState(false);
   const [subLoading, setSubLoading] = useState(false);
   const [message, setMessage] = useState<{
     type: 'success' | 'error';
@@ -290,7 +302,6 @@ export default function ProfilePage() {
   const [seatForm, setSeatForm] = useState({
     seatPhotoUrl: '' as string | null,
     description: '',
-    perks: [] as string[],
   });
 
   useEffect(() => {
@@ -305,7 +316,6 @@ export default function ProfilePage() {
         setSeatForm({
           seatPhotoUrl: pkg.seatPhotoUrl || null,
           description: pkg.description || '',
-          perks: pkg.perks || [],
         })
       );
   }, [selectedPkgId, packages]);
@@ -350,14 +360,6 @@ export default function ProfilePage() {
   function update(field: string, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
   }
-  function togglePerk(perk: string) {
-    setSeatForm((prev) => ({
-      ...prev,
-      perks: prev.perks.includes(perk)
-        ? prev.perks.filter((p) => p !== perk)
-        : [...prev.perks, perk],
-    }));
-  }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -389,7 +391,6 @@ export default function ProfilePage() {
       body: JSON.stringify({
         seatPhotoUrl: seatForm.seatPhotoUrl,
         description: seatForm.description,
-        perks: seatForm.perks,
       }),
     });
     setSavingSeat(false);
@@ -399,6 +400,28 @@ export default function ProfilePage() {
       setMessage({
         type: 'error',
         text: data.error || 'Failed to save seat info',
+      });
+    }
+  }
+
+  async function handleSavePaymentInfo() {
+    setSavingPayment(true);
+    setMessage(null);
+    const res = await fetch('/api/users/me', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(form),
+    });
+    setSavingPayment(false);
+    if (res.ok) {
+      const data = await res.json();
+      setProfile(data);
+      setMessage({ type: 'success', text: 'Payment info saved!' });
+    } else {
+      const data = await res.json();
+      setMessage({
+        type: 'error',
+        text: data.error || 'Failed to save payment info',
       });
     }
   }
@@ -619,45 +642,50 @@ export default function ProfilePage() {
     );
   }
 
-  function _renderPayment() {
+  function renderPaymentInfo() {
     return (
       <>
-        <h2 className="text-lg font-medium text-[#2c2a2b] mb-2">Payment</h2>
+        <h2 className="text-lg font-medium text-[#2c2a2b] mb-2">
+          Payment Info
+        </h2>
         <p className="text-sm text-[#3d3a38] mb-6 md:mb-8">
-          Share your payment details so claimers know how to pay you.
+          This info is shown to anyone who opens your share link so they know
+          how to pay you.
         </p>
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-[#2c2a2b] mb-2">
-              Venmo Handle
+              Venmo{' '}
+              <span className="font-normal text-[#8e8985]">(Optional)</span>
             </label>
             <input
               type="text"
               value={form.venmoHandle}
               onChange={(e) => update('venmoHandle', e.target.value)}
-              placeholder="@your-handle"
+              placeholder="@yourhandle"
               className={inputClass}
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-[#2c2a2b] mb-2">
-              Zelle Email / Phone
+              Zelle{' '}
+              <span className="font-normal text-[#8e8985]">(Optional)</span>
             </label>
             <input
               type="text"
               value={form.zelleInfo}
               onChange={(e) => update('zelleInfo', e.target.value)}
-              placeholder="email or phone for Zelle"
+              placeholder="(555) 555-5555"
               className={inputClass}
             />
           </div>
           <button
             type="button"
-            onClick={(e) => handleSave(e as unknown as React.FormEvent)}
-            disabled={saving}
+            onClick={handleSavePaymentInfo}
+            disabled={savingPayment}
             className="w-full md:w-auto h-12 md:h-10 px-5 rounded-lg bg-[#2c2a2b] text-sm font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors disabled:opacity-50"
           >
-            {saving ? 'Saving...' : 'Save changes'}
+            {savingPayment ? 'Saving...' : 'Save payment info'}
           </button>
         </div>
       </>
@@ -669,7 +697,7 @@ export default function ProfilePage() {
       <>
         <div className="flex items-center justify-between mb-1">
           <h2 className="text-lg font-medium text-[#2c2a2b]">Seat Info</h2>
-          {packages.length > 1 && (
+          {SHOW_PACKAGE_SWITCHER && packages.length > 1 && (
             <select
               value={selectedPkgId || ''}
               onChange={(e) => handlePkgChange(e.target.value)}
@@ -768,41 +796,6 @@ export default function ProfilePage() {
               rows={3}
               className={`${inputClass} resize-none`}
             />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-[#2c2a2b] mb-2">
-              Perks
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {AVAILABLE_PERKS.map((perk) => {
-                const selected = seatForm.perks.includes(perk);
-                return (
-                  <button
-                    key={perk}
-                    type="button"
-                    onClick={() => togglePerk(perk)}
-                    className={`inline-flex items-center h-8 px-3 rounded-full text-xs font-medium border transition-colors cursor-pointer ${selected ? 'bg-[#E1F5EE] border-[#0F6E56] text-[#0F6E56]' : 'bg-white border-[#dcd7d4] text-[#4a4745] hover:border-[#2c2a2b] hover:text-[#2c2a2b]'}`}
-                  >
-                    {selected && (
-                      <svg
-                        className="w-3 h-3 mr-1.5"
-                        viewBox="0 0 16 16"
-                        fill="none"
-                      >
-                        <path
-                          d="M3.5 8.5L6.5 11.5L12.5 4.5"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    )}
-                    {perk}
-                  </button>
-                );
-              })}
-            </div>
           </div>
           <button
             type="button"
@@ -1046,6 +1039,7 @@ export default function ProfilePage() {
   const sectionRenderers: Record<string, () => React.ReactNode> = {
     profile: renderProfile,
     'seat-info': renderSeatInfo,
+    'payment-info': renderPaymentInfo,
     subscription: renderSubscription,
     'shared-tickets': renderSharedTickets,
   };

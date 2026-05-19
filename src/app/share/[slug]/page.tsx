@@ -30,7 +30,14 @@ export default async function SharePage({ params }: Props) {
     where: { shareLinkSlug: slug },
     include: {
       user: {
-        select: { firstName: true, lastName: true, email: true, phone: true },
+        select: {
+          firstName: true,
+          lastName: true,
+          email: true,
+          phone: true,
+          venmoHandle: true,
+          zelleInfo: true,
+        },
       },
       games: {
         orderBy: { date: 'asc' },
@@ -74,6 +81,8 @@ export default async function SharePage({ params }: Props) {
         holderName: `${pkg.user.firstName} ${pkg.user.lastName}`,
         holderEmail: pkg.user.email,
         holderPhone: pkg.user.phone,
+        venmoHandle: pkg.user.venmoHandle,
+        zelleInfo: pkg.user.zelleInfo,
         team: pkg.team,
         section: pkg.section,
         row: pkg.row,

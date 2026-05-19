@@ -6,130 +6,6 @@ import Image from 'next/image';
 import type { PackageInfo } from '../types';
 import { getOpponentAbbr } from '../utils';
 
-function PerkIcon({ perk }: { perk: string }) {
-  const lower = perk.toLowerCase();
-  const cls = 'w-4 h-4 shrink-0';
-
-  if (
-    lower.includes('shade') ||
-    lower.includes('sun') ||
-    lower.includes('cover')
-  ) {
-    return (
-      <svg
-        className={cls}
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="#8e8985"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
-        <circle cx="12" cy="12" r="5" />
-      </svg>
-    );
-  }
-  if (
-    lower.includes('beer') ||
-    lower.includes('drink') ||
-    lower.includes('cocktail') ||
-    lower.includes('bar') ||
-    lower.includes('craft')
-  ) {
-    return (
-      <svg
-        className={cls}
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="#8e8985"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M8 2h8l-1 10H9L8 2z" />
-        <path d="M12 12v6" />
-        <path d="M8 18h8" />
-        <path d="M10 2l-1 4h6l-1-4" />
-      </svg>
-    );
-  }
-  if (
-    lower.includes('food') ||
-    lower.includes('burger') ||
-    lower.includes('eat') ||
-    lower.includes('restaurant')
-  ) {
-    return (
-      <svg
-        className={cls}
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="#8e8985"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M3 11h18M5 11V8a7 7 0 0114 0v3M5 11v2a2 2 0 002 2h10a2 2 0 002-2v-2M7 15v2M17 15v2M6 17h12" />
-      </svg>
-    );
-  }
-  if (
-    lower.includes('parking') ||
-    lower.includes('access') ||
-    lower.includes('easy')
-  ) {
-    return (
-      <svg
-        className={cls}
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="#8e8985"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <rect x="3" y="3" width="18" height="18" rx="3" />
-        <path d="M9 17V7h4a3 3 0 010 6H9" />
-      </svg>
-    );
-  }
-  if (
-    lower.includes('premium') ||
-    lower.includes('vip') ||
-    lower.includes('club')
-  ) {
-    return (
-      <svg
-        className={cls}
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="#8e8985"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-      </svg>
-    );
-  }
-  // Default icon
-  return (
-    <svg
-      className={cls}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="#8e8985"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="12" cy="12" r="10" />
-      <path d="M12 8v4M12 16h.01" />
-    </svg>
-  );
-}
-
 interface Props {
   pkg: PackageInfo;
 }
@@ -260,19 +136,6 @@ export function SeatInfoBar({ pkg }: Props) {
                 <span className="font-bold text-black">MLB Ballpark App</span>
               </div>
             </div>
-            {pkg.perks.length > 0 && (
-              <div className="flex flex-wrap gap-2 pt-4">
-                {pkg.perks.map((perk) => (
-                  <span
-                    key={perk}
-                    className="inline-flex items-center justify-center gap-1.5 text-xs font-medium text-[#8e8985] h-8 px-3 border border-[#8e8985]/75 rounded-full whitespace-nowrap"
-                  >
-                    <PerkIcon perk={perk} />
-                    {perk}
-                  </span>
-                ))}
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -369,21 +232,6 @@ export function SeatInfoBar({ pkg }: Props) {
                       </span>
                     </div>
                   </div>
-
-                  {/* Perks badges */}
-                  {pkg.perks.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {pkg.perks.map((perk) => (
-                        <span
-                          key={perk}
-                          className="inline-flex items-center justify-center gap-1.5 text-xs font-medium text-[#8e8985] h-8 px-3 border border-[#8e8985]/75 rounded-full whitespace-nowrap"
-                        >
-                          <PerkIcon perk={perk} />
-                          {perk}
-                        </span>
-                      ))}
-                    </div>
-                  )}
                 </div>
               </div>
             </div>

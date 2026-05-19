@@ -15,6 +15,7 @@ interface Props {
   currentUserId: string | null;
   onReserved: (gameId: string, claimId: string) => void;
   onCancelled: (gameId: string) => void;
+  onSwitchToMyGames?: () => void;
 }
 
 export function ListView({
@@ -25,6 +26,7 @@ export function ListView({
   currentUserId,
   onReserved,
   onCancelled,
+  onSwitchToMyGames,
 }: Props) {
   const [selectedGameId, setSelectedGameId] = useState<string | null>(null);
   const visibleGames = games.filter((g) => {
@@ -124,7 +126,7 @@ export function ListView({
                   isTakenByOthers={isTakenByOthers}
                   seatCount={pkg.seatCount}
                   teamColor={teamPrimary}
-                  onReserve={() => handleReserve(game.id)}
+                  onReserve={() => setSelectedGameId(game.id)}
                   onRelease={() => handleRelease(game.id)}
                   onMobileTap={() => setSelectedGameId(game.id)}
                 />
@@ -156,7 +158,7 @@ export function ListView({
         </button>
       </div>
 
-      {/* Mobile game detail drawer */}
+      {/* Pre-claim drawer (mobile sheet) / modal (desktop) */}
       {selectedGame && (
         <CalendarPopover
           game={selectedGame}
@@ -177,6 +179,7 @@ export function ListView({
             await handleRelease(selectedGame.id);
             setSelectedGameId(null);
           }}
+          onSwitchToMyGames={onSwitchToMyGames}
         />
       )}
     </div>

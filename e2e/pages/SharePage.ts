@@ -1,4 +1,5 @@
 import { Page, expect } from '@playwright/test';
+import { TESTIDS } from '../../src/lib/testids';
 
 export class SharePage {
   constructor(private page: Page) {}
@@ -8,27 +9,23 @@ export class SharePage {
   }
 
   gameList() {
-    return this.page.getByTestId('game-list');
+    return this.page.getByTestId(TESTIDS.gameList);
   }
 
   gameCards() {
-    return this.page.getByTestId('game-card');
+    return this.page.getByTestId(TESTIDS.gameCard);
   }
 
   claimButtons() {
-    return this.page.getByTestId('game-card-claim');
-  }
-
-  releaseButtons() {
-    return this.page.getByTestId('game-card-release');
+    return this.page.getByTestId(TESTIDS.gameCardClaim);
   }
 
   calendarToggle() {
-    return this.page.getByTestId('view-toggle-calendar');
+    return this.page.locator(`[data-testid="${TESTIDS.viewToggleCalendar}"]:visible`);
   }
 
   listToggle() {
-    return this.page.getByTestId('view-toggle-list');
+    return this.page.locator(`[data-testid="${TESTIDS.viewToggleList}"]:visible`);
   }
 
   magicLinkEmailInput() {

@@ -4,9 +4,9 @@ import {
   useState,
   useEffect,
   useRef,
+  startTransition,
   createContext,
   useContext,
-  startTransition,
 } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
@@ -15,8 +15,10 @@ import { usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { getTeamColors, isColorDark } from '@/lib/team-colors';
 import { getOpponentAbbr } from '@/lib/game-utils';
+import { TESTIDS } from '@/lib/testids';
 import { ScoreTicker } from '@/components/score-ticker';
 import { DESIGN_MODE, mockHolder } from '@/lib/mock-data';
+import { SHOW_PACKAGE_SWITCHER } from '@/lib/feature-flags';
 
 interface PackageForNav {
   id: string;
@@ -34,6 +36,8 @@ interface PackageForNav {
   _count: { games: number; members: number };
   role: 'OWNER' | 'CO_OWNER' | 'CLAIMER';
   holderName?: string;
+  venmoHandle: string | null;
+  zelleInfo: string | null;
 }
 
 // Context so children (dashboard page) can access the selected package
@@ -57,49 +61,46 @@ export function useDashboardContext() {
   return useContext(DashboardContext);
 }
 
-const AVAILABLE_PERKS = [
-  'Shaded seats',
-  'Behind home plate',
-  'Premium',
-  'Craft beer nearby',
-  'Easy parking',
-  'Club access',
-  'Great for kids',
-  'Aisle seats',
-];
-
 function SeatInfoPillDropdown({
   pkg,
   isDark,
   navColor,
   teamAccent,
+  holderFirstName,
   onPkgUpdate,
 }: {
   pkg: PackageForNav;
   isDark: boolean;
   navColor: string;
   teamAccent: string;
+  holderFirstName?: string;
   onPkgUpdate: (fields: Partial<PackageForNav>) => void;
 }) {
   const [pillOpen, setPillOpen] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [wasFilled, setWasFilled] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [descError, setDescError] = useState(false);
   const [description, setDescription] = useState(pkg.description || '');
-  const [perks, setPerks] = useState<string[]>(pkg.perks || []);
+  const [seatPhotoUrl, setSeatPhotoUrl] = useState<string | null>(
+    pkg.seatPhotoUrl
+  );
+  const [venmoHandle, setVenmoHandle] = useState(pkg.venmoHandle || '');
+  const [zelleInfo, setZelleInfo] = useState(pkg.zelleInfo || '');
   const pillRef = useRef<HTMLDivElement>(null);
   const pillPanelRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isEmpty =
-    !pkg.seatPhotoUrl && !pkg.description && pkg.perks.length === 0;
+    !pkg.seatPhotoUrl && !pkg.description && !pkg.venmoHandle && !pkg.zelleInfo;
 
   useEffect(() => {
     startTransition(() => {
       setDescription(pkg.description || '');
-      setPerks(pkg.perks || []);
+      setSeatPhotoUrl(pkg.seatPhotoUrl);
+      setVenmoHandle(pkg.venmoHandle || '');
+      setZelleInfo(pkg.zelleInfo || '');
     });
-  }, [pkg.description, pkg.perks]);
+  }, [pkg.description, pkg.seatPhotoUrl, pkg.venmoHandle, pkg.zelleInfo]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -119,26 +120,46 @@ function SeatInfoPillDropdown({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [pillOpen]);
 
-  function togglePerk(perk: string) {
-    setPerks((prev) =>
-      prev.includes(perk) ? prev.filter((p) => p !== perk) : [...prev, perk]
-    );
+  function startEditing(filled: boolean) {
+    setWasFilled(filled);
+    setEditing(true);
+  }
+
+  function cancelEditing() {
+    setDescription(pkg.description || '');
+    setSeatPhotoUrl(pkg.seatPhotoUrl);
+    setVenmoHandle(pkg.venmoHandle || '');
+    setZelleInfo(pkg.zelleInfo || '');
+    setEditing(false);
   }
 
   async function handleSave() {
-    if (!description.trim()) {
-      setDescError(true);
-      return;
-    }
-    setDescError(false);
     setSaving(true);
-    const res = await fetch(`/api/packages/${pkg.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ description: description.trim(), perks }),
-    });
-    if (res.ok) {
-      onPkgUpdate({ description: description.trim(), perks });
+    const trimmedDesc = description.trim();
+    const trimmedVenmo = venmoHandle.trim();
+    const trimmedZelle = zelleInfo.trim();
+    const [pkgRes, userRes] = await Promise.all([
+      fetch(`/api/packages/${pkg.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ description: trimmedDesc, seatPhotoUrl }),
+      }),
+      fetch('/api/users/me', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          venmoHandle: trimmedVenmo,
+          zelleInfo: trimmedZelle,
+        }),
+      }),
+    ]);
+    if (pkgRes.ok && userRes.ok) {
+      onPkgUpdate({
+        description: trimmedDesc || null,
+        seatPhotoUrl,
+        venmoHandle: trimmedVenmo || null,
+        zelleInfo: trimmedZelle || null,
+      });
       setEditing(false);
     }
     setSaving(false);
@@ -148,17 +169,21 @@ function SeatInfoPillDropdown({
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = async () => {
-      const url = reader.result as string;
-      const res = await fetch(`/api/packages/${pkg.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ seatPhotoUrl: url }),
-      });
-      if (res.ok) onPkgUpdate({ seatPhotoUrl: url });
+    reader.onload = () => {
+      setSeatPhotoUrl(reader.result as string);
     };
     reader.readAsDataURL(file);
   }
+
+  const showHeader = editing ? wasFilled : !isEmpty;
+  const headerTitle = editing ? 'Edit seat info' : 'My seats';
+  const payHeading = holderFirstName?.trim()
+    ? `How to pay ${holderFirstName.trim()}`
+    : 'How to pay';
+  const hasPayment = !!(pkg.venmoHandle?.trim() || pkg.zelleInfo?.trim());
+
+  // Section row value: "203 · Field Level" (level hard-coded since not yet a captured field)
+  const sectionDisplay = `${pkg.section} · Field Level`;
 
   return (
     <div className="hidden md:block relative">
@@ -178,9 +203,9 @@ function SeatInfoPillDropdown({
           {getOpponentAbbr(pkg.team)}
         </div>
         <span
-          className={`text-sm font-medium ${isDark ? 'text-white' : 'text-[#2c2a2b]'}`}
+          className={`text-sm font-medium ${isDark ? 'text-white' : 'text-[#1B1716]'}`}
         >
-          Sec {pkg.section} &middot; Row {pkg.row} &middot; Seats {pkg.seats}
+          My seats
         </span>
         <svg
           className={`shrink-0 transition-transform duration-200 ${pillOpen ? 'rotate-180' : ''}`}
@@ -210,230 +235,52 @@ function SeatInfoPillDropdown({
       {/* Pill dropdown panel */}
       <div
         ref={pillPanelRef}
-        className={`absolute left-0 top-[calc(100%+8px)] z-40 w-[742px] bg-white rounded-lg border border-[#eceae5] shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.1),0px_4px_6px_-4px_rgba(0,0,0,0.1)] overflow-hidden transition-all duration-200 ${
+        className={`absolute left-0 top-[calc(100%+8px)] z-40 w-[880px] bg-white rounded-[14px] border border-[#E5E1DD] shadow-[0_12px_32px_-16px_rgba(28,23,22,0.14)] overflow-hidden transition-all duration-200 ${
           pillOpen
             ? 'opacity-100 translate-y-0'
             : 'opacity-0 -translate-y-2 pointer-events-none'
         }`}
       >
-        <div className="p-4 flex gap-4">
-          {/* Image */}
-          <div
-            className="flex-1 relative overflow-hidden rounded-lg self-stretch min-h-[200px] cursor-pointer group"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            {pkg.seatPhotoUrl ? (
-              <>
-                <Image
-                  src={pkg.seatPhotoUrl}
-                  alt="View from seat"
-                  fill
-                  className="object-cover"
-                  sizes="358px"
-                  unoptimized
-                />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
-                  <span className="text-white text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 px-3 py-1.5 rounded-lg">
-                    Change photo
-                  </span>
+        <div className="p-[22px]">
+          {/* Drawer header (State 3 + State 4) */}
+          {showHeader && (
+            <div
+              className={`flex items-center mb-[18px] ${editing ? 'justify-between' : 'justify-end'}`}
+            >
+              {editing && (
+                <div className="text-[17px] font-bold text-[#1B1716]">
+                  {headerTitle}
                 </div>
-              </>
-            ) : (
-              <div className="w-full h-full bg-[#f5f4f2] border-2 border-dashed border-[#dcd7d4] rounded-lg flex flex-col items-center justify-center gap-2 hover:border-[#8e8985] transition-colors">
-                <svg
-                  width="32"
-                  height="32"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#8e8985"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <rect x="3" y="3" width="18" height="18" rx="2" />
-                  <circle cx="8.5" cy="8.5" r="1.5" />
-                  <path d="M21 15l-5-5L5 21" />
-                </svg>
-                <span className="text-sm font-medium text-[#8e8985]">
-                  Add a seat photo
-                </span>
-                <span className="text-xs text-[#8e8985]/60">
-                  Claimers will see this on your share page
-                </span>
-              </div>
-            )}
-            {pkg.seatPhotoUrl && (
-              <div className="absolute bottom-4 left-4 bg-[#2c2a2b]/80 text-white text-xs font-medium px-2.5 py-1 rounded-md">
-                View from Section {pkg.section}
-              </div>
-            )}
-          </div>
-
-          {/* Content */}
-          <div className="w-[336px] shrink-0 flex flex-col pt-2">
-            {editing ? (
-              /* ── Edit mode ── */
-              <>
-                <div className="pb-4 border-b border-[#f5f4f2]">
-                  <label className="block text-xs font-medium text-[#8e8985] mb-1.5">
-                    Description
-                  </label>
-                  <textarea
-                    value={description}
-                    onChange={(e) => {
-                      setDescription(e.target.value);
-                      if (descError) setDescError(false);
-                    }}
-                    placeholder="Tell friends about your seats — great view, close to concessions..."
-                    rows={3}
-                    className={`w-full px-3 py-2 rounded-lg border text-sm outline-none resize-none transition-colors ${
-                      descError
-                        ? 'border-[#DC2626] focus:border-[#DC2626]'
-                        : 'border-[#eceae5] focus:border-[#2c2a2b]'
-                    }`}
-                  />
-                  {descError && (
-                    <p className="text-xs text-[#DC2626] mt-1">
-                      Description is required
-                    </p>
-                  )}
-                </div>
-                <div className="py-4 border-b border-[#f5f4f2]">
-                  <label className="block text-xs font-medium text-[#8e8985] mb-2">
-                    Perks
-                  </label>
-                  <div className="flex flex-wrap gap-1.5">
-                    {AVAILABLE_PERKS.map((perk) => {
-                      const selected = perks.includes(perk);
-                      return (
-                        <button
-                          key={perk}
-                          type="button"
-                          onClick={() => togglePerk(perk)}
-                          className={`inline-flex items-center h-7 px-2.5 rounded-full text-xs font-medium border transition-colors cursor-pointer ${
-                            selected
-                              ? 'bg-[#E1F5EE] border-[#0F6E56] text-[#0F6E56]'
-                              : 'bg-white border-[#dcd7d4] text-[#8e8985] hover:border-[#2c2a2b] hover:text-[#2c2a2b]'
-                          }`}
-                        >
-                          {selected && (
-                            <svg
-                              className="w-3 h-3 mr-1"
-                              viewBox="0 0 16 16"
-                              fill="none"
-                            >
-                              <path
-                                d="M3.5 8.5L6.5 11.5L12.5 4.5"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
-                          )}
-                          {perk}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-                <div className="flex gap-2 pt-4">
+              )}
+              <div className="flex items-center gap-1.5">
+                {!editing && (
                   <button
-                    onClick={() => {
-                      setEditing(false);
-                      setDescription(pkg.description || '');
-                      setPerks(pkg.perks || []);
-                    }}
-                    className="flex-1 h-9 rounded-lg border border-[#dcd7d4] bg-white text-sm font-medium text-[#2c2a2b] cursor-pointer hover:bg-[#f5f4f2] transition-colors"
+                    onClick={() => startEditing(true)}
+                    title="Edit seat info"
+                    className="w-8 h-8 rounded-lg bg-[#F5F4F2] hover:bg-[#DCD7D4] border-none cursor-pointer flex items-center justify-center text-[#1B1716]"
                   >
-                    Cancel
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M12 20h9" />
+                      <path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
+                    </svg>
                   </button>
-                  <button
-                    onClick={handleSave}
-                    disabled={saving}
-                    className="flex-1 h-9 rounded-lg bg-[#2c2a2b] text-sm font-medium text-white cursor-pointer hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors disabled:opacity-50"
-                  >
-                    {saving ? 'Saving...' : 'Save'}
-                  </button>
-                </div>
-              </>
-            ) : isEmpty ? (
-              /* ── Empty state ── */
-              <div className="flex flex-col items-center justify-center text-center py-6 gap-3">
-                <div className="w-12 h-12 rounded-full bg-[#f5f4f2] flex items-center justify-center">
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="#8e8985"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M12 20h9" />
-                    <path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-[#2c2a2b]">
-                    Add your seat details
-                  </p>
-                  <p className="text-xs text-[#8e8985] mt-1 max-w-[240px]">
-                    Help your friends know what to expect — add a description
-                    and perks for your seats.
-                  </p>
-                </div>
-                <button
-                  onClick={() => setEditing(true)}
-                  className="mt-1 h-9 px-4 rounded-lg bg-[#2c2a2b] text-sm font-medium text-white cursor-pointer hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors"
-                >
-                  Add Info
-                </button>
-              </div>
-            ) : (
-              /* ── View mode (has content) ── */
-              <>
-                {pkg.description && (
-                  <p className="text-base font-normal text-black leading-[22.75px] pb-4 border-b border-[#f5f4f2]">
-                    {pkg.description}
-                  </p>
-                )}
-                <div className="flex flex-col gap-2 text-sm leading-5 py-4 border-b border-[#f5f4f2]">
-                  <div className="flex items-center justify-between">
-                    <span className="font-normal text-black">Seats</span>
-                    <span className="font-bold text-black">
-                      Seats {pkg.seats}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="font-normal text-black">Level</span>
-                    <span className="font-bold text-black">Field Level</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="font-normal text-black">
-                      Ticket delivery
-                    </span>
-                    <span className="font-bold text-black">
-                      MLB Ballpark App
-                    </span>
-                  </div>
-                </div>
-                {pkg.perks.length > 0 && (
-                  <div className="flex flex-wrap gap-2 pt-4 pb-4 border-b border-[#f5f4f2]">
-                    {pkg.perks.map((perk) => (
-                      <span
-                        key={perk}
-                        className="inline-flex items-center justify-center text-xs font-medium text-[#8e8985] h-8 px-3 border border-[#8e8985]/75 rounded-full whitespace-nowrap"
-                      >
-                        {perk}
-                      </span>
-                    ))}
-                  </div>
                 )}
                 <button
-                  onClick={() => setEditing(true)}
-                  className="mt-3 flex items-center gap-1.5 text-sm font-medium text-[#8e8985] hover:text-[#2c2a2b] bg-transparent border-none cursor-pointer transition-colors self-start"
+                  onClick={() => {
+                    setPillOpen(false);
+                    setEditing(false);
+                  }}
+                  title="Close"
+                  className="w-8 h-8 rounded-lg bg-transparent hover:bg-[#F5F4F2] border-none cursor-pointer flex items-center justify-center text-[#1B1716]"
                 >
                   <svg
                     width="14"
@@ -445,21 +292,368 @@ function SeatInfoPillDropdown({
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   >
+                    <path d="M18 6L6 18" />
+                    <path d="M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {editing ? (
+            /* ── State 2 / State 4 — edit form ── */
+            <>
+              <div className="grid grid-cols-[1.1fr_1fr] gap-6 items-stretch">
+                {/* Left column — photo upload */}
+                <div className="flex flex-col">
+                  <label className="block text-xs font-medium text-[#8e8985] mb-1.5">
+                    Seat photo <span className="font-normal">(Optional)</span>
+                  </label>
+                  <div
+                    onClick={() => fileInputRef.current?.click()}
+                    className="relative flex-1 min-h-[340px] h-[340px] rounded-xl overflow-hidden cursor-pointer group"
+                  >
+                    {seatPhotoUrl ? (
+                      <>
+                        <Image
+                          src={seatPhotoUrl}
+                          alt="View from seat"
+                          fill
+                          className="object-cover"
+                          sizes="500px"
+                          unoptimized
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                          <span className="text-white text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 px-3 py-1.5 rounded-md">
+                            Change photo
+                          </span>
+                        </div>
+                        <div className="absolute bottom-3 left-3 bg-black/65 text-white text-xs font-semibold px-2.5 py-1 rounded-md">
+                          View from Section {pkg.section}
+                        </div>
+                      </>
+                    ) : (
+                      <div className="w-full h-full bg-[#F5F4F2] border-[1.5px] border-dashed border-[#D4CFC9] flex flex-col items-center justify-center gap-2 hover:border-[#8e8985] transition-colors">
+                        <svg
+                          width="32"
+                          height="32"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="#8e8985"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="opacity-60"
+                        >
+                          <rect x="3" y="3" width="18" height="18" rx="2" />
+                          <circle cx="8.5" cy="8.5" r="1.5" />
+                          <path d="M21 15l-5-5L5 21" />
+                        </svg>
+                        <span className="text-sm font-semibold text-[#1B1716]">
+                          Add a seat photo
+                        </span>
+                        <span className="text-xs text-[#8e8985]">
+                          Claimers will see this on your share page
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Right column — form fields */}
+                <div className="flex flex-col gap-[18px]">
+                  {/* Description */}
+                  <div>
+                    <label className="block text-xs font-medium text-[#8e8985] mb-1.5">
+                      Description{' '}
+                      <span className="font-normal">(Optional)</span>
+                    </label>
+                    <textarea
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      placeholder="Tell friends about your seats, like great view, close to concessions..."
+                      rows={3}
+                      className="w-full px-3 py-2.5 rounded-lg border border-[#E5E1DD] bg-white text-[13px] text-[#1B1716] outline-none resize-y min-h-[70px] focus:border-[#1B1716] transition-colors"
+                    />
+                  </div>
+
+                  {/* Your seats — read-only */}
+                  <div className="opacity-50 pointer-events-none select-none">
+                    <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">
+                      Your seats
+                    </p>
+                    <div className="flex flex-col text-[13px]">
+                      <div className="flex items-center justify-between py-2">
+                        <span className="text-[#8e8985]">Section</span>
+                        <span className="font-bold text-[#1B1716]">
+                          {sectionDisplay}
+                        </span>
+                      </div>
+                      {pkg.row && (
+                        <div className="flex items-center justify-between py-2 border-t border-[#E5E1DD]">
+                          <span className="text-[#8e8985]">Row</span>
+                          <span className="font-bold text-[#1B1716]">
+                            Row {pkg.row}
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex items-center justify-between py-2 border-t border-[#E5E1DD]">
+                        <span className="text-[#8e8985]">Seats</span>
+                        <span className="font-bold text-[#1B1716]">
+                          Seats {pkg.seats}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between py-2 border-t border-[#E5E1DD]">
+                        <span className="text-[#8e8985]">Ticket delivery</span>
+                        <span className="font-bold text-[#1B1716]">
+                          MLB Ballpark App
+                        </span>
+                      </div>
+                    </div>
+                    <p className="text-[11px] text-[#8e8985] mt-1.5 italic">
+                      Set during setup. Not editable here.
+                    </p>
+                  </div>
+
+                  {/* Venmo + Zelle */}
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <div>
+                      <label className="block text-xs font-medium text-[#8e8985] mb-1.5">
+                        Venmo <span className="font-normal">(Optional)</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={venmoHandle}
+                        onChange={(e) => setVenmoHandle(e.target.value)}
+                        placeholder="@yourhandle"
+                        className="w-full px-3 py-2.5 rounded-lg border border-[#E5E1DD] bg-white text-[13px] font-semibold text-[#1B1716] outline-none focus:border-[#1B1716] transition-colors"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-[#8e8985] mb-1.5">
+                        Zelle <span className="font-normal">(Optional)</span>
+                      </label>
+                      <input
+                        type="tel"
+                        value={zelleInfo}
+                        onChange={(e) => setZelleInfo(e.target.value)}
+                        placeholder="(555) 555-5555"
+                        className="w-full px-3 py-2.5 rounded-lg border border-[#E5E1DD] bg-white text-[13px] font-semibold text-[#1B1716] outline-none focus:border-[#1B1716] transition-colors"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="flex justify-end gap-2.5 mt-[22px] pt-[18px] border-t border-[#E5E1DD]">
+                <button
+                  onClick={cancelEditing}
+                  className="bg-white text-[#1B1716] border border-[#E5E1DD] rounded-lg px-[18px] py-[9px] text-[13px] font-semibold cursor-pointer hover:bg-[#F5F4F2] transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="bg-[#1B1716] text-white border-none rounded-lg px-5 py-[9px] text-[13px] font-semibold cursor-pointer hover:opacity-90 transition-opacity disabled:opacity-50"
+                >
+                  {saving ? 'Saving...' : 'Save'}
+                </button>
+              </div>
+            </>
+          ) : isEmpty ? (
+            /* ── State 1 — empty ── */
+            <div className="grid grid-cols-[1.3fr_1fr] gap-[22px] items-center">
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                className="bg-[#F5F4F2] border-[1.5px] border-dashed border-[#D4CFC9] rounded-xl py-10 px-5 text-center min-h-[220px] flex flex-col items-center justify-center cursor-pointer hover:border-[#8e8985] transition-colors"
+              >
+                <svg
+                  width="32"
+                  height="32"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#8e8985"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="opacity-55 mb-3"
+                >
+                  <rect x="3" y="3" width="18" height="18" rx="2" />
+                  <circle cx="8.5" cy="8.5" r="1.5" />
+                  <path d="M21 15l-5-5L5 21" />
+                </svg>
+                <div className="text-[15px] font-semibold text-[#1B1716] mb-1">
+                  Add a seat photo
+                </div>
+                <div className="text-xs text-[#8e8985]">
+                  Claimers will see this on your share page
+                </div>
+              </div>
+              <div className="text-center px-[18px] py-6">
+                <div className="w-11 h-11 rounded-full bg-[#F5F4F2] flex items-center justify-center mx-auto mb-3 text-[#1B1716]">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.75"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <path d="M12 20h9" />
                     <path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
                   </svg>
-                  Edit seat info
+                </div>
+                <div className="text-[15px] font-bold text-[#1B1716] mb-1">
+                  Add your seat details
+                </div>
+                <div className="text-xs text-[#8e8985] leading-snug max-w-[260px] mx-auto mb-3.5">
+                  Help your friends know what to expect — add a description for
+                  your seats.
+                </div>
+                <button
+                  onClick={() => startEditing(false)}
+                  className="bg-[#1B1716] text-white border-none rounded-lg px-[18px] py-[9px] text-[13px] font-semibold cursor-pointer hover:opacity-90 transition-opacity"
+                >
+                  Add Info
                 </button>
-              </>
-            )}
-          </div>
+              </div>
+            </div>
+          ) : (
+            /* ── State 3 — filled view ── */
+            <div className="grid grid-cols-[1.1fr_1fr] gap-6 items-stretch">
+              {/* Left column — photo at fixed 400px */}
+              <div className="flex flex-col">
+                {pkg.seatPhotoUrl ? (
+                  <div className="relative h-[340px] rounded-xl overflow-hidden">
+                    <Image
+                      src={pkg.seatPhotoUrl}
+                      alt="View from seat"
+                      fill
+                      className="object-cover"
+                      sizes="500px"
+                      unoptimized
+                    />
+                    <div className="absolute bottom-3 left-3 bg-black/65 text-white text-xs font-semibold px-2.5 py-1 rounded-md">
+                      View from Section {pkg.section}
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    onClick={() => fileInputRef.current?.click()}
+                    className="h-[340px] bg-[#F5F4F2] border-[1.5px] border-dashed border-[#D4CFC9] rounded-xl flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-[#8e8985] transition-colors"
+                  >
+                    <svg
+                      width="32"
+                      height="32"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#8e8985"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="opacity-60"
+                    >
+                      <rect x="3" y="3" width="18" height="18" rx="2" />
+                      <circle cx="8.5" cy="8.5" r="1.5" />
+                      <path d="M21 15l-5-5L5 21" />
+                    </svg>
+                    <span className="text-sm font-semibold text-[#1B1716]">
+                      Add a seat photo
+                    </span>
+                    <span className="text-xs text-[#8e8985]">
+                      Claimers will see this on your share page
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Right column — sections */}
+              <div className="flex flex-col gap-[18px]">
+                {pkg.description && (
+                  <div>
+                    <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">
+                      Description
+                    </p>
+                    <p className="text-[13px] leading-[1.5] text-[#1B1716]">
+                      {pkg.description}
+                    </p>
+                  </div>
+                )}
+
+                <div>
+                  <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">
+                    Your seats
+                  </p>
+                  <div className="flex flex-col text-[13px]">
+                    <div className="flex items-center justify-between py-2">
+                      <span className="text-[#8e8985]">Section</span>
+                      <span className="font-bold text-[#1B1716]">
+                        {sectionDisplay}
+                      </span>
+                    </div>
+                    {pkg.row && (
+                      <div className="flex items-center justify-between py-2 border-t border-[#E5E1DD]">
+                        <span className="text-[#8e8985]">Row</span>
+                        <span className="font-bold text-[#1B1716]">
+                          Row {pkg.row}
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between py-2 border-t border-[#E5E1DD]">
+                      <span className="text-[#8e8985]">Seats</span>
+                      <span className="font-bold text-[#1B1716]">
+                        Seats {pkg.seats}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between py-2 border-t border-[#E5E1DD]">
+                      <span className="text-[#8e8985]">Ticket delivery</span>
+                      <span className="font-bold text-[#1B1716]">
+                        MLB Ballpark App
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {hasPayment && (
+                  <div>
+                    <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">
+                      {payHeading}
+                    </p>
+                    <div className="flex flex-col text-[13px]">
+                      {pkg.venmoHandle?.trim() && (
+                        <div className="flex items-center justify-between py-2">
+                          <span className="text-[#8e8985]">Venmo</span>
+                          <span className="font-bold text-[#1B1716]">
+                            {pkg.venmoHandle}
+                          </span>
+                        </div>
+                      )}
+                      {pkg.zelleInfo?.trim() && (
+                        <div
+                          className={`flex items-center justify-between py-2 ${pkg.venmoHandle?.trim() ? 'border-t border-[#E5E1DD]' : ''}`}
+                        >
+                          <span className="text-[#8e8985]">Zelle</span>
+                          <span className="font-bold text-[#1B1716]">
+                            {pkg.zelleInfo}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function MobileSeatInfoDrawer({
   pkg,
   navColor,
@@ -476,24 +670,13 @@ function MobileSeatInfoDrawer({
   const [saving, setSaving] = useState(false);
   const [descError, setDescError] = useState(false);
   const [description, setDescription] = useState(pkg.description || '');
-  const [perks, setPerks] = useState<string[]>(pkg.perks || []);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const isEmpty =
-    !pkg.seatPhotoUrl && !pkg.description && pkg.perks.length === 0;
+  const isEmpty = !pkg.seatPhotoUrl && !pkg.description;
 
   useEffect(() => {
-    startTransition(() => {
-      setDescription(pkg.description || '');
-      setPerks(pkg.perks || []);
-    });
-  }, [pkg.description, pkg.perks]);
-
-  function togglePerk(perk: string) {
-    setPerks((prev) =>
-      prev.includes(perk) ? prev.filter((p) => p !== perk) : [...prev, perk]
-    );
-  }
+    startTransition(() => setDescription(pkg.description || ''));
+  }, [pkg.description]);
 
   async function handleSave() {
     if (!description.trim()) {
@@ -505,10 +688,10 @@ function MobileSeatInfoDrawer({
     const res = await fetch(`/api/packages/${pkg.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ description: description.trim(), perks }),
+      body: JSON.stringify({ description: description.trim() }),
     });
     if (res.ok) {
-      onPkgUpdate({ description: description.trim(), perks });
+      onPkgUpdate({ description: description.trim() });
       setEditing(false);
     }
     setSaving(false);
@@ -554,7 +737,7 @@ function MobileSeatInfoDrawer({
           {getOpponentAbbr(pkg.team)}
         </div>
         <span className="text-base font-medium text-[#2c2a2b] flex-1">
-          Sec {pkg.section} &middot; Row {pkg.row} &middot; Seats {pkg.seats}
+          My seats
         </span>
         <svg
           width="16"
@@ -677,51 +860,11 @@ function MobileSeatInfoDrawer({
                           </p>
                         )}
                       </div>
-                      <div className="pb-4 border-b border-[#f5f4f2]">
-                        <label className="block text-xs font-medium text-[#8e8985] mb-2">
-                          Perks
-                        </label>
-                        <div className="flex flex-wrap gap-1.5">
-                          {AVAILABLE_PERKS.map((perk) => {
-                            const selected = perks.includes(perk);
-                            return (
-                              <button
-                                key={perk}
-                                type="button"
-                                onClick={() => togglePerk(perk)}
-                                className={`inline-flex items-center h-8 px-3 rounded-full text-xs font-medium border transition-colors cursor-pointer ${
-                                  selected
-                                    ? 'bg-[#E1F5EE] border-[#0F6E56] text-[#0F6E56]'
-                                    : 'bg-white border-[#dcd7d4] text-[#8e8985] hover:border-[#2c2a2b]'
-                                }`}
-                              >
-                                {selected && (
-                                  <svg
-                                    className="w-3 h-3 mr-1"
-                                    viewBox="0 0 16 16"
-                                    fill="none"
-                                  >
-                                    <path
-                                      d="M3.5 8.5L6.5 11.5L12.5 4.5"
-                                      stroke="currentColor"
-                                      strokeWidth="2"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                    />
-                                  </svg>
-                                )}
-                                {perk}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
                       <div className="flex gap-2">
                         <button
                           onClick={() => {
                             setEditing(false);
                             setDescription(pkg.description || '');
-                            setPerks(pkg.perks || []);
                           }}
                           className="flex-1 h-11 rounded-lg border border-[#dcd7d4] bg-white text-sm font-medium text-[#2c2a2b] cursor-pointer"
                         >
@@ -797,18 +940,6 @@ function MobileSeatInfoDrawer({
                           </span>
                         </div>
                       </div>
-                      {pkg.perks.length > 0 && (
-                        <div className="flex flex-wrap gap-2 pb-4 border-b border-[#f5f4f2]">
-                          {pkg.perks.map((perk) => (
-                            <span
-                              key={perk}
-                              className="inline-flex items-center justify-center text-xs font-medium text-[#8e8985] h-8 px-3 border border-[#8e8985]/75 rounded-full whitespace-nowrap"
-                            >
-                              {perk}
-                            </span>
-                          ))}
-                        </div>
-                      )}
                       <button
                         onClick={() => setEditing(true)}
                         className="flex items-center gap-1.5 text-sm font-medium text-[#8e8985] bg-transparent border-none cursor-pointer self-start"
@@ -847,10 +978,11 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname();
   const { data: session } = useSession();
-  const userInitial =
-    session?.user?.name?.charAt(0)?.toUpperCase() ||
-    (DESIGN_MODE ? mockHolder.firstName.charAt(0).toUpperCase() : '');
-  const _isProfile = pathname === '/dashboard/profile';
+  const sessionFirstName = session?.user?.name?.trim().split(/\s+/)[0] || '';
+  const holderFirstName =
+    sessionFirstName || (DESIGN_MODE ? mockHolder.firstName : '');
+  const userInitial = holderFirstName.charAt(0).toUpperCase() || '';
+  const isProfile = pathname === '/dashboard/profile';
   const isDashboard = pathname === '/dashboard';
   const [packages, setPackages] = useState<PackageForNav[]>([]);
   const [selectedPkgId, setSelectedPkgId] = useState<string | null>(null);
@@ -919,7 +1051,7 @@ export default function DashboardLayout({
     >
       <div className="flex flex-1 flex-col">
         <header
-          data-testid="dashboard-nav"
+          data-testid={TESTIDS.dashboardNav}
           className="h-[60px] md:h-[77px] flex items-center justify-between px-4 md:px-8 sticky top-0 z-50 shadow-[0_1px_3px_rgba(0,0,0,0.06)]"
           style={{ backgroundColor: navColor }}
         >
@@ -952,6 +1084,7 @@ export default function DashboardLayout({
                 isDark={isDark}
                 navColor={navColor}
                 teamAccent={teamAccent}
+                holderFirstName={holderFirstName}
                 onPkgUpdate={handlePkgUpdate}
               />
             )}
@@ -959,9 +1092,8 @@ export default function DashboardLayout({
 
           <div className="flex items-center gap-2 md:gap-3">
             {/* Package switcher (if multiple) */}
-            {packages.length > 1 && (
+            {SHOW_PACKAGE_SWITCHER && packages.length > 1 && (
               <select
-                data-testid="package-switcher"
                 value={selectedPkgId || ''}
                 onChange={(e) => {
                   const pkg = packages.find((p) => p.id === e.target.value);
@@ -994,8 +1126,8 @@ export default function DashboardLayout({
 
             {/* Account avatar */}
             <Link
-              data-testid="account-avatar"
               href="/dashboard/profile"
+              data-testid={TESTIDS.accountAvatar}
               className="w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all text-sm font-semibold"
               style={{ backgroundColor: teamAccent, color: navColor }}
             >

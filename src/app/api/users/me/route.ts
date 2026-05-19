@@ -46,6 +46,12 @@ export async function GET() {
 }
 
 export async function PUT(request: NextRequest) {
+  if (DESIGN_MODE) {
+    const body = await request.json();
+    Object.assign(mockHolder, body);
+    return jsonSuccess({ ...mockHolder });
+  }
+
   const sessionUser = await requireAuth();
   if (!sessionUser) {
     return jsonError('Unauthorized', 401);

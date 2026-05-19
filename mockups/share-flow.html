@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Share flow mockup — BenchBuddy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #003087;          /* Yankees primary */
+    --navy-dark: #00226b;
+    --accent: #C4CED4;
+    --ink: #0b1220;
+    --muted: #5b6677;
+    --line: #e5e8ee;
+    --bg: #f5f6f8;
+    --card: #ffffff;
+    --success: #15803d;
+    --warn: #b45309;
+    --radius: 14px;
+    --shadow: 0 1px 2px rgba(10,15,30,.04), 0 8px 24px rgba(10,15,30,.06);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: 'DM Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+
+  /* Page chrome (mockup wrapper) */
+  .page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 48px 24px 96px;
+  }
+  .page-title {
+    font-size: 28px; font-weight: 700; letter-spacing: -0.02em;
+    margin: 0 0 8px;
+  }
+  .page-sub {
+    color: var(--muted); margin: 0 0 40px; font-size: 15px;
+  }
+
+  /* Each mock "state" sits in a framed card so it reads as a comp, not a real page */
+  .state {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    margin: 0 0 48px;
+    overflow: hidden;
+  }
+  .state-label {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 20px;
+    background: #fafbfc;
+    border-bottom: 1px solid var(--line);
+    font-size: 13px; color: var(--muted); font-weight: 500;
+  }
+  .state-label .num {
+    width: 22px; height: 22px; border-radius: 999px;
+    background: var(--ink); color: #fff; font-weight: 600;
+    display: inline-flex; align-items: center; justify-content: center; font-size: 12px;
+  }
+  .state-label .new {
+    margin-left: auto;
+    background: #eaf3ff; color: var(--navy);
+    font-size: 11px; padding: 3px 8px; border-radius: 999px; font-weight: 600;
+    letter-spacing: .02em; text-transform: uppercase;
+  }
+  .state-body { padding: 0; }
+
+  /* ───────────────────── State 1: Share landing ───────────────────── */
+  .topbar {
+    background: var(--navy); color: #fff;
+    padding: 14px 24px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .topbar .brand { font-weight: 700; letter-spacing: -.01em; }
+  .topbar .login { font-size: 13px; opacity: .85; }
+
+  .hero {
+    padding: 32px 24px 8px;
+    display: flex; gap: 16px; align-items: flex-start;
+  }
+  .avatar {
+    width: 56px; height: 56px; border-radius: 999px;
+    background: linear-gradient(135deg, #ffd27a, #ff8a5b);
+    color: #fff; font-weight: 700; font-size: 20px;
+    display: inline-flex; align-items: center; justify-content: center;
+    flex: 0 0 auto;
+  }
+  .hero h1 {
+    margin: 0 0 6px;
+    font-size: 26px; font-weight: 700; letter-spacing: -.02em;
+  }
+  .hero h1 .holder { color: var(--navy); }
+  .hero .note {
+    color: var(--muted); margin: 0; font-size: 15px;
+  }
+
+  .howto {
+    margin: 24px 24px 0;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: #f9fbff;
+    padding: 14px 16px;
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;
+    position: relative;
+  }
+  .howto .step { display: flex; align-items: flex-start; gap: 10px; }
+  .howto .dot {
+    width: 22px; height: 22px; border-radius: 999px;
+    background: var(--navy); color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; flex: 0 0 auto;
+  }
+  .howto .step-text { font-size: 14px; line-height: 1.35; }
+  .howto .step-text b { display: block; font-weight: 600; }
+  .howto .step-text span { color: var(--muted); font-size: 13px; }
+  .howto .dismiss {
+    position: absolute; top: 8px; right: 10px;
+    background: none; border: none; color: var(--muted); font-size: 16px; cursor: pointer;
+  }
+
+  .toolbar {
+    margin: 28px 24px 12px;
+    display: flex; gap: 8px; align-items: center;
+    color: var(--muted); font-size: 13px;
+  }
+  .toolbar .tabs { display: flex; gap: 4px; margin-left: auto; }
+  .toolbar .tab {
+    padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line);
+    background: #fff; font-size: 13px; font-weight: 500;
+  }
+  .toolbar .tab.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  .grid {
+    padding: 0 24px 28px;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+  }
+  .game {
+    border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 14px; background: #fff;
+    display: flex; flex-direction: column; gap: 8px;
+    min-height: 132px;
+  }
+  .game .date { font-size: 12px; color: var(--muted); letter-spacing: .04em; text-transform: uppercase; }
+  .game .matchup { font-size: 16px; font-weight: 600; letter-spacing: -.01em; }
+  .game .time { font-size: 13px; color: var(--muted); }
+  .game .footer { margin-top: auto; display: flex; align-items: center; justify-content: space-between; }
+  .game .price { font-weight: 700; }
+  .game .pill {
+    font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px;
+    background: #eef2ff; color: var(--navy);
+  }
+  .game.claimed { opacity: .55; }
+  .game.claimed .pill { background: #f3f4f6; color: var(--muted); }
+
+  /* ───────────────────── State 2: Game expanded ───────────────────── */
+  .expand {
+    margin: 24px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .expand .header {
+    padding: 18px 20px;
+    background: linear-gradient(180deg, #f4f7ff, #fff);
+    border-bottom: 1px solid var(--line);
+  }
+  .expand .header .date { font-size: 12px; color: var(--muted); letter-spacing: .04em; text-transform: uppercase; }
+  .expand .header h3 { margin: 4px 0 2px; font-size: 22px; font-weight: 700; letter-spacing: -.02em; }
+  .expand .header .time { color: var(--muted); font-size: 14px; }
+
+  .seat {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    padding: 20px;
+  }
+  .seat .row { font-size: 13px; color: var(--muted); }
+  .seat .row b { display: block; font-size: 15px; color: var(--ink); font-weight: 600; margin-top: 2px; }
+
+  .cta {
+    padding: 16px 20px; background: #fafbfc; border-top: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  }
+  .cta .sub { color: var(--muted); font-size: 13px; }
+  .cta .sub b { color: var(--ink); font-weight: 600; }
+  .btn {
+    border: none; cursor: pointer; font: inherit;
+    padding: 12px 18px; border-radius: 10px; font-weight: 600; font-size: 14px;
+  }
+  .btn.primary { background: var(--navy); color: #fff; }
+  .btn.primary:hover { background: var(--navy-dark); }
+  .btn.ghost { background: #fff; color: var(--ink); border: 1px solid var(--line); }
+
+  /* ───────────────────── State 3: Pre-claim modal ───────────────────── */
+  .modal-shell {
+    position: relative;
+    background: #0b1220cc;
+    padding: 40px 24px;
+    min-height: 420px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .modal {
+    background: #fff; border-radius: 18px; padding: 24px;
+    max-width: 460px; width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,.25);
+  }
+  .modal h3 { margin: 0 0 4px; font-size: 20px; letter-spacing: -.02em; }
+  .modal .summary { color: var(--muted); font-size: 14px; margin: 0 0 6px; }
+  .modal .price-line { font-weight: 700; font-size: 16px; margin: 0 0 16px; }
+  .modal .checks {
+    display: flex; flex-direction: column; gap: 12px;
+    padding: 14px; border: 1px solid var(--line); border-radius: 12px;
+    background: #fafbfc; margin-bottom: 18px;
+  }
+  .modal .check { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; line-height: 1.4; }
+  .modal .check input { margin-top: 3px; transform: scale(1.15); }
+  .modal .check b { color: var(--ink); }
+  .modal .actions { display: flex; gap: 10px; justify-content: flex-end; }
+  .modal .actions .btn.primary:disabled { background: #c8cfdb; cursor: not-allowed; }
+
+  /* ───────────────────── State 4: Success state ───────────────────── */
+  .success {
+    padding: 40px 24px 32px;
+    text-align: center;
+  }
+  .success .check {
+    width: 64px; height: 64px; border-radius: 999px;
+    background: #e6f6ec; color: var(--success);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 32px; margin: 0 auto 14px;
+  }
+  .success h2 { margin: 0 0 6px; font-size: 26px; letter-spacing: -.02em; }
+  .success .summary { color: var(--muted); margin: 0 0 28px; font-size: 15px; }
+
+  .timeline {
+    text-align: left; max-width: 520px; margin: 0 auto 24px;
+    border: 1px solid var(--line); border-radius: var(--radius); padding: 6px 0;
+    background: #fff;
+  }
+  .timeline .item {
+    display: flex; gap: 14px; padding: 16px 18px; align-items: flex-start;
+    border-bottom: 1px solid var(--line);
+  }
+  .timeline .item:last-child { border-bottom: none; }
+  .timeline .num {
+    width: 26px; height: 26px; border-radius: 999px; background: var(--navy); color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px; flex: 0 0 auto;
+  }
+  .timeline b { display: block; font-size: 15px; margin-bottom: 2px; }
+  .timeline p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.4; }
+
+  .pay-box {
+    margin-top: 6px; display: flex; gap: 8px; align-items: center;
+    background: #f4f7ff; border: 1px solid #d8e3ff; padding: 10px 12px; border-radius: 10px;
+  }
+  .pay-box .handle { font-weight: 700; color: var(--navy); }
+  .pay-box .mini {
+    margin-left: auto;
+    font-size: 12px; padding: 6px 10px; border-radius: 8px;
+    background: #fff; border: 1px solid #d8e3ff; color: var(--navy); font-weight: 600;
+  }
+
+  .success .actions {
+    display: flex; gap: 10px; justify-content: center; margin-top: 12px;
+  }
+
+  /* ───────────────────── State 5: My Games w/ status chips ───────────────────── */
+  .mygames {
+    padding: 24px;
+  }
+  .mygames h3 { margin: 0 0 14px; font-size: 18px; letter-spacing: -.01em; }
+  .game-row {
+    display: grid; grid-template-columns: 80px 1fr auto;
+    gap: 16px; align-items: center;
+    padding: 14px 16px; border: 1px solid var(--line);
+    border-radius: var(--radius); background: #fff; margin-bottom: 10px;
+  }
+  .game-row .when {
+    text-align: center; padding: 6px 0;
+    border: 1px solid var(--line); border-radius: 10px;
+    background: #fafbfc;
+  }
+  .game-row .when .m { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+  .game-row .when .d { font-size: 20px; font-weight: 700; line-height: 1; }
+  .game-row .main b { display: block; font-size: 15px; }
+  .game-row .main span { color: var(--muted); font-size: 13px; }
+
+  .chips { display: flex; gap: 6px; }
+  .chip {
+    font-size: 11px; font-weight: 600; padding: 4px 9px; border-radius: 999px;
+    border: 1px solid var(--line); color: var(--muted); background: #fff;
+    letter-spacing: .02em;
+  }
+  .chip.done { background: #e6f6ec; color: var(--success); border-color: #c6e9d2; }
+  .chip.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+  /* Footnote */
+  .footnote {
+    font-size: 13px; color: var(--muted); margin: 0 4px 32px; line-height: 1.5;
+  }
+  .footnote code { background: #eef0f4; padding: 2px 6px; border-radius: 6px; font-size: 12px; }
+</style>
+</head>
+<body>
+  <div class="page">
+    <h1 class="page-title">Share flow — proposed</h1>
+    <p class="page-sub">Static mockup. Five stacked states, top to bottom, showing the combined "best-of" flow for the F&amp;F launch. <b>NEW</b> tags mark additions; everything else is updated copy or layout.</p>
+
+    <p class="footnote">Holder shown as <b>Margo Coleman</b> sharing <b>New York Yankees</b> tickets. Claimer is browsing on <code>/share/margo-yankees-2026</code>.</p>
+
+    <!-- ─────────── State 1: Landing ─────────── -->
+    <section class="state">
+      <div class="state-label">
+        <span class="num">1</span> Share page landing
+        <span class="new">New hero + how-it-works</span>
+      </div>
+      <div class="state-body">
+        <div class="topbar">
+          <div class="brand">BenchBuddy</div>
+          <div class="login">Sign in</div>
+        </div>
+
+        <div class="hero">
+          <div class="avatar">MC</div>
+          <div>
+            <h1><span class="holder">Margo</span> is sharing her Yankees season tickets</h1>
+            <p class="note">"Pick any game below — first come, first served. Pay me on Venmo and I'll send the tickets to your phone."</p>
+          </div>
+        </div>
+
+        <div class="howto">
+          <button class="dismiss" aria-label="Dismiss">×</button>
+          <div class="step">
+            <span class="dot">1</span>
+            <div class="step-text"><b>Pick a game</b><span>Browse the schedule, tap a game to see seats &amp; price</span></div>
+          </div>
+          <div class="step">
+            <span class="dot">2</span>
+            <div class="step-text"><b>Claim &amp; Venmo me</b><span>Confirm the claim, then send payment via Venmo</span></div>
+          </div>
+          <div class="step">
+            <span class="dot">3</span>
+            <div class="step-text"><b>Get your tickets</b><span>I'll transfer them to your phone before the game</span></div>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <span>12 games available · 4 already claimed</span>
+          <div class="tabs">
+            <span class="tab active">List</span>
+            <span class="tab">Calendar</span>
+            <span class="tab">My Games</span>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="game">
+            <div class="date">Sat · Jul 12</div>
+            <div class="matchup">vs. Red Sox</div>
+            <div class="time">7:05 PM</div>
+            <div class="footer"><span class="price">$45</span><span class="pill">Available</span></div>
+          </div>
+          <div class="game">
+            <div class="date">Sun · Jul 13</div>
+            <div class="matchup">vs. Red Sox</div>
+            <div class="time">1:35 PM</div>
+            <div class="footer"><span class="price">$45</span><span class="pill">Available</span></div>
+          </div>
+          <div class="game claimed">
+            <div class="date">Fri · Jul 18</div>
+            <div class="matchup">vs. Orioles</div>
+            <div class="time">7:05 PM</div>
+            <div class="footer"><span class="price">$40</span><span class="pill">Claimed</span></div>
+          </div>
+          <div class="game">
+            <div class="date">Sat · Jul 19</div>
+            <div class="matchup">vs. Orioles</div>
+            <div class="time">4:05 PM</div>
+            <div class="footer"><span class="price">$40</span><span class="pill">Available</span></div>
+          </div>
+          <div class="game">
+            <div class="date">Tue · Jul 22</div>
+            <div class="matchup">vs. Astros</div>
+            <div class="time">7:05 PM</div>
+            <div class="footer"><span class="price">$35</span><span class="pill">Available</span></div>
+          </div>
+          <div class="game claimed">
+            <div class="date">Wed · Jul 23</div>
+            <div class="matchup">vs. Astros</div>
+            <div class="time">7:05 PM</div>
+            <div class="footer"><span class="price">$35</span><span class="pill">Claimed</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────── State 2: Game expanded ─────────── -->
+    <section class="state">
+      <div class="state-label">
+        <span class="num">2</span> Tap a game — expanded detail
+        <span class="new">Updated claim CTA</span>
+      </div>
+      <div class="state-body">
+        <div class="expand">
+          <div class="header">
+            <div class="date">Saturday · July 12</div>
+            <h3>Yankees vs. Red Sox</h3>
+            <div class="time">7:05 PM · Yankee Stadium</div>
+          </div>
+          <div class="seat">
+            <div class="row">Section<b>124</b></div>
+            <div class="row">Row<b>12</b></div>
+            <div class="row">Seat<b>3</b></div>
+            <div class="row">View<b>Behind home plate, lower bowl</b></div>
+          </div>
+          <div class="cta">
+            <div class="sub"><b>$45</b> · Pay Margo via Venmo after claiming</div>
+            <button class="btn primary">Claim this game</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────── State 3: Pre-claim confirmation ─────────── -->
+    <section class="state">
+      <div class="state-label">
+        <span class="num">3</span> Pre-claim confirmation
+        <span class="new">New friction step</span>
+      </div>
+      <div class="state-body">
+        <div class="modal-shell">
+          <div class="modal">
+            <h3>You're claiming this game</h3>
+            <p class="summary">Yankees vs. Red Sox · Sat Jul 12, 7:05 PM</p>
+            <p class="summary">Section 124, Row 12, Seat 3</p>
+            <p class="price-line">$45</p>
+
+            <div class="checks">
+              <label class="check">
+                <input type="checkbox" checked />
+                <span>I'll send <b>$45</b> to <b>@margo-coleman</b> on Venmo within 24 hours</span>
+              </label>
+              <label class="check">
+                <input type="checkbox" />
+                <span>I understand <b>Margo</b> will transfer the tickets to my phone closer to game day</span>
+              </label>
+            </div>
+
+            <div class="actions">
+              <button class="btn ghost">Cancel</button>
+              <button class="btn primary" disabled>Confirm claim</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────── State 4: Success ─────────── -->
+    <section class="state">
+      <div class="state-label">
+        <span class="num">4</span> Post-claim success
+        <span class="new">Full-page state, replaces inline toast</span>
+      </div>
+      <div class="state-body">
+        <div class="success">
+          <div class="check">✓</div>
+          <h2>You're in!</h2>
+          <p class="summary">Yankees vs. Red Sox · Sat Jul 12 · Section 124, Row 12, Seat 3</p>
+
+          <div class="timeline">
+            <div class="item">
+              <span class="num">1</span>
+              <div style="flex:1;">
+                <b>Pay Margo</b>
+                <p>Send <b>$45</b> to her Venmo. She'll mark it received once it comes through.</p>
+                <div class="pay-box">
+                  <span class="handle">@margo-coleman</span>
+                  <span style="color:var(--muted); font-size:13px;">· $45</span>
+                  <span class="mini">Copy</span>
+                  <span class="mini">Open Venmo</span>
+                </div>
+              </div>
+            </div>
+            <div class="item">
+              <span class="num">2</span>
+              <div>
+                <b>Sit tight</b>
+                <p>Margo will transfer the tickets to your phone roughly 24 hours before the game.</p>
+              </div>
+            </div>
+            <div class="item">
+              <span class="num">3</span>
+              <div>
+                <b>Game day</b>
+                <p>Tickets show up in your Ticketmaster app. Just walk in and enjoy.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn ghost">Add to calendar</button>
+            <button class="btn primary">View in My Games</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────── State 5: My Games ─────────── -->
+    <section class="state">
+      <div class="state-label">
+        <span class="num">5</span> My Games — status chips
+        <span class="new">Ongoing reassurance</span>
+      </div>
+      <div class="state-body">
+        <div class="mygames">
+          <h3>My Games</h3>
+
+          <div class="game-row">
+            <div class="when"><div class="m">Jul</div><div class="d">12</div></div>
+            <div class="main">
+              <b>Yankees vs. Red Sox</b>
+              <span>Sat 7:05 PM · Sec 124, Row 12, Seat 3</span>
+            </div>
+            <div class="chips">
+              <span class="chip done">Claimed</span>
+              <span class="chip active">Payment due</span>
+              <span class="chip">Transferred</span>
+              <span class="chip">Ready</span>
+            </div>
+          </div>
+
+          <div class="game-row">
+            <div class="when"><div class="m">Jul</div><div class="d">22</div></div>
+            <div class="main">
+              <b>Yankees vs. Astros</b>
+              <span>Tue 7:05 PM · Sec 124, Row 12, Seat 3</span>
+            </div>
+            <div class="chips">
+              <span class="chip done">Claimed</span>
+              <span class="chip done">Paid</span>
+              <span class="chip active">Awaiting transfer</span>
+              <span class="chip">Ready</span>
+            </div>
+          </div>
+
+          <div class="game-row">
+            <div class="when"><div class="m">Aug</div><div class="d">04</div></div>
+            <div class="main">
+              <b>Yankees vs. Blue Jays</b>
+              <span>Mon 7:05 PM · Sec 124, Row 12, Seat 3</span>
+            </div>
+            <div class="chips">
+              <span class="chip done">Claimed</span>
+              <span class="chip done">Paid</span>
+              <span class="chip done">Transferred</span>
+              <span class="chip active">Ready for game day</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <p class="footnote">Open this file directly in a browser (no server needed). Nothing here is wired up — every button is a static comp.</p>
+  </div>
+</body>
+</html>

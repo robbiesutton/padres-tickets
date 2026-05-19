@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, startTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { PrimaryButton } from '@/components/primary-button';
 
 export default function Home() {
   const router = useRouter();
@@ -125,9 +126,8 @@ export default function Home() {
       `}</style>
 
       {/* Nav */}
-      <nav className="flex items-center justify-between px-6 md:px-12 lg:px-20 py-6">
+      <nav className="flex items-center justify-between px-5 md:px-8 py-6">
         <Link href="/" className="flex items-center gap-2">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/benchbuddy-mark-white.svg"
             alt="BenchBuddy"
@@ -201,7 +201,7 @@ export default function Home() {
       {mobileMenuOpen && (
         <div
           ref={mobileMenuRef}
-          className="md:hidden px-6 md:px-12 lg:px-20 pb-4 flex flex-col gap-3 bg-[#1B1716]"
+          className="md:hidden px-5 md:px-8 pb-4 flex flex-col gap-3 bg-[#1B1716]"
         >
           <a
             href="/login"
@@ -219,13 +219,13 @@ export default function Home() {
       )}
 
       {/* Hero */}
-      <section className="relative lg:h-[650px] flex items-center lg:items-start overflow-hidden bg-[#1B1716]">
+      <section className="relative lg:h-[650px] flex items-center overflow-hidden bg-[#1B1716]">
         {/* Content */}
-        <div className="relative z-10 px-6 md:px-12 lg:px-20 w-full">
+        <div className="relative z-10 px-5 md:px-8 w-full">
           <div className="max-w-7xl mx-auto flex flex-col lg:flex-row lg:justify-center items-center gap-8 md:gap-16 lg:gap-24">
-            <div className="max-w-xl flex flex-col gap-0 md:gap-6 pt-10 md:pt-6 pb-14 md:pb-[72px] lg:pt-20 lg:pb-24">
+            <div className="max-w-xl flex flex-col gap-0 md:gap-6 py-12 md:py-16 lg:py-20">
               {/* Alert */}
-              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#E41837]/20 bg-[#E41837]/10 text-sm font-medium text-white/70 w-fit">
+              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#E41837]/20 bg-[#E41837]/10 text-sm font-medium text-white/70 w-fit whitespace-nowrap">
                 <span className="relative flex w-2 h-2">
                   <span className="absolute inset-0 rounded-full bg-[#E41837] animate-ping opacity-75" />
                   <span className="relative w-2 h-2 rounded-full bg-[#E41837]" />
@@ -235,7 +235,7 @@ export default function Home() {
 
               {/* Headline */}
               <h1
-                className="mt-6 md:mt-0 text-3xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.08] tracking-tight"
+                className="mt-6 md:mt-0 text-3xl md:text-5xl lg:text-4xl xl:text-6xl font-bold text-white leading-[1.08] tracking-tight"
                 style={{ fontFamily: 'var(--font-syne), sans-serif' }}
               >
                 Share your season tickets.
@@ -246,7 +246,7 @@ export default function Home() {
                 Share your link. They claim the games they want. No group texts,
                 no crazy fees.
               </p>
-              <p className="hidden md:block -mt-0 max-w-lg text-base md:text-lg text-white/50 leading-relaxed">
+              <p className="hidden md:block -mt-0 max-w-lg text-base text-white/50 leading-relaxed">
                 Share your personal link and let them claim the games they want.
                 No wasted tickets, no group texts, no crazy fees.
               </p>
@@ -1452,7 +1452,6 @@ function SharePreviewCard() {
         }}
         aria-hidden
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/benchbuddy-lockup-white.svg"
           alt=""

@@ -236,7 +236,22 @@ export function GameExpansionPanel({
                 strokeLinejoin="round"
               />
             </svg>
-            Seller will contact you about payment details
+            {(() => {
+              const holderFirst =
+                pkg.holderName?.trim().split(/\s+/)[0] || 'The holder';
+              const venmo = pkg.venmoHandle?.trim() || '';
+              const zelle = pkg.zelleInfo?.trim() || '';
+              if (venmo && zelle) {
+                return `Pay ${holderFirst} $${totalPrice} via Venmo ${venmo} or Zelle ${zelle}. ${holderFirst} will then transfer the tickets to you a few days before the game.`;
+              }
+              if (venmo) {
+                return `Pay ${holderFirst} $${totalPrice} via Venmo ${venmo}. ${holderFirst} will then transfer the tickets to you a few days before the game.`;
+              }
+              if (zelle) {
+                return `Pay ${holderFirst} $${totalPrice} via Zelle ${zelle}. ${holderFirst} will then transfer the tickets to you a few days before the game.`;
+              }
+              return `${holderFirst} will be in touch with payment details and will transfer the tickets to you a few days before the game.`;
+            })()}
           </div>
         </>
       ) : step.step === 'check-email' ? (
