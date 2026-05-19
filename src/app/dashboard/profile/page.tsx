@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, startTransition } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import Image from 'next/image';
@@ -190,15 +190,15 @@ export default function ProfilePage() {
     seatPhotoUrl: '' as string | null, description: '',
   });
 
-  useEffect(() => { if (ctxPkgId && !selectedPkgId) setSelectedPkgId(ctxPkgId); }, [ctxPkgId, selectedPkgId]);
+  useEffect(() => { if (ctxPkgId && !selectedPkgId) startTransition(() => setSelectedPkgId(ctxPkgId)); }, [ctxPkgId, selectedPkgId]);
 
   useEffect(() => {
     const pkg = packages.find((p) => p.id === selectedPkgId);
-    if (pkg) setSeatForm({ seatPhotoUrl: pkg.seatPhotoUrl || null, description: pkg.description || '' });
+    if (pkg) startTransition(() => setSeatForm({ seatPhotoUrl: pkg.seatPhotoUrl || null, description: pkg.description || '' }));
   }, [selectedPkgId, packages]);
 
   useEffect(() => {
-    if (searchParams.get('subscription') === 'success') setMessage({ type: 'success', text: 'Subscription activated!' });
+    if (searchParams.get('subscription') === 'success') startTransition(() => setMessage({ type: 'success', text: 'Subscription activated!' }));
   }, [searchParams]);
 
   useEffect(() => {
@@ -215,7 +215,7 @@ export default function ProfilePage() {
   }, []);
 
   // Clear message when switching sections
-  useEffect(() => { setMessage(null); }, [activeSection]);
+  useEffect(() => { startTransition(() => setMessage(null)); }, [activeSection]);
 
   function handlePkgChange(pkgId: string) { setSelectedPkgId(pkgId); ctxSetPkgId(pkgId); }
   function update(field: string, value: string) { setForm((prev) => ({ ...prev, [field]: value })); }
@@ -286,7 +286,7 @@ export default function ProfilePage() {
   const shareSlug = searchParams.get('slug') || '';
   const [cameFromShare, setCameFromShare] = useState(fromShare);
   useEffect(() => {
-    if (!fromShare && typeof document !== 'undefined' && document.referrer.includes('/share/')) setCameFromShare(true);
+    if (!fromShare && typeof document !== 'undefined' && document.referrer.includes('/share/')) startTransition(() => setCameFromShare(true));
   }, [fromShare]);
   const showOwnerTabs = hasOwnedPackages && !cameFromShare;
   const claimerPackages = packages.filter((p) => p.role !== 'OWNER' && p.role !== 'CO_OWNER');

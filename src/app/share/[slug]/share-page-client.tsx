@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect, useCallback, Suspense } from 'react';
+import { useState, useMemo, useEffect, useCallback, startTransition, Suspense } from 'react';
 import { useSession } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
 import type { Game, PackageInfo, ViewMode, ActiveTab } from './types';
@@ -46,20 +46,24 @@ function MobileSeatInfoPill({ pkg, activeTab }: { pkg: PackageInfo; activeTab: A
   const [hasSeenFTU, setHasSeenFTU] = useState(true);
   useEffect(() => {
     if (activeTab !== 'available') {
-      setOpen(false);
+      startTransition(() => setOpen(false));
       return;
     }
     if (window.matchMedia('(min-width: 768px)').matches) return;
     try {
       const seen = !!window.localStorage.getItem(FTU_KEY);
-      setHasSeenFTU(seen);
-      if (!seen) {
-        window.localStorage.setItem(FTU_KEY, '1');
-        setOpen(true);
-      }
+      startTransition(() => {
+        setHasSeenFTU(seen);
+        if (!seen) {
+          window.localStorage.setItem(FTU_KEY, '1');
+          setOpen(true);
+        }
+      });
     } catch {
-      setHasSeenFTU(false);
-      setOpen(true);
+      startTransition(() => {
+        setHasSeenFTU(false);
+        setOpen(true);
+      });
     }
   }, [FTU_KEY, activeTab]);
 

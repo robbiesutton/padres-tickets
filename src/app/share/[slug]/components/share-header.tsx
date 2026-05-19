@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, startTransition } from 'react';
 import { useSession } from 'next-auth/react';
 import { createPortal } from 'react-dom';
 import Image from 'next/image';
@@ -76,21 +76,25 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
   const [hasSeenFTU, setHasSeenFTU] = useState(true);
   useEffect(() => {
     if (activeTab !== 'available') {
-      setPillOpen(false);
+      startTransition(() => setPillOpen(false));
       return;
     }
     if (!window.matchMedia('(min-width: 768px)').matches) return;
     try {
       const seen = !!window.localStorage.getItem(FTU_KEY);
-      setHasSeenFTU(seen);
-      if (!seen) {
-        window.localStorage.setItem(FTU_KEY, '1');
-        setPillOpen(true);
-      }
+      startTransition(() => {
+        setHasSeenFTU(seen);
+        if (!seen) {
+          window.localStorage.setItem(FTU_KEY, '1');
+          setPillOpen(true);
+        }
+      });
     } catch {
       // localStorage unavailable (private browsing) — per spec rule 10, show FTU every visit
-      setHasSeenFTU(false);
-      setPillOpen(true);
+      startTransition(() => {
+        setHasSeenFTU(false);
+        setPillOpen(true);
+      });
     }
   }, [FTU_KEY, activeTab]);
 

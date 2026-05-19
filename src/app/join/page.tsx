@@ -106,13 +106,11 @@ function JoinForm() {
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [marketingOptIn, setMarketingOptIn] = useState(false);
 
-  const refs = {
-    firstName: useRef<HTMLInputElement>(null),
-    lastName: useRef<HTMLInputElement>(null),
-    email: useRef<HTMLInputElement>(null),
-    phone: useRef<HTMLInputElement>(null),
-    password: useRef<HTMLInputElement>(null),
-  };
+  const firstNameRef = useRef<HTMLInputElement>(null);
+  const lastNameRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const phoneRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
 
   function runValidator(field: FieldKey, value: string): string | null {
     if (field === 'firstName') return validateName(value) ? 'Please enter your first name' : null;
@@ -155,7 +153,10 @@ function JoinForm() {
     if (Object.keys(next).length > 0) {
       const order: FieldKey[] = ['firstName', 'lastName', 'email', 'phone', 'password'];
       const firstInvalid = order.find((f) => next[f]);
-      if (firstInvalid) refs[firstInvalid].current?.focus();
+      if (firstInvalid) {
+        const refMap = { firstName: firstNameRef, lastName: lastNameRef, email: emailRef, phone: phoneRef, password: passwordRef };
+        refMap[firstInvalid].current?.focus();
+      }
       return;
     }
 
@@ -243,7 +244,7 @@ function JoinForm() {
             <div>
               <FormLabel>First name</FormLabel>
               <input
-                ref={refs.firstName}
+                ref={firstNameRef}
                 type="text"
                 autoComplete="given-name"
                 value={form.firstName}
@@ -258,7 +259,7 @@ function JoinForm() {
             <div>
               <FormLabel>Last name</FormLabel>
               <input
-                ref={refs.lastName}
+                ref={lastNameRef}
                 type="text"
                 autoComplete="family-name"
                 value={form.lastName}
@@ -275,7 +276,7 @@ function JoinForm() {
           <div>
             <FormLabel>Email</FormLabel>
             <input
-              ref={refs.email}
+              ref={emailRef}
               type="email"
               autoComplete="email"
               inputMode="email"
@@ -292,7 +293,7 @@ function JoinForm() {
           <div>
             <FormLabel>Phone number</FormLabel>
             <input
-              ref={refs.phone}
+              ref={phoneRef}
               type="tel"
               autoComplete="tel"
               inputMode="tel"
@@ -310,7 +311,7 @@ function JoinForm() {
             <FormLabel>Password</FormLabel>
             <div className="relative">
               <input
-                ref={refs.password}
+                ref={passwordRef}
                 type={showPassword ? 'text' : 'password'}
                 autoComplete="new-password"
                 value={form.password}
