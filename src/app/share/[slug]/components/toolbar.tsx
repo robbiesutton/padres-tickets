@@ -118,22 +118,22 @@ export function Toolbar({
           <div className="absolute inset-0 bg-black/30" onClick={() => setMobileFiltersOpen(false)} />
           <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-[0_-4px_16px_rgba(0,0,0,0.08)] animate-slide-up max-h-[85vh] flex flex-col overflow-hidden">
             {/* Chrome strip — close X only */}
-            <div className="relative h-10 shrink-0">
+            <div className="relative h-14 shrink-0">
               <button
                 onClick={() => setMobileFiltersOpen(false)}
                 title="Close"
-                className="absolute top-1.5 right-1.5 w-11 h-11 flex items-center justify-center bg-transparent border-none cursor-pointer z-10"
+                className="absolute top-3 right-3 w-11 h-11 flex items-center justify-center bg-transparent border-none cursor-pointer z-10"
               >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <path d="M18 6L6 18" stroke="#1B1716" strokeWidth="2.5" strokeLinecap="round" />
-                  <path d="M6 6l12 12" stroke="#1B1716" strokeWidth="2.5" strokeLinecap="round" />
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M18 6L6 18" stroke="#8e8985" strokeWidth="2" strokeLinecap="round" />
+                  <path d="M6 6l12 12" stroke="#8e8985" strokeWidth="2" strokeLinecap="round" />
                 </svg>
               </button>
             </div>
 
             {/* Scrollable body */}
             <div className="flex-1 overflow-y-auto">
-              <div className="px-6 pb-5">
+              <div className="px-5 pb-5">
                 <h3 className="text-[18px] font-bold text-[#1B1716] mb-5">Filters</h3>
                 <div className="flex flex-col gap-5">
                   <div>
@@ -155,7 +155,7 @@ export function Toolbar({
             </div>
 
             {/* Sticky CTA footer */}
-            <div className="shrink-0 px-6 pb-5 bg-white">
+            <div className="shrink-0 px-5 pb-5 bg-white">
               <button
                 onClick={() => setMobileFiltersOpen(false)}
                 className="w-full h-[52px] rounded-[10px] bg-[#2C2A2B] text-base font-semibold text-white cursor-pointer border-none transition-opacity hover:opacity-90"

@@ -101,22 +101,22 @@ function MobileSeatInfoPill({ pkg, activeTab }: { pkg: PackageInfo; activeTab: A
           <div className="absolute inset-0 bg-black/30" onClick={() => setOpen(false)} />
           <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-[0_-4px_16px_rgba(0,0,0,0.08)] animate-slide-up max-h-[85vh] flex flex-col overflow-hidden">
             {/* Chrome strip — close X only */}
-            <div className="relative h-10 shrink-0">
+            <div className="relative h-[63px] shrink-0">
               <button
-                className="absolute top-1.5 right-1.5 w-11 h-11 flex items-center justify-center bg-transparent border-none cursor-pointer z-10"
+                className="absolute top-3 right-3 w-11 h-11 flex items-center justify-center bg-transparent border-none cursor-pointer z-10"
                 onClick={() => setOpen(false)}
                 title="Close"
               >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <path d="M18 6L6 18" stroke="#1B1716" strokeWidth="2.5" strokeLinecap="round" />
-                  <path d="M6 6l12 12" stroke="#1B1716" strokeWidth="2.5" strokeLinecap="round" />
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M18 6L6 18" stroke="#8e8985" strokeWidth="2" strokeLinecap="round" />
+                  <path d="M6 6l12 12" stroke="#8e8985" strokeWidth="2" strokeLinecap="round" />
                 </svg>
               </button>
             </div>
 
             {/* Scrollable body */}
             <div className="flex-1 overflow-y-auto">
-              <div className="px-6 pb-5 flex flex-col gap-5">
+              <div className="px-5 pb-5 flex flex-col gap-5">
                 {isCompletelyEmpty ? (
                   /* Empty fallback (rule 9) */
                   <div className="text-center py-6 px-2">
@@ -221,7 +221,7 @@ function MobileSeatInfoPill({ pkg, activeTab }: { pkg: PackageInfo; activeTab: A
             </div>
 
             {/* Sticky CTA footer */}
-            <div className="shrink-0 px-6 pb-5 bg-white">
+            <div className="shrink-0 px-5 pb-5 bg-white">
               <button
                 onClick={dismissFTU}
                 className="w-full h-[52px] bg-[#2C2A2B] text-white border-none rounded-[10px] text-base font-semibold cursor-pointer active:opacity-90"
