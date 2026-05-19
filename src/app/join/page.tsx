@@ -4,8 +4,6 @@ import { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
   SetupLayout,
-  StepHeadline,
-  StepSubhead,
   FormLabel,
 } from '@/components/setup-layout';
 import { AuthFormSkeleton, Bone } from '@/components/skeleton';
@@ -94,8 +92,6 @@ function JoinForm() {
     return () => { cancelled = true; };
   }, [from, initialCallout]);
 
-  const holderName = calloutData?.firstName || holderNameParam || 'your friend';
-  const teamShort = calloutData?.team ? calloutData.team.split(' ').slice(-1)[0] : '';
   const teamAbbr = calloutData?.team ? getOpponentAbbr(calloutData.team) : '';
   const { primary: teamPrimary, accent: teamAccent } = getTeamColors(calloutData?.team || '');
 
@@ -204,30 +200,36 @@ function JoinForm() {
         Back
       </a>
       <div className="flex flex-col flex-1 md:justify-center max-w-[380px] mx-auto w-full pt-12 md:pt-0">
-        {calloutLoading ? (
-          <div className="bg-white rounded-xl border border-[#dcd7d4] p-5 mb-6 flex items-center gap-4">
-            <Bone w="48px" h="48px" r="50%" />
-            <div className="flex-1 flex flex-col gap-2">
-              <Bone w="90%" h="15px" />
-              <Bone w="65%" h="15px" />
+        <div className="text-center mb-9">
+          {calloutLoading ? (
+            <div className="flex justify-center mb-5">
+              <Bone w="64px" h="64px" r="50%" />
             </div>
-          </div>
-        ) : calloutData ? (
-          <div className="bg-white rounded-xl border border-[#dcd7d4] p-5 mb-6 flex items-center gap-4">
+          ) : (
             <div
-              className="w-12 h-12 rounded-full flex items-center justify-center text-[13px] font-bold shrink-0"
-              style={{ backgroundColor: teamAccent, color: teamPrimary }}
+              className="w-16 h-16 rounded-full flex items-center justify-center text-base font-bold mx-auto mb-5"
+              style={
+                calloutData?.team
+                  ? { backgroundColor: teamAccent, color: teamPrimary }
+                  : { backgroundColor: '#DCD7D4', color: '#1B1716' }
+              }
             >
               {teamAbbr}
             </div>
-            <p className="text-[15px] leading-[1.5] text-[#1B1716]">
-              <strong className="font-bold">{calloutData.firstName}</strong> shared the {teamShort} season tickets with you. Sign up to see the games.
-            </p>
-          </div>
-        ) : null}
-        <div className="text-center">
-          <StepHeadline>{holderName} shared tickets with you.</StepHeadline>
-          <StepSubhead>Create a free account to browse games and claim the ones you want.</StepSubhead>
+          )}
+          <h1
+            className="text-2xl font-bold leading-tight text-[#2c2a2b]"
+            style={{ fontFamily: 'var(--font-syne), sans-serif' }}
+          >
+            {calloutData?.firstName
+              ? `${calloutData.firstName} shared tickets with you.`
+              : holderNameParam
+                ? `${holderNameParam} shared tickets with you.`
+                : 'Tickets shared with you.'}
+          </h1>
+          <p className="mt-2 text-base text-[#8e8985] max-w-[320px] mx-auto">
+            Create a free account to browse games and claim the ones you want.
+          </p>
         </div>
 
         {submitError && (
