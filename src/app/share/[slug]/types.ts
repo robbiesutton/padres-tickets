@@ -19,6 +19,8 @@ export interface PackageInfo {
   holderName: string;
   holderEmail: string | null;
   holderPhone: string | null;
+  venmoHandle: string | null;
+  zelleInfo: string | null;
   team: string;
   section: string;
   row: string | null;

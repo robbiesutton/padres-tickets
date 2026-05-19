@@ -11,7 +11,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (DESIGN_MODE) {
     const holderName = `${mockHolder.firstName} ${mockHolder.lastName}`;
     return {
-      title: `${holderName}'s ${mockPackage.team} Tickets — BenchBuddy`,
+      title: `${holderName}'s ${mockPackage.team} tickets on BenchBuddy`,
       description: `12 games available this ${mockPackage.season} season. Claim your tickets!`,
     };
   }
@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!pkg) {
     return {
-      title: 'BenchBuddy — Link Not Found',
+      title: 'BenchBuddy. Link not found',
     };
   }
 
@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const availableCount = pkg._count.games;
 
   return {
-    title: `${holderName}'s ${pkg.team} Tickets — BenchBuddy`,
+    title: `${holderName}'s ${pkg.team} tickets on BenchBuddy`,
     description: `${availableCount} games available this ${pkg.season} season. Claim your tickets!`,
     openGraph: {
       title: `${holderName}'s ${pkg.team} Tickets on BenchBuddy`,

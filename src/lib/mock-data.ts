@@ -7,6 +7,11 @@
 
 export const DESIGN_MODE = process.env.NEXT_PUBLIC_DESIGN_MODE === 'true';
 
+// Design-mode persona toggle.
+// true  → view the app as the holder (Robbie) — full sidebar: Profile, Seat Info, Subscription, Shared with me
+// false → view the app as a claimer (Margo) — sidebar: Profile, Shared with me only
+export const MOCK_AS_HOLDER = true;
+
 // ── Identifiers ──────────────────────────────────────────
 
 export const MOCK_USER_ID = 'design-user-holder-001';
@@ -50,8 +55,8 @@ export const mockPackage = {
   shareLinkSlug: MOCK_SHARE_SLUG,
   status: 'ACTIVE',
   defaultPricePerTicket: 45,
-  description: null,
-  seatPhotoUrl: null,
+  description: 'Great shaded seats just past third base. Perfect view of the infield, easy walk to concessions, and never a bad day at the park.',
+  seatPhotoUrl: '/stadium-seats.jpg',
   perks: [],
   createdAt: new Date('2026-02-01').toISOString(),
   updatedAt: new Date('2026-03-01').toISOString(),
@@ -65,6 +70,8 @@ export const mockPackageInfo = {
   holderName: `${mockHolder.firstName} ${mockHolder.lastName}`,
   holderEmail: mockHolder.email,
   holderPhone: mockHolder.phone,
+  venmoHandle: mockHolder.venmoHandle,
+  zelleInfo: mockHolder.zelleInfo,
   team: mockPackage.team,
   section: mockPackage.section,
   row: mockPackage.row,

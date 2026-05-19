@@ -27,6 +27,7 @@ interface Props {
   opponentFilter: string[];
   monthFilter: string[];
   onClearFilters: () => void;
+  onSwitchToMyGames?: () => void;
 }
 
 export function CalendarView({
@@ -46,6 +47,7 @@ export function CalendarView({
   opponentFilter,
   monthFilter,
   onClearFilters,
+  onSwitchToMyGames,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null);
@@ -220,6 +222,7 @@ export function CalendarView({
             onClose={handleClose}
             onClaim={handleClaim}
             onRelease={handleRelease}
+            onSwitchToMyGames={onSwitchToMyGames}
           />
         )}
       </div>

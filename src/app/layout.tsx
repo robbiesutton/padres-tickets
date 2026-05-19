@@ -33,11 +33,11 @@ export const viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'BenchBuddy — Share Your Season Tickets',
+  title: 'BenchBuddy. Share your season tickets',
   description:
     'The easiest way for season ticket holders to share games with friends and family.',
   openGraph: {
-    title: 'BenchBuddy — Share Your Season Tickets',
+    title: 'BenchBuddy. Share your season tickets',
     description:
       'The easiest way for season ticket holders to share games with friends and family.',
     type: 'website',
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'BenchBuddy — Share Your Season Tickets',
+    title: 'BenchBuddy. Share your season tickets',
     description:
       'The easiest way for season ticket holders to share games with friends and family.',
   },
