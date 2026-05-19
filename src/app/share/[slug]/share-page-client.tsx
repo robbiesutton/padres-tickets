@@ -143,6 +143,25 @@ function MobileSeatInfoPill({ pkg, activeTab }: { pkg: PackageInfo; activeTab: A
                       </div>
                     )}
 
+                    {/* How it works */}
+                    <div>
+                      <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">How it works</p>
+                      <div className="bg-[#F5F4F2] rounded-[10px] px-4 py-3.5 flex flex-col gap-2.5">
+                        {[
+                          'Pick a game from the schedule.',
+                          claimStep,
+                          'Tickets arrive before game day.',
+                        ].map((step, i) => (
+                          <div key={i} className="flex gap-3 items-start text-[14px] leading-[1.4] text-[#1B1716]">
+                            <div className="w-5 h-5 rounded-full bg-[#810100] text-white flex items-center justify-center text-[11px] font-bold shrink-0">
+                              {i + 1}
+                            </div>
+                            <div>{step}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
                     {/* Description */}
                     {pkg.description && (
                       <div>
@@ -196,25 +215,6 @@ function MobileSeatInfoPill({ pkg, activeTab }: { pkg: PackageInfo; activeTab: A
                         </div>
                       </div>
                     )}
-
-                    {/* How it works */}
-                    <div>
-                      <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">How it works</p>
-                      <div className="bg-[#F5F4F2] rounded-[10px] px-4 py-3.5 flex flex-col gap-2.5">
-                        {[
-                          'Pick a game from the schedule.',
-                          claimStep,
-                          'Tickets arrive before game day.',
-                        ].map((step, i) => (
-                          <div key={i} className="flex gap-3 items-start text-[14px] leading-[1.4] text-[#1B1716]">
-                            <div className="w-5 h-5 rounded-full bg-[#810100] text-white flex items-center justify-center text-[11px] font-bold shrink-0">
-                              {i + 1}
-                            </div>
-                            <div>{step}</div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
                   </>
                 )}
               </div>
@@ -501,7 +501,7 @@ function SharePageInner({ packageInfo, games: initialGames, opponents }: Props) 
               </p>
             </div>
             {holderFirstName && (
-              <p className="md:hidden text-[14px] leading-[1.5] text-[#8e8985] mb-4">
+              <p className="md:hidden text-[14px] leading-[1.5] text-[#8e8985] mb-4 text-balance">
                 {`Pay ${holderFirstName} directly. Tickets transfer before game day.`}
               </p>
             )}

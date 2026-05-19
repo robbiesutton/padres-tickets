@@ -112,7 +112,7 @@ export function ListView({
                   isTakenByOthers={isTakenByOthers}
                   seatCount={pkg.seatCount}
                   teamColor={teamPrimary}
-                  onReserve={() => handleReserve(game.id)}
+                  onReserve={() => setSelectedGameId(game.id)}
                   onRelease={() => handleRelease(game.id)}
                   onMobileTap={() => setSelectedGameId(game.id)}
                 />
