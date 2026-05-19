@@ -8,7 +8,7 @@ import type { ActiveTab } from '../types';
 import type { PackageInfo } from '../types';
 
 import { getTeamColors, isColorDark } from '../team-colors';
-import { getOpponentAbbr } from '../utils';
+import { TeamBadge } from '@/components/team-badge';
 import { DESIGN_MODE, mockClaimer } from '@/lib/mock-data';
 
 interface Props {
@@ -57,7 +57,7 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
   }, [seatInfoOpen, pillOpen]);
 
 
-  const { primary: navColor, accent: teamAccent } = getTeamColors(pkg.team);
+  const { primary: navColor, accent: teamAccent, badgeTextColor: badgeText } = getTeamColors(pkg.team);
   const isDark = isColorDark(navColor);
 
   const firstName = pkg.holderName?.trim().split(/\s+/)[0] || '';
@@ -133,9 +133,7 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
             onClick={() => { setPillOpen(!pillOpen); setSeatInfoOpen(false); }}
           >
             <div className="flex items-center gap-1.5">
-              <div className="w-[34px] h-[34px] rounded-full flex items-center justify-center text-[11px] font-bold shrink-0" style={{ backgroundColor: teamAccent, color: navColor }}>
-                {getOpponentAbbr(pkg.team)}
-              </div>
+              <TeamBadge team={pkg.team} className="w-[34px] h-[34px] text-[11px] font-bold" />
               <span className={`text-base font-medium ${isDark ? 'text-white' : 'text-[#1B1716]'}`}>
                 {pillLabel}
               </span>
@@ -375,7 +373,7 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
         <a
           href={`/dashboard/profile?from=share&slug=${pkg.slug}`}
           className="w-[34px] h-[34px] rounded-full flex items-center justify-center cursor-pointer transition-all text-[11px] font-bold"
-          style={{ backgroundColor: teamAccent, color: navColor }}
+          style={{ backgroundColor: teamAccent, color: badgeText ?? navColor }}
         >
           {userInitial}
         </a>

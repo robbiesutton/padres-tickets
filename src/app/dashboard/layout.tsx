@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { getTeamColors, isColorDark } from '@/lib/team-colors';
-import { getOpponentAbbr } from '@/lib/game-utils';
+import { TeamBadge } from '@/components/team-badge';
 import { ScoreTicker } from '@/components/score-ticker';
 import { DESIGN_MODE, mockHolder } from '@/lib/mock-data';
 import { SHOW_PACKAGE_SWITCHER } from '@/lib/feature-flags';
@@ -170,12 +170,7 @@ function SeatInfoPillDropdown({ pkg, isDark, navColor, teamAccent, holderFirstNa
         onClick={() => setPillOpen(!pillOpen)}
       >
         <div className="flex items-center gap-1.5">
-          <div
-            className="w-[34px] h-[34px] rounded-full flex items-center justify-center text-[11px] font-bold shrink-0"
-            style={{ backgroundColor: teamAccent, color: navColor }}
-          >
-            {getOpponentAbbr(pkg.team)}
-          </div>
+          <TeamBadge team={pkg.team} className="w-[34px] h-[34px] text-[11px] font-bold" />
           <span className={`text-base font-medium ${isDark ? 'text-white' : 'text-[#1B1716]'}`}>
             My seats
           </span>
@@ -544,12 +539,7 @@ function MobileSeatInfoDrawer({ pkg, navColor, teamAccent, onPkgUpdate }: {
         style={{ border: `1px solid ${navColor}`, backgroundColor: `${navColor}33` }}
         onClick={() => setOpen(true)}
       >
-        <div
-          className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0"
-          style={{ backgroundColor: teamAccent, color: navColor }}
-        >
-          {getOpponentAbbr(pkg.team)}
-        </div>
+        <TeamBadge team={pkg.team} className="w-8 h-8 text-[10px] font-bold" />
         <span className="text-base font-medium text-[#2c2a2b] flex-1">
           My seats
         </span>
@@ -746,9 +736,8 @@ export default function DashboardLayout({
   }, [pathname, isDashboard]);
 
   const selectedPkg = packages.find((p) => p.id === selectedPkgId) || null;
-  const { primary: navColor, accent: teamAccent } = selectedPkg
-    ? getTeamColors(selectedPkg.team)
-    : { primary: '#2c2a2b', accent: '#D4A843' };
+  const { primary: navColor, accent: teamAccent, badgeTextColor: badgeText } =
+    getTeamColors(selectedPkg?.team ?? '');
 
   function handlePkgUpdate(fields: Partial<PackageForNav>) {
     if (!selectedPkgId) return;
@@ -826,7 +815,7 @@ export default function DashboardLayout({
             <Link
               href="/dashboard/profile"
               className="w-10 h-10 md:w-[34px] md:h-[34px] rounded-full flex items-center justify-center cursor-pointer transition-all text-sm font-semibold md:text-[11px] md:font-bold"
-              style={{ backgroundColor: teamAccent, color: navColor }}
+              style={{ backgroundColor: teamAccent, color: badgeText ?? navColor }}
             >
               {userInitial}
             </Link>
