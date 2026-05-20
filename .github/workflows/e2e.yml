@@ -124,13 +124,33 @@ jobs:
         env:
           PLAYWRIGHT_BASE_URL: ${{ steps.deploy.outputs.url }}
           VERCEL_BYPASS_SECRET: ${{ secrets.VERCEL_BYPASS_SECRET }}
+          # Auth env vars required so globalSetup can log in and authenticated
+          # visual tests get real page screenshots, not login-redirect screenshots.
+          MAILOSAUR_API_KEY: ${{ secrets.MAILOSAUR_API_KEY }}
+          MAILOSAUR_SERVER_ID: ${{ secrets.MAILOSAUR_SERVER_ID }}
+          TEST_EMAIL_DOMAIN: ${{ secrets.MAILOSAUR_SERVER_ID }}.mailosaur.net
+          NEON_PREVIEW_DATABASE_URL: ${{ secrets.NEON_PREVIEW_DATABASE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+
+      # Restore previous run state so subsequent pushes only re-run failed tests.
+      - name: Restore last-run state
+        id: restore-last-run
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: playwright-last-run-pr-${{ github.event.pull_request.number }}
+          path: .playwright/
 
       - name: Run Playwright tests
         # On the design branch run only @smoke tests — fast, no Mailosaur/DB needed.
-        # Full suite runs on PRs into main where the complete test contract applies.
+        # On subsequent PR pushes where a last-run state exists, only re-run failures.
+        # Full suite on first run or on main.
         run: |
           if [ "${{ github.ref }}" = "refs/heads/design" ]; then
             npx playwright test --grep "@smoke"
+          elif [ "${{ steps.restore-last-run.outcome }}" = "success" ] && [ -f ".playwright/last-run.json" ]; then
+            echo "Previous run state found — re-running failed/not-run tests only"
+            npx playwright test --last-failed --pass-with-no-tests
           else
             npx playwright test
           fi
@@ -142,6 +162,17 @@ jobs:
           TEST_EMAIL_DOMAIN: ${{ secrets.MAILOSAUR_SERVER_ID }}.mailosaur.net
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
           NEON_PREVIEW_DATABASE_URL: ${{ secrets.NEON_PREVIEW_DATABASE_URL }}
+
+      # Save last-run state so the next push to this PR can use --last-failed.
+      - name: Save last-run state
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-last-run-pr-${{ github.event.pull_request.number }}
+          path: .playwright/last-run.json
+          retention-days: 7
+          if-no-files-found: ignore
+          overwrite: true
 
       - name: Upload Playwright report
         if: always()
