@@ -78,6 +78,10 @@ test.describe('Claimer journey', () => {
 
       await expect(page).toHaveURL(new RegExp(`/share/${TEST_SLUG}`), { timeout: 15000 });
 
+      // Dismiss the FTU "Got it, view games" modal if it appears —
+      // every fresh browser context has empty localStorage so the FTU fires.
+      await page.getByText('Got it, view games').click({ timeout: 5000 }).catch(() => {});
+
       // Wait for React to hydrate and render the toolbar before clicking
       await page.waitForSelector('[data-testid="view-toggle-list"]', { state: 'visible', timeout: 10000 });
       await page.evaluate(() => {
@@ -105,6 +109,10 @@ test.describe('Claimer journey', () => {
       });
 
       await expect(page).toHaveURL(new RegExp(`/share/${TEST_SLUG}`), { timeout: 15000 });
+
+      // Dismiss the FTU "Got it, view games" modal if it appears —
+      // every fresh browser context has empty localStorage so the FTU fires.
+      await page.getByText('Got it, view games').click({ timeout: 5000 }).catch(() => {});
 
       // Wait for React to hydrate and render the toolbar before clicking
       await page.waitForSelector('[data-testid="view-toggle-list"]', { state: 'visible', timeout: 10000 });
@@ -148,6 +156,8 @@ test.describe('Claimer journey', () => {
       });
 
       await expect(page).toHaveURL(new RegExp(`/share/${TEST_SLUG}`), { timeout: 15000 });
+      // Dismiss the FTU modal if it appears (fresh localStorage per test context)
+      await page.getByText('Got it, view games').click({ timeout: 5000 }).catch(() => {});
       // Wait for React to hydrate and render the toolbar before clicking
       await page.waitForSelector('[data-testid="view-toggle-list"]', { state: 'visible', timeout: 10000 });
       await page.evaluate(() => {
