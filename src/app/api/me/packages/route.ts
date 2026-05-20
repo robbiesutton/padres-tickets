@@ -1,10 +1,5 @@
 import { requireAuth, jsonError, jsonSuccess } from '@/lib/api-utils';
-import {
-  DESIGN_MODE,
-  MOCK_AS_HOLDER,
-  mockPackage,
-  mockHolder,
-} from '@/lib/mock-data';
+import { DESIGN_MODE, MOCK_AS_HOLDER, mockPackage, mockHolder } from '@/lib/mock-data';
 import { getUserPackagesWithRole } from '@/lib/services/package-auth';
 
 export async function GET() {
@@ -47,9 +42,27 @@ export async function GET() {
       zelleInfo: mockHolder.zelleInfo,
       role: 'CLAIMER' as const,
     };
-    const dodgersShared = {
+    const dodgersOwned = {
       id: 'design-pkg-002',
       shareLinkSlug: 'dodgers-loge-141',
+      team: 'Los Angeles Dodgers',
+      section: '141',
+      row: 'C',
+      seats: '7-8',
+      seatCount: 2,
+      season: '2026',
+      seatPhotoUrl: null,
+      description: null,
+      defaultPricePerTicket: 65,
+      perks: [],
+      _count: { games: 18, members: 1 },
+      venmoHandle: mockHolder.venmoHandle,
+      zelleInfo: mockHolder.zelleInfo,
+      role: 'OWNER' as const,
+    };
+    const dodgersShared = {
+      id: 'design-pkg-003',
+      shareLinkSlug: 'dodgers-loge-141-shared',
       team: 'Los Angeles Dodgers',
       section: '141',
       row: 'C',
@@ -68,7 +81,7 @@ export async function GET() {
       role: 'CLAIMER' as const,
     };
     const packages = MOCK_AS_HOLDER
-      ? [padresOwned, dodgersShared]
+      ? [padresOwned, dodgersOwned]
       : [padresShared, dodgersShared];
     return jsonSuccess({ packages, total: packages.length });
   }

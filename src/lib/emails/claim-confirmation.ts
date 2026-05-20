@@ -19,20 +19,17 @@ export function buildClaimConfirmationEmail(data: ClaimConfirmationEmailData) {
       ? `$${(data.pricePerTicket * data.seatCount).toFixed(2)}`
       : null;
 
-  const holderFirst =
-    data.holderName?.trim().split(/\s+/)[0] || data.holderName;
+  const holderFirst = data.holderName?.trim().split(/\s+/)[0] || data.holderName;
   const venmo = data.venmoHandle?.trim() || '';
   const zelle = data.zelleInfo?.trim() || '';
-  const totalForCopy =
-    totalCost || `$${((data.pricePerTicket ?? 0) * data.seatCount).toFixed(2)}`;
-  const paymentSentence =
-    venmo && zelle
-      ? `Pay ${holderFirst} ${totalForCopy} via Venmo ${venmo} or Zelle ${zelle}. ${holderFirst} will then transfer the tickets to you a few days before the game.`
-      : venmo
-        ? `Pay ${holderFirst} ${totalForCopy} via Venmo ${venmo}. ${holderFirst} will then transfer the tickets to you a few days before the game.`
-        : zelle
-          ? `Pay ${holderFirst} ${totalForCopy} via Zelle ${zelle}. ${holderFirst} will then transfer the tickets to you a few days before the game.`
-          : `${holderFirst} will be in touch with payment details and will transfer the tickets to you a few days before the game.`;
+  const totalForCopy = totalCost || `$${((data.pricePerTicket ?? 0) * data.seatCount).toFixed(2)}`;
+  const paymentSentence = venmo && zelle
+    ? `Pay ${holderFirst} ${totalForCopy} via Venmo ${venmo} or Zelle ${zelle}. ${holderFirst} will then transfer the tickets to you a few days before the game.`
+    : venmo
+      ? `Pay ${holderFirst} ${totalForCopy} via Venmo ${venmo}. ${holderFirst} will then transfer the tickets to you a few days before the game.`
+      : zelle
+        ? `Pay ${holderFirst} ${totalForCopy} via Zelle ${zelle}. ${holderFirst} will then transfer the tickets to you a few days before the game.`
+        : `${holderFirst} will be in touch with payment details and will transfer the tickets to you a few days before the game.`;
 
   const subject = `You claimed ${data.team} vs. ${data.opponent} tickets!`;
 

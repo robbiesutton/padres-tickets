@@ -14,23 +14,12 @@ interface Props {
 function CheckIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M5 13l4 4L19 7"
-        stroke="#d4a017"
-        strokeWidth="3"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      <path d="M5 13l4 4L19 7" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
 
-export function SetupLayout({
-  steps,
-  currentStep = 1,
-  children,
-  showSidebar = true,
-}: Props) {
+export function SetupLayout({ steps, currentStep = 1, children, showSidebar = true }: Props) {
   const totalSteps = steps?.length || 1;
   const progress = steps ? (currentStep / totalSteps) * 100 : 0;
 
@@ -38,26 +27,14 @@ export function SetupLayout({
     <div className="flex min-h-screen bg-[#faf8f5]">
       {/* ── Sidebar (desktop only) ── */}
       {showSidebar && (
-        <aside
-          className="hidden md:flex w-[320px] shrink-0 flex-col items-center justify-center px-8 py-12 relative overflow-hidden"
-          style={{ backgroundColor: '#2c2a2b' }}
-        >
+        <aside className="hidden md:flex w-[320px] shrink-0 flex-col items-center justify-center px-8 py-12 relative overflow-hidden" style={{ backgroundColor: '#2c2a2b' }}>
           {/* Subtle radial glow */}
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                'radial-gradient(circle at 30% 70%, rgba(212,160,23,0.12), transparent 70%)',
-            }}
-          />
+          <div className="absolute inset-0" style={{ background: 'radial-gradient(circle at 30% 70%, rgba(139,37,0,0.12), transparent 70%)' }} />
 
           {/* Logo + tagline */}
           <div className="relative z-10 flex flex-col items-center text-center mb-10">
             <div className="text-5xl mb-6">⚾</div>
-            <h2
-              className="text-[22px] font-bold text-white tracking-tight"
-              style={{ fontFamily: 'var(--font-syne), sans-serif' }}
-            >
+            <h2 className="text-[22px] font-bold text-white tracking-tight" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>
               BenchBuddy
             </h2>
             <p className="text-[13px] text-white/50 leading-relaxed mt-3 max-w-[200px]">
@@ -80,7 +57,7 @@ export function SetupLayout({
                       <div
                         className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
                           isDone
-                            ? 'bg-[#d4a017] text-[#2c2a2b]'
+                            ? 'bg-[#2d6a4f] text-white'
                             : isActive
                               ? 'bg-white text-[#2c2a2b]'
                               : 'bg-white/[0.12] text-white/40'
@@ -92,7 +69,7 @@ export function SetupLayout({
                       <span
                         className={`text-[13px] font-semibold ${
                           isDone
-                            ? 'text-[#d4a017]'
+                            ? 'text-[#2d6a4f]'
                             : isActive
                               ? 'text-white'
                               : 'text-white/[0.35]'
@@ -105,7 +82,7 @@ export function SetupLayout({
                     {i < steps.length - 1 && (
                       <div
                         className={`w-[2px] h-3 ml-[13px] ${
-                          isDone ? 'bg-[#d4a017]' : 'bg-white/[0.1]'
+                          isDone ? 'bg-[#2d6a4f]' : 'bg-white/[0.1]'
                         }`}
                       />
                     )}
@@ -143,13 +120,7 @@ export function SetupLayout({
 
 // ─── Reusable sub-components for wizard steps ──────────
 
-export function StepIndicator({
-  current,
-  total,
-}: {
-  current: number;
-  total: number;
-}) {
+export function StepIndicator({ current, total }: { current: number; total: number }) {
   return (
     <p className="text-[11px] font-bold text-[#8B2500] uppercase tracking-[1px] mb-2">
       Step {current} of {total}
@@ -159,10 +130,7 @@ export function StepIndicator({
 
 export function StepHeadline({ children }: { children: React.ReactNode }) {
   return (
-    <h1
-      className="text-[28px] font-bold leading-tight text-[#1a1a1a] tracking-tight mb-1.5"
-      style={{ fontFamily: 'var(--font-syne), sans-serif' }}
-    >
+    <h1 className="text-[28px] font-bold leading-tight text-[#1a1a1a] tracking-tight mb-1.5" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>
       {children}
     </h1>
   );
@@ -188,20 +156,9 @@ export function StepActions({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function PrimaryButton({
-  children,
-  onClick,
-  disabled,
-  'data-testid': testId,
-}: {
-  children: React.ReactNode;
-  onClick?: () => void;
-  disabled?: boolean;
-  'data-testid'?: string;
-}) {
+export function PrimaryButton({ children, onClick, disabled }: { children: React.ReactNode; onClick?: () => void; disabled?: boolean }) {
   return (
     <button
-      data-testid={testId}
       onClick={onClick}
       disabled={disabled}
       className="h-11 w-full md:w-auto px-7 rounded-lg bg-[#2c2a2b] text-white text-sm font-bold cursor-pointer border-none transition-all hover:bg-[#dcd7d4] hover:text-[#2c2a2b] disabled:opacity-50 disabled:cursor-not-allowed"
@@ -211,18 +168,9 @@ export function PrimaryButton({
   );
 }
 
-export function GhostButton({
-  children,
-  onClick,
-  'data-testid': testId,
-}: {
-  children: React.ReactNode;
-  onClick?: () => void;
-  'data-testid'?: string;
-}) {
+export function GhostButton({ children, onClick }: { children: React.ReactNode; onClick?: () => void }) {
   return (
     <button
-      data-testid={testId}
       onClick={onClick}
       className="text-sm font-medium text-[#b0a89e] hover:text-[#2c2a2b] bg-transparent border-none cursor-pointer transition-colors"
     >
@@ -231,13 +179,7 @@ export function GhostButton({
   );
 }
 
-export function SkipLink({
-  children,
-  onClick,
-}: {
-  children: React.ReactNode;
-  onClick?: () => void;
-}) {
+export function SkipLink({ children, onClick }: { children: React.ReactNode; onClick?: () => void }) {
   return (
     <button
       onClick={onClick}
@@ -252,9 +194,7 @@ export function InlineNote({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex items-start gap-2 px-3.5 py-3 bg-[#fffbeb] rounded-lg mb-4 max-w-[440px]">
       <span className="text-sm shrink-0 mt-px">💡</span>
-      <p className="text-xs text-[#92400e] leading-relaxed font-medium">
-        {children}
-      </p>
+      <p className="text-xs text-[#92400e] leading-relaxed font-medium">{children}</p>
     </div>
   );
 }
@@ -267,12 +207,7 @@ export function FormLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function FormSelect({
-  value,
-  onChange,
-  children,
-  placeholder,
-}: {
+export function FormSelect({ value, onChange, children, placeholder }: {
   value: string;
   onChange: (value: string) => void;
   children: React.ReactNode;

@@ -32,16 +32,7 @@ export async function getUserPackagesWithRole(userId: string) {
           _count: { select: { games: true, members: true } },
           members: {
             where: { role: 'OWNER' },
-            include: {
-              user: {
-                select: {
-                  firstName: true,
-                  lastName: true,
-                  venmoHandle: true,
-                  zelleInfo: true,
-                },
-              },
-            },
+            include: { user: { select: { firstName: true, lastName: true, venmoHandle: true, zelleInfo: true } } },
             take: 1,
           },
         },
@@ -51,8 +42,8 @@ export async function getUserPackagesWithRole(userId: string) {
   });
 
   return memberships
-    .filter((m) => m.package.status === 'ACTIVE')
-    .map((m) => ({
+    .filter(m => m.package.status === 'ACTIVE')
+    .map(m => ({
       id: m.package.id,
       shareLinkSlug: m.package.shareLinkSlug,
       team: m.package.team,
