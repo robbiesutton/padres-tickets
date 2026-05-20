@@ -340,7 +340,7 @@ Steps:
           type: 'code',
           code: {
             language: 'plain text',
-            rich_text: [{ text: { content: claudePrompt } }],
+            rich_text: [{ text: { content: claudePrompt.slice(0, 1990) } }],
           },
         },
         ...(screenshotUrl
@@ -469,7 +469,7 @@ async function main() {
           {
             object: 'block',
             type: 'paragraph',
-            paragraph: { rich_text: [{ text: { content: body } }] },
+            paragraph: { rich_text: [{ text: { content: body.slice(0, 1990) } }] },
           },
         ],
       });
