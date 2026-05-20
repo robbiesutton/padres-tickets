@@ -63,6 +63,8 @@ describe('Email templates', () => {
       team: 'Colorado Rockies',
       opponent: 'Los Angeles Dodgers',
       gameDate: 'Friday, July 10, 2026',
+      gameDayStr: 'Friday, July 10',
+      timeVenue: '6:40 PM · Coors Field',
       section: '143',
       row: '10',
       seatCount: 2,
