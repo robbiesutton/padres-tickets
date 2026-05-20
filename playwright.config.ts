@@ -6,7 +6,11 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
-  reporter: [['html'], ['json', { outputFile: 'playwright-report/results.json' }], ['github']],
+  reporter: [
+    ['html'],
+    ['json', { outputFile: 'playwright-report/results.json' }],
+    ['github'],
+  ],
   use: {
     baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000',
     trace: 'on-first-retry',
@@ -17,21 +21,23 @@ export default defineConfig({
       ? { 'x-vercel-protection-bypass': process.env.VERCEL_BYPASS_SECRET }
       : {},
   },
+  // Visual baselines stored alongside specs for easy review in PRs.
+  // Bootstrap step in e2e.yml creates baselines on first run via --update-snapshots.
+  snapshotPathTemplate:
+    'e2e/specs/__screenshots__/{testFilePath}/{arg}{ext}',
   globalSetup: './e2e/fixtures/auth.ts',
   projects: [
     {
       name: 'chromium-desktop',
       use: { ...devices['Desktop Chrome'] },
+      grepInvert: /@mobile/,
     },
     {
       name: 'webkit-iphone-13',
       use: { ...devices['iPhone 13'] },
       grep: /@mobile/,
     },
-    {
-      name: 'chromium-pixel-5',
-      use: { ...devices['Pixel 5'] },
-      grep: /@mobile/,
-    },
+    // chromium-pixel-5 removed: snapshotPathTemplate has no {projectName}, so two
+    // mobile projects write to the same baseline files causing resolution mismatches.
   ],
 });

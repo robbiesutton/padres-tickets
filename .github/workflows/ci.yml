@@ -5,6 +5,7 @@ on:
     branches: [benchbuddy-rewrite, main, design]
   pull_request:
     branches: [main, design]
+  workflow_dispatch:
 
 jobs:
   check:
