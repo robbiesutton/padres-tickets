@@ -83,7 +83,7 @@ test.describe('Claimer journey', () => {
       await page.getByText('Got it, view games').click({ timeout: 5000 }).catch(() => {});
 
       // Wait for React to hydrate and render the toolbar before clicking
-      await page.waitForSelector('[data-testid="view-toggle-list"]', { state: 'visible', timeout: 10000 });
+      await page.locator('[data-testid="view-toggle-list"]:visible').first().waitFor({ timeout: 10000 });
       await page.evaluate(() => {
         const btn = [...document.querySelectorAll('[data-testid="view-toggle-list"]')]
           .find((el) => window.getComputedStyle(el).display !== 'none') as HTMLElement | undefined;
@@ -115,7 +115,7 @@ test.describe('Claimer journey', () => {
       await page.getByText('Got it, view games').click({ timeout: 5000 }).catch(() => {});
 
       // Wait for React to hydrate and render the toolbar before clicking
-      await page.waitForSelector('[data-testid="view-toggle-list"]', { state: 'visible', timeout: 10000 });
+      await page.locator('[data-testid="view-toggle-list"]:visible').first().waitFor({ timeout: 10000 });
       await page.evaluate(() => {
         const btn = [...document.querySelectorAll('[data-testid="view-toggle-list"]')]
           .find((el) => window.getComputedStyle(el).display !== 'none') as HTMLElement | undefined;
@@ -159,7 +159,7 @@ test.describe('Claimer journey', () => {
       // Dismiss the FTU modal if it appears (fresh localStorage per test context)
       await page.getByText('Got it, view games').click({ timeout: 5000 }).catch(() => {});
       // Wait for React to hydrate and render the toolbar before clicking
-      await page.waitForSelector('[data-testid="view-toggle-list"]', { state: 'visible', timeout: 10000 });
+      await page.locator('[data-testid="view-toggle-list"]:visible').first().waitFor({ timeout: 10000 });
       await page.evaluate(() => {
         const btn = [...document.querySelectorAll('[data-testid="view-toggle-list"]')]
           .find((el) => window.getComputedStyle(el).display !== 'none') as HTMLElement | undefined;
