@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { PrimaryButton } from '@/components/primary-button';
 
@@ -121,7 +122,7 @@ export default function Home() {
 
       {/* Nav */}
       <nav className="flex items-center justify-between px-5 md:px-8 py-6">
-        <a href="/" className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2">
           <img
             src="/benchbuddy-mark-white.svg"
             alt="BenchBuddy"
@@ -137,7 +138,7 @@ export default function Home() {
           >
             BenchBuddy
           </span>
-        </a>
+        </Link>
         {/* Desktop nav links */}
         <div className="hidden md:flex items-center gap-4">
           <a
