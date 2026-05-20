@@ -19,7 +19,13 @@ interface Props {
   pkg: PackageInfo;
 }
 
-export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount, pkg }: Props) {
+export function ShareHeader({
+  holderName,
+  activeTab,
+  onTabChange,
+  reservedCount,
+  pkg,
+}: Props) {
   const { data: session } = useSession();
   const userInitial =
     session?.user?.name?.charAt(0)?.toUpperCase() ||
@@ -56,8 +62,11 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [seatInfoOpen, pillOpen]);
 
-
-  const { primary: navColor, accent: teamAccent, badgeTextColor: badgeText } = getTeamColors(pkg.team);
+  const {
+    primary: navColor,
+    accent: teamAccent,
+    badgeTextColor: badgeText,
+  } = getTeamColors(pkg.team);
   const isDark = isColorDark(navColor);
 
   const firstName = pkg.holderName?.trim().split(/\s+/)[0] || '';
@@ -69,7 +78,8 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
 
   const hasPhoto = !!pkg.seatPhotoUrl;
   const hasPayment = !!(pkg.venmoHandle?.trim() || pkg.zelleInfo?.trim());
-  const isCompletelyEmpty = !pkg.seatPhotoUrl && !pkg.description && !pkg.venmoHandle && !pkg.zelleInfo;
+  const isCompletelyEmpty =
+    !pkg.seatPhotoUrl && !pkg.description && !pkg.venmoHandle && !pkg.zelleInfo;
   const sectionDisplay = `${pkg.section} · Field Level`;
 
   const FTU_KEY = `bb-claimer-ftu-${pkg.slug}-seen`;
@@ -91,7 +101,10 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
       });
     } catch {
       // localStorage unavailable (private browsing) — per spec rule 10, show FTU every visit
-      startTransition(() => { setHasSeenFTU(false); setPillOpen(true); });
+      startTransition(() => {
+        setHasSeenFTU(false);
+        setPillOpen(true);
+      });
     }
   }, [FTU_KEY, activeTab]);
 
@@ -111,7 +124,10 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
       style={{ backgroundColor: navColor }}
     >
       <div className="flex items-center gap-4">
-        <div className="flex items-center gap-1.5 cursor-pointer shrink-0" onClick={() => onTabChange('available')}>
+        <div
+          className="flex items-center gap-1.5 cursor-pointer shrink-0"
+          onClick={() => onTabChange('available')}
+        >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={isDark ? '/benchbuddy-mark-white.svg' : '/benchbuddy-logo.svg'}
@@ -119,7 +135,10 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
             width={24}
             height={24}
           />
-          <span style={{ fontFamily: 'var(--font-syne), sans-serif' }} className={`hidden sm:inline text-lg font-bold ${isDark ? 'text-white' : 'text-[#1a1a1a]'}`}>
+          <span
+            style={{ fontFamily: 'var(--font-syne), sans-serif' }}
+            className={`hidden sm:inline text-lg font-bold ${isDark ? 'text-white' : 'text-[#1a1a1a]'}`}
+          >
             BenchBuddy
           </span>
         </div>
@@ -129,51 +148,89 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
           <div
             ref={pillRef}
             className={`flex items-center justify-between w-[280px] h-12 pl-1.5 pr-3 rounded-lg border cursor-pointer transition-colors ${
-              pillOpen ? 'border-white/30 bg-white/15' : 'border-white/20 hover:bg-white/10'
+              pillOpen
+                ? 'border-white/30 bg-white/15'
+                : 'border-white/20 hover:bg-white/10'
             }`}
-            onClick={() => { setPillOpen(!pillOpen); setSeatInfoOpen(false); }}
+            onClick={() => {
+              setPillOpen(!pillOpen);
+              setSeatInfoOpen(false);
+            }}
           >
             <div className="flex items-center gap-1.5">
-              <TeamBadge team={pkg.team} className="w-[34px] h-[34px] text-[11px] font-bold" />
-              <span className={`text-base font-medium ${isDark ? 'text-white' : 'text-[#1B1716]'}`}>
+              <TeamBadge
+                team={pkg.team}
+                className="w-[34px] h-[34px] text-[11px] font-bold"
+              />
+              <span
+                className={`text-base font-medium ${isDark ? 'text-white' : 'text-[#1B1716]'}`}
+              >
                 {pillLabel}
               </span>
             </div>
             <svg
               className={`shrink-0 transition-transform duration-200 ${pillOpen ? 'rotate-180' : ''}`}
-              width="12" height="12" viewBox="0 0 24 24" fill="none"
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
             >
-              <path d="M6 9l6 6 6-6" stroke={isDark ? 'rgba(255,255,255,0.5)' : '#8e8985'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path
+                d="M6 9l6 6 6-6"
+                stroke={isDark ? 'rgba(255,255,255,0.5)' : '#8e8985'}
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </div>
 
           {/* FTU backdrop — focuses attention on the dropdown on first visit */}
-          {isFTU && pillOpen && createPortal(
-            <div
-              className="hidden md:block fixed inset-0 bg-black/20 z-40"
-              onClick={() => setPillOpen(false)}
-            />,
-            document.body
-          )}
+          {isFTU &&
+            pillOpen &&
+            createPortal(
+              <div
+                className="hidden md:block fixed inset-0 bg-black/20 z-40"
+                onClick={() => setPillOpen(false)}
+              />,
+              document.body
+            )}
 
           {/* Pill dropdown panel — 3 states */}
           <div
             ref={pillPanelRef}
             className={`absolute left-0 top-[calc(100%+8px)] z-40 ${hasPhoto ? 'w-[880px]' : 'w-[560px]'} bg-white rounded-[14px] border border-[#E5E1DD] shadow-[0_12px_32px_-16px_rgba(28,23,22,0.14)] overflow-hidden transition-all duration-200 ${
-              pillOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'
+              pillOpen
+                ? 'opacity-100 translate-y-0'
+                : 'opacity-0 -translate-y-2 pointer-events-none'
             }`}
           >
             {/* Vertical padding intentionally locked to 24px (--drawer-vertical-padding) so the close X
                 has a tight chrome zone, not a dead zone, and the bottom mirrors the top.
                 This has regressed twice; do not change without design review. */}
-            <div className="relative px-6 py-6" style={{ paddingTop: 'var(--drawer-vertical-padding)', paddingBottom: 'var(--drawer-vertical-padding)' }}>
+            <div
+              className="relative px-6 py-6"
+              style={{
+                paddingTop: 'var(--drawer-vertical-padding)',
+                paddingBottom: 'var(--drawer-vertical-padding)',
+              }}
+            >
               {/* Close X — its own chrome zone above content */}
               <button
                 onClick={() => setPillOpen(false)}
                 title="Close"
                 className="absolute top-1 right-1 w-11 h-11 rounded-lg bg-transparent hover:bg-[#F5F4F2] border-none cursor-pointer flex items-center justify-center text-[#1B1716] z-10"
               >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <path d="M18 6L6 18" />
                   <path d="M6 6l12 12" />
                 </svg>
@@ -183,7 +240,10 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
                 /* ── Empty fallback (rule 9) ── */
                 <div className="text-center py-8 px-6">
                   <p className="text-[15px] text-[#1B1716] leading-relaxed">
-                    {firstName ? `${firstName} is still setting things up.` : 'The holder is still setting things up.'} Check back soon.
+                    {firstName
+                      ? `${firstName} is still setting things up.`
+                      : 'The holder is still setting things up.'}{' '}
+                    Check back soon.
                   </p>
                 </div>
               ) : hasPhoto ? (
@@ -192,20 +252,32 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
                   {/* Left column — photo + (FTU only) How it works */}
                   <div className="flex flex-col gap-[18px]">
                     <div className="relative h-[340px] rounded-xl overflow-hidden">
-                      <Image src={pkg.seatPhotoUrl as string} alt="View from seat" fill className="object-cover" sizes="500px" unoptimized />
+                      <Image
+                        src={pkg.seatPhotoUrl as string}
+                        alt="View from seat"
+                        fill
+                        className="object-cover"
+                        sizes="500px"
+                        unoptimized
+                      />
                       <div className="absolute bottom-3 left-3 bg-black/65 text-white text-xs font-semibold px-2.5 py-1 rounded-md">
                         View from Section {pkg.section}
                       </div>
                     </div>
                     <div>
-                      <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">How it works</p>
+                      <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">
+                        How it works
+                      </p>
                       <div className="bg-[#F5F4F2] rounded-[10px] px-4 py-3.5 flex flex-col gap-2.5">
                         {[
                           'Pick a game from the schedule.',
                           claimStep,
                           'Tickets arrive before game day.',
                         ].map((step, i) => (
-                          <div key={i} className="flex gap-3 items-start text-[13px] leading-[1.4] text-[#1B1716]">
+                          <div
+                            key={i}
+                            className="flex gap-3 items-start text-[13px] leading-[1.4] text-[#1B1716]"
+                          >
                             <div className="w-5 h-5 rounded-full bg-[#810100] text-white flex items-center justify-center text-[11px] font-bold shrink-0">
                               {i + 1}
                             </div>
@@ -220,47 +292,71 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
                   <div className="flex flex-col gap-[18px]">
                     {pkg.description && (
                       <div>
-                        <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">Description</p>
-                        <p className="text-[13px] leading-[1.5] text-[#1B1716]">{pkg.description}</p>
+                        <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">
+                          Description
+                        </p>
+                        <p className="text-[13px] leading-[1.5] text-[#1B1716]">
+                          {pkg.description}
+                        </p>
                       </div>
                     )}
                     <div>
-                      <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">Your seats</p>
+                      <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">
+                        Your seats
+                      </p>
                       <div className="flex flex-col text-[13px]">
                         <div className="flex items-center justify-between py-2">
                           <span className="text-[#8e8985]">Section</span>
-                          <span className="font-bold text-[#1B1716]">{sectionDisplay}</span>
+                          <span className="font-bold text-[#1B1716]">
+                            {sectionDisplay}
+                          </span>
                         </div>
                         {pkg.row && (
                           <div className="flex items-center justify-between py-2 border-t border-[#E5E1DD]">
                             <span className="text-[#8e8985]">Row</span>
-                            <span className="font-bold text-[#1B1716]">Row {pkg.row}</span>
+                            <span className="font-bold text-[#1B1716]">
+                              Row {pkg.row}
+                            </span>
                           </div>
                         )}
                         <div className="flex items-center justify-between py-2 border-t border-[#E5E1DD]">
                           <span className="text-[#8e8985]">Seats</span>
-                          <span className="font-bold text-[#1B1716]">Seats {pkg.seats}</span>
+                          <span className="font-bold text-[#1B1716]">
+                            Seats {pkg.seats}
+                          </span>
                         </div>
                         <div className="flex items-center justify-between py-2 border-t border-[#E5E1DD]">
-                          <span className="text-[#8e8985]">Ticket delivery</span>
-                          <span className="font-bold text-[#1B1716]">MLB Ballpark App</span>
+                          <span className="text-[#8e8985]">
+                            Ticket delivery
+                          </span>
+                          <span className="font-bold text-[#1B1716]">
+                            MLB Ballpark App
+                          </span>
                         </div>
                       </div>
                     </div>
                     {hasPayment && (
                       <div>
-                        <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">{payHeading}</p>
+                        <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">
+                          {payHeading}
+                        </p>
                         <div className="flex flex-col text-[13px]">
                           {pkg.venmoHandle?.trim() && (
                             <div className="flex items-center justify-between py-2">
                               <span className="text-[#8e8985]">Venmo</span>
-                              <span className="font-bold text-[#1B1716]">{pkg.venmoHandle}</span>
+                              <span className="font-bold text-[#1B1716]">
+                                {pkg.venmoHandle}
+                              </span>
                             </div>
                           )}
                           {pkg.zelleInfo?.trim() && (
-                            <div className={`flex items-center justify-between py-2 ${pkg.venmoHandle?.trim() ? 'border-t border-[#E5E1DD]' : ''}`}>
+                            <div
+                              className={`flex items-center justify-between py-2 ${pkg.venmoHandle?.trim() ? 'border-t border-[#E5E1DD]' : ''}`}
+                            >
                               <span className="text-[#8e8985]">Zelle</span>
-                              <span className="font-bold text-[#1B1716]">{pkg.zelleInfo}</span>
+                              <span className="font-bold text-[#1B1716]">
+                                {pkg.zelleInfo}
+                              </span>
                             </div>
                           )}
                         </div>
@@ -279,61 +375,88 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
                 <div className="flex flex-col gap-[18px]">
                   {pkg.description && (
                     <div>
-                      <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">Description</p>
-                      <p className="text-[13px] leading-[1.5] text-[#1B1716]">{pkg.description}</p>
+                      <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">
+                        Description
+                      </p>
+                      <p className="text-[13px] leading-[1.5] text-[#1B1716]">
+                        {pkg.description}
+                      </p>
                     </div>
                   )}
                   <div>
-                    <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">Your seats</p>
+                    <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">
+                      Your seats
+                    </p>
                     <div className="flex flex-col text-[13px]">
                       <div className="flex items-center justify-between py-2">
                         <span className="text-[#8e8985]">Section</span>
-                        <span className="font-bold text-[#1B1716]">{sectionDisplay}</span>
+                        <span className="font-bold text-[#1B1716]">
+                          {sectionDisplay}
+                        </span>
                       </div>
                       {pkg.row && (
                         <div className="flex items-center justify-between py-2 border-t border-[#E5E1DD]">
                           <span className="text-[#8e8985]">Row</span>
-                          <span className="font-bold text-[#1B1716]">Row {pkg.row}</span>
+                          <span className="font-bold text-[#1B1716]">
+                            Row {pkg.row}
+                          </span>
                         </div>
                       )}
                       <div className="flex items-center justify-between py-2 border-t border-[#E5E1DD]">
                         <span className="text-[#8e8985]">Seats</span>
-                        <span className="font-bold text-[#1B1716]">Seats {pkg.seats}</span>
+                        <span className="font-bold text-[#1B1716]">
+                          Seats {pkg.seats}
+                        </span>
                       </div>
                       <div className="flex items-center justify-between py-2 border-t border-[#E5E1DD]">
                         <span className="text-[#8e8985]">Ticket delivery</span>
-                        <span className="font-bold text-[#1B1716]">MLB Ballpark App</span>
+                        <span className="font-bold text-[#1B1716]">
+                          MLB Ballpark App
+                        </span>
                       </div>
                     </div>
                   </div>
                   {hasPayment && (
                     <div>
-                      <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">{payHeading}</p>
+                      <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">
+                        {payHeading}
+                      </p>
                       <div className="flex flex-col text-[13px]">
                         {pkg.venmoHandle?.trim() && (
                           <div className="flex items-center justify-between py-2">
                             <span className="text-[#8e8985]">Venmo</span>
-                            <span className="font-bold text-[#1B1716]">{pkg.venmoHandle}</span>
+                            <span className="font-bold text-[#1B1716]">
+                              {pkg.venmoHandle}
+                            </span>
                           </div>
                         )}
                         {pkg.zelleInfo?.trim() && (
-                          <div className={`flex items-center justify-between py-2 ${pkg.venmoHandle?.trim() ? 'border-t border-[#E5E1DD]' : ''}`}>
+                          <div
+                            className={`flex items-center justify-between py-2 ${pkg.venmoHandle?.trim() ? 'border-t border-[#E5E1DD]' : ''}`}
+                          >
                             <span className="text-[#8e8985]">Zelle</span>
-                            <span className="font-bold text-[#1B1716]">{pkg.zelleInfo}</span>
+                            <span className="font-bold text-[#1B1716]">
+                              {pkg.zelleInfo}
+                            </span>
                           </div>
                         )}
                       </div>
                     </div>
                   )}
                   <div>
-                    <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">How it works</p>
+                    <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">
+                      How it works
+                    </p>
                     <div className="bg-[#F5F4F2] rounded-[10px] px-4 py-3.5 flex flex-col gap-2.5">
                       {[
                         'Pick a game from the schedule.',
                         claimStep,
                         'Tickets arrive before game day.',
                       ].map((step, i) => (
-                        <div key={i} className="flex gap-3 items-start text-[13px] leading-[1.4] text-[#1B1716]">
+                        <div
+                          key={i}
+                          className="flex gap-3 items-start text-[13px] leading-[1.4] text-[#1B1716]"
+                        >
                           <div className="w-5 h-5 rounded-full bg-[#810100] text-white flex items-center justify-center text-[11px] font-bold shrink-0">
                             {i + 1}
                           </div>
@@ -358,7 +481,9 @@ export function ShareHeader({ holderName, activeTab, onTabChange, reservedCount,
         <div className="hidden md:block">
           <button
             className={`h-10 px-4 rounded-lg text-base font-medium border-none cursor-pointer transition-all flex items-center gap-2 ${
-              isDark ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-[#f5f4f2] text-black hover:bg-[#eceae5]'
+              isDark
+                ? 'bg-white/10 text-white hover:bg-white/20'
+                : 'bg-[#f5f4f2] text-black hover:bg-[#eceae5]'
             }`}
             onClick={() => onTabChange('my-games')}
           >

@@ -1,5 +1,10 @@
 import { requireAuth, jsonError, jsonSuccess } from '@/lib/api-utils';
-import { DESIGN_MODE, MOCK_AS_HOLDER, mockPackage, mockHolder } from '@/lib/mock-data';
+import {
+  DESIGN_MODE,
+  MOCK_AS_HOLDER,
+  mockPackage,
+  mockHolder,
+} from '@/lib/mock-data';
 import { getUserPackagesWithRole } from '@/lib/services/package-auth';
 
 export async function GET() {

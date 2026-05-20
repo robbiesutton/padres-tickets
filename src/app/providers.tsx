@@ -1,7 +1,12 @@
 'use client';
 
 import { SessionProvider } from 'next-auth/react';
-import { DESIGN_MODE, MOCK_AS_HOLDER, mockHolder, mockClaimer } from '@/lib/mock-data';
+import {
+  DESIGN_MODE,
+  MOCK_AS_HOLDER,
+  mockHolder,
+  mockClaimer,
+} from '@/lib/mock-data';
 
 const persona = MOCK_AS_HOLDER ? mockHolder : mockClaimer;
 
