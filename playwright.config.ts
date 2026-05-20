@@ -30,8 +30,8 @@ export default defineConfig({
     {
       name: 'chromium-desktop',
       use: { ...devices['Desktop Chrome'] },
+      grepInvert: /@mobile/,
     },
-    // Visual regression runs chromium-desktop only (mobile projects filter by @mobile)
     {
       name: 'webkit-iphone-13',
       use: { ...devices['iPhone 13'] },
