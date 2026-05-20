@@ -90,6 +90,7 @@ export function Toolbar({
                 ? 'bg-white shadow-sm text-[#2c2a2b]'
                 : 'bg-transparent text-[#8e8985]'
             }`}
+            data-testid="view-toggle-calendar"
             onClick={() => onViewChange('calendar')}
           >
             <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
@@ -136,6 +137,7 @@ export function Toolbar({
                 ? 'bg-white shadow-sm text-[#2c2a2b]'
                 : 'bg-transparent text-[#8e8985]'
             }`}
+            data-testid="view-toggle-list"
             onClick={() => onViewChange('list')}
           >
             <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
@@ -312,6 +314,7 @@ export function Toolbar({
                 ? 'bg-white shadow-sm text-[#2c2a2b]'
                 : 'bg-transparent text-[#8e8985]'
             }`}
+            data-testid="view-toggle-calendar"
             onClick={() => onViewChange('calendar')}
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -358,6 +361,7 @@ export function Toolbar({
                 ? 'bg-white shadow-sm text-[#2c2a2b]'
                 : 'bg-transparent text-[#8e8985]'
             }`}
+            data-testid="view-toggle-list"
             onClick={() => onViewChange('list')}
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
