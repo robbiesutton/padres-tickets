@@ -78,8 +78,8 @@ test.describe('Claimer journey', () => {
 
       await expect(page).toHaveURL(new RegExp(`/share/${TEST_SLUG}`), { timeout: 15000 });
 
-      // Switch to list view via direct DOM click (force:true doesn't reliably
-      // trigger React's synthetic event on design's transition-all buttons)
+      // Wait for React to hydrate and render the toolbar before clicking
+      await page.waitForSelector('[data-testid="view-toggle-list"]', { state: 'visible', timeout: 10000 });
       await page.evaluate(() => {
         const btn = [...document.querySelectorAll('[data-testid="view-toggle-list"]')]
           .find((el) => window.getComputedStyle(el).display !== 'none') as HTMLElement | undefined;
@@ -106,7 +106,8 @@ test.describe('Claimer journey', () => {
 
       await expect(page).toHaveURL(new RegExp(`/share/${TEST_SLUG}`), { timeout: 15000 });
 
-      // Switch to list view
+      // Wait for React to hydrate and render the toolbar before clicking
+      await page.waitForSelector('[data-testid="view-toggle-list"]', { state: 'visible', timeout: 10000 });
       await page.evaluate(() => {
         const btn = [...document.querySelectorAll('[data-testid="view-toggle-list"]')]
           .find((el) => window.getComputedStyle(el).display !== 'none') as HTMLElement | undefined;
@@ -147,6 +148,8 @@ test.describe('Claimer journey', () => {
       });
 
       await expect(page).toHaveURL(new RegExp(`/share/${TEST_SLUG}`), { timeout: 15000 });
+      // Wait for React to hydrate and render the toolbar before clicking
+      await page.waitForSelector('[data-testid="view-toggle-list"]', { state: 'visible', timeout: 10000 });
       await page.evaluate(() => {
         const btn = [...document.querySelectorAll('[data-testid="view-toggle-list"]')]
           .find((el) => window.getComputedStyle(el).display !== 'none') as HTMLElement | undefined;
