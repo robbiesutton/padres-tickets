@@ -323,7 +323,7 @@ Steps:
         Task: {
           title: [{ text: { content: `E2E failure: ${result.title}` } }],
         },
-        Status: { status: { name: 'In Progress' } },
+        Status: { select: { name: 'In Progress' } },
         Area: { select: { name: 'Business' } },
         Owner: { select: { name: 'Claude Code' } },
         Priority: { select: { name: 'P1 - Urgent' } },
