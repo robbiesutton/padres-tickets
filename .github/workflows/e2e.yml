@@ -5,6 +5,7 @@ on:
     branches: [main, design]
   push:
     branches: [main, design]
+  workflow_dispatch:
 
 # Cancel in-progress runs on force-pushes to avoid burning Mailosaur quota
 concurrency:
