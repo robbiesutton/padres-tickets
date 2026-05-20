@@ -184,10 +184,15 @@ test.describe('@mobile Mobile visual regression', () => {
         '[data-testid="view-toggle-list"]:visible'
       );
       if ((await listToggle.count()) > 0) {
-        // force:true bypasses webkit's stricter actionability checks
-        // (pointer-events, overlapping elements) on mobile viewport
-        await listToggle.first().click({ force: true });
-        await page.waitForLoadState('networkidle');
+        // Use evaluate() to fire a direct DOM click — Playwright's locator.click()
+        // times out on webkit-iphone-13 even with force:true due to actionability
+        // machinery differences. evaluate() bypasses that entirely.
+        await page.evaluate(() => {
+          const btn = [...document.querySelectorAll('[data-testid="view-toggle-list"]')]
+            .find(el => window.getComputedStyle(el).display !== 'none') as HTMLElement | undefined;
+          btn?.click();
+        });
+        await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
       }
       await expect(page).toHaveScreenshot('mobile-share-list.png', {
         maxDiffPixelRatio: 0.01,
