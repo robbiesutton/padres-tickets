@@ -231,7 +231,7 @@ async function pruneOldBlobs() {
       (b) => new Date(b.uploadedAt).getTime() < thirtyDaysAgo
     );
     if (old.length > 0) {
-      await del(old.map((b) => b.url), { token: process.env.VERCEL_BLOB_RW_TOKEN });
+      await del(old.map((b) => b.url));
       console.log(`Pruned ${old.length} blobs older than 30 days.`);
     }
   } catch (err) {
@@ -323,7 +323,7 @@ Steps:
         Task: {
           title: [{ text: { content: `E2E failure: ${result.title}` } }],
         },
-        Status: { status: { name: 'In Progress' } },
+        Status: { select: { name: 'In Progress' } },
         Area: { select: { name: 'Business' } },
         Owner: { select: { name: 'Claude Code' } },
         Priority: { select: { name: 'P1 - Urgent' } },
@@ -340,7 +340,7 @@ Steps:
           type: 'code',
           code: {
             language: 'plain text',
-            rich_text: [{ text: { content: claudePrompt } }],
+            rich_text: [{ text: { content: claudePrompt.slice(0, 1990) } }],
           },
         },
         ...(screenshotUrl
@@ -469,7 +469,7 @@ async function main() {
           {
             object: 'block',
             type: 'paragraph',
-            paragraph: { rich_text: [{ text: { content: body } }] },
+            paragraph: { rich_text: [{ text: { content: body.slice(0, 1990) } }] },
           },
         ],
       });
