@@ -1047,6 +1047,7 @@ export default function DashboardLayout({
     >
       <div className="flex flex-1 flex-col">
         <header
+          data-testid="dashboard-nav"
           className="h-[60px] md:h-[77px] flex items-center justify-between px-4 md:px-8 sticky top-0 z-50 shadow-[0_1px_3px_rgba(0,0,0,0.06)]"
           style={{ backgroundColor: navColor }}
         >
@@ -1121,6 +1122,7 @@ export default function DashboardLayout({
 
             {/* Account avatar */}
             <Link
+              data-testid="account-avatar"
               href="/dashboard/profile"
               className="w-10 h-10 md:w-[34px] md:h-[34px] rounded-full flex items-center justify-center cursor-pointer transition-all text-sm font-semibold md:text-[11px] md:font-bold"
               style={{
