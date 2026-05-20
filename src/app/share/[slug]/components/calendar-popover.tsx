@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, startTransition } from 'react';
 import { createPortal } from 'react-dom';
 import type { Game, PackageInfo } from '../types';
 import {
@@ -61,7 +61,7 @@ export function CalendarPopover({
 
   // Reset confirmed state when game changes
   useEffect(() => {
-    setJustConfirmed(false);
+    startTransition(() => setJustConfirmed(false));
   }, [game.id]);
 
   const { dow, day, month } = formatShortDate(game.date);

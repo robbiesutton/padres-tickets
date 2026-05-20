@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, startTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { PrimaryButton } from '@/components/primary-button';
@@ -1419,8 +1419,7 @@ function HeroCalendar() {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const isMobile = window.matchMedia('(max-width: 767px)').matches;
     if (reduced || isMobile) {
-      setAnimationsEnabled(false);
-      setClaimed(true); // static end state — COL is already a green check
+      startTransition(() => { setAnimationsEnabled(false); setClaimed(true); }); // static end state — COL is already a green check
       return;
     }
     // Animations enabled — proceed to loop below.

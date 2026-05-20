@@ -259,6 +259,7 @@ function JoinForm() {
               <FormLabel>Last name</FormLabel>
               <input
                 ref={lastNameRef}
+                data-testid="join-last-name"
                 type="text"
                 autoComplete="family-name"
                 value={form.lastName}
@@ -294,6 +295,7 @@ function JoinForm() {
             <FormLabel>Phone number</FormLabel>
             <input
               ref={phoneRef}
+              data-testid="join-phone"
               type="tel"
               autoComplete="tel"
               inputMode="tel"

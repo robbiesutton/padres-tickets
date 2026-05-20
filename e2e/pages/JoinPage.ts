@@ -9,10 +9,11 @@ export class JoinPage {
     await this.page.goto(url);
   }
 
-  async fill(opts: { firstName: string; lastName: string; email: string; password: string }) {
+  async fill(opts: { firstName: string; lastName: string; email: string; password: string; phone?: string }) {
     await this.page.getByTestId(TESTIDS.joinFirstName).fill(opts.firstName);
     await this.page.getByTestId(TESTIDS.joinLastName).fill(opts.lastName);
     await this.page.getByTestId(TESTIDS.joinEmail).fill(opts.email);
+    await this.page.getByTestId(TESTIDS.joinPhone).fill(opts.phone ?? '5551234567');
     await this.page.getByTestId(TESTIDS.joinPassword).fill(opts.password);
     await this.page.getByTestId(TESTIDS.joinTermsCheckbox).check();
   }
@@ -21,7 +22,7 @@ export class JoinPage {
     await this.page.getByTestId(TESTIDS.joinSubmit).click();
   }
 
-  async createAccount(opts: { firstName: string; lastName: string; email: string; password: string }) {
+  async createAccount(opts: { firstName: string; lastName: string; email: string; password: string; phone?: string }) {
     await this.fill(opts);
     await this.submit();
   }

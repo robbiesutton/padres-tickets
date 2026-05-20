@@ -38,6 +38,7 @@ test.describe('Claimer journey', () => {
       await page.getByTestId('join-first-name').fill('Test');
       await page.getByTestId('join-last-name').fill('User');
       await page.getByTestId('join-email').fill('test@example.com');
+      await page.getByTestId('join-phone').fill('5551234567');
       await page.getByTestId('join-password').fill('password123');
       // Submit should still be disabled — terms not checked
       await expect(page.getByTestId('join-submit')).toBeDisabled();

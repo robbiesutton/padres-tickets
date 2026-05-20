@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, createContext, useContext } from 'react';
+import { useState, useEffect, useRef, createContext, useContext, startTransition } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -76,10 +76,12 @@ function SeatInfoPillDropdown({ pkg, isDark, navColor, teamAccent, holderFirstNa
   const isEmpty = !pkg.seatPhotoUrl && !pkg.description && !pkg.venmoHandle && !pkg.zelleInfo;
 
   useEffect(() => {
-    setDescription(pkg.description || '');
-    setSeatPhotoUrl(pkg.seatPhotoUrl);
-    setVenmoHandle(pkg.venmoHandle || '');
-    setZelleInfo(pkg.zelleInfo || '');
+    startTransition(() => {
+      setDescription(pkg.description || '');
+      setSeatPhotoUrl(pkg.seatPhotoUrl);
+      setVenmoHandle(pkg.venmoHandle || '');
+      setZelleInfo(pkg.zelleInfo || '');
+    });
   }, [pkg.description, pkg.seatPhotoUrl, pkg.venmoHandle, pkg.zelleInfo]);
 
   useEffect(() => {
@@ -493,7 +495,7 @@ function MobileSeatInfoDrawer({ pkg, navColor, teamAccent, onPkgUpdate }: {
   const isEmpty = !pkg.seatPhotoUrl && !pkg.description;
 
   useEffect(() => {
-    setDescription(pkg.description || '');
+    startTransition(() => setDescription(pkg.description || ''));
   }, [pkg.description]);
 
   async function handleSave() {
