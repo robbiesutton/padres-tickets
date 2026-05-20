@@ -3,7 +3,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
-import { TESTIDS } from '@/lib/testids';
 import Image from 'next/image';
 import {
   SetupLayout,
@@ -1600,7 +1599,6 @@ export default function NewPackagePage() {
 
           <StepActions>
             <PrimaryButton
-              data-testid={TESTIDS.packageStep1Continue}
               onClick={() => {
                 loadSchedule();
                 goToStep(2);
@@ -1727,7 +1725,6 @@ export default function NewPackagePage() {
 
           <StepActions>
             <PrimaryButton
-              data-testid={TESTIDS.packageStep2Continue}
               onClick={() => goToStep(3)}
               disabled={!selectedSection || !row || selectedSeats.size === 0}
             >
@@ -1743,7 +1740,7 @@ export default function NewPackagePage() {
           <StepHeadline>Pricing &amp; payment</StepHeadline>
           <StepSubhead>
             Set your default price and how you&apos;d like to get paid. Payment
-            info is optional and editable anytime in your Profile.
+            details are optional and editable anytime in your Profile.
           </StepSubhead>
 
           {/* Default price */}
@@ -1824,11 +1821,7 @@ export default function NewPackagePage() {
           </div>
 
           <StepActions>
-            <PrimaryButton
-              data-testid={TESTIDS.packageStep3Finish}
-              onClick={() => goToStep(4)}
-              disabled={!defaultPrice}
-            >
+            <PrimaryButton onClick={() => goToStep(4)} disabled={!defaultPrice}>
               Continue →
             </PrimaryButton>
           </StepActions>
@@ -1939,7 +1932,6 @@ export default function NewPackagePage() {
                 applyBulkPrice();
                 createPackage();
               }}
-              data-testid={TESTIDS.packageStep3Finish}
               disabled={loading}
             >
               {loading ? 'Creating...' : 'Finish setup →'}

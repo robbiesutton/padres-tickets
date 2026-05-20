@@ -38,6 +38,7 @@ test.describe('Claimer journey', () => {
       await page.getByTestId('join-first-name').fill('Test');
       await page.getByTestId('join-last-name').fill('User');
       await page.getByTestId('join-email').fill('test@example.com');
+      await page.getByTestId('join-phone').fill('5551234567');
       await page.getByTestId('join-password').fill('password123');
       // Submit should still be disabled — terms not checked
       await expect(page.getByTestId('join-submit')).toBeDisabled();
@@ -77,9 +78,18 @@ test.describe('Claimer journey', () => {
 
       await expect(page).toHaveURL(new RegExp(`/share/${TEST_SLUG}`), { timeout: 15000 });
 
-      // Switch to list view to see game cards
-      const listToggle = page.locator('[data-testid="view-toggle-list"]:visible');
-      await listToggle.first().click();
+      // Dismiss the FTU "Got it, view games" modal if it appears —
+      // every fresh browser context has empty localStorage so the FTU fires.
+      await page.getByText('Got it, view games').click({ timeout: 5000 }).catch(() => {});
+
+      // Wait for React to hydrate and render the toolbar before clicking
+      await page.locator('[data-testid="view-toggle-list"]:visible').first().waitFor({ timeout: 10000 });
+      await page.evaluate(() => {
+        const btn = [...document.querySelectorAll('[data-testid="view-toggle-list"]')]
+          .find((el) => window.getComputedStyle(el).display !== 'none') as HTMLElement | undefined;
+        btn?.click();
+      });
+      await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
 
       // game-list exists but may be empty if the Neon preview branch has no seed data
       const gameList = page.getByTestId('game-list');
@@ -100,8 +110,18 @@ test.describe('Claimer journey', () => {
 
       await expect(page).toHaveURL(new RegExp(`/share/${TEST_SLUG}`), { timeout: 15000 });
 
-      // Switch to list view
-      await page.locator('[data-testid="view-toggle-list"]:visible').click();
+      // Dismiss the FTU "Got it, view games" modal if it appears —
+      // every fresh browser context has empty localStorage so the FTU fires.
+      await page.getByText('Got it, view games').click({ timeout: 5000 }).catch(() => {});
+
+      // Wait for React to hydrate and render the toolbar before clicking
+      await page.locator('[data-testid="view-toggle-list"]:visible').first().waitFor({ timeout: 10000 });
+      await page.evaluate(() => {
+        const btn = [...document.querySelectorAll('[data-testid="view-toggle-list"]')]
+          .find((el) => window.getComputedStyle(el).display !== 'none') as HTMLElement | undefined;
+        btn?.click();
+      });
+      await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
       await expect(page.getByTestId('game-list')).toBeAttached({ timeout: 10000 });
 
       // Skip claim interaction if no games in DB (Neon per-PR branch not seeded)
@@ -136,7 +156,16 @@ test.describe('Claimer journey', () => {
       });
 
       await expect(page).toHaveURL(new RegExp(`/share/${TEST_SLUG}`), { timeout: 15000 });
-      await page.locator('[data-testid="view-toggle-list"]:visible').click();
+      // Dismiss the FTU modal if it appears (fresh localStorage per test context)
+      await page.getByText('Got it, view games').click({ timeout: 5000 }).catch(() => {});
+      // Wait for React to hydrate and render the toolbar before clicking
+      await page.locator('[data-testid="view-toggle-list"]:visible').first().waitFor({ timeout: 10000 });
+      await page.evaluate(() => {
+        const btn = [...document.querySelectorAll('[data-testid="view-toggle-list"]')]
+          .find((el) => window.getComputedStyle(el).display !== 'none') as HTMLElement | undefined;
+        btn?.click();
+      });
+      await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
       await expect(page.getByTestId('game-list')).toBeAttached({ timeout: 10000 });
 
       // Skip if no games in DB (Neon per-PR branch not seeded)

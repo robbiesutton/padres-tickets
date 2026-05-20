@@ -4,9 +4,9 @@ import {
   useState,
   useEffect,
   useRef,
-  startTransition,
   createContext,
   useContext,
+  startTransition,
 } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
@@ -14,8 +14,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { getTeamColors, isColorDark } from '@/lib/team-colors';
-import { getOpponentAbbr } from '@/lib/game-utils';
-import { TESTIDS } from '@/lib/testids';
+import { TeamBadge } from '@/components/team-badge';
 import { ScoreTicker } from '@/components/score-ticker';
 import { DESIGN_MODE, mockHolder } from '@/lib/mock-data';
 import { SHOW_PACKAGE_SWITCHER } from '@/lib/feature-flags';
@@ -176,7 +175,7 @@ function SeatInfoPillDropdown({
   }
 
   const showHeader = editing ? wasFilled : !isEmpty;
-  const headerTitle = editing ? 'Edit seat info' : 'My seats';
+  const headerTitle = editing ? 'Edit seats' : 'My seats';
   const payHeading = holderFirstName?.trim()
     ? `How to pay ${holderFirstName.trim()}`
     : 'How to pay';
@@ -189,28 +188,28 @@ function SeatInfoPillDropdown({
     <div className="hidden md:block relative">
       <div
         ref={pillRef}
-        className={`flex items-center gap-2 h-10 pl-1.5 pr-3 rounded-lg border cursor-pointer transition-colors ${
+        className={`flex items-center justify-between w-[280px] h-12 pl-1.5 pr-3 rounded-lg border cursor-pointer transition-colors ${
           pillOpen
             ? 'border-white/30 bg-white/15'
             : 'border-white/20 hover:bg-white/10'
         }`}
         onClick={() => setPillOpen(!pillOpen)}
       >
-        <div
-          className="w-7 h-7 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0"
-          style={{ backgroundColor: teamAccent, color: navColor }}
-        >
-          {getOpponentAbbr(pkg.team)}
+        <div className="flex items-center gap-1.5">
+          <TeamBadge
+            team={pkg.team}
+            className="w-[34px] h-[34px] text-[11px] font-bold"
+          />
+          <span
+            className={`text-base font-medium ${isDark ? 'text-white' : 'text-[#1B1716]'}`}
+          >
+            My seats
+          </span>
         </div>
-        <span
-          className={`text-sm font-medium ${isDark ? 'text-white' : 'text-[#1B1716]'}`}
-        >
-          My seats
-        </span>
         <svg
           className={`shrink-0 transition-transform duration-200 ${pillOpen ? 'rotate-180' : ''}`}
-          width="14"
-          height="14"
+          width="12"
+          height="12"
           viewBox="0 0 24 24"
           fill="none"
         >
@@ -256,7 +255,7 @@ function SeatInfoPillDropdown({
                 {!editing && (
                   <button
                     onClick={() => startEditing(true)}
-                    title="Edit seat info"
+                    title="Edit seats"
                     className="w-8 h-8 rounded-lg bg-[#F5F4F2] hover:bg-[#DCD7D4] border-none cursor-pointer flex items-center justify-center text-[#1B1716]"
                   >
                     <svg
@@ -730,12 +729,7 @@ function MobileSeatInfoDrawer({
         }}
         onClick={() => setOpen(true)}
       >
-        <div
-          className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0"
-          style={{ backgroundColor: teamAccent, color: navColor }}
-        >
-          {getOpponentAbbr(pkg.team)}
-        </div>
+        <TeamBadge team={pkg.team} className="w-8 h-8 text-[10px] font-bold" />
         <span className="text-base font-medium text-[#2c2a2b] flex-1">
           My seats
         </span>
@@ -957,7 +951,7 @@ function MobileSeatInfoDrawer({
                           <path d="M12 20h9" />
                           <path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
                         </svg>
-                        Edit seat info
+                        Edit seats
                       </button>
                     </>
                   )}
@@ -1027,9 +1021,11 @@ export default function DashboardLayout({
   }, [pathname, isDashboard]);
 
   const selectedPkg = packages.find((p) => p.id === selectedPkgId) || null;
-  const { primary: navColor, accent: teamAccent } = selectedPkg
-    ? getTeamColors(selectedPkg.team)
-    : { primary: '#2c2a2b', accent: '#D4A843' };
+  const {
+    primary: navColor,
+    accent: teamAccent,
+    badgeTextColor: badgeText,
+  } = getTeamColors(selectedPkg?.team ?? '');
 
   function handlePkgUpdate(fields: Partial<PackageForNav>) {
     if (!selectedPkgId) return;
@@ -1051,7 +1047,7 @@ export default function DashboardLayout({
     >
       <div className="flex flex-1 flex-col">
         <header
-          data-testid={TESTIDS.dashboardNav}
+          data-testid="dashboard-nav"
           className="h-[60px] md:h-[77px] flex items-center justify-between px-4 md:px-8 sticky top-0 z-50 shadow-[0_1px_3px_rgba(0,0,0,0.06)]"
           style={{ backgroundColor: navColor }}
         >
@@ -1126,10 +1122,13 @@ export default function DashboardLayout({
 
             {/* Account avatar */}
             <Link
+              data-testid="account-avatar"
               href="/dashboard/profile"
-              data-testid={TESTIDS.accountAvatar}
-              className="w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all text-sm font-semibold"
-              style={{ backgroundColor: teamAccent, color: navColor }}
+              className="w-10 h-10 md:w-[34px] md:h-[34px] rounded-full flex items-center justify-center cursor-pointer transition-all text-sm font-semibold md:text-[11px] md:font-bold"
+              style={{
+                backgroundColor: teamAccent,
+                color: badgeText ?? navColor,
+              }}
             >
               {userInitial}
             </Link>

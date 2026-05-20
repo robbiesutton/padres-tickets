@@ -13,6 +13,7 @@ export const TESTIDS = {
   joinFirstName: 'join-first-name',
   joinLastName: 'join-last-name',
   joinEmail: 'join-email',
+  joinPhone: 'join-phone',
   joinPassword: 'join-password',
   joinTermsCheckbox: 'join-terms-checkbox',
   joinSubmit: 'join-submit',

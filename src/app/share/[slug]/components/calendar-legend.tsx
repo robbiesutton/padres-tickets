@@ -1,11 +1,25 @@
 'use client';
 
-export function CalendarLegend() {
+import type { PackageInfo } from '../types';
+import { getOpponentAbbr } from '../utils';
+import { getTeamColors } from '../team-colors';
+
+interface Props {
+  pkg: PackageInfo;
+}
+
+export function CalendarLegend({ pkg }: Props) {
+  const { accent: teamAccent } = getTeamColors(pkg.team);
+  const teamAbbr = getOpponentAbbr(pkg.team);
+
   return (
     <div className="flex gap-4 md:gap-6 items-center justify-center mt-3 md:mt-4 flex-wrap">
       <div className="flex items-center gap-1">
-        <div className="w-[16px] h-[16px] md:w-[19px] md:h-[19px] rounded-full bg-[#ffc425] flex items-center justify-center text-[6px] md:text-[7px] font-bold text-[#1a1a1a]">
-          SD
+        <div
+          className="w-[16px] h-[16px] md:w-[19px] md:h-[19px] rounded-full flex items-center justify-center text-[6px] md:text-[7px] font-bold text-[#1a1a1a]"
+          style={{ backgroundColor: teamAccent }}
+        >
+          {teamAbbr}
         </div>
         <span className="text-xs md:text-sm font-normal text-[#8e8985]">
           Available

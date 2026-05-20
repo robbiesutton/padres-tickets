@@ -5,8 +5,8 @@ import {
   useMemo,
   useEffect,
   useCallback,
-  startTransition,
   Suspense,
+  startTransition,
 } from 'react';
 import { useSession } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
@@ -138,23 +138,23 @@ function MobileSeatInfoPill({
             />
             <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-[0_-4px_16px_rgba(0,0,0,0.08)] animate-slide-up max-h-[85vh] flex flex-col overflow-hidden">
               {/* Chrome strip — close X only */}
-              <div className="relative h-14 shrink-0">
+              <div className="relative h-[63px] shrink-0">
                 <button
-                  className="absolute top-1.5 right-1.5 w-11 h-11 flex items-center justify-center bg-transparent border-none cursor-pointer z-10"
+                  className="absolute top-3 right-3 w-11 h-11 flex items-center justify-center bg-transparent border-none cursor-pointer z-10"
                   onClick={() => setOpen(false)}
                   title="Close"
                 >
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                     <path
                       d="M18 6L6 18"
-                      stroke="#1B1716"
-                      strokeWidth="2.5"
+                      stroke="#8e8985"
+                      strokeWidth="2"
                       strokeLinecap="round"
                     />
                     <path
                       d="M6 6l12 12"
-                      stroke="#1B1716"
-                      strokeWidth="2.5"
+                      stroke="#8e8985"
+                      strokeWidth="2"
                       strokeLinecap="round"
                     />
                   </svg>
@@ -163,7 +163,7 @@ function MobileSeatInfoPill({
 
               {/* Scrollable body */}
               <div className="flex-1 overflow-y-auto">
-                <div className="px-6 pb-5 flex flex-col gap-5">
+                <div className="px-5 pb-5 flex flex-col gap-5">
                   {isCompletelyEmpty ? (
                     /* Empty fallback (rule 9) */
                     <div className="text-center py-6 px-2">
@@ -193,10 +193,34 @@ function MobileSeatInfoPill({
                         </div>
                       )}
 
+                      {/* How it works */}
+                      <div>
+                        <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">
+                          How it works
+                        </p>
+                        <div className="bg-[#F5F4F2] rounded-[10px] px-4 py-3.5 flex flex-col gap-2.5">
+                          {[
+                            'Pick a game from the schedule.',
+                            claimStep,
+                            'Tickets arrive before game day.',
+                          ].map((step, i) => (
+                            <div
+                              key={i}
+                              className="flex gap-3 items-start text-[14px] leading-[1.4] text-[#1B1716]"
+                            >
+                              <div className="w-5 h-5 rounded-full bg-[#810100] text-white flex items-center justify-center text-[11px] font-bold shrink-0">
+                                {i + 1}
+                              </div>
+                              <div>{step}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
                       {/* Description */}
                       {pkg.description && (
                         <div>
-                          <p className="text-[11px] font-bold tracking-[0.04em] uppercase text-[#8E8985] mb-3">
+                          <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">
                             Description
                           </p>
                           <p className="text-[14px] leading-[1.5] text-[#1B1716]">
@@ -207,7 +231,7 @@ function MobileSeatInfoPill({
 
                       {/* Your seats */}
                       <div>
-                        <p className="text-[11px] font-bold tracking-[0.04em] uppercase text-[#8E8985] mb-3">
+                        <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">
                           Your seats
                         </p>
                         <div className="flex flex-col text-[14px]">
@@ -245,7 +269,7 @@ function MobileSeatInfoPill({
                       {/* How to pay */}
                       {hasPayment && (
                         <div>
-                          <p className="text-[11px] font-bold tracking-[0.04em] uppercase text-[#8E8985] mb-3">
+                          <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">
                             {payHeading}
                           </p>
                           <div className="flex flex-col text-[14px]">
@@ -270,37 +294,13 @@ function MobileSeatInfoPill({
                           </div>
                         </div>
                       )}
-
-                      {/* How it works */}
-                      <div>
-                        <p className="text-[11px] font-bold tracking-[0.04em] uppercase text-[#8E8985] mb-3">
-                          How it works
-                        </p>
-                        <div className="bg-[#F5F4F2] rounded-[10px] px-4 py-3.5 flex flex-col gap-2.5">
-                          {[
-                            'Pick a game from the schedule.',
-                            claimStep,
-                            'Tickets arrive before game day.',
-                          ].map((step, i) => (
-                            <div
-                              key={i}
-                              className="flex gap-3 items-start text-[14px] leading-[1.4] text-[#1B1716]"
-                            >
-                              <div className="w-5 h-5 rounded-full bg-[#810100] text-white flex items-center justify-center text-[11px] font-bold shrink-0">
-                                {i + 1}
-                              </div>
-                              <div>{step}</div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
                     </>
                   )}
                 </div>
               </div>
 
               {/* Sticky CTA footer */}
-              <div className="shrink-0 px-6 pb-5 bg-white">
+              <div className="shrink-0 px-5 pb-5 bg-white">
                 <button
                   onClick={dismissFTU}
                   className="w-full h-[52px] bg-[#2C2A2B] text-white border-none rounded-[10px] text-base font-semibold cursor-pointer active:opacity-90"
@@ -398,14 +398,27 @@ function SharePageInner({
     }
   }, [packageInfo.slug, currentUserId]);
 
+  // Dev affordance: ?ftu=reset clears the FTU localStorage key and reloads,
+  // letting designers re-trigger the first-time experience without DevTools.
+  useEffect(() => {
+    if (searchParams.get('ftu') !== 'reset') return;
+    try {
+      window.localStorage.removeItem(`bb-claimer-ftu-${packageInfo.slug}-seen`);
+    } catch {}
+    const url = new URL(window.location.href);
+    url.searchParams.delete('ftu');
+    window.history.replaceState(null, '', url.pathname + url.search);
+    window.location.reload();
+  }, [searchParams, packageInfo.slug]);
+
   // Handle ?reserved= URL param from magic link redirect
   useEffect(() => {
     const reservedId = searchParams.get('reserved');
     if (reservedId) {
-      startTransition(() => {
-        setReservedGames((prev) => new Map([...prev, [reservedId, '']]));
-        setExpandedGameId(reservedId);
-      });
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setReservedGames((prev) => new Map([...prev, [reservedId, '']]));
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setExpandedGameId(reservedId);
       window.history.replaceState(null, '', window.location.pathname);
     }
     const reserveError = searchParams.get('reserveError');
@@ -597,7 +610,7 @@ function SharePageInner({
               </p>
             </div>
             {holderFirstName && (
-              <p className="md:hidden text-[14px] leading-[1.5] text-[#8e8985] mb-4">
+              <p className="md:hidden text-[14px] leading-[1.5] text-[#8e8985] mb-4 text-balance">
                 {`Pay ${holderFirstName} directly. Tickets transfer before game day.`}
               </p>
             )}
@@ -644,7 +657,6 @@ function SharePageInner({
                 opponentFilter={opponentFilter}
                 monthFilter={monthFilter}
                 onClearFilters={handleClearFilters}
-                onSwitchToMyGames={() => setActiveTab('my-games')}
               />
             ) : (
               <>
@@ -667,7 +679,6 @@ function SharePageInner({
                       currentUserId={currentUserId}
                       onReserved={handleReserved}
                       onCancelled={handleCancelled}
-                      onSwitchToMyGames={() => setActiveTab('my-games')}
                     />
                   </div>
                 )}

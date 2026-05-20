@@ -53,7 +53,7 @@ const ALL_NAV_ITEMS = [
   },
   {
     id: 'seat-info',
-    label: 'Seat Info',
+    label: 'Seats',
     requiresOwner: true,
     icon: (
       <svg
@@ -73,7 +73,7 @@ const ALL_NAV_ITEMS = [
   },
   {
     id: 'payment-info',
-    label: 'Payment Info',
+    label: 'Payments',
     requiresOwner: true,
     icon: (
       <svg
@@ -333,13 +333,15 @@ export default function ProfilePage() {
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (cancelled || !data) return;
-        setProfile(data);
-        setForm({
-          firstName: data.firstName,
-          lastName: data.lastName,
-          phone: data.phone || '',
-          venmoHandle: data.venmoHandle || '',
-          zelleInfo: data.zelleInfo || '',
+        startTransition(() => {
+          setProfile(data);
+          setForm({
+            firstName: data.firstName,
+            lastName: data.lastName,
+            phone: data.phone || '',
+            venmoHandle: data.venmoHandle || '',
+            zelleInfo: data.zelleInfo || '',
+          });
         });
       })
       .catch(() => {});
@@ -394,12 +396,12 @@ export default function ProfilePage() {
       }),
     });
     setSavingSeat(false);
-    if (res.ok) setMessage({ type: 'success', text: 'Seat info saved!' });
+    if (res.ok) setMessage({ type: 'success', text: 'Changes saved!' });
     else {
       const data = await res.json();
       setMessage({
         type: 'error',
-        text: data.error || 'Failed to save seat info',
+        text: data.error || 'Failed to save changes',
       });
     }
   }
@@ -416,12 +418,12 @@ export default function ProfilePage() {
     if (res.ok) {
       const data = await res.json();
       setProfile(data);
-      setMessage({ type: 'success', text: 'Payment info saved!' });
+      setMessage({ type: 'success', text: 'Changes saved!' });
     } else {
       const data = await res.json();
       setMessage({
         type: 'error',
-        text: data.error || 'Failed to save payment info',
+        text: data.error || 'Failed to save changes',
       });
     }
   }
@@ -645,9 +647,7 @@ export default function ProfilePage() {
   function renderPaymentInfo() {
     return (
       <>
-        <h2 className="text-lg font-medium text-[#2c2a2b] mb-2">
-          Payment Info
-        </h2>
+        <h2 className="text-lg font-medium text-[#2c2a2b] mb-2">Payments</h2>
         <p className="text-sm text-[#3d3a38] mb-6 md:mb-8">
           This info is shown to anyone who opens your share link so they know
           how to pay you.
@@ -685,7 +685,7 @@ export default function ProfilePage() {
             disabled={savingPayment}
             className="w-full md:w-auto h-12 md:h-10 px-5 rounded-lg bg-[#2c2a2b] text-sm font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors disabled:opacity-50"
           >
-            {savingPayment ? 'Saving...' : 'Save payment info'}
+            {savingPayment ? 'Saving...' : 'Save changes'}
           </button>
         </div>
       </>
@@ -696,7 +696,7 @@ export default function ProfilePage() {
     return (
       <>
         <div className="flex items-center justify-between mb-1">
-          <h2 className="text-lg font-medium text-[#2c2a2b]">Seat Info</h2>
+          <h2 className="text-lg font-medium text-[#2c2a2b]">Seats</h2>
           {SHOW_PACKAGE_SWITCHER && packages.length > 1 && (
             <select
               value={selectedPkgId || ''}
@@ -803,7 +803,7 @@ export default function ProfilePage() {
             disabled={savingSeat}
             className="w-full md:w-auto h-12 md:h-10 px-5 rounded-lg bg-[#2c2a2b] text-sm font-medium text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] transition-colors disabled:opacity-50"
           >
-            {savingSeat ? 'Saving...' : 'Save seat info'}
+            {savingSeat ? 'Saving...' : 'Save changes'}
           </button>
         </div>
       </>

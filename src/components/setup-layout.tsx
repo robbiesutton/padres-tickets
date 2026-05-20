@@ -16,7 +16,7 @@ function CheckIcon() {
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
       <path
         d="M5 13l4 4L19 7"
-        stroke="#d4a017"
+        stroke="#fff"
         strokeWidth="3"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -47,7 +47,7 @@ export function SetupLayout({
             className="absolute inset-0"
             style={{
               background:
-                'radial-gradient(circle at 30% 70%, rgba(212,160,23,0.12), transparent 70%)',
+                'radial-gradient(circle at 30% 70%, rgba(139,37,0,0.12), transparent 70%)',
             }}
           />
 
@@ -80,7 +80,7 @@ export function SetupLayout({
                       <div
                         className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
                           isDone
-                            ? 'bg-[#d4a017] text-[#2c2a2b]'
+                            ? 'bg-[#2d6a4f] text-white'
                             : isActive
                               ? 'bg-white text-[#2c2a2b]'
                               : 'bg-white/[0.12] text-white/40'
@@ -92,7 +92,7 @@ export function SetupLayout({
                       <span
                         className={`text-[13px] font-semibold ${
                           isDone
-                            ? 'text-[#d4a017]'
+                            ? 'text-[#2d6a4f]'
                             : isActive
                               ? 'text-white'
                               : 'text-white/[0.35]'
@@ -105,7 +105,7 @@ export function SetupLayout({
                     {i < steps.length - 1 && (
                       <div
                         className={`w-[2px] h-3 ml-[13px] ${
-                          isDone ? 'bg-[#d4a017]' : 'bg-white/[0.1]'
+                          isDone ? 'bg-[#2d6a4f]' : 'bg-white/[0.1]'
                         }`}
                       />
                     )}
@@ -192,16 +192,13 @@ export function PrimaryButton({
   children,
   onClick,
   disabled,
-  'data-testid': testId,
 }: {
   children: React.ReactNode;
   onClick?: () => void;
   disabled?: boolean;
-  'data-testid'?: string;
 }) {
   return (
     <button
-      data-testid={testId}
       onClick={onClick}
       disabled={disabled}
       className="h-11 w-full md:w-auto px-7 rounded-lg bg-[#2c2a2b] text-white text-sm font-bold cursor-pointer border-none transition-all hover:bg-[#dcd7d4] hover:text-[#2c2a2b] disabled:opacity-50 disabled:cursor-not-allowed"
@@ -214,15 +211,12 @@ export function PrimaryButton({
 export function GhostButton({
   children,
   onClick,
-  'data-testid': testId,
 }: {
   children: React.ReactNode;
   onClick?: () => void;
-  'data-testid'?: string;
 }) {
   return (
     <button
-      data-testid={testId}
       onClick={onClick}
       className="text-sm font-medium text-[#b0a89e] hover:text-[#2c2a2b] bg-transparent border-none cursor-pointer transition-colors"
     >

@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { SetupLayout, FormLabel } from '@/components/setup-layout';
-import { TESTIDS } from '@/lib/testids';
 import { AuthFormSkeleton, Bone } from '@/components/skeleton';
 import { getTeamColors } from '@/lib/team-colors';
 import { getOpponentAbbr } from '@/lib/game-utils';
@@ -32,7 +31,7 @@ function validateEmail(value: string): string | null {
 
 function validatePhone(value: string): string | null {
   const v = value.trim();
-  if (!v) return null; // phone is optional
+  if (!v) return 'Please enter a valid phone number';
   if (v.startsWith('+')) {
     const digits = v.slice(1).replace(/\D/g, '');
     if (digits.length < 10 || digits.length > 15)
@@ -125,6 +124,13 @@ function JoinForm() {
   const emailRef = useRef<HTMLInputElement>(null);
   const phoneRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
+  const refs = {
+    firstName: firstNameRef,
+    lastName: lastNameRef,
+    email: emailRef,
+    phone: phoneRef,
+    password: passwordRef,
+  };
 
   function runValidator(field: FieldKey, value: string): string | null {
     if (field === 'firstName')
@@ -183,16 +189,7 @@ function JoinForm() {
         'password',
       ];
       const firstInvalid = order.find((f) => next[f]);
-      if (firstInvalid) {
-        const refMap = {
-          firstName: firstNameRef,
-          lastName: lastNameRef,
-          email: emailRef,
-          phone: phoneRef,
-          password: passwordRef,
-        };
-        refMap[firstInvalid].current?.focus();
-      }
+      if (firstInvalid) refs[firstInvalid].current?.focus();
       return;
     }
 
@@ -286,7 +283,7 @@ function JoinForm() {
 
         {submitError && (
           <div
-            data-testid={TESTIDS.joinError}
+            data-testid="join-error"
             className="rounded-lg bg-[#FEE2E2] text-[#DC2626] px-4 py-3 text-sm font-medium mb-4"
           >
             {submitError}
@@ -303,7 +300,7 @@ function JoinForm() {
               <FormLabel>First name</FormLabel>
               <input
                 ref={firstNameRef}
-                data-testid={TESTIDS.joinFirstName}
+                data-testid="join-first-name"
                 type="text"
                 autoComplete="given-name"
                 value={form.firstName}
@@ -323,7 +320,7 @@ function JoinForm() {
               <FormLabel>Last name</FormLabel>
               <input
                 ref={lastNameRef}
-                data-testid={TESTIDS.joinLastName}
+                data-testid="join-last-name"
                 type="text"
                 autoComplete="family-name"
                 value={form.lastName}
@@ -343,7 +340,7 @@ function JoinForm() {
             <FormLabel>Email</FormLabel>
             <input
               ref={emailRef}
-              data-testid={TESTIDS.joinEmail}
+              data-testid="join-email"
               type="email"
               autoComplete="email"
               inputMode="email"
@@ -363,6 +360,7 @@ function JoinForm() {
             <FormLabel>Phone number</FormLabel>
             <input
               ref={phoneRef}
+              data-testid="join-phone"
               type="tel"
               autoComplete="tel"
               inputMode="tel"
@@ -383,7 +381,7 @@ function JoinForm() {
             <div className="relative">
               <input
                 ref={passwordRef}
-                data-testid={TESTIDS.joinPassword}
+                data-testid="join-password"
                 type={showPassword ? 'text' : 'password'}
                 autoComplete="new-password"
                 value={form.password}
@@ -415,7 +413,7 @@ function JoinForm() {
           <div className="flex flex-col gap-3">
             <label className="flex items-start gap-2.5 text-sm cursor-pointer">
               <input
-                data-testid={TESTIDS.joinTermsCheckbox}
+                data-testid="join-terms-checkbox"
                 type="checkbox"
                 checked={agreedToTerms}
                 onChange={(e) => setAgreedToTerms(e.target.checked)}
@@ -454,7 +452,7 @@ function JoinForm() {
           </div>
 
           <button
-            data-testid={TESTIDS.joinSubmit}
+            data-testid="join-submit"
             type="submit"
             disabled={loading || !agreedToTerms}
             className="w-full h-12 rounded-lg bg-[#2c2a2b] text-white text-sm font-medium cursor-pointer border-none transition-all hover:bg-[#dcd7d4] hover:text-[#2c2a2b] disabled:opacity-50 disabled:cursor-not-allowed"

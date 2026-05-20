@@ -1797,8 +1797,8 @@ function HeroCalendar() {
     if (reduced || isMobile) {
       startTransition(() => {
         setAnimationsEnabled(false);
-        setClaimed(true); // static end state — COL is already a green check
-      });
+        setClaimed(true);
+      }); // static end state — COL is already a green check
       return;
     }
     // Animations enabled — proceed to loop below.

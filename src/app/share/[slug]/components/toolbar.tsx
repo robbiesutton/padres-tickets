@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { TESTIDS } from '@/lib/testids';
 import type { ViewMode } from '../types';
 
 interface Props {
@@ -86,12 +85,12 @@ export function Toolbar({
       <div className="md:hidden flex items-center gap-2 mb-4">
         <div className="relative flex h-11 bg-[#f5f4f2] rounded-lg p-[3px] gap-[3px]">
           <button
-            data-testid={TESTIDS.viewToggleCalendar}
             className={`relative z-10 w-[44px] h-[38px] flex items-center justify-center rounded-md border-none cursor-pointer transition-all ${
               viewMode === 'calendar'
                 ? 'bg-white shadow-sm text-[#2c2a2b]'
                 : 'bg-transparent text-[#8e8985]'
             }`}
+            data-testid="view-toggle-calendar"
             onClick={() => onViewChange('calendar')}
           >
             <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
@@ -133,12 +132,12 @@ export function Toolbar({
             </svg>
           </button>
           <button
-            data-testid={TESTIDS.viewToggleList}
             className={`relative z-10 w-[44px] h-[38px] flex items-center justify-center rounded-md border-none cursor-pointer transition-all ${
               viewMode === 'list'
                 ? 'bg-white shadow-sm text-[#2c2a2b]'
                 : 'bg-transparent text-[#8e8985]'
             }`}
+            data-testid="view-toggle-list"
             onClick={() => onViewChange('list')}
           >
             <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
@@ -208,19 +207,19 @@ export function Toolbar({
                 <button
                   onClick={() => setMobileFiltersOpen(false)}
                   title="Close"
-                  className="absolute top-1.5 right-1.5 w-11 h-11 flex items-center justify-center bg-transparent border-none cursor-pointer z-10"
+                  className="absolute top-3 right-3 w-11 h-11 flex items-center justify-center bg-transparent border-none cursor-pointer z-10"
                 >
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                     <path
                       d="M18 6L6 18"
-                      stroke="#1B1716"
-                      strokeWidth="2.5"
+                      stroke="#8e8985"
+                      strokeWidth="2"
                       strokeLinecap="round"
                     />
                     <path
                       d="M6 6l12 12"
-                      stroke="#1B1716"
-                      strokeWidth="2.5"
+                      stroke="#8e8985"
+                      strokeWidth="2"
                       strokeLinecap="round"
                     />
                   </svg>
@@ -229,7 +228,7 @@ export function Toolbar({
 
               {/* Scrollable body */}
               <div className="flex-1 overflow-y-auto">
-                <div className="px-6 pb-5">
+                <div className="px-5 pb-5">
                   <h3 className="text-[18px] font-bold text-[#1B1716] mb-5">
                     Filters
                   </h3>
@@ -281,7 +280,7 @@ export function Toolbar({
               </div>
 
               {/* Sticky CTA footer */}
-              <div className="shrink-0 px-6 pb-5 bg-white">
+              <div className="shrink-0 px-5 pb-5 bg-white">
                 <button
                   onClick={() => setMobileFiltersOpen(false)}
                   className="w-full h-[52px] rounded-[10px] bg-[#2C2A2B] text-base font-semibold text-white cursor-pointer border-none transition-opacity hover:opacity-90"
@@ -307,16 +306,15 @@ export function Toolbar({
         )}
 
       {/* ── Desktop: Inline dropdowns ── */}
-      {/* relative z-50: keeps toggles above the FTU backdrop (z-40) from share-header */}
-      <div className="hidden md:flex md:items-center md:gap-4 mb-4 flex-wrap relative z-50">
+      <div className="hidden md:flex md:items-center md:gap-4 mb-4 flex-wrap">
         <div className="relative flex w-auto h-11 bg-[#f5f4f2] rounded-lg p-[3px] gap-[3px]">
           <button
-            data-testid={TESTIDS.viewToggleCalendar}
             className={`relative z-10 w-[38px] h-[38px] flex items-center justify-center rounded-md border-none cursor-pointer transition-all text-sm font-medium ${
               viewMode === 'calendar'
                 ? 'bg-white shadow-sm text-[#2c2a2b]'
                 : 'bg-transparent text-[#8e8985]'
             }`}
+            data-testid="view-toggle-calendar"
             onClick={() => onViewChange('calendar')}
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -358,12 +356,12 @@ export function Toolbar({
             </svg>
           </button>
           <button
-            data-testid={TESTIDS.viewToggleList}
             className={`relative z-10 w-[38px] h-[38px] flex items-center justify-center rounded-md border-none cursor-pointer transition-all text-sm font-medium ${
               viewMode === 'list'
                 ? 'bg-white shadow-sm text-[#2c2a2b]'
                 : 'bg-transparent text-[#8e8985]'
             }`}
+            data-testid="view-toggle-list"
             onClick={() => onViewChange('list')}
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
