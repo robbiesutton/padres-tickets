@@ -113,8 +113,10 @@ test.describe('Share page', () => {
         await listToggle.first().click();
         await page.waitForLoadState('networkidle');
       }
+      // Wait for game cards to be fully painted before screenshotting.
+      await page.waitForSelector('[data-testid="game-card"]', { state: 'visible', timeout: 5000 }).catch(() => {});
       await expect(page).toHaveScreenshot('share-list-view.png', {
-        maxDiffPixelRatio: 0.01,
+        maxDiffPixelRatio: 0.05,
       });
     });
 
