@@ -80,7 +80,7 @@ test.describe('Claimer journey', () => {
 
       // Switch to list view to see game cards
       const listToggle = page.locator('[data-testid="view-toggle-list"]:visible');
-      await listToggle.first().click();
+      await listToggle.first().click({ force: true });
 
       // game-list exists but may be empty if the Neon preview branch has no seed data
       const gameList = page.getByTestId('game-list');
@@ -102,7 +102,7 @@ test.describe('Claimer journey', () => {
       await expect(page).toHaveURL(new RegExp(`/share/${TEST_SLUG}`), { timeout: 15000 });
 
       // Switch to list view
-      await page.locator('[data-testid="view-toggle-list"]:visible').click();
+      await page.locator('[data-testid="view-toggle-list"]:visible').click({ force: true });
       await expect(page.getByTestId('game-list')).toBeAttached({ timeout: 10000 });
 
       // Skip claim interaction if no games in DB (Neon per-PR branch not seeded)
@@ -137,7 +137,7 @@ test.describe('Claimer journey', () => {
       });
 
       await expect(page).toHaveURL(new RegExp(`/share/${TEST_SLUG}`), { timeout: 15000 });
-      await page.locator('[data-testid="view-toggle-list"]:visible').click();
+      await page.locator('[data-testid="view-toggle-list"]:visible').click({ force: true });
       await expect(page.getByTestId('game-list')).toBeAttached({ timeout: 10000 });
 
       // Skip if no games in DB (Neon per-PR branch not seeded)

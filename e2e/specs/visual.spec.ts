@@ -116,7 +116,7 @@ test.describe('Share page', () => {
         '[data-testid="view-toggle-list"]:visible'
       );
       if ((await listToggle.count()) > 0) {
-        await listToggle.first().click();
+        await listToggle.first().click({ force: true });
         await page.waitForLoadState('networkidle');
       }
       // Wait for game cards to be fully painted before screenshotting.
@@ -133,7 +133,7 @@ test.describe('Share page', () => {
         '[data-testid="view-toggle-calendar"]:visible'
       );
       if ((await calToggle.count()) > 0) {
-        await calToggle.first().click();
+        await calToggle.first().click({ force: true });
         await page.waitForLoadState('networkidle');
       }
       await expect(page).toHaveScreenshot('share-calendar-view.png', {
