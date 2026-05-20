@@ -1,10 +1,15 @@
 import { chromium, FullConfig } from '@playwright/test';
 import fs from 'fs';
 
-const HOLDER_EMAIL = process.env.TEST_HOLDER_EMAIL || 'holder@test.com';
+// Derive the same holder email the seed uses: TEST_HOLDER_EMAIL if explicitly
+// set, otherwise holder@{TEST_EMAIL_DOMAIN} — mirrors seed-test.ts so
+// globalSetup logs in as the actual package holder, not a different user
+// who would see the claimer/FTU view and produce inconsistent screenshots.
+const emailDomain = process.env.TEST_EMAIL_DOMAIN || 'test.com';
+const HOLDER_EMAIL = process.env.TEST_HOLDER_EMAIL || `holder@${emailDomain}`;
 const HOLDER_PASSWORD = process.env.TEST_HOLDER_PASSWORD || 'password123';
 
-// Ensures holder@test.com exists and saves storageState.
+// Ensures the holder exists and saves storageState.
 // API-first: POST /api/auth/signup (200=created, 409=exists — both OK),
 // then log in via UI to get the NextAuth JWT session cookie.
 export default async function globalSetup(config: FullConfig) {
