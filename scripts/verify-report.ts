@@ -160,58 +160,66 @@ async function uploadArtifacts(
 ): Promise<{ reportUrl?: string; screenshotUrls: Record<string, string> }> {
   if (!process.env.VERCEL_BLOB_RW_TOKEN) return { screenshotUrls: {} };
 
-  const prefix = `e2e/pr-${prNumber}-${commitSha}`;
-  const screenshotUrls: Record<string, string> = {};
-  let reportUrl: string | undefined;
+  try {
+    const prefix = `e2e/pr-${prNumber}-${commitSha}`;
+    const screenshotUrls: Record<string, string> = {};
+    let reportUrl: string | undefined;
 
-  // Upload HTML report index
-  const reportIndexPath = path.join(
-    process.cwd(),
-    'playwright-report',
-    'index.html'
-  );
-  if (fs.existsSync(reportIndexPath)) {
-    const blob = await put(
-      `${prefix}/index.html`,
-      fs.readFileSync(reportIndexPath),
-      {
-        access: 'public',
-        contentType: 'text/html',
-        token: process.env.VERCEL_BLOB_RW_TOKEN,
-      }
+    // Upload HTML report index
+    const reportIndexPath = path.join(
+      process.cwd(),
+      'playwright-report',
+      'index.html'
     );
-    reportUrl = blob.url;
-  }
-
-  // Upload screenshots from test-results/
-  const testResultsDir = path.join(process.cwd(), 'test-results');
-  if (fs.existsSync(testResultsDir)) {
-    const walkDir = (dir: string) => {
-      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-        const full = path.join(dir, entry.name);
-        if (entry.isDirectory()) walkDir(full);
-        else if (entry.name.endsWith('.png') || entry.name.endsWith('.zip')) {
-          const rel = path.relative(testResultsDir, full);
-          put(`${prefix}/artifacts/${rel}`, fs.readFileSync(full), {
-            access: 'public',
-            contentType: entry.name.endsWith('.zip')
-              ? 'application/zip'
-              : 'image/png',
-            token: process.env.VERCEL_BLOB_RW_TOKEN,
-          })
-            .then((blob) => {
-              screenshotUrls[full] = blob.url;
-            })
-            .catch(() => {});
+    if (fs.existsSync(reportIndexPath)) {
+      const blob = await put(
+        `${prefix}/index.html`,
+        fs.readFileSync(reportIndexPath),
+        {
+          access: 'public',
+          contentType: 'text/html',
+          token: process.env.VERCEL_BLOB_RW_TOKEN,
         }
-      }
-    };
-    walkDir(testResultsDir);
-    // Give uploads a moment to complete
-    await new Promise((r) => setTimeout(r, 3000));
-  }
+      );
+      reportUrl = blob.url;
+    }
 
-  return { reportUrl, screenshotUrls };
+    // Upload screenshots from test-results/
+    const testResultsDir = path.join(process.cwd(), 'test-results');
+    if (fs.existsSync(testResultsDir)) {
+      const walkDir = (dir: string) => {
+        for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+          const full = path.join(dir, entry.name);
+          if (entry.isDirectory()) walkDir(full);
+          else if (entry.name.endsWith('.png') || entry.name.endsWith('.zip')) {
+            const rel = path.relative(testResultsDir, full);
+            put(`${prefix}/artifacts/${rel}`, fs.readFileSync(full), {
+              access: 'public',
+              contentType: entry.name.endsWith('.zip')
+                ? 'application/zip'
+                : 'image/png',
+              token: process.env.VERCEL_BLOB_RW_TOKEN,
+            })
+              .then((blob) => {
+                screenshotUrls[full] = blob.url;
+              })
+              .catch(() => {});
+          }
+        }
+      };
+      walkDir(testResultsDir);
+      // Give uploads a moment to complete
+      await new Promise((r) => setTimeout(r, 3000));
+    }
+
+    return { reportUrl, screenshotUrls };
+  } catch (err) {
+    console.warn(
+      'Blob upload skipped (non-fatal):',
+      err instanceof Error ? err.message : err
+    );
+    return { screenshotUrls: {} };
+  }
 }
 
 async function pruneOldBlobs() {
