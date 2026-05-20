@@ -100,26 +100,43 @@ jobs:
           TEST_EMAIL_DOMAIN: ${{ secrets.MAILOSAUR_SERVER_ID }}.mailosaur.net
           NODE_ENV: test
 
-      # If no visual baselines exist in the repo, create them from this
-      # deployment and commit back to the branch. Future runs compare
-      # against the committed PNGs and catch regressions.
+      # Bootstrap visual baselines if missing. Desktop and mobile are checked
+      # independently so adding mobile tests to an existing desktop baseline
+      # set doesn't require a full re-bootstrap.
       - name: Bootstrap visual baselines (first run only)
         run: |
-          BASELINE_COUNT=$(find e2e/specs/__screenshots__ -name "*.png" 2>/dev/null | wc -l | tr -d ' ')
-          if [ "$BASELINE_COUNT" = "0" ]; then
-            echo "No baselines committed yet — generating initial screenshots..."
+          DESKTOP_COUNT=$(find e2e/specs/__screenshots__ -name "*.png" -not -name "mobile-*" 2>/dev/null | wc -l | tr -d ' ')
+          MOBILE_COUNT=$(find e2e/specs/__screenshots__ -name "mobile-*.png" 2>/dev/null | wc -l | tr -d ' ')
+          NEEDS_COMMIT=false
+
+          if [ "$DESKTOP_COUNT" = "0" ]; then
+            echo "No desktop baselines — generating..."
             npx playwright test e2e/specs/visual.spec.ts \
               --update-snapshots \
               --project=chromium-desktop || true
+            NEEDS_COMMIT=true
+          else
+            echo "Desktop baselines present ($DESKTOP_COUNT files)."
+          fi
+
+          if [ "$MOBILE_COUNT" = "0" ]; then
+            echo "No mobile baselines — generating..."
+            npx playwright test e2e/specs/visual.spec.ts \
+              --update-snapshots \
+              --project=webkit-iphone-13 || true
+            NEEDS_COMMIT=true
+          else
+            echo "Mobile baselines present ($MOBILE_COUNT files)."
+          fi
+
+          if [ "$NEEDS_COMMIT" = "true" ]; then
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git config user.name "github-actions[bot]"
             git add e2e/specs/__screenshots__/
             git diff --cached --quiet || \
-              git commit -m "chore: add initial visual regression baselines [skip ci]"
+              git commit -m "chore: add visual regression baselines [skip ci]"
             git push origin HEAD || true
             echo "Baselines committed — comparison mode active from next run."
-          else
-            echo "Baselines present ($BASELINE_COUNT files) — comparison mode."
           fi
         env:
           PLAYWRIGHT_BASE_URL: ${{ steps.deploy.outputs.url }}
