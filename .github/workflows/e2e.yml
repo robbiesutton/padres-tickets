@@ -5,6 +5,7 @@ on:
     branches: [main, design]
   push:
     branches: [main, design]
+  workflow_dispatch:
 
 # Cancel in-progress runs on force-pushes to avoid burning Mailosaur quota
 concurrency:
@@ -101,8 +102,8 @@ jobs:
           NODE_ENV: test
 
       # Bootstrap visual baselines if missing. Desktop and mobile are checked
-      # independently so adding mobile tests to an existing desktop baseline
-      # set doesn't require a full re-bootstrap.
+      # independently — adding mobile tests to a repo with existing desktop
+      # baselines only re-bootstraps mobile, not the full suite.
       - name: Bootstrap visual baselines (first run only)
         run: |
           DESKTOP_COUNT=$(find e2e/specs/__screenshots__ -name "*.png" -not -name "mobile-*" 2>/dev/null | wc -l | tr -d ' ')
@@ -141,13 +142,36 @@ jobs:
         env:
           PLAYWRIGHT_BASE_URL: ${{ steps.deploy.outputs.url }}
           VERCEL_BYPASS_SECRET: ${{ secrets.VERCEL_BYPASS_SECRET }}
+          # Auth env vars required so globalSetup can log in and authenticated
+          # visual tests get real page screenshots, not login-redirect screenshots.
+          MAILOSAUR_API_KEY: ${{ secrets.MAILOSAUR_API_KEY }}
+          MAILOSAUR_SERVER_ID: ${{ secrets.MAILOSAUR_SERVER_ID }}
+          TEST_EMAIL_DOMAIN: ${{ secrets.MAILOSAUR_SERVER_ID }}.mailosaur.net
+          NEON_PREVIEW_DATABASE_URL: ${{ secrets.NEON_PREVIEW_DATABASE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+
+      # Restore previous run state so subsequent PR pushes only re-run failed tests.
+      # Skipped for workflow_dispatch (no PR number) to avoid stale state from
+      # prior manual runs contaminating the --last-failed list.
+      - name: Restore last-run state
+        id: restore-last-run
+        if: github.event.pull_request.number != ''
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: playwright-last-run-pr-${{ github.event.pull_request.number }}
+          path: .playwright/
 
       - name: Run Playwright tests
         # On the design branch run only @smoke tests — fast, no Mailosaur/DB needed.
-        # Full suite runs on PRs into main where the complete test contract applies.
+        # On subsequent PR pushes where a last-run state exists, only re-run failures.
+        # Full suite on first run, on main, or on workflow_dispatch.
         run: |
           if [ "${{ github.ref }}" = "refs/heads/design" ]; then
             npx playwright test --grep "@smoke"
+          elif [ -n "${{ github.event.pull_request.number }}" ] && [ "${{ steps.restore-last-run.outcome }}" = "success" ] && [ -f ".playwright/last-run.json" ]; then
+            echo "Previous run state found — re-running failed/not-run tests only"
+            npx playwright test --last-failed --pass-with-no-tests
           else
             npx playwright test
           fi
@@ -159,6 +183,19 @@ jobs:
           TEST_EMAIL_DOMAIN: ${{ secrets.MAILOSAUR_SERVER_ID }}.mailosaur.net
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
           NEON_PREVIEW_DATABASE_URL: ${{ secrets.NEON_PREVIEW_DATABASE_URL }}
+
+      # Save last-run state so the next push to this PR can use --last-failed.
+      # Only saved for pull_request events (not workflow_dispatch) to avoid
+      # stale state from manual runs being used by subsequent PR pushes.
+      - name: Save last-run state
+        if: always() && github.event.pull_request.number != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-last-run-pr-${{ github.event.pull_request.number }}
+          path: .playwright/last-run.json
+          retention-days: 7
+          if-no-files-found: ignore
+          overwrite: true
 
       - name: Upload Playwright report
         if: always()
