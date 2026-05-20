@@ -177,6 +177,7 @@ async function uploadArtifacts(
       {
         access: 'public',
         contentType: 'text/html',
+        token: process.env.VERCEL_BLOB_RW_TOKEN,
       }
     );
     reportUrl = blob.url;
@@ -196,6 +197,7 @@ async function uploadArtifacts(
             contentType: entry.name.endsWith('.zip')
               ? 'application/zip'
               : 'image/png',
+            token: process.env.VERCEL_BLOB_RW_TOKEN,
           })
             .then((blob) => {
               screenshotUrls[full] = blob.url;
@@ -216,12 +218,12 @@ async function pruneOldBlobs() {
   if (!process.env.VERCEL_BLOB_RW_TOKEN) return;
   try {
     const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
-    const { blobs } = await list({ prefix: 'e2e/' });
+    const { blobs } = await list({ prefix: 'e2e/', token: process.env.VERCEL_BLOB_RW_TOKEN });
     const old = blobs.filter(
       (b) => new Date(b.uploadedAt).getTime() < thirtyDaysAgo
     );
     if (old.length > 0) {
-      await del(old.map((b) => b.url));
+      await del(old.map((b) => b.url), { token: process.env.VERCEL_BLOB_RW_TOKEN });
       console.log(`Pruned ${old.length} blobs older than 30 days.`);
     }
   } catch (err) {
