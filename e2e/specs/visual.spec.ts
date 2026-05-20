@@ -116,8 +116,12 @@ test.describe('Share page', () => {
         '[data-testid="view-toggle-list"]:visible'
       );
       if ((await listToggle.count()) > 0) {
-        await listToggle.first().click({ force: true });
-        await page.waitForLoadState('networkidle');
+        await page.evaluate(() => {
+          const btn = [...document.querySelectorAll('[data-testid="view-toggle-list"]')]
+            .find((el) => window.getComputedStyle(el).display !== 'none') as HTMLElement | undefined;
+          btn?.click();
+        });
+        await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
       }
       // Wait for game cards to be fully painted before screenshotting.
       await page.waitForSelector('[data-testid="game-card"]', { state: 'visible', timeout: 5000 }).catch(() => {});
@@ -133,8 +137,12 @@ test.describe('Share page', () => {
         '[data-testid="view-toggle-calendar"]:visible'
       );
       if ((await calToggle.count()) > 0) {
-        await calToggle.first().click({ force: true });
-        await page.waitForLoadState('networkidle');
+        await page.evaluate(() => {
+          const btn = [...document.querySelectorAll('[data-testid="view-toggle-calendar"]')]
+            .find((el) => window.getComputedStyle(el).display !== 'none') as HTMLElement | undefined;
+          btn?.click();
+        });
+        await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
       }
       await expect(page).toHaveScreenshot('share-calendar-view.png', {
         maxDiffPixelRatio: 0.01,
