@@ -62,6 +62,8 @@ describe('Email templates', () => {
       holderName: 'Mark Thompson',
       team: 'Colorado Rockies',
       opponent: 'Los Angeles Dodgers',
+      gameDayStr: 'Friday, July 10',
+      timeVenue: '6:40 PM · Coors Field',
       gameDate: 'Friday, July 10, 2026',
       section: '143',
       row: '10',
