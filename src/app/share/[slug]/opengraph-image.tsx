@@ -6,6 +6,8 @@ export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
 export default function Image() {
+  const baseUrl = process.env.NEXTAUTH_URL || 'https://www.getbenchbuddy.com';
+
   return new ImageResponse(
     <div
       style={{
@@ -13,34 +15,17 @@ export default function Image() {
         width: '100%',
         height: '100%',
         display: 'flex',
-        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: '16px',
       }}
     >
-      <div
-        style={{
-          fontSize: 80,
-          fontWeight: 700,
-          color: '#FFFFFF',
-          letterSpacing: '-3px',
-          lineHeight: 1,
-        }}
-      >
-        BenchBuddy
-      </div>
-      <div
-        style={{
-          width: '80px',
-          height: '4px',
-          background: '#E5AB00',
-          borderRadius: '2px',
-        }}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={`${baseUrl}/benchbuddy-lockup-white.svg`}
+        width={400}
+        height={68}
+        alt="BenchBuddy"
       />
-      <div style={{ fontSize: 28, color: '#8E8985' }}>
-        Your seats. Your friends. Your price.
-      </div>
     </div>,
     { ...size }
   );
