@@ -37,10 +37,8 @@ export default defineConfig({
       use: { ...devices['iPhone 13'] },
       grep: /@mobile/,
     },
-    {
-      name: 'chromium-pixel-5',
-      use: { ...devices['Pixel 5'] },
-      grep: /@mobile/,
-    },
+    // chromium-pixel-5 removed: snapshot path has no {projectName}, so two mobile
+    // projects would write to the same baseline files. Add Pixel 5 back once
+    // snapshotPathTemplate includes {projectName}.
   ],
 });
