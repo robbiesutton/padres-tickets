@@ -41,7 +41,7 @@ function endOfDay(d: Date): Date {
 
 export async function POST(request: NextRequest) {
   const cronSecret = request.headers.get('x-cron-secret');
-  if (process.env.CRON_SECRET && cronSecret !== process.env.CRON_SECRET) {
+  if (!process.env.CRON_SECRET || cronSecret !== process.env.CRON_SECRET) {
     return jsonError('Unauthorized', 401);
   }
 

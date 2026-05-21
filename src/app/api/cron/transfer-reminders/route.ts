@@ -12,7 +12,7 @@ const BASE_URL = process.env.NEXTAUTH_URL || 'http://localhost:3000';
 export async function POST(request: NextRequest) {
   // Simple auth for cron — check for a secret header
   const cronSecret = request.headers.get('x-cron-secret');
-  if (process.env.CRON_SECRET && cronSecret !== process.env.CRON_SECRET) {
+  if (!process.env.CRON_SECRET || cronSecret !== process.env.CRON_SECRET) {
     return jsonError('Unauthorized', 401);
   }
 

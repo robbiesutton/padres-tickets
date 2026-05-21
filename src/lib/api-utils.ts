@@ -16,7 +16,7 @@ export async function getSession() {
 
 export async function requireAuth() {
   // In design mode, return a mock user so API routes work without a real session
-  if (process.env.NEXT_PUBLIC_DESIGN_MODE === 'true') {
+  if (process.env.NODE_ENV !== 'production' && process.env.NEXT_PUBLIC_DESIGN_MODE === 'true') {
     return {
       id: 'design-user-holder-001',
       name: 'Robbie Sutton',

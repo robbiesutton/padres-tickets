@@ -25,7 +25,7 @@ function isLinkPreviewBot(ua: string): boolean {
 
 export async function middleware(request: NextRequest) {
   // In design mode, skip auth entirely
-  if (process.env.NEXT_PUBLIC_DESIGN_MODE === 'true') {
+  if (process.env.NODE_ENV !== 'production' && process.env.NEXT_PUBLIC_DESIGN_MODE === 'true') {
     return NextResponse.next();
   }
 
