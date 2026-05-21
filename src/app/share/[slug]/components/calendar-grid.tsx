@@ -2,6 +2,7 @@
 
 import type { CalendarMonth, CalendarCell } from '../types';
 import { DAY_LABELS, getOpponentAbbr, getOpponentColor, isGameClaimed } from '../utils';
+import { CheckBadge } from './check-badge';
 
 interface Props {
   month: CalendarMonth;
@@ -12,20 +13,6 @@ interface Props {
   currentUserId: string | null;
   onSelectGame: (id: string, rect: DOMRect) => void;
   className?: string;
-}
-
-function CheckSvg({ color }: { color: string }) {
-  return (
-    <svg viewBox="0 0 16 16" width={24} height={24} fill="none">
-      <path
-        d="M3.5 8.5L6.5 11.5L12.5 4.5"
-        stroke={color}
-        strokeWidth="2.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
 }
 
 export function CalendarGrid({
@@ -114,25 +101,21 @@ export function CalendarGrid({
               onClick={handleClick}
             >
               {isReserved ? (
-                <>
-                  {/* Reserved default: green filled circle with white check */}
-                  <div className="w-[34px] h-[34px] md:w-[42px] md:h-[42px] rounded-full bg-[#0f6f57] flex items-center justify-center group-hover:hidden">
-                    <CheckSvg color="#fff" />
-                  </div>
-                  {/* Reserved hover: green border ring with green check */}
+                <div className="relative w-[34px] h-[34px] md:w-[42px] md:h-[42px]">
                   <div
-                    className="w-[34px] h-[34px] md:w-[42px] md:h-[42px] rounded-full hidden group-hover:flex items-center justify-center"
-                    style={{ border: '2px solid #0f6f57' }}
+                    className="absolute inset-0 rounded-full flex items-center justify-center text-[11px] md:text-[13px] font-bold text-white opacity-[0.16]"
+                    style={{ backgroundColor: color }}
                   >
-                    <CheckSvg color="#0f6f57" />
+                    {abbr}
                   </div>
-                </>
+                  <CheckBadge variant="pill" />
+                </div>
               ) : (
                 <>
                   {/* Available default: filled circle, or outlined ring when selected */}
                   <div
                     className={`w-[34px] h-[34px] md:w-[42px] md:h-[42px] rounded-full flex items-center justify-center text-[11px] md:text-[13px] font-bold group-hover:hidden ${
-                      isTaken || dimmed ? 'opacity-[0.12]' : ''
+                      isTaken || dimmed ? 'opacity-[0.16]' : ''
                     } ${isSelected ? 'text-[#1a1a1a]' : 'text-white'}`}
                     style={isSelected
                       ? { border: `2px solid ${color}`, backgroundColor: 'transparent' }
@@ -144,7 +127,7 @@ export function CalendarGrid({
                   {/* Available hover: border ring with abbreviation */}
                   <div
                     className={`w-[34px] h-[34px] md:w-[42px] md:h-[42px] rounded-full hidden group-hover:flex items-center justify-center text-[11px] md:text-[13px] font-bold ${
-                      isTaken || dimmed ? 'opacity-[0.12]' : ''
+                      isTaken || dimmed ? 'opacity-[0.16]' : ''
                     }`}
                     style={{
                       border: `2px solid ${color}`,
