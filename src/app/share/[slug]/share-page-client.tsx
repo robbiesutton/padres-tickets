@@ -128,7 +128,7 @@ function MobileSeatInfoPill({ pkg, activeTab }: { pkg: PackageInfo; activeTab: A
                   <>
                     {/* Seat photo (only if uploaded) */}
                     {hasPhoto && (
-                      <div className="w-full h-[240px] relative overflow-hidden rounded-xl">
+                      <div className="w-full aspect-[3/2] relative overflow-hidden rounded-xl">
                         <Image
                           src={pkg.seatPhotoUrl as string}
                           alt="View from seat"

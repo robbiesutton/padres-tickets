@@ -185,6 +185,15 @@ function SeatInfoPillDropdown({ pkg, isDark, navColor, teamAccent, holderFirstNa
 
       <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
 
+      {/* Backdrop: dims content behind the dropdown when open */}
+      {pillOpen && createPortal(
+        <div
+          className="hidden md:block fixed inset-0 bg-black/20 z-30"
+          onClick={() => setPillOpen(false)}
+        />,
+        document.body
+      )}
+
       {/* Pill dropdown panel */}
       <div
         ref={pillPanelRef}
@@ -195,7 +204,7 @@ function SeatInfoPillDropdown({ pkg, isDark, navColor, teamAccent, holderFirstNa
         <div className="p-[22px]">
           {/* Drawer header (State 3 + State 4) */}
           {showHeader && (
-            <div className={`flex items-center mb-[18px] ${editing ? 'justify-between' : 'justify-end'}`}>
+            <div className={`flex items-center mb-[2px] ${editing ? 'justify-between' : 'justify-end'}`}>
               {editing && (
                 <div className="text-[17px] font-bold text-[#1B1716]">{headerTitle}</div>
               )}
@@ -237,7 +246,7 @@ function SeatInfoPillDropdown({ pkg, isDark, navColor, teamAccent, holderFirstNa
                   </label>
                   <div
                     onClick={() => fileInputRef.current?.click()}
-                    className="relative flex-1 min-h-[340px] h-[340px] rounded-xl overflow-hidden cursor-pointer group"
+                    className="relative w-full aspect-[3/2] rounded-xl overflow-hidden cursor-pointer group"
                   >
                     {seatPhotoUrl ? (
                       <>
@@ -394,7 +403,7 @@ function SeatInfoPillDropdown({ pkg, isDark, navColor, teamAccent, holderFirstNa
               {/* Left column — photo at fixed 400px */}
               <div className="flex flex-col">
                 {pkg.seatPhotoUrl ? (
-                  <div className="relative h-[340px] rounded-xl overflow-hidden">
+                  <div className="relative w-full aspect-[3/2] rounded-xl overflow-hidden">
                     <Image src={pkg.seatPhotoUrl} alt="View from seat" fill className="object-cover" sizes="500px" unoptimized />
                     <div className="absolute bottom-3 left-3 bg-black/65 text-white text-xs font-semibold px-2.5 py-1 rounded-md">
                       View from Section {pkg.section}
@@ -403,7 +412,7 @@ function SeatInfoPillDropdown({ pkg, isDark, navColor, teamAccent, holderFirstNa
                 ) : (
                   <div
                     onClick={() => fileInputRef.current?.click()}
-                    className="h-[340px] bg-[#F5F4F2] border-[1.5px] border-dashed border-[#D4CFC9] rounded-xl flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-[#8e8985] transition-colors"
+                    className="w-full aspect-[3/2] bg-[#F5F4F2] border-[1.5px] border-dashed border-[#D4CFC9] rounded-xl flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-[#8e8985] transition-colors"
                   >
                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#8e8985" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-60">
                       <rect x="3" y="3" width="18" height="18" rx="2" />
@@ -565,7 +574,7 @@ function MobileSeatInfoDrawer({ pkg, navColor, teamAccent, onPkgUpdate }: {
               <div className="px-4 pt-5 pb-6 flex flex-col gap-4">
                 {/* Photo */}
                 <div
-                  className="w-full h-[180px] relative overflow-hidden rounded-lg cursor-pointer"
+                  className="w-full aspect-[3/2] relative overflow-hidden rounded-lg cursor-pointer"
                   onClick={() => fileInputRef.current?.click()}
                 >
                   {pkg.seatPhotoUrl ? (
@@ -700,6 +709,16 @@ export default function DashboardLayout({
   const [packages, setPackages] = useState<PackageForNav[]>([]);
   const [selectedPkgId, setSelectedPkgId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  // Stashed team from last viewed surface (set by avatar tap on /share or /dashboard).
+  // Used to color the header on first paint before /api/me/packages resolves, so the
+  // user doesn't see a flash of brand fallback colors during the loading window.
+  const [lastTeam, setLastTeam] = useState<string>('');
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('bb-last-team');
+      if (stored) setLastTeam(stored);
+    } catch {}
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -736,8 +755,14 @@ export default function DashboardLayout({
   }, [pathname, isDashboard]);
 
   const selectedPkg = packages.find((p) => p.id === selectedPkgId) || null;
+  const teamForColors = selectedPkg?.team || lastTeam;
   const { primary: navColor, accent: teamAccent, badgeTextColor: badgeText } =
-    getTeamColors(selectedPkg?.team ?? '');
+    getTeamColors(teamForColors);
+  useEffect(() => {
+    if (selectedPkg?.team) {
+      try { localStorage.setItem('bb-last-team', selectedPkg.team); } catch {}
+    }
+  }, [selectedPkg?.team]);
 
   function handlePkgUpdate(fields: Partial<PackageForNav>) {
     if (!selectedPkgId) return;

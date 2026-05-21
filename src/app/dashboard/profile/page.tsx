@@ -371,7 +371,7 @@ export default function ProfilePage() {
           <div>
             <label className="block text-sm font-medium text-[#2c2a2b] mb-2">Seat Photo</label>
             <div
-              className="relative w-full h-[120px] md:h-[200px] rounded-lg border border-dashed border-[#eceae5] overflow-hidden cursor-pointer hover:border-[#8e8985] transition-colors group"
+              className="relative w-full aspect-[3/2] rounded-lg border border-dashed border-[#eceae5] overflow-hidden cursor-pointer hover:border-[#8e8985] transition-colors group"
               onClick={() => fileInputRef.current?.click()}
             >
               {seatForm.seatPhotoUrl ? (

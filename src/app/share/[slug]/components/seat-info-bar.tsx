@@ -87,7 +87,7 @@ export function SeatInfoBar({ pkg }: Props) {
       >
         <div className="p-4 flex gap-4">
           {/* Image */}
-          <div className="flex-1 relative overflow-hidden rounded-lg self-stretch min-h-[200px]">
+          <div className="flex-1 relative overflow-hidden rounded-lg aspect-[3/2]">
             {pkg.seatPhotoUrl ? (
               <Image
                 src={pkg.seatPhotoUrl}
@@ -150,7 +150,7 @@ export function SeatInfoBar({ pkg }: Props) {
               </button>
               <div className="px-4 pt-5 pb-6 flex flex-col gap-4">
                 {/* Seat photo */}
-                <div className="w-full h-[180px] relative overflow-hidden rounded-lg">
+                <div className="w-full aspect-[3/2] relative overflow-hidden rounded-lg">
                   {pkg.seatPhotoUrl ? (
                     <Image
                       src={pkg.seatPhotoUrl}
