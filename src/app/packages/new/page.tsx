@@ -16,6 +16,7 @@ import {
   InlineNote,
   FormLabel,
   FormSelect,
+  FormInput,
 } from '@/components/setup-layout';
 import { getOpponentColor, getOpponentAbbr } from '@/lib/game-utils';
 import { getTeamColors } from '@/lib/team-colors';
@@ -457,9 +458,6 @@ export default function NewPackagePage() {
   const [sections, setSections] = useState<StadiumSection[]>(DESIGN ? MOCK_SECTIONS : []);
   const [sectionsLoading, setSectionsLoading] = useState(false);
   const [selectedSection, setSelectedSection] = useState<StadiumSection | null>(DESIGN ? MOCK_SECTIONS[1] : null);
-  const [rows, setRows] = useState<string[]>(DESIGN ? ['1','2','3','4','5','6','7','8','9','10'] : []);
-  const [rowsLoading, setRowsLoading] = useState(false);
-  const [sectionTags, setSectionTags] = useState<string[]>(DESIGN ? ['Shaded seats', 'Craft beer'] : []);
   const [row, setRow] = useState(DESIGN ? '5' : '');
   const [selectedSeats, setSelectedSeats] = useState<Set<number>>(DESIGN ? new Set([1, 2]) : new Set());
   const [seatPhotoUrl, setSeatPhotoUrl] = useState<string | null>(null);
@@ -510,7 +508,7 @@ export default function NewPackagePage() {
   useEffect(() => {
     if (DESIGN) return;
     if (!selectedTeam) return;
-    setSectionsLoading(true); setSections([]); setSelectedSection(null); setRows([]); setRow(''); setSelectedSeats(new Set());
+    setSectionsLoading(true); setSections([]); setSelectedSection(null); setRow(''); setSelectedSeats(new Set());
     fetch(`/api/stadiums/${selectedTeam.abbreviation}/sections`).then((r) => (r.ok ? r.json() : null)).then((data) => { if (data) setSections(data.sections); }).finally(() => setSectionsLoading(false));
     fetch(`/api/stadiums/${selectedTeam.abbreviation}/packages`).then((r) => (r.ok ? r.json() : null)).then((data) => { if (data) setPackages(data.packages); });
   }, [selectedTeam]);
@@ -518,8 +516,7 @@ export default function NewPackagePage() {
   useEffect(() => {
     if (DESIGN) return;
     if (!selectedTeam || !selectedSection) return;
-    setRowsLoading(true); setRow('');
-    fetch(`/api/stadiums/${selectedTeam.abbreviation}/sections/${selectedSection.id}/rows`).then((r) => (r.ok ? r.json() : null)).then((data) => { if (data) { setRows(data.rows); setSectionTags(data.tags || []); } }).finally(() => setRowsLoading(false));
+    setRow('');
   }, [selectedTeam, selectedSection]);
 
   const loadSchedule = useCallback(async () => {
@@ -938,9 +935,13 @@ export default function NewPackagePage() {
             </div>
             <div>
               <FormLabel>Row</FormLabel>
-              <FormSelect value={row} onChange={setRow} placeholder="Select row...">
-                {rows.map((r) => <option key={r} value={r}>Row {r}</option>)}
-              </FormSelect>
+              <FormInput
+                value={row}
+                onChange={setRow}
+                placeholder="e.g. 5"
+                inputMode="numeric"
+                sanitize={(v) => v.replace(/[^0-9]/g, '')}
+              />
             </div>
           </div>
 
