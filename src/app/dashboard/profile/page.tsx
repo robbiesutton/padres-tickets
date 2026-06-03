@@ -461,7 +461,7 @@ export default function ProfilePage() {
       const data = await res.json();
       if (data.url) {
         ph?.capture('subscription_stripe_redirect', { action: 'checkout' });
-        window.location.href = data.url;
+        window.location.assign(data.url);
       } else {
         setMessage({ type: 'error', text: data.error || 'Failed' });
         setSubLoading(false);
@@ -522,7 +522,7 @@ export default function ProfilePage() {
       const data = await res.json();
       if (data.url) {
         ph?.capture('subscription_stripe_redirect', { action: 'portal' });
-        window.location.href = data.url;
+        window.location.assign(data.url);
       } else if (res.ok) {
         setProfile((prev) =>
           prev
@@ -557,7 +557,7 @@ export default function ProfilePage() {
       const data = await res.json();
       if (data.url) {
         ph?.capture('subscription_stripe_redirect', { action: 'portal' });
-        window.location.href = data.url;
+        window.location.assign(data.url);
       } else {
         setMessage({ type: 'error', text: data.error || 'Failed' });
         setSubLoading(false);
