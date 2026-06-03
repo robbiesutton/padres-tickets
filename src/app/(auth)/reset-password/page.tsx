@@ -29,7 +29,9 @@ function ResetPasswordForm() {
           </p>
           <a
             href="/forgot-password"
-            onClick={() => ph?.capture('reset_password_request_new_link_clicked')}
+            onClick={() =>
+              ph?.capture('reset_password_request_new_link_clicked')
+            }
             className="text-sm text-[#2c2a2b] font-medium underline"
           >
             Request new link
@@ -61,7 +63,8 @@ function ResetPasswordForm() {
         ph?.capture('reset_password_succeeded');
       } else {
         const data = await res.json();
-        const errMsg = data.error || 'Failed to reset password. The link may have expired.';
+        const errMsg =
+          data.error || 'Failed to reset password. The link may have expired.';
         setError(errMsg);
         ph?.capture('reset_password_failed', { error: errMsg });
       }
@@ -142,7 +145,9 @@ function ResetPasswordForm() {
                 onClick={() => {
                   const next = !showPassword;
                   setShowPassword(next);
-                  ph?.capture('reset_password_visibility_toggled', { visible: next });
+                  ph?.capture('reset_password_visibility_toggled', {
+                    visible: next,
+                  });
                 }}
                 className="absolute right-2 top-1/2 -translate-y-1/2 text-[#8e8985] hover:text-[#2c2a2b] text-xs px-1"
               >

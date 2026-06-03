@@ -84,7 +84,9 @@ export default function ForgotPasswordPage() {
             <p className="text-xs text-[#8e8985]">
               <a
                 href="/login"
-                onClick={() => ph?.capture('forgot_password_back_to_login_clicked')}
+                onClick={() =>
+                  ph?.capture('forgot_password_back_to_login_clicked')
+                }
                 className="underline"
               >
                 Back to sign in

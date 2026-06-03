@@ -216,7 +216,13 @@ export async function POST(request: NextRequest) {
 
   trackServerEvent(
     AnalyticsEvents.PACKAGE_SETUP_COMPLETED,
-    { packageId: pkg.id, team: team.name, season, gamesCreated, shareLink: slug },
+    {
+      packageId: pkg.id,
+      team: team.name,
+      season,
+      gamesCreated,
+      shareLink: slug,
+    },
     user.id
   );
 

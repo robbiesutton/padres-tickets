@@ -410,7 +410,10 @@ export default function ProfilePage() {
         type: 'error',
         text: data.error || 'Failed to save changes',
       });
-      ph?.capture('seats_save_failed', { error: data.error, packageId: selectedPkgId });
+      ph?.capture('seats_save_failed', {
+        error: data.error,
+        packageId: selectedPkgId,
+      });
     }
   }
 
@@ -550,7 +553,9 @@ export default function ProfilePage() {
   }
 
   async function handleManageBilling() {
-    ph?.capture('subscription_manage_billing_clicked', { status: profile?.subscription?.status });
+    ph?.capture('subscription_manage_billing_clicked', {
+      status: profile?.subscription?.status,
+    });
     setSubLoading(true);
     try {
       const res = await fetch('/api/stripe/portal', { method: 'POST' });
@@ -810,7 +815,9 @@ export default function ProfilePage() {
                 className="mt-2 text-sm text-[#8e8985] hover:text-[#DC2626] transition-colors bg-transparent border-none cursor-pointer"
                 onClick={() => {
                   setSeatForm((prev) => ({ ...prev, seatPhotoUrl: null }));
-                  ph?.capture('seats_photo_removed', { packageId: selectedPkgId });
+                  ph?.capture('seats_photo_removed', {
+                    packageId: selectedPkgId,
+                  });
                 }}
               >
                 Remove photo
@@ -1033,11 +1040,13 @@ export default function ProfilePage() {
               <a
                 key={pkg.id}
                 href={`/share/${pkg.shareLinkSlug}`}
-                onClick={() => ph?.capture('shared_package_clicked', {
-                  slug: pkg.shareLinkSlug,
-                  team: pkg.team,
-                  holderName: pkg.holderName,
-                })}
+                onClick={() =>
+                  ph?.capture('shared_package_clicked', {
+                    slug: pkg.shareLinkSlug,
+                    team: pkg.team,
+                    holderName: pkg.holderName,
+                  })
+                }
                 className="flex items-center gap-3 px-3 py-3 rounded-lg border border-[#eceae5] bg-white hover:border-[#2c2a2b] transition-colors no-underline"
               >
                 <div

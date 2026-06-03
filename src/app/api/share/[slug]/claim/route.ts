@@ -50,11 +50,7 @@ export async function POST(
     return jsonError('Game not found in this package', 404);
   }
 
-  trackServerEvent(
-    AnalyticsEvents.CLAIM_STARTED,
-    { slug, gameId },
-    user.id
-  );
+  trackServerEvent(AnalyticsEvents.CLAIM_STARTED, { slug, gameId }, user.id);
 
   const result = await createClaim(gameId, user.id);
 
@@ -62,11 +58,7 @@ export async function POST(
     return jsonError(result.error!, 409);
   }
 
-  trackServerEvent(
-    AnalyticsEvents.CLAIM_COMPLETED,
-    { slug, gameId },
-    user.id
-  );
+  trackServerEvent(AnalyticsEvents.CLAIM_COMPLETED, { slug, gameId }, user.id);
 
   return jsonSuccess({ claim: result.claim }, 201);
 }

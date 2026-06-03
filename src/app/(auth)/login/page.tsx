@@ -128,7 +128,9 @@ function LoginForm() {
                 onClick={() => {
                   const next = !showPassword;
                   setShowPassword(next);
-                  ph?.capture('login_password_visibility_toggled', { visible: next });
+                  ph?.capture('login_password_visibility_toggled', {
+                    visible: next,
+                  });
                 }}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-[13px] font-medium text-[#8e8985] hover:text-[#2c2a2b] bg-transparent border-none cursor-pointer"
               >

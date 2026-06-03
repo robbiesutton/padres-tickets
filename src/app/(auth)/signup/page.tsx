@@ -380,7 +380,9 @@ export default function SignupPage() {
                   checked={agreedToTerms}
                   onChange={(e) => {
                     setAgreedToTerms(e.target.checked);
-                    ph?.capture('signup_terms_toggled', { checked: e.target.checked });
+                    ph?.capture('signup_terms_toggled', {
+                      checked: e.target.checked,
+                    });
                     if (touched.terms) {
                       setErrors((prev) => ({
                         ...prev,
@@ -398,7 +400,11 @@ export default function SignupPage() {
                   <a
                     href="/terms"
                     target="_blank"
-                    onClick={() => ph?.capture('signup_legal_link_clicked', { link: 'terms' })}
+                    onClick={() =>
+                      ph?.capture('signup_legal_link_clicked', {
+                        link: 'terms',
+                      })
+                    }
                     className="text-[#8e8985] underline"
                   >
                     Terms of Service
@@ -407,7 +413,11 @@ export default function SignupPage() {
                   <a
                     href="/privacy"
                     target="_blank"
-                    onClick={() => ph?.capture('signup_legal_link_clicked', { link: 'privacy' })}
+                    onClick={() =>
+                      ph?.capture('signup_legal_link_clicked', {
+                        link: 'privacy',
+                      })
+                    }
                     className="text-[#8e8985] underline"
                   >
                     Privacy Policy
@@ -422,7 +432,9 @@ export default function SignupPage() {
                 checked={marketingOptIn}
                 onChange={(e) => {
                   setMarketingOptIn(e.target.checked);
-                  ph?.capture('signup_marketing_toggled', { checked: e.target.checked });
+                  ph?.capture('signup_marketing_toggled', {
+                    checked: e.target.checked,
+                  });
                 }}
                 className="mt-0.5 w-5 h-5 accent-[#2c2a2b] shrink-0"
               />
