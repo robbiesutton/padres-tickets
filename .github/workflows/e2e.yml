@@ -42,6 +42,8 @@ jobs:
 
       # Vercel auto-deploys every push. Poll Vercel's own API (not GitHub's)
       # to find the existing deployment for this SHA and wait until READY.
+      # Falls back to branch-name lookup when Vercel doesn't tag the deployment
+      # with meta-githubCommitSha (happens when the GitHub integration omits it).
       - name: Get Vercel preview URL
         id: deploy
         env:
@@ -51,8 +53,9 @@ jobs:
           # pull_request events have a synthetic merge SHA in github.sha —
           # use the actual branch HEAD SHA that Vercel deploys from instead
           SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          BRANCH: ${{ github.head_ref || github.ref_name }}
         run: |
-          echo "Polling Vercel API for deployment of SHA $SHA..."
+          echo "Polling Vercel API for deployment of SHA $SHA (branch: $BRANCH)..."
           for i in $(seq 1 60); do
             RESPONSE=$(curl -sf \
               -H "Authorization: Bearer $VERCEL_TOKEN" \
@@ -61,7 +64,17 @@ jobs:
             STATE=$(echo "$RESPONSE" | jq -r '.deployments[0].readyState // empty')
             URL=$(echo "$RESPONSE" | jq -r '.deployments[0].url // empty')
 
-            echo "Attempt $i: state=${STATE:-not found yet}"
+            # SHA lookup found nothing — fall back to branch name
+            if [ -z "$STATE" ] && [ -n "$BRANCH" ]; then
+              RESPONSE=$(curl -sf \
+                -H "Authorization: Bearer $VERCEL_TOKEN" \
+                "https://api.vercel.com/v6/deployments?teamId=$VERCEL_TEAM_ID&projectId=$VERCEL_PROJECT_ID&meta-githubCommitRef=$BRANCH&limit=1")
+              STATE=$(echo "$RESPONSE" | jq -r '.deployments[0].readyState // empty')
+              URL=$(echo "$RESPONSE" | jq -r '.deployments[0].url // empty')
+              echo "Attempt $i: state=${STATE:-not found yet} (via branch fallback)"
+            else
+              echo "Attempt $i: state=${STATE:-not found yet}"
+            fi
 
             if [ "$STATE" = "READY" ] && [ -n "$URL" ]; then
               echo "url=https://$URL" >> "$GITHUB_OUTPUT"
