@@ -1,18 +1,21 @@
 'use client';
 
 import { useState } from 'react';
+import { usePostHog } from 'posthog-js/react';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState('');
+  const ph = usePostHog();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!email) return;
     setError('');
     setLoading(true);
+    ph?.capture('forgot_password_submitted');
 
     try {
       // Send a magic link so they can sign in without their password
@@ -24,12 +27,15 @@ export default function ForgotPasswordPage() {
 
       if (res.ok) {
         setSent(true);
+        ph?.capture('forgot_password_succeeded');
       } else {
         // Always show success to prevent email enumeration
         setSent(true);
+        ph?.capture('forgot_password_succeeded');
       }
     } catch {
       setError('Network error. Please try again.');
+      ph?.capture('forgot_password_failed', { error: 'network_error' });
     } finally {
       setLoading(false);
     }
@@ -69,13 +75,18 @@ export default function ForgotPasswordPage() {
               onClick={() => {
                 setSent(false);
                 setEmail('');
+                ph?.capture('forgot_password_different_email_clicked');
               }}
               className="text-sm text-[#2c2a2b] font-medium underline"
             >
               Use a different email
             </button>
             <p className="text-xs text-[#8e8985]">
-              <a href="/login" className="underline">
+              <a
+                href="/login"
+                onClick={() => ph?.capture('forgot_password_back_to_login_clicked')}
+                className="underline"
+              >
                 Back to sign in
               </a>
             </p>
@@ -112,6 +123,7 @@ export default function ForgotPasswordPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              onFocus={() => ph?.capture('forgot_password_email_focused')}
               className="mt-1 block w-full px-2.5 py-2 rounded-[7px] border border-[#eceae5] text-sm outline-none focus:border-[#1B2A4A]"
               autoFocus
             />

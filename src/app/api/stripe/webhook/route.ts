@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { prisma } from '@/lib/db';
+import { trackServerEvent, AnalyticsEvents } from '@/lib/analytics';
 import type Stripe from 'stripe';
 
 export async function POST(request: NextRequest) {
@@ -70,6 +71,11 @@ export async function POST(request: NextRequest) {
           cancelAtPeriodEnd: subscription.cancel_at_period_end,
         },
       });
+      trackServerEvent(
+        AnalyticsEvents.SUBSCRIPTION_STARTED,
+        { status: subscription.status, billingCycle: 'ANNUAL' },
+        userId
+      );
       break;
     }
 
@@ -110,6 +116,10 @@ export async function POST(request: NextRequest) {
 
     case 'customer.subscription.deleted': {
       const subscription = event.data.object as Stripe.Subscription;
+      const deleted = await prisma.subscription.findUnique({
+        where: { stripeSubscriptionId: subscription.id },
+        select: { userId: true },
+      });
       await prisma.subscription.updateMany({
         where: { stripeSubscriptionId: subscription.id },
         data: {
@@ -119,6 +129,13 @@ export async function POST(request: NextRequest) {
           stripePriceId: null,
         },
       });
+      if (deleted?.userId) {
+        trackServerEvent(
+          AnalyticsEvents.SUBSCRIPTION_CANCELLED,
+          {},
+          deleted.userId
+        );
+      }
       break;
     }
 

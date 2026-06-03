@@ -9,6 +9,7 @@ import {
   getBestSeatViewUrl,
 } from '@/lib/services/seat-views';
 import { DESIGN_MODE, mockPackage } from '@/lib/mock-data';
+import { trackServerEvent, AnalyticsEvents } from '@/lib/analytics';
 
 export async function GET() {
   if (DESIGN_MODE) {
@@ -212,6 +213,12 @@ export async function POST(request: NextRequest) {
       console.error('Failed to auto-load schedule:', error);
     }
   }
+
+  trackServerEvent(
+    AnalyticsEvents.PACKAGE_SETUP_COMPLETED,
+    { packageId: pkg.id, team: team.name, season, gamesCreated, shareLink: slug },
+    user.id
+  );
 
   return jsonSuccess(
     {

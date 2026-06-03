@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePostHog } from 'posthog-js/react';
 import { useDashboardContext } from '../layout';
 import { getTeamColors, isColorDark } from '@/lib/team-colors';
 import { getOpponentAbbr } from '@/lib/game-utils';
@@ -367,6 +368,7 @@ export default function ProfilePage() {
     e.preventDefault();
     setSaving(true);
     setMessage(null);
+    ph?.capture('profile_save_submitted');
     const res = await fetch('/api/users/me', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -377,9 +379,11 @@ export default function ProfilePage() {
       const data = await res.json();
       setProfile(data);
       setMessage({ type: 'success', text: 'Profile saved!' });
+      ph?.capture('profile_save_succeeded');
     } else {
       const data = await res.json();
       setMessage({ type: 'error', text: data.error || 'Failed to save' });
+      ph?.capture('profile_save_failed', { error: data.error });
     }
   }
 
@@ -387,6 +391,7 @@ export default function ProfilePage() {
     if (!selectedPkgId) return;
     setSavingSeat(true);
     setMessage(null);
+    ph?.capture('seats_save_submitted', { packageId: selectedPkgId });
     const res = await fetch(`/api/packages/${selectedPkgId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -396,19 +401,23 @@ export default function ProfilePage() {
       }),
     });
     setSavingSeat(false);
-    if (res.ok) setMessage({ type: 'success', text: 'Changes saved!' });
-    else {
+    if (res.ok) {
+      setMessage({ type: 'success', text: 'Changes saved!' });
+      ph?.capture('seats_save_succeeded', { packageId: selectedPkgId });
+    } else {
       const data = await res.json();
       setMessage({
         type: 'error',
         text: data.error || 'Failed to save changes',
       });
+      ph?.capture('seats_save_failed', { error: data.error, packageId: selectedPkgId });
     }
   }
 
   async function handleSavePaymentInfo() {
     setSavingPayment(true);
     setMessage(null);
+    ph?.capture('payment_info_save_submitted');
     const res = await fetch('/api/users/me', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -419,12 +428,14 @@ export default function ProfilePage() {
       const data = await res.json();
       setProfile(data);
       setMessage({ type: 'success', text: 'Changes saved!' });
+      ph?.capture('payment_info_save_succeeded');
     } else {
       const data = await res.json();
       setMessage({
         type: 'error',
         text: data.error || 'Failed to save changes',
       });
+      ph?.capture('payment_info_save_failed', { error: data.error });
     }
   }
 
@@ -437,17 +448,21 @@ export default function ProfilePage() {
         ...prev,
         seatPhotoUrl: reader.result as string,
       }));
+      ph?.capture('seats_photo_uploaded', { packageId: selectedPkgId });
     };
     reader.readAsDataURL(file);
   }
 
   async function handleSubscribe() {
+    ph?.capture('subscription_subscribe_clicked');
     setSubLoading(true);
     try {
       const res = await fetch('/api/stripe/checkout', { method: 'POST' });
       const data = await res.json();
-      if (data.url) window.location.href = data.url;
-      else {
+      if (data.url) {
+        ph?.capture('subscription_stripe_redirect', { action: 'checkout' });
+        window.location.href = data.url;
+      } else {
         setMessage({ type: 'error', text: data.error || 'Failed' });
         setSubLoading(false);
       }
@@ -458,12 +473,16 @@ export default function ProfilePage() {
   }
 
   async function handleCancel() {
+    ph?.capture('subscription_cancel_clicked');
     if (
       !confirm(
         "Are you sure? You'll keep access until the end of your billing period."
       )
-    )
+    ) {
+      ph?.capture('subscription_cancel_dismissed');
       return;
+    }
+    ph?.capture('subscription_cancel_confirmed');
     setSubLoading(true);
     try {
       const res = await fetch('/api/stripe/cancel', { method: 'POST' });
@@ -482,23 +501,29 @@ export default function ProfilePage() {
           type: 'success',
           text: 'Subscription will cancel at end of period',
         });
+        ph?.capture('subscription_cancel_succeeded');
       } else {
         const data = await res.json();
         setMessage({ type: 'error', text: data.error || 'Failed' });
+        ph?.capture('subscription_cancel_failed', { error: data.error });
       }
     } catch {
       setMessage({ type: 'error', text: 'Something went wrong' });
+      ph?.capture('subscription_cancel_failed', { error: 'network_error' });
     }
     setSubLoading(false);
   }
 
   async function handleResubscribe() {
+    ph?.capture('subscription_reactivate_clicked');
     setSubLoading(true);
     try {
       const res = await fetch('/api/stripe/resubscribe', { method: 'POST' });
       const data = await res.json();
-      if (data.url) window.location.href = data.url;
-      else if (res.ok) {
+      if (data.url) {
+        ph?.capture('subscription_stripe_redirect', { action: 'portal' });
+        window.location.href = data.url;
+      } else if (res.ok) {
         setProfile((prev) =>
           prev
             ? {
@@ -510,24 +535,30 @@ export default function ProfilePage() {
             : null
         );
         setMessage({ type: 'success', text: 'Subscription reactivated!' });
+        ph?.capture('subscription_reactivate_succeeded');
         setSubLoading(false);
       } else {
         setMessage({ type: 'error', text: data.error || 'Failed' });
+        ph?.capture('subscription_reactivate_failed', { error: data.error });
         setSubLoading(false);
       }
     } catch {
       setMessage({ type: 'error', text: 'Something went wrong' });
+      ph?.capture('subscription_reactivate_failed', { error: 'network_error' });
       setSubLoading(false);
     }
   }
 
   async function handleManageBilling() {
+    ph?.capture('subscription_manage_billing_clicked', { status: profile?.subscription?.status });
     setSubLoading(true);
     try {
       const res = await fetch('/api/stripe/portal', { method: 'POST' });
       const data = await res.json();
-      if (data.url) window.location.href = data.url;
-      else {
+      if (data.url) {
+        ph?.capture('subscription_stripe_redirect', { action: 'portal' });
+        window.location.href = data.url;
+      } else {
         setMessage({ type: 'error', text: data.error || 'Failed' });
         setSubLoading(false);
       }
@@ -544,6 +575,8 @@ export default function ProfilePage() {
       year: 'numeric',
     });
   }
+
+  const ph = usePostHog();
 
   const hasOwnedPackages = packages.some(
     (p) => p.role === 'OWNER' || p.role === 'CO_OWNER'
@@ -721,7 +754,10 @@ export default function ProfilePage() {
             </label>
             <div
               className="relative w-full h-[120px] md:h-[200px] rounded-lg border border-dashed border-[#eceae5] overflow-hidden cursor-pointer hover:border-[#8e8985] transition-colors group"
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => {
+                fileInputRef.current?.click();
+                ph?.capture('seats_photo_upload_clicked');
+              }}
             >
               {seatForm.seatPhotoUrl ? (
                 <>
@@ -772,9 +808,10 @@ export default function ProfilePage() {
               <button
                 type="button"
                 className="mt-2 text-sm text-[#8e8985] hover:text-[#DC2626] transition-colors bg-transparent border-none cursor-pointer"
-                onClick={() =>
-                  setSeatForm((prev) => ({ ...prev, seatPhotoUrl: null }))
-                }
+                onClick={() => {
+                  setSeatForm((prev) => ({ ...prev, seatPhotoUrl: null }));
+                  ph?.capture('seats_photo_removed', { packageId: selectedPkgId });
+                }}
               >
                 Remove photo
               </button>
@@ -996,6 +1033,11 @@ export default function ProfilePage() {
               <a
                 key={pkg.id}
                 href={`/share/${pkg.shareLinkSlug}`}
+                onClick={() => ph?.capture('shared_package_clicked', {
+                  slug: pkg.shareLinkSlug,
+                  team: pkg.team,
+                  holderName: pkg.holderName,
+                })}
                 className="flex items-center gap-3 px-3 py-3 rounded-lg border border-[#eceae5] bg-white hover:border-[#2c2a2b] transition-colors no-underline"
               >
                 <div
@@ -1072,7 +1114,10 @@ export default function ProfilePage() {
           {NAV_ITEMS.map((item) => (
             <button
               key={item.id}
-              onClick={() => setActiveSection(item.id)}
+              onClick={() => {
+                setActiveSection(item.id);
+                ph?.capture('settings_nav_tab_clicked', { tab: item.id });
+              }}
               className={`flex items-center gap-2.5 text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors border-none cursor-pointer ${
                 activeSection === item.id
                   ? 'bg-[#f5f4f2] text-[#2c2a2b]'
@@ -1092,7 +1137,10 @@ export default function ProfilePage() {
           />
 
           <button
-            onClick={() => signOut({ callbackUrl: '/' })}
+            onClick={() => {
+              ph?.capture('settings_sign_out_clicked');
+              signOut({ callbackUrl: '/' });
+            }}
             className="w-full flex items-center gap-2.5 text-left px-3 py-2 rounded-lg text-sm font-medium text-[#8e8985] hover:text-[#DC2626] hover:bg-[#FEE2E2]/50 transition-colors bg-transparent border-none cursor-pointer"
           >
             <span className="flex items-center justify-center w-[21px] shrink-0">
@@ -1236,7 +1284,10 @@ export default function ProfilePage() {
               {NAV_ITEMS.map((item) => (
                 <button
                   key={item.id}
-                  onClick={() => setActiveSection(item.id)}
+                  onClick={() => {
+                    setActiveSection(item.id);
+                    ph?.capture('settings_nav_tab_clicked', { tab: item.id });
+                  }}
                   className="flex items-center gap-3 px-1 py-4 border-none bg-transparent cursor-pointer text-left border-b border-[#eceae5]"
                   style={{
                     borderBottomWidth: 1,
@@ -1268,7 +1319,10 @@ export default function ProfilePage() {
 
               {/* Sign out */}
               <button
-                onClick={() => signOut({ callbackUrl: '/' })}
+                onClick={() => {
+                  ph?.capture('settings_sign_out_clicked');
+                  signOut({ callbackUrl: '/' });
+                }}
                 className="flex items-center gap-3 px-1 py-4 border-none bg-transparent cursor-pointer text-left"
               >
                 <svg

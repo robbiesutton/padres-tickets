@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { usePostHog } from 'posthog-js/react';
 import { Bone } from '@/components/skeleton';
 import {
   formatShortDate,
@@ -2406,6 +2407,11 @@ export default function DashboardPage() {
   const { selectedPkg, selectedPkgId, loading } = useDashboardContext();
   const [summary, setSummary] = useState<Summary | null>(null);
   const [games, setGames] = useState<GameWithClaim[]>([]);
+  const ph = usePostHog();
+
+  useEffect(() => {
+    ph?.capture('dashboard_visit');
+  }, [ph]);
 
   // Filter state
   const [statusFilter, setStatusFilter] = useState('');
