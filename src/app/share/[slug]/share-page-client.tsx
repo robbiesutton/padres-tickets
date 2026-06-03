@@ -10,6 +10,7 @@ import {
 } from 'react';
 import { useSession } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
+import { usePostHog } from 'posthog-js/react';
 import type { Game, PackageInfo, ViewMode, ActiveTab } from './types';
 import {
   isGameAvailable,
@@ -329,6 +330,17 @@ function SharePageInner({
 }: Props) {
   const { data: session } = useSession();
   const searchParams = useSearchParams();
+  const ph = usePostHog();
+
+  // Fire share_link_opened once on mount — PostHog auto-captures UTMs and referrer
+  useEffect(() => {
+    ph?.capture('share_link_opened', {
+      slug: packageInfo.slug,
+      gameCount: initialGames.length,
+      holderName: packageInfo.holderName,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // State
   const [activeTab, setActiveTab] = useState<ActiveTab>(

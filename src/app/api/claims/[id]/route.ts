@@ -3,6 +3,7 @@ import { requireAuth, jsonError, jsonSuccess } from '@/lib/api-utils';
 import { releaseClaim } from '@/lib/services/claim';
 import { DESIGN_MODE } from '@/lib/mock-data';
 import { removeDesignClaim } from '@/lib/design-claims-store';
+import { trackServerEvent, AnalyticsEvents } from '@/lib/analytics';
 
 export async function DELETE(
   _request: NextRequest,
@@ -28,6 +29,8 @@ export async function DELETE(
   if (!result.success) {
     return jsonError(result.error!, 400);
   }
+
+  trackServerEvent(AnalyticsEvents.CLAIM_RELEASED, { claimId: id }, user.id);
 
   return jsonSuccess({ message: 'Claim released successfully' });
 }

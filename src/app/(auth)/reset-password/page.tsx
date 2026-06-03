@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { usePostHog } from 'posthog-js/react';
 import { AuthFormSkeleton } from '@/components/skeleton';
 
 function ResetPasswordForm() {
@@ -12,6 +13,11 @@ function ResetPasswordForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const ph = usePostHog();
+
+  useEffect(() => {
+    if (!token) ph?.capture('reset_password_invalid_token');
+  }, [token, ph]);
 
   if (!token) {
     return (
@@ -23,6 +29,9 @@ function ResetPasswordForm() {
           </p>
           <a
             href="/forgot-password"
+            onClick={() =>
+              ph?.capture('reset_password_request_new_link_clicked')
+            }
             className="text-sm text-[#2c2a2b] font-medium underline"
           >
             Request new link
@@ -40,6 +49,7 @@ function ResetPasswordForm() {
     }
     setError('');
     setLoading(true);
+    ph?.capture('reset_password_submitted');
 
     try {
       const res = await fetch('/api/auth/reset-password', {
@@ -50,14 +60,17 @@ function ResetPasswordForm() {
 
       if (res.ok) {
         setSuccess(true);
+        ph?.capture('reset_password_succeeded');
       } else {
         const data = await res.json();
-        setError(
-          data.error || 'Failed to reset password. The link may have expired.'
-        );
+        const errMsg =
+          data.error || 'Failed to reset password. The link may have expired.';
+        setError(errMsg);
+        ph?.capture('reset_password_failed', { error: errMsg });
       }
     } catch {
       setError('Network error. Please try again.');
+      ph?.capture('reset_password_failed', { error: 'network_error' });
     } finally {
       setLoading(false);
     }
@@ -84,6 +97,7 @@ function ResetPasswordForm() {
           </p>
           <a
             href="/login"
+            onClick={() => ph?.capture('reset_password_signin_clicked')}
             className="inline-block bg-[#2c2a2b] text-white hover:bg-[#dcd7d4] hover:text-[#2c2a2b] h-10 rounded-lg text-base font-medium transition-colors px-6 leading-10"
           >
             Sign in
@@ -122,12 +136,19 @@ function ResetPasswordForm() {
                 minLength={8}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                onFocus={() => ph?.capture('reset_password_password_focused')}
                 className="block w-full px-2.5 py-2 rounded-[7px] border border-[#eceae5] pr-10 text-sm outline-none focus:border-[#1B2A4A]"
                 autoFocus
               />
               <button
                 type="button"
-                onClick={() => setShowPassword(!showPassword)}
+                onClick={() => {
+                  const next = !showPassword;
+                  setShowPassword(next);
+                  ph?.capture('reset_password_visibility_toggled', {
+                    visible: next,
+                  });
+                }}
                 className="absolute right-2 top-1/2 -translate-y-1/2 text-[#8e8985] hover:text-[#2c2a2b] text-xs px-1"
               >
                 {showPassword ? 'Hide' : 'Show'}

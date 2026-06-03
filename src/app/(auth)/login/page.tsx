@@ -3,6 +3,7 @@
 import { signIn } from 'next-auth/react';
 import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { usePostHog } from 'posthog-js/react';
 import {
   SetupLayout,
   StepHeadline,
@@ -23,10 +24,13 @@ function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const ph = usePostHog();
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
     setLoading(true);
+    ph?.capture('login_submitted');
     const result = await signIn('credentials', {
       email,
       password,
@@ -35,8 +39,11 @@ function LoginForm() {
     if (result?.error) {
       setLoading(false);
       setError('Invalid email or password');
+      ph?.capture('login_failed', { error: result.error });
       return;
     }
+
+    ph?.capture('login_succeeded');
 
     // If there's an explicit redirect target, use it
     if (from) {
@@ -99,6 +106,7 @@ function LoginForm() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              onFocus={() => ph?.capture('login_email_focused')}
               className={inputClass}
               autoFocus
             />
@@ -112,11 +120,18 @@ function LoginForm() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                onFocus={() => ph?.capture('login_password_focused')}
                 className={`${inputClass} pr-16`}
               />
               <button
                 type="button"
-                onClick={() => setShowPassword(!showPassword)}
+                onClick={() => {
+                  const next = !showPassword;
+                  setShowPassword(next);
+                  ph?.capture('login_password_visibility_toggled', {
+                    visible: next,
+                  });
+                }}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-[13px] font-medium text-[#8e8985] hover:text-[#2c2a2b] bg-transparent border-none cursor-pointer"
               >
                 {showPassword ? 'Hide' : 'Show'}
@@ -137,13 +152,18 @@ function LoginForm() {
           <a
             data-testid="forgot-password-link"
             href="/forgot-password"
+            onClick={() => ph?.capture('login_forgot_password_clicked')}
             className="text-[#8e8985] underline"
           >
             Forgot password?
           </a>
           <p className="text-[#8e8985]">
             Don&apos;t have an account?{' '}
-            <a href="/signup" className="text-[#8e8985] underline">
+            <a
+              href="/signup"
+              onClick={() => ph?.capture('login_signup_link_clicked')}
+              className="text-[#8e8985] underline"
+            >
               Sign up
             </a>
           </p>

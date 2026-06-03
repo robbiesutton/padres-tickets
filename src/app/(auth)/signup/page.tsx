@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import Link from 'next/link';
+import { usePostHog } from 'posthog-js/react';
 import {
   SetupLayout,
   StepHeadline,
@@ -81,6 +82,7 @@ export default function SignupPage() {
   const [submitError, setSubmitError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const ph = usePostHog();
 
   const firstNameRef = useRef<HTMLInputElement>(null);
   const lastNameRef = useRef<HTMLInputElement>(null);
@@ -127,6 +129,7 @@ export default function SignupPage() {
     setTouched((prev) => ({ ...prev, [field]: true }));
     const err = runValidator(field, form[field]);
     setErrors((prev) => ({ ...prev, [field]: err ?? undefined }));
+    if (err) ph?.capture('signup_field_error', { field, error: err });
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -172,6 +175,7 @@ export default function SignupPage() {
       return;
     }
 
+    ph?.capture('signup_submitted');
     setLoading(true);
     try {
       const res = await fetch('/api/auth/signup', {
@@ -182,12 +186,15 @@ export default function SignupPage() {
       const data = await res.json();
       if (!res.ok) {
         setSubmitError(data.error ?? 'Something went wrong. Please try again.');
+        ph?.capture('signup_failed', { error: data.error });
         setLoading(false);
         return;
       }
+      ph?.capture('signup_succeeded', { userId: data.data?.id });
       window.location.href = '/packages/new';
     } catch {
       setSubmitError('Something went wrong. Please try again.');
+      ph?.capture('signup_failed', { error: 'network_error' });
       setLoading(false);
     }
   }
@@ -373,6 +380,9 @@ export default function SignupPage() {
                   checked={agreedToTerms}
                   onChange={(e) => {
                     setAgreedToTerms(e.target.checked);
+                    ph?.capture('signup_terms_toggled', {
+                      checked: e.target.checked,
+                    });
                     if (touched.terms) {
                       setErrors((prev) => ({
                         ...prev,
@@ -390,6 +400,11 @@ export default function SignupPage() {
                   <a
                     href="/terms"
                     target="_blank"
+                    onClick={() =>
+                      ph?.capture('signup_legal_link_clicked', {
+                        link: 'terms',
+                      })
+                    }
                     className="text-[#8e8985] underline"
                   >
                     Terms of Service
@@ -398,6 +413,11 @@ export default function SignupPage() {
                   <a
                     href="/privacy"
                     target="_blank"
+                    onClick={() =>
+                      ph?.capture('signup_legal_link_clicked', {
+                        link: 'privacy',
+                      })
+                    }
                     className="text-[#8e8985] underline"
                   >
                     Privacy Policy
@@ -410,7 +430,12 @@ export default function SignupPage() {
               <input
                 type="checkbox"
                 checked={marketingOptIn}
-                onChange={(e) => setMarketingOptIn(e.target.checked)}
+                onChange={(e) => {
+                  setMarketingOptIn(e.target.checked);
+                  ph?.capture('signup_marketing_toggled', {
+                    checked: e.target.checked,
+                  });
+                }}
                 className="mt-0.5 w-5 h-5 accent-[#2c2a2b] shrink-0"
               />
               <span className="text-[#8e8985] leading-relaxed">
@@ -431,7 +456,11 @@ export default function SignupPage() {
 
         <p className="text-center text-sm text-[#8e8985] mt-6 pb-8">
           Already have an account?{' '}
-          <a href="/login" className="text-[#8e8985] underline">
+          <a
+            href="/login"
+            onClick={() => ph?.capture('signup_login_link_clicked')}
+            className="text-[#8e8985] underline"
+          >
             Sign in
           </a>
         </p>

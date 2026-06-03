@@ -5,6 +5,7 @@ import { jsonError } from '@/lib/api-utils';
 import { getClientIp, rateLimit, rateLimitResponse } from '@/lib/rate-limit';
 import { DESIGN_MODE } from '@/lib/mock-data';
 import { setSessionCookie } from '@/lib/session';
+import { trackServerEvent, AnalyticsEvents } from '@/lib/analytics';
 
 export async function POST(request: NextRequest) {
   if (DESIGN_MODE) {
@@ -67,6 +68,12 @@ export async function POST(request: NextRequest) {
       notificationPrefs: { marketingOptIn: !!marketingOptIn },
     },
   });
+
+  trackServerEvent(
+    AnalyticsEvents.SIGNUP_COMPLETED,
+    { email: user.email, firstName: user.firstName },
+    user.id
+  );
 
   const response = NextResponse.json(
     {

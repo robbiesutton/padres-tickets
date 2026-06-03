@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
+import { usePostHog } from 'posthog-js/react';
 import Image from 'next/image';
 import {
   SetupLayout,
@@ -728,6 +729,11 @@ export default function NewPackagePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [toast, setToast] = useState('');
+  const ph = usePostHog();
+
+  useEffect(() => {
+    ph?.capture('package_setup_started');
+  }, [ph]);
 
   // Step 1: Tickets
   const [league, setLeague] = useState(DESIGN ? 'MLB' : '');
