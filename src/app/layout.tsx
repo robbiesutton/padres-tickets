@@ -5,6 +5,7 @@ import Providers from './providers';
 import { ConditionalTicker } from '@/components/conditional-ticker';
 import { ConditionalAnalytics } from '@/components/conditional-analytics';
 import { SiteFooter } from '@/components/site-footer';
+import { CookieConsent } from '@/components/cookie-consent';
 import './globals.css';
 
 const dmSans = DM_Sans({
@@ -71,6 +72,7 @@ export default function RootLayout({
           <ConditionalTicker />
           <SiteFooter />
           <ConditionalAnalytics />
+          <CookieConsent />
         </Providers>
       </body>
     </html>
