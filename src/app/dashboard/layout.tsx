@@ -930,13 +930,9 @@ export default function DashboardLayout({
   // Stashed team from last viewed surface (set by avatar tap on /share or /dashboard).
   // Used to color the header on first paint before /api/me/packages resolves, so the
   // user doesn't see a flash of brand fallback colors during the loading window.
-  const [lastTeam, setLastTeam] = useState<string>('');
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem('bb-last-team');
-      if (stored) setLastTeam(stored);
-    } catch {}
-  }, []);
+  const [lastTeam, setLastTeam] = useState<string>(() => {
+    try { return localStorage.getItem('bb-last-team') || ''; } catch { return ''; }
+  });
 
   useEffect(() => {
     let cancelled = false;
