@@ -23,7 +23,7 @@ import { getTeamColors } from '@/lib/team-colors';
 
 // ─── Types ──────────────────────────────────────────────
 
-interface MlbTeam {
+interface Team {
   id: number;
   name: string;
   abbreviation: string;
@@ -68,6 +68,7 @@ type Step = 1 | 2 | 3 | 4;
 
 const LEAGUES = [
   { value: 'MLB', label: 'MLB', available: true },
+  { value: 'NCAAB', label: 'NCAA Basketball (Men)', available: true },
   { value: 'NBA', label: 'NBA', available: false },
   { value: 'NFL', label: 'NFL', available: false },
   { value: 'NHL', label: 'NHL', available: false },
@@ -102,7 +103,7 @@ const STEPS = [
 
 const DESIGN = process.env.NEXT_PUBLIC_DESIGN_MODE === 'true';
 
-const MOCK_TEAMS: MlbTeam[] = [
+const MOCK_TEAMS: Team[] = [
   {
     id: 135,
     name: 'San Diego Padres',
@@ -132,6 +133,12 @@ const MOCK_TEAMS: MlbTeam[] = [
     name: 'Colorado Rockies',
     abbreviation: 'COL',
     venue: 'Coors Field',
+  },
+  {
+    id: 21,
+    name: 'San Diego State Aztecs',
+    abbreviation: 'SDSU',
+    venue: 'Viejas Arena',
   },
 ];
 
@@ -738,8 +745,8 @@ export default function NewPackagePage() {
 
   // Step 1: Tickets
   const [league, setLeague] = useState(DESIGN ? 'MLB' : '');
-  const [teams, setTeams] = useState<MlbTeam[]>(DESIGN ? MOCK_TEAMS : []);
-  const [selectedTeam, setSelectedTeam] = useState<MlbTeam | null>(
+  const [teams, setTeams] = useState<Team[]>(DESIGN ? MOCK_TEAMS : []);
+  const [selectedTeam, setSelectedTeam] = useState<Team | null>(
     DESIGN ? MOCK_TEAMS[0] : null
   );
   const [season] = useState(new Date().getFullYear().toString());
@@ -822,12 +829,15 @@ export default function NewPackagePage() {
 
   useEffect(() => {
     if (DESIGN) return;
-    fetch('/api/teams')
+    if (!league) return;
+    setTeams([]);
+    setSelectedTeam(null);
+    fetch(`/api/teams?league=${league}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (data) setTeams(data.teams);
       });
-  }, []);
+  }, [league]);
 
   useEffect(() => {
     if (DESIGN) return;
@@ -1330,7 +1340,8 @@ export default function NewPackagePage() {
                             vs {shortName}
                           </div>
                           <div className="text-xs font-medium text-[#8e8985]">
-                            {game.time} &bull; Petco Park
+                            {game.time} &bull;{' '}
+                            {selectedTeam?.venue || 'the venue'}
                           </div>
                         </div>
                         <svg

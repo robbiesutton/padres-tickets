@@ -4,6 +4,7 @@ import { requireAuth, jsonError, jsonSuccess } from '@/lib/api-utils';
 import { requirePackageOwner } from '@/lib/services/package-auth';
 import { getHomeSchedule } from '@/lib/services/schedule';
 import { getTeamByAbbreviation, getTeamById } from '@/lib/data/mlb-teams';
+import { NCAA_TEAMS } from '@/lib/data/ncaa-teams';
 
 export async function POST(
   request: NextRequest,
@@ -28,15 +29,16 @@ export async function POST(
   if (teamId) {
     resolvedTeamId = teamId;
   } else {
-    // Try to find team by name from the package
+    // Try to find team by name — check MLB first, then NCAA
     const allTeams = await import('@/lib/data/mlb-teams');
-    const team = allTeams.MLB_TEAMS.find(
+    const mlbTeam = allTeams.MLB_TEAMS.find(
       (t) =>
         t.name === pkg.team ||
         getTeamByAbbreviation(pkg.team) !== undefined ||
         getTeamById(parseInt(pkg.team)) !== undefined
     );
-    resolvedTeamId = team?.id;
+    const ncaaTeam = NCAA_TEAMS.find((t) => t.name === pkg.team);
+    resolvedTeamId = mlbTeam?.id ?? ncaaTeam?.id;
   }
 
   if (!resolvedTeamId) {
@@ -46,7 +48,11 @@ export async function POST(
     );
   }
 
-  const schedule = await getHomeSchedule(resolvedTeamId, pkg.season);
+  const schedule = await getHomeSchedule(
+    resolvedTeamId,
+    pkg.season,
+    pkg.sport ?? 'MLB'
+  );
 
   // Get existing game dates to avoid duplicates
   const existingGames = await prisma.game.findMany({

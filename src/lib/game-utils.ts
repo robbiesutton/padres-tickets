@@ -61,6 +61,7 @@ export const OPPONENT_COLORS: Record<string, string> = {
   PIT: '#FDB827',
   SD: '#FFC425',
   MIA: '#00A3E0',
+  SDSU: '#D41736',
 };
 
 export const TEAM_ABBREVIATIONS: Record<string, string> = {
@@ -94,6 +95,7 @@ export const TEAM_ABBREVIATIONS: Record<string, string> = {
   'Pittsburgh Pirates': 'PIT',
   'San Diego Padres': 'SD',
   'Miami Marlins': 'MIA',
+  'San Diego State Aztecs': 'SDSU',
 };
 
 export function getOpponentAbbr(opponent: string): string {

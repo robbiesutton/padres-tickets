@@ -761,6 +761,160 @@ const oraclePark: StadiumSeating = {
   ],
 };
 
+// Viejas Arena — single-bowl arena with 20 lettered sections A–V (I and O omitted).
+// Row 1 is closest to the court; row 35 is the top of the bowl.
+// Source: official SDSU seating chart (basketball configuration).
+const viejasArena: StadiumSeating = {
+  venue: 'Viejas Arena',
+  sections: [
+    // West sideline (Main Entrance side)
+    {
+      id: 'A',
+      name: 'Section A',
+      level: 'Sideline',
+      rows: numRows(1, 35),
+      tags: ['Sideline', 'West'],
+    },
+    {
+      id: 'B',
+      name: 'Section B',
+      level: 'Sideline',
+      rows: numRows(1, 35),
+      tags: ['Sideline', 'West'],
+    },
+    {
+      id: 'C',
+      name: 'Section C',
+      level: 'Sideline',
+      rows: numRows(1, 35),
+      tags: ['Sideline', 'West'],
+    },
+    // South baseline
+    {
+      id: 'D',
+      name: 'Section D',
+      level: 'Baseline',
+      rows: numRows(1, 35),
+      tags: ['Baseline', 'South'],
+    },
+    {
+      id: 'E',
+      name: 'Section E',
+      level: 'Baseline',
+      rows: numRows(1, 35),
+      tags: ['Baseline', 'South'],
+    },
+    {
+      id: 'F',
+      name: 'Section F',
+      level: 'Baseline',
+      rows: numRows(1, 35),
+      tags: ['Baseline', 'South'],
+    },
+    {
+      id: 'G',
+      name: 'Section G',
+      level: 'Baseline',
+      rows: numRows(1, 35),
+      tags: ['Baseline', 'South'],
+    },
+    {
+      id: 'H',
+      name: 'Section H',
+      level: 'Baseline',
+      rows: numRows(1, 35),
+      tags: ['Baseline', 'South'],
+    },
+    // East sideline
+    {
+      id: 'J',
+      name: 'Section J',
+      level: 'Sideline',
+      rows: numRows(1, 35),
+      tags: ['Sideline', 'East'],
+    },
+    {
+      id: 'K',
+      name: 'Section K',
+      level: 'Sideline',
+      rows: numRows(1, 35),
+      tags: ['Sideline', 'East'],
+    },
+    {
+      id: 'L',
+      name: 'Section L',
+      level: 'Sideline',
+      rows: numRows(1, 35),
+      tags: ['Sideline', 'East'],
+    },
+    {
+      id: 'M',
+      name: 'Section M',
+      level: 'Sideline',
+      rows: numRows(1, 35),
+      tags: ['Sideline', 'East'],
+    },
+    // North baseline
+    {
+      id: 'N',
+      name: 'Section N',
+      level: 'Baseline',
+      rows: numRows(1, 35),
+      tags: ['Baseline', 'North'],
+    },
+    {
+      id: 'P',
+      name: 'Section P',
+      level: 'Baseline',
+      rows: numRows(1, 35),
+      tags: ['Baseline', 'North'],
+    },
+    {
+      id: 'Q',
+      name: 'Section Q',
+      level: 'Baseline',
+      rows: numRows(1, 35),
+      tags: ['Baseline', 'North'],
+    },
+    {
+      id: 'R',
+      name: 'Section R',
+      level: 'Baseline',
+      rows: numRows(1, 35),
+      tags: ['Baseline', 'North'],
+    },
+    {
+      id: 'S',
+      name: 'Section S',
+      level: 'Baseline',
+      rows: numRows(1, 35),
+      tags: ['Baseline', 'North'],
+    },
+    {
+      id: 'T',
+      name: 'Section T',
+      level: 'Baseline',
+      rows: numRows(1, 35),
+      tags: ['Baseline', 'North'],
+    },
+    // West sideline continued (upper/corner)
+    {
+      id: 'U',
+      name: 'Section U',
+      level: 'Sideline',
+      rows: numRows(1, 35),
+      tags: ['Sideline', 'West'],
+    },
+    {
+      id: 'V',
+      name: 'Section V',
+      level: 'Sideline',
+      rows: numRows(1, 35),
+      tags: ['Sideline', 'West'],
+    },
+  ],
+};
+
 // ─── Export map keyed by team abbreviation ────────────────
 
 export const STADIUM_SEATING: Record<string, StadiumSeating> = {
@@ -800,4 +954,6 @@ export const STADIUM_SEATING: Record<string, StadiumSeating> = {
   LAD: dodgerStadium,
   SD: petcoPark,
   SF: oraclePark,
+  // NCAA
+  SDSU: viejasArena,
 };

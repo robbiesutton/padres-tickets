@@ -2,7 +2,8 @@ import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/db';
 import { requireAuth, jsonError, jsonSuccess } from '@/lib/api-utils';
 import { generateUniqueSlug } from '@/lib/services/slug';
-import { getTeamById } from '@/lib/data/mlb-teams';
+import { getTeamById as getMlbTeamById } from '@/lib/data/mlb-teams';
+import { getTeamById as getNcaaTeamById } from '@/lib/data/ncaa-teams';
 import { getHomeSchedule } from '@/lib/services/schedule';
 import {
   getSeatViewPhotos,
@@ -90,8 +91,12 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const team = getTeamById(teamId);
-  if (!team) {
+  const mlbTeam = getMlbTeamById(teamId);
+  const ncaaTeam = getNcaaTeamById(teamId);
+  const team = mlbTeam ?? ncaaTeam;
+  const sport = mlbTeam ? 'MLB' : ncaaTeam ? ncaaTeam.sport : null;
+
+  if (!team || !sport) {
     return jsonError('Invalid team ID', 400);
   }
 
@@ -133,7 +138,7 @@ export async function POST(request: NextRequest) {
   const pkg = await prisma.package.create({
     data: {
       userId: user.id,
-      sport: 'MLB',
+      sport,
       team: team.name,
       section,
       row: row || null,
@@ -180,7 +185,7 @@ export async function POST(request: NextRequest) {
   let gamesCreated = 0;
   if (autoLoadSchedule !== false) {
     try {
-      const schedule = await getHomeSchedule(teamId, season);
+      const schedule = await getHomeSchedule(teamId, season, sport);
       const excludedSet = new Set(excludedDates || []);
 
       const gameData = schedule

@@ -1,5 +1,6 @@
 import { getTeamById } from '@/lib/data/mlb-teams';
 import { cacheGet, cacheSet } from '@/lib/cache';
+import { getNcaabHomeSchedule } from './espn-schedule';
 
 const MLB_API_BASE = 'https://statsapi.mlb.com/api/v1';
 const CACHE_TTL = 6 * 60 * 60 * 1000; // 6 hours
@@ -42,8 +43,13 @@ interface MlbApiResponse {
 
 export async function getHomeSchedule(
   teamId: number,
-  season: string
+  season: string,
+  sport: string = 'MLB'
 ): Promise<ScheduleGame[]> {
+  if (sport === 'NCAAB') {
+    return getNcaabHomeSchedule(teamId, season);
+  }
+
   const team = getTeamById(teamId);
   if (!team) {
     throw new Error(`Unknown MLB team ID: ${teamId}`);
