@@ -11,9 +11,7 @@ interface Props {
 function pickExampleOpponent(games: Game[]): { abbr: string; color: string } {
   const abbrs = new Set<string>();
   for (const g of games) abbrs.add(getOpponentAbbr(g.opponent));
-  const pick = abbrs.has('LAD')
-    ? 'LAD'
-    : [...abbrs].sort()[0] ?? 'LAD';
+  const pick = abbrs.has('LAD') ? 'LAD' : ([...abbrs].sort()[0] ?? 'LAD');
   return { abbr: pick, color: getOpponentColor(pick) };
 }
 
@@ -48,8 +46,12 @@ export function CalendarLegend({ games }: Props) {
         </span>
       </div>
       <div className="flex items-center gap-[6px]">
-        <span className="text-xs md:text-sm font-normal text-[#8e8985]">02</span>
-        <span className="text-xs md:text-sm font-normal text-[#8e8985]">No game</span>
+        <span className="text-xs md:text-sm font-normal text-[#8e8985]">
+          02
+        </span>
+        <span className="text-xs md:text-sm font-normal text-[#8e8985]">
+          No game
+        </span>
       </div>
     </div>
   );

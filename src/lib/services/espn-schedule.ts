@@ -54,7 +54,9 @@ export async function getNcaabHomeSchedule(
   try {
     const response = await fetch(url);
     if (!response.ok) {
-      throw new Error(`ESPN API error: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `ESPN API error: ${response.status} ${response.statusText}`
+      );
     }
 
     const data: EspnScheduleResponse = await response.json();
@@ -119,7 +121,10 @@ export async function getNcaabHomeSchedule(
     cacheSet(cacheKey, homeGames, CACHE_TTL);
     return homeGames;
   } catch (error) {
-    console.error(`Failed to fetch ESPN NCAAB schedule for team ${teamId}:`, error);
+    console.error(
+      `Failed to fetch ESPN NCAAB schedule for team ${teamId}:`,
+      error
+    );
     return [];
   }
 }

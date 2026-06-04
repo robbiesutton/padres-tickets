@@ -186,13 +186,14 @@ export function ShareHeader({
           </div>
 
           {/* Backdrop: dims content behind the dropdown when open */}
-          {pillOpen && createPortal(
-            <div
-              className="hidden md:block fixed inset-0 bg-black/20 z-30"
-              onClick={() => setPillOpen(false)}
-            />,
-            document.body
-          )}
+          {pillOpen &&
+            createPortal(
+              <div
+                className="hidden md:block fixed inset-0 bg-black/20 z-30"
+                onClick={() => setPillOpen(false)}
+              />,
+              document.body
+            )}
 
           {/* Pill dropdown panel — 3 states */}
           <div
@@ -250,7 +251,14 @@ export function ShareHeader({
                   {/* Left column — photo + (FTU only) How it works */}
                   <div className="flex flex-col gap-[18px]">
                     <div className="relative w-full aspect-[3/2] rounded-xl overflow-hidden">
-                      <Image src={pkg.seatPhotoUrl as string} alt="View from seat" fill className="object-cover" sizes="500px" unoptimized />
+                      <Image
+                        src={pkg.seatPhotoUrl as string}
+                        alt="View from seat"
+                        fill
+                        className="object-cover"
+                        sizes="500px"
+                        unoptimized
+                      />
                       <div className="absolute bottom-3 left-3 bg-black/65 text-white text-xs font-semibold px-2.5 py-1 rounded-md">
                         View from Section {pkg.section}
                       </div>
@@ -489,7 +497,11 @@ export function ShareHeader({
         {/* Account avatar */}
         <a
           href={`/dashboard/profile?from=share&slug=${pkg.slug}`}
-          onClick={() => { try { localStorage.setItem('bb-last-team', pkg.team); } catch {} }}
+          onClick={() => {
+            try {
+              localStorage.setItem('bb-last-team', pkg.team);
+            } catch {}
+          }}
           className="w-[34px] h-[34px] rounded-full flex items-center justify-center cursor-pointer transition-all text-[11px] font-bold"
           style={{ backgroundColor: teamAccent, color: badgeText ?? navColor }}
         >

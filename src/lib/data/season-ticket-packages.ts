@@ -1546,7 +1546,8 @@ const sdsuPackages: SeasonPackage[] = [
     name: 'Full Season',
     tier: 'Full',
     gameCount: 17,
-    description: 'All home games at Viejas Arena (16–17 games including exhibition)',
+    description:
+      'All home games at Viejas Arena (16–17 games including exhibition)',
     gameSelection: 'all',
     gameFilter: { all: true },
   },

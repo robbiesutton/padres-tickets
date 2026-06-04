@@ -3,9 +3,7 @@ import { prisma } from '@/lib/db';
 import { requireAuth, jsonError, jsonSuccess } from '@/lib/api-utils';
 import { generateUniqueSlug } from '@/lib/services/slug';
 import { getTeamById as getMlbTeamById } from '@/lib/data/mlb-teams';
-import {
-  getTeamById as getNcaaTeamById,
-} from '@/lib/data/ncaa-teams';
+import { getTeamById as getNcaaTeamById } from '@/lib/data/ncaa-teams';
 import { getHomeSchedule } from '@/lib/services/schedule';
 import {
   getSeatViewPhotos,

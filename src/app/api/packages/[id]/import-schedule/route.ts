@@ -48,7 +48,11 @@ export async function POST(
     );
   }
 
-  const schedule = await getHomeSchedule(resolvedTeamId, pkg.season, pkg.sport ?? 'MLB');
+  const schedule = await getHomeSchedule(
+    resolvedTeamId,
+    pkg.season,
+    pkg.sport ?? 'MLB'
+  );
 
   // Get existing game dates to avoid duplicates
   const existingGames = await prisma.game.findMany({
