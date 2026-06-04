@@ -845,6 +845,13 @@ export default function NewPackagePage() {
     fetch(`/api/stadiums/${selectedTeam.abbreviation}/packages`).then((r) => (r.ok ? r.json() : null)).then((data) => { if (data) setPackages(data.packages); });
   }, [selectedTeam]);
 
+  // Auto-select the package when only one is available (e.g. SDSU full season)
+  useEffect(() => {
+    if (packages.length === 1) {
+      setSelectedPackage(packages[0]);
+    }
+  }, [packages]);
+
   useEffect(() => {
     if (DESIGN) return;
     if (!selectedTeam || !selectedSection) return;
