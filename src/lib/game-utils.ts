@@ -1,3 +1,5 @@
+import { getTeamColors, getTeamAbbr } from './team-colors';
+
 export const MONTH_NAMES = [
   'January',
   'February',
@@ -99,12 +101,24 @@ export const TEAM_ABBREVIATIONS: Record<string, string> = {
 };
 
 export function getOpponentAbbr(opponent: string): string {
-  return TEAM_ABBREVIATIONS[opponent] || opponent.slice(0, 3).toUpperCase();
+  // Legacy MLB map first (keeps existing MLB abbreviations identical), then the
+  // canonical registry abbr (NCAA + future leagues), then a derived short label.
+  return (
+    TEAM_ABBREVIATIONS[opponent] ||
+    getTeamAbbr(opponent) ||
+    opponent.slice(0, 3).toUpperCase()
+  );
 }
 
 export function getOpponentColor(opponent: string): string {
-  const abbr = getOpponentAbbr(opponent);
-  return OPPONENT_COLORS[abbr] || '#8C8984';
+  // Legacy MLB map first so existing MLB opponent badges are byte-for-byte
+  // unchanged. Everything else (NCAA + future leagues) resolves through
+  // TEAM_REGISTRY via the public lookup, the same as every other themed
+  // surface. Unknown teams get the registry's brand-neutral primary.
+  return (
+    OPPONENT_COLORS[getOpponentAbbr(opponent)] ||
+    getTeamColors(opponent).primary
+  );
 }
 
 export function formatGameDate(dateStr: string): string {
