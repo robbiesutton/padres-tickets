@@ -11,6 +11,7 @@ const HOLDER_EMAIL = process.env.TEST_HOLDER_EMAIL || `holder@${emailDomain}`;
 const CLAIMER_EMAIL = process.env.TEST_CLAIMER_EMAIL || `claimer@${emailDomain}`;
 const HOLDER_PASSWORD = process.env.TEST_HOLDER_PASSWORD || 'password123';
 const SHARE_SLUG = 'mark-rockies-test';
+const SDSU_SHARE_SLUG = 'mark-aztecs-test';
 
 if (process.env.NODE_ENV === 'production') {
   console.error('ERROR: seed-test.ts must not run in production.');
@@ -96,6 +97,52 @@ async function main() {
   }
 
   console.log(`  Created ${games.length} test games for package ${SHARE_SLUG}`);
+
+  // SDSU NCAAB test package
+  const sdsuPkg = await prisma.package.upsert({
+    where: { shareLinkSlug: SDSU_SHARE_SLUG },
+    update: {},
+    create: {
+      userId: holder.id,
+      sport: 'NCAAB',
+      team: 'San Diego State Aztecs',
+      section: 'L',
+      row: '5',
+      seats: '12-13',
+      seatCount: 2,
+      season: '2026',
+      shareLinkSlug: SDSU_SHARE_SLUG,
+      defaultPricePerTicket: 35.0,
+      description: 'Sideline seats in Section L at Viejas Arena.',
+      perks: ['Sideline View', 'Covered Seating'],
+    },
+  });
+
+  const sdsuGames = [
+    { date: '2026-11-14', time: '19:00', opponent: 'UC San Diego' },
+    { date: '2026-11-21', time: '19:00', opponent: 'Gonzaga Bulldogs' },
+    { date: '2026-12-05', time: '18:00', opponent: 'San Diego Toreros' },
+    { date: '2027-01-08', time: '19:30', opponent: 'Boise State Broncos' },
+    { date: '2027-01-22', time: '19:00', opponent: 'New Mexico Lobos' },
+  ];
+
+  for (const g of sdsuGames) {
+    const date = new Date(`${g.date}T${g.time}:00`);
+    await prisma.game.upsert({
+      where: { packageId_date: { packageId: sdsuPkg.id, date } },
+      update: {},
+      create: {
+        packageId: sdsuPkg.id,
+        date,
+        time: g.time,
+        opponent: g.opponent,
+        pricePerTicket: 35.0,
+        status: 'AVAILABLE',
+      },
+    });
+  }
+
+  console.log(`  Created ${sdsuGames.length} test games for package ${SDSU_SHARE_SLUG}`);
   console.log('Test seed complete.');
 }
 

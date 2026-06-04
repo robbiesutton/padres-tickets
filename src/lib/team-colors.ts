@@ -236,7 +236,15 @@ export const TEAM_REGISTRY: Record<LeagueKey, Record<string, TeamEntry>> = {
   wnba: {},
   mls: {},
   nwsl: {},
-  ncaa: {},
+  ncaa: {
+    sdsu: {
+      abbr: 'SDSU',
+      name: 'San Diego State Aztecs',
+      primary: '#D41736',
+      accent: '#000000',
+      badgeTextColor: '#FFFFFF',
+    },
+  },
 };
 
 const FALLBACK_COLORS: { primary: string; accent: string } = {

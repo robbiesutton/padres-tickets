@@ -177,6 +177,28 @@ export const TEAM_TICKETING_INFO: TeamTicketingInfo[] = [
     'oracle-park',
     'Giants use AXS ticketing'
   ),
+  // NCAA — ESPN team IDs (outside MLB range 108–160)
+  {
+    teamId: 21,
+    teamName: 'San Diego State Aztecs',
+    platform: 'TICKETMASTER',
+    platformDisplayName: 'Ticketmaster',
+    transferMethod: 'Ticketmaster Transfer',
+    transferDeepLink: 'https://am.ticketmaster.com/sdsu/',
+    acceptDeepLink: 'https://am.ticketmaster.com/sdsu/',
+    holderTransferSteps: [
+      'Go to am.ticketmaster.com/sdsu and sign in',
+      'Select the game and choose the tickets to transfer',
+      'Click "Transfer" and enter the recipient\'s email address',
+      'Confirm the transfer — the recipient will get an email from Ticketmaster',
+    ],
+    claimerAcceptSteps: [
+      'Check your email for a transfer notification from Ticketmaster',
+      'Click "Accept Tickets" in the email',
+      'Sign in to your Ticketmaster account (or create one)',
+      'Tickets will appear under "My Tickets" in the Ticketmaster app',
+    ],
+  },
 ];
 
 export function getTicketingInfo(

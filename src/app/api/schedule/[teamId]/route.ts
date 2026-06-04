@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { getHomeSchedule } from '@/lib/services/schedule';
-import { getTeamById } from '@/lib/data/mlb-teams';
+import { getTeamById as getMlbTeamById } from '@/lib/data/mlb-teams';
+import { getTeamById as getNcaaTeamById } from '@/lib/data/ncaa-teams';
 import { jsonError, jsonSuccess } from '@/lib/api-utils';
 
 export async function GET(
@@ -14,9 +15,13 @@ export async function GET(
     return jsonError('Invalid team ID', 400);
   }
 
-  const team = getTeamById(teamId);
-  if (!team) {
-    return jsonError('Unknown MLB team', 404);
+  const mlbTeam = getMlbTeamById(teamId);
+  const ncaaTeam = getNcaaTeamById(teamId);
+  const team = mlbTeam ?? ncaaTeam;
+  const sport = mlbTeam ? 'MLB' : ncaaTeam ? ncaaTeam.sport : null;
+
+  if (!team || !sport) {
+    return jsonError('Unknown team', 404);
   }
 
   const season =
@@ -24,7 +29,7 @@ export async function GET(
     new Date().getFullYear().toString();
 
   try {
-    const games = await getHomeSchedule(teamId, season);
+    const games = await getHomeSchedule(teamId, season, sport);
     return jsonSuccess({
       team: {
         id: team.id,
