@@ -240,7 +240,107 @@ export const TEAM_REGISTRY: Record<LeagueKey, Record<string, TeamEntry>> = {
     sdsu: {
       abbr: 'SDSU',
       name: 'San Diego State Aztecs',
-      primary: '#D41736',
+      primary: '#A6192E',
+      accent: '#000000',
+      badgeTextColor: '#FFFFFF',
+    },
+    lbsu: {
+      abbr: 'LBSU',
+      name: 'Long Beach State Beach',
+      primary: '#000000',
+      accent: '#FDB827',
+    },
+    idst: {
+      abbr: 'IDST',
+      name: 'Idaho State Bengals',
+      primary: '#000000',
+      accent: '#F47920',
+      badgeTextColor: '#FFFFFF',
+    },
+    troy: {
+      abbr: 'TROY',
+      name: 'Troy Trojans',
+      primary: '#8A2432',
+      accent: '#C7C9C7',
+    },
+    uvu: {
+      abbr: 'UVU',
+      name: 'Utah Valley Wolverines',
+      primary: '#275D38',
+      accent: '#FFFFFF',
+    },
+    lam: {
+      abbr: 'LAM',
+      name: 'Lamar Cardinals',
+      primary: '#C8102E',
+      accent: '#FFFFFF',
+    },
+    whit: {
+      abbr: 'WHIT',
+      name: 'Whittier Poets',
+      primary: '#4B2E83',
+      accent: '#FFC72C',
+    },
+    afa: {
+      abbr: 'AFA',
+      name: 'Air Force Falcons',
+      primary: '#003594',
+      accent: '#8A8D8F',
+    },
+    bsu: {
+      abbr: 'BSU',
+      name: 'Boise State Broncos',
+      primary: '#0033A0',
+      accent: '#D64309',
+      badgeTextColor: '#FFFFFF',
+    },
+    fres: {
+      abbr: 'FRES',
+      name: 'Fresno State Bulldogs',
+      primary: '#002E6D',
+      accent: '#DB0032',
+      badgeTextColor: '#FFFFFF',
+    },
+    unm: {
+      abbr: 'UNM',
+      name: 'New Mexico Lobos',
+      primary: '#BA0C2F',
+      accent: '#A7A8AA',
+    },
+    csu: {
+      abbr: 'CSU',
+      name: 'Colorado State Rams',
+      primary: '#1E4D2B',
+      accent: '#C8C372',
+    },
+    wyo: {
+      abbr: 'WYO',
+      name: 'Wyoming Cowboys',
+      primary: '#492F24',
+      accent: '#FFC425',
+    },
+    nev: {
+      abbr: 'NEV',
+      name: 'Nevada Wolf Pack',
+      primary: '#003366',
+      accent: '#A7A8AA',
+    },
+    gcu: {
+      abbr: 'GCU',
+      name: 'Grand Canyon Antelopes',
+      primary: '#4F2D7F',
+      accent: '#FFFFFF',
+    },
+    usu: {
+      abbr: 'USU',
+      name: 'Utah State Aggies',
+      primary: '#0F2440',
+      accent: '#FFFFFF',
+    },
+    unlv: {
+      abbr: 'UNLV',
+      name: 'UNLV Rebels',
+      primary: '#CF0A2C',
       accent: '#000000',
       badgeTextColor: '#FFFFFF',
     },
@@ -281,6 +381,13 @@ export const TEAM_COLORS: Record<string, { primary: string; accent: string }> =
   {};
 for (const entry of Object.values(TEAM_BY_NAME)) {
   TEAM_COLORS[entry.name] = { primary: entry.primary, accent: entry.accent };
+}
+
+// Registry-backed abbreviation accessor. Returns the canonical abbr for a
+// team name, or undefined if the team is not in the registry. Callers layer
+// their own fallback (e.g. legacy maps, then a derived short label).
+export function getTeamAbbr(teamName: string): string | undefined {
+  return TEAM_BY_NAME[teamName]?.abbr;
 }
 
 export function isColorDark(hex: string): boolean {

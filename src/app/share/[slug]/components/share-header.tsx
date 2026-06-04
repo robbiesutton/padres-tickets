@@ -80,7 +80,7 @@ export function ShareHeader({
   const hasPayment = !!(pkg.venmoHandle?.trim() || pkg.zelleInfo?.trim());
   const isCompletelyEmpty =
     !pkg.seatPhotoUrl && !pkg.description && !pkg.venmoHandle && !pkg.zelleInfo;
-  const sectionDisplay = `${pkg.section} · Field Level`;
+  const sectionDisplay = pkg.section;
 
   const FTU_KEY = `bb-claimer-ftu-${pkg.slug}-seen`;
   const [hasSeenFTU, setHasSeenFTU] = useState(true);
@@ -324,14 +324,6 @@ export function ShareHeader({
                             Seats {pkg.seats}
                           </span>
                         </div>
-                        <div className="flex items-center justify-between py-2 border-t border-[#E5E1DD]">
-                          <span className="text-[#8e8985]">
-                            Ticket delivery
-                          </span>
-                          <span className="font-bold text-[#1B1716]">
-                            MLB Ballpark App
-                          </span>
-                        </div>
                       </div>
                     </div>
                     {hasPayment && (
@@ -405,12 +397,6 @@ export function ShareHeader({
                         <span className="text-[#8e8985]">Seats</span>
                         <span className="font-bold text-[#1B1716]">
                           Seats {pkg.seats}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between py-2 border-t border-[#E5E1DD]">
-                        <span className="text-[#8e8985]">Ticket delivery</span>
-                        <span className="font-bold text-[#1B1716]">
-                          MLB Ballpark App
                         </span>
                       </div>
                     </div>

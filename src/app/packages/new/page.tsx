@@ -77,6 +77,18 @@ const LEAGUES = [
   { value: 'NWSL', label: 'NWSL', available: false },
 ];
 
+// Sport emoji shown on the celebration screen, keyed by league
+const LEAGUE_EMOJI: Record<string, string> = {
+  MLB: '⚾',
+  NCAAB: '🏀',
+  NBA: '🏀',
+  NFL: '🏈',
+  NHL: '🏒',
+  MLS: '⚽',
+  WNBA: '🏀',
+  NWSL: '⚽',
+};
+
 const MONTH_NAMES = [
   'January',
   'February',
@@ -1151,7 +1163,9 @@ export default function NewPackagePage() {
         <div className="max-w-[480px] mx-auto px-5 pt-6 pb-12 md:py-16">
           {/* Header */}
           <div className="text-center mb-4">
-            <div className="hidden md:block text-6xl mb-5">⚾</div>
+            <div className="hidden md:block text-6xl mb-5">
+              {LEAGUE_EMOJI[league] ?? '⚾'}
+            </div>
             <h2
               className="text-[28px] font-bold text-[#1a1a1a] tracking-tight mb-2"
               style={{ fontFamily: 'var(--font-syne), sans-serif' }}
@@ -1663,66 +1677,6 @@ export default function NewPackagePage() {
             selectedSeats={selectedSeats}
             onToggle={toggleSeat}
           />
-
-          {/* Seat info */}
-          <div className="mt-4">
-            <FormLabel>
-              Seat Photo <span className="font-normal">(Optional)</span>
-            </FormLabel>
-            <div
-              onClick={() => fileInputRef.current?.click()}
-              className="relative w-full h-[160px] rounded-lg border-[1.5px] border-dashed border-[#eceae5] bg-white overflow-hidden cursor-pointer transition-all hover:border-[#b5b1ab]"
-            >
-              {seatPhotoUrl ? (
-                <Image
-                  src={seatPhotoUrl}
-                  alt="View from seat"
-                  fill
-                  className="object-cover"
-                  sizes="100vw"
-                  unoptimized
-                />
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full gap-2 text-[#8e8985]">
-                  <svg
-                    width="28"
-                    height="28"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <rect x="3" y="3" width="18" height="18" rx="2" />
-                    <circle cx="8.5" cy="8.5" r="1.5" />
-                    <path d="M21 15l-5-5L5 21" />
-                  </svg>
-                  <span className="text-sm">Upload a photo of your view</span>
-                </div>
-              )}
-            </div>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handlePhotoUpload}
-            />
-          </div>
-
-          <div className="mt-4">
-            <FormLabel>
-              Description <span className="font-normal">(Optional)</span>
-            </FormLabel>
-            <textarea
-              value={seatDescription}
-              onChange={(e) => setSeatDescription(e.target.value)}
-              placeholder="Describe your seats..."
-              rows={3}
-              className="w-full px-4 py-3 bg-white border-[1.5px] border-[#eceae5] rounded-lg text-[15px] text-[#1a1a1a] resize-none transition-all hover:border-[#b5b1ab] focus:border-[#2c2a2b] focus:outline-none focus:ring-[3px] focus:ring-[#2c2a2b]/10"
-            />
-          </div>
 
           {/* Seat info */}
           <div className="mt-4">
