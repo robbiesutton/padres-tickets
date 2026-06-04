@@ -5,8 +5,7 @@
  * with realistic content for UI/UX iteration.
  */
 
-export const DESIGN_MODE =
-  process.env.NEXT_PUBLIC_DESIGN_MODE === 'true';
+export const DESIGN_MODE = process.env.NEXT_PUBLIC_DESIGN_MODE === 'true';
 
 // Design-mode persona toggle.
 // true  → view the app as the holder (Robbie) — full sidebar: Profile, Seat Info, Subscription, Shared with me
@@ -56,7 +55,8 @@ export const mockPackage = {
   shareLinkSlug: MOCK_SHARE_SLUG,
   status: 'ACTIVE',
   defaultPricePerTicket: 45,
-  description: 'Great shaded seats just past third base. Perfect view of the infield, easy walk to concessions, and never a bad day at the park.',
+  description:
+    'Great shaded seats just past third base. Perfect view of the infield, easy walk to concessions, and never a bad day at the park.',
   seatPhotoUrl: '/stadium-seats.jpg',
   perks: [],
   createdAt: new Date('2026-02-01').toISOString(),
@@ -342,8 +342,16 @@ export const mockGamesWithClaims = mockGames.map((g) => ({
         claimedAt: new Date('2026-03-10').toISOString(),
         claimer:
           g.claim.claimerUserId === MOCK_CLAIMER_ID
-            ? { firstName: mockClaimer.firstName, lastName: mockClaimer.lastName, email: mockClaimer.email }
-            : { firstName: 'Jake', lastName: 'Thompson', email: 'jake@example.com' },
+            ? {
+                firstName: mockClaimer.firstName,
+                lastName: mockClaimer.lastName,
+                email: mockClaimer.email,
+              }
+            : {
+                firstName: 'Jake',
+                lastName: 'Thompson',
+                email: 'jake@example.com',
+              },
       }
     : null,
 }));
@@ -378,7 +386,8 @@ export const mockActivities = [
     id: 'act-002',
     packageId: MOCK_PACKAGE_ID,
     type: 'TRANSFER_UPDATED',
-    description: 'Tickets transferred to Margo Coleman for Padres vs Cubs on Apr 19',
+    description:
+      'Tickets transferred to Margo Coleman for Padres vs Cubs on Apr 19',
     metadata: null,
     createdAt: new Date('2026-03-18T10:15:00Z').toISOString(),
   },
@@ -386,7 +395,8 @@ export const mockActivities = [
     id: 'act-003',
     packageId: MOCK_PACKAGE_ID,
     type: 'PAYMENT_UPDATED',
-    description: 'Margo Coleman marked payment as sent for Padres vs Cubs on Apr 19',
+    description:
+      'Margo Coleman marked payment as sent for Padres vs Cubs on Apr 19',
     metadata: null,
     createdAt: new Date('2026-03-17T09:00:00Z').toISOString(),
   },

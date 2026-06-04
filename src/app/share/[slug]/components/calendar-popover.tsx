@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, startTransition } from 'react';
 import { createPortal } from 'react-dom';
 import type { Game, PackageInfo } from '../types';
 import {
@@ -20,6 +20,7 @@ interface Props {
   onClose: () => void;
   onClaim: () => void;
   onRelease: () => void;
+  onSwitchToMyGames?: () => void;
 }
 
 export function CalendarPopover({
@@ -31,6 +32,7 @@ export function CalendarPopover({
   onClose,
   onClaim,
   onRelease,
+  onSwitchToMyGames,
 }: Props) {
   const popoverRef = useRef<HTMLDivElement>(null);
   const desktopRef = useRef<HTMLDivElement>(null);
@@ -59,7 +61,7 @@ export function CalendarPopover({
 
   // Reset confirmed state when game changes
   useEffect(() => {
-    setJustConfirmed(false);
+    startTransition(() => setJustConfirmed(false));
   }, [game.id]);
 
   const { dow, day, month } = formatShortDate(game.date);
@@ -72,7 +74,9 @@ export function CalendarPopover({
   // Position for desktop popover (only when anchor rects available)
   const hasPosition = anchorRect && containerRect;
   const popoverWidth = 300;
-  const cellCenterY = hasPosition ? anchorRect.top - containerRect.top + anchorRect.height / 2 : 0;
+  const cellCenterY = hasPosition
+    ? anchorRect.top - containerRect.top + anchorRect.height / 2
+    : 0;
   const cellRight = hasPosition ? anchorRect.right - containerRect.left : 0;
   const cellLeft = hasPosition ? anchorRect.left - containerRect.left : 0;
   const containerWidth = hasPosition ? containerRect.width : 0;
@@ -150,7 +154,12 @@ export function CalendarPopover({
               vs {game.opponent}
             </div>
             <div className="text-sm font-medium text-[#8e8985]">
-              {new Date(game.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+              {new Date(game.date).toLocaleDateString('en-US', {
+                weekday: 'long',
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric',
+              })}
             </div>
           </div>
         </div>
@@ -159,8 +168,18 @@ export function CalendarPopover({
           onClick={onClose}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path d="M18 6L6 18" stroke="#8e8985" strokeWidth="2" strokeLinecap="round" />
-            <path d="M6 6l12 12" stroke="#8e8985" strokeWidth="2" strokeLinecap="round" />
+            <path
+              d="M18 6L6 18"
+              stroke="#8e8985"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+            <path
+              d="M6 6l12 12"
+              stroke="#8e8985"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
           </svg>
         </button>
       </div>
@@ -176,7 +195,8 @@ export function CalendarPopover({
             </div>
             {totalPrice !== null && (
               <div className="text-[#2c2a2b] font-medium">
-                {pkg.seatCount} ticket{pkg.seatCount !== 1 ? 's' : ''} · ${totalPrice} total
+                {pkg.seatCount} ticket{pkg.seatCount !== 1 ? 's' : ''} · $
+                {totalPrice} total
               </div>
             )}
           </div>
@@ -204,7 +224,8 @@ export function CalendarPopover({
             </div>
             {totalPrice !== null && (
               <div className="text-[#2c2a2b] font-medium">
-                {pkg.seatCount} ticket{pkg.seatCount !== 1 ? 's' : ''} · ${totalPrice} total
+                {pkg.seatCount} ticket{pkg.seatCount !== 1 ? 's' : ''} · $
+                {totalPrice} total
               </div>
             )}
           </div>
@@ -246,7 +267,9 @@ export function CalendarPopover({
           <div
             ref={desktopRef}
             className={`relative min-w-[280px] max-w-[380px] w-max rounded-xl border shadow-[0_8px_30px_rgba(0,0,0,0.12)] ${
-              reserved ? 'bg-white border-[#0f6f57]' : 'bg-white border-[#e5e3df]'
+              reserved
+                ? 'bg-white border-[#0f6f57]'
+                : 'bg-white border-[#e5e3df]'
             }`}
           >
             {popoverContent}

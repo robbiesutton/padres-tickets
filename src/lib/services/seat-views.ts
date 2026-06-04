@@ -49,12 +49,17 @@ export async function getSeatViewPhotos(
 
     // Parse the API response
     const photos: SeatViewPhoto[] = [];
-    const items = Array.isArray(data) ? data : data.photos || data.results || [];
+    const items = Array.isArray(data)
+      ? data
+      : data.photos || data.results || [];
 
     for (const item of items) {
       if (item.filename || item.image || item.url) {
         photos.push({
-          imageUrl: item.url || item.image || `https://aviewfrommyseat.com/photos/${item.filename}`,
+          imageUrl:
+            item.url ||
+            item.image ||
+            `https://aviewfrommyseat.com/photos/${item.filename}`,
           section: item.section || section,
           row: item.row || '',
           seat: item.seat || '',

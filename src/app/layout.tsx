@@ -1,10 +1,11 @@
-import type { Metadata, Viewport } from 'next';
+import type { Metadata } from 'next';
 import { DM_Sans, Inter, Syne } from 'next/font/google';
 import Script from 'next/script';
 import Providers from './providers';
 import { ConditionalTicker } from '@/components/conditional-ticker';
 import { ConditionalAnalytics } from '@/components/conditional-analytics';
 import { SiteFooter } from '@/components/site-footer';
+import { CookieConsent } from '@/components/cookie-consent';
 import './globals.css';
 
 const dmSans = DM_Sans({
@@ -62,12 +63,16 @@ export default function RootLayout({
       className={`${dmSans.variable} ${inter.variable} ${syne.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <Script src="https://mcp.figma.com/mcp/html-to-design/capture.js" strategy="afterInteractive" />
+        <Script
+          src="https://mcp.figma.com/mcp/html-to-design/capture.js"
+          strategy="afterInteractive"
+        />
         <Providers>
           <div className="flex-1 flex flex-col">{children}</div>
           <ConditionalTicker />
           <SiteFooter />
           <ConditionalAnalytics />
+          <CookieConsent />
         </Providers>
       </body>
     </html>

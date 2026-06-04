@@ -1,8 +1,16 @@
 'use client';
 
-import { useState, useMemo, useEffect, useCallback, Suspense } from 'react';
+import {
+  useState,
+  useMemo,
+  useEffect,
+  useCallback,
+  Suspense,
+  startTransition,
+} from 'react';
 import { useSession } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
+import { usePostHog } from 'posthog-js/react';
 import type { Game, PackageInfo, ViewMode, ActiveTab } from './types';
 import {
   isGameAvailable,
@@ -25,7 +33,13 @@ import { Bone } from '@/components/skeleton';
 import { createPortal } from 'react-dom';
 import Image from 'next/image';
 
-function MobileSeatInfoPill({ pkg, activeTab }: { pkg: PackageInfo; activeTab: ActiveTab }) {
+function MobileSeatInfoPill({
+  pkg,
+  activeTab,
+}: {
+  pkg: PackageInfo;
+  activeTab: ActiveTab;
+}) {
   const [open, setOpen] = useState(false);
   const { primary, accent } = getTeamColors(pkg.team);
   const abbr = getOpponentAbbr(pkg.team);
@@ -39,27 +53,32 @@ function MobileSeatInfoPill({ pkg, activeTab }: { pkg: PackageInfo; activeTab: A
 
   const hasPhoto = !!pkg.seatPhotoUrl;
   const hasPayment = !!(pkg.venmoHandle?.trim() || pkg.zelleInfo?.trim());
-  const isCompletelyEmpty = !pkg.seatPhotoUrl && !pkg.description && !pkg.venmoHandle && !pkg.zelleInfo;
+  const isCompletelyEmpty =
+    !pkg.seatPhotoUrl && !pkg.description && !pkg.venmoHandle && !pkg.zelleInfo;
   const sectionDisplay = `${pkg.section} · Field Level`;
 
   const FTU_KEY = `bb-claimer-ftu-${pkg.slug}-seen`;
   const [hasSeenFTU, setHasSeenFTU] = useState(true);
   useEffect(() => {
     if (activeTab !== 'available') {
-      setOpen(false);
+      startTransition(() => setOpen(false));
       return;
     }
     if (window.matchMedia('(min-width: 768px)').matches) return;
     try {
       const seen = !!window.localStorage.getItem(FTU_KEY);
-      setHasSeenFTU(seen);
-      if (!seen) {
-        window.localStorage.setItem(FTU_KEY, '1');
-        setOpen(true);
-      }
+      startTransition(() => {
+        setHasSeenFTU(seen);
+        if (!seen) {
+          window.localStorage.setItem(FTU_KEY, '1');
+          setOpen(true);
+        }
+      });
     } catch {
-      setHasSeenFTU(false);
-      setOpen(true);
+      startTransition(() => {
+        setHasSeenFTU(false);
+        setOpen(true);
+      });
     }
   }, [FTU_KEY, activeTab]);
 
@@ -78,7 +97,10 @@ function MobileSeatInfoPill({ pkg, activeTab }: { pkg: PackageInfo; activeTab: A
       {/* Pill trigger */}
       <div
         className="flex items-center gap-2.5 h-11 pl-2.5 pr-3 rounded-lg cursor-pointer active:opacity-90"
-        style={{ border: `1px solid ${primary}`, backgroundColor: `${primary}33` }}
+        style={{
+          border: `1px solid ${primary}`,
+          backgroundColor: `${primary}33`,
+        }}
         onClick={() => setOpen(true)}
       >
         <div
@@ -90,8 +112,20 @@ function MobileSeatInfoPill({ pkg, activeTab }: { pkg: PackageInfo; activeTab: A
         <span className="text-base font-medium text-[#1B1716] flex-1">
           {pillLabel}
         </span>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="shrink-0">
-          <path d="M6 9l6 6 6-6" stroke="#8e8985" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          className="shrink-0"
+        >
+          <path
+            d="M6 9l6 6 6-6"
+            stroke="#8e8985"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </svg>
       </div>
 
@@ -243,20 +277,41 @@ interface Props {
   opponents: string[];
 }
 
-function SharePageInner({ packageInfo, games: initialGames, opponents }: Props) {
+function SharePageInner({
+  packageInfo,
+  games: initialGames,
+  opponents,
+}: Props) {
   const { data: session } = useSession();
   const searchParams = useSearchParams();
+  const ph = usePostHog();
+
+  // Fire share_link_opened once on mount — PostHog auto-captures UTMs and referrer
+  useEffect(() => {
+    ph?.capture('share_link_opened', {
+      slug: packageInfo.slug,
+      gameCount: initialGames.length,
+      holderName: packageInfo.holderName,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // State
-  const [activeTab, setActiveTab] = useState<ActiveTab>(searchParams.get('tab') === 'my-games' ? 'my-games' : 'available');
+  const [activeTab, setActiveTab] = useState<ActiveTab>(
+    searchParams.get('tab') === 'my-games' ? 'my-games' : 'available'
+  );
   const [viewMode, setViewMode] = useState<ViewMode>('calendar');
   const [monthFilter, setMonthFilter] = useState<string[]>([]);
   const [opponentFilter, setOpponentFilter] = useState<string[]>([]);
   const [calendarStartIndex, setCalendarStartIndex] = useState(0);
   const [expandedGameId, setExpandedGameId] = useState<string | null>(null);
   const [games, setGames] = useState<Game[]>(initialGames);
-  const [reservedGames, setReservedGames] = useState<Map<string, string>>(new Map()); // gameId -> claimId
-  const [cancelledGameIds, setCancelledGameIds] = useState<Set<string>>(new Set());
+  const [reservedGames, setReservedGames] = useState<Map<string, string>>(
+    new Map()
+  ); // gameId -> claimId
+  const [cancelledGameIds, setCancelledGameIds] = useState<Set<string>>(
+    new Set()
+  );
   const [claimCount, setClaimCount] = useState(0);
   const currentUserId = session?.user?.id || null;
 
@@ -285,7 +340,9 @@ function SharePageInner({ packageInfo, games: initialGames, opponents }: Props) 
   // Refresh games from server to get fresh statuses and claim data
   const refreshGames = useCallback(async () => {
     try {
-      const res = await fetch(`/api/share/${packageInfo.slug}/games?showAll=true`);
+      const res = await fetch(
+        `/api/share/${packageInfo.slug}/games?showAll=true`
+      );
       if (!res.ok) return;
       const data = await res.json();
       setGames(data.games);
@@ -293,13 +350,18 @@ function SharePageInner({ packageInfo, games: initialGames, opponents }: Props) 
       if (currentUserId) {
         const fresh = new Map<string, string>();
         for (const g of data.games) {
-          if (g.claim?.claimerUserId === currentUserId && g.claim?.status !== 'RELEASED') {
+          if (
+            g.claim?.claimerUserId === currentUserId &&
+            g.claim?.status !== 'RELEASED'
+          ) {
             fresh.set(g.id, g.claim.id);
           }
         }
         setReservedGames(fresh);
       }
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }, [packageInfo.slug, currentUserId]);
 
   // Dev affordance: ?ftu=reset clears the FTU localStorage key and reloads,
@@ -334,13 +396,15 @@ function SharePageInner({ packageInfo, games: initialGames, opponents }: Props) 
   // Register visit so claimer gets linked to this package
   useEffect(() => {
     if (!currentUserId) return;
-    fetch(`/api/share/${packageInfo.slug}/visit`, { method: 'POST' }).catch(() => {});
+    fetch(`/api/share/${packageInfo.slug}/visit`, { method: 'POST' }).catch(
+      () => {}
+    );
   }, [currentUserId, packageInfo.slug]);
 
   // Fetch initial claim count
   useEffect(() => {
     fetch(`/api/share/${packageInfo.slug}/my-reservations`)
-      .then((res) => res.ok ? res.json() : null)
+      .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data?.claims) setClaimCount(data.claims.length);
       })
@@ -350,7 +414,10 @@ function SharePageInner({ packageInfo, games: initialGames, opponents }: Props) 
   const reservedCount = claimCount;
 
   // Derived set for components that only need game IDs
-  const reservedGameIds = useMemo(() => new Set(reservedGames.keys()), [reservedGames]);
+  const reservedGameIds = useMemo(
+    () => new Set(reservedGames.keys()),
+    [reservedGames]
+  );
 
   // Filter games
   const filteredGames = useMemo(() => {
@@ -359,7 +426,8 @@ function SharePageInner({ packageInfo, games: initialGames, opponents }: Props) 
         const { month } = getGameMonthYear(g);
         if (!monthFilter.some((mf) => parseInt(mf) - 1 === month)) return false;
       }
-      if (opponentFilter.length > 0 && !opponentFilter.includes(g.opponent)) return false;
+      if (opponentFilter.length > 0 && !opponentFilter.includes(g.opponent))
+        return false;
       return true;
     });
   }, [games, monthFilter, opponentFilter]);
@@ -491,8 +559,15 @@ function SharePageInner({ packageInfo, games: initialGames, opponents }: Props) 
           <>
             {/* Page heading — uses Holder's first name per voice guide */}
             <div className="hidden md:block mb-8">
-              <h1 className="text-2xl font-bold leading-tight text-[#2c2a2b]" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>
-                {holderFirstName ? <>{holderFirstName}&apos;s season</> : 'Your shared season'}
+              <h1
+                className="text-2xl font-bold leading-tight text-[#2c2a2b]"
+                style={{ fontFamily: 'var(--font-syne), sans-serif' }}
+              >
+                {holderFirstName ? (
+                  <>{holderFirstName}&apos;s season</>
+                ) : (
+                  'Your shared season'
+                )}
               </h1>
               <p className="mt-2 text-base text-[#8e8985]">
                 {holderFirstName
@@ -606,7 +681,9 @@ function ShareSkeleton() {
       <div className="h-[60px] md:h-[77px] flex items-center justify-between px-4 md:px-8 bg-[#2c2a2b]">
         <div className="flex items-center gap-4">
           <Bone w="120px" h="24px" delay={0} />
-          <div className="hidden md:block"><Bone w="240px" h="40px" r={8} delay={0.05} /></div>
+          <div className="hidden md:block">
+            <Bone w="240px" h="40px" r={8} delay={0.05} />
+          </div>
         </div>
         <Bone w="40px" h="40px" r="50%" delay={0.1} />
       </div>
@@ -639,7 +716,10 @@ function ShareSkeleton() {
         {/* Game cards */}
         <div className="flex flex-col gap-2">
           {[0, 1, 2, 3, 4].map((i) => (
-            <div key={i} className="rounded-lg px-4 md:px-6 py-4 border border-[#dcd7d4] bg-white flex items-center gap-2 md:gap-10">
+            <div
+              key={i}
+              className="rounded-lg px-4 md:px-6 py-4 border border-[#dcd7d4] bg-white flex items-center gap-2 md:gap-10"
+            >
               <div className="flex items-center gap-2 md:gap-4 shrink-0">
                 <div className="flex flex-col items-center gap-1 w-[30px]">
                   <Bone w="20px" h="10px" delay={i * 0.1} />

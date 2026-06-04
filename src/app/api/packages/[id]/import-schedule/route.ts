@@ -16,7 +16,8 @@ export async function POST(
 
   const pkg = await prisma.package.findUnique({ where: { id } });
   if (!pkg) return jsonError('Package not found', 404);
-  if (!(await requirePackageOwner(id, user.id))) return jsonError('Forbidden', 403);
+  if (!(await requirePackageOwner(id, user.id)))
+    return jsonError('Forbidden', 403);
 
   // Resolve team ID from package team name
   const body = await request.json().catch(() => ({}));

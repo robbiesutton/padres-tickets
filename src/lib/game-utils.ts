@@ -1,13 +1,31 @@
-import type { Game } from '@/app/share/[slug]/types';
-
 export const MONTH_NAMES = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December',
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
 ];
 
 export const SHORT_MONTH_NAMES = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
 ];
 
 export const DAY_LABELS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
@@ -112,18 +130,26 @@ export function formatShortDate(dateStr: string): {
   };
 }
 
-export function formatPrice(pricePerTicket: number | null, seatCount: number): string {
+export function formatPrice(
+  pricePerTicket: number | null,
+  _seatCount: number
+): string {
   if (pricePerTicket === null) return '';
   if (pricePerTicket === 0) return 'Free';
   return `$${pricePerTicket}`;
 }
 
-export function formatTotalPrice(pricePerTicket: number | null, seatCount: number): string {
+export function formatTotalPrice(
+  pricePerTicket: number | null,
+  seatCount: number
+): string {
   if (pricePerTicket === null || pricePerTicket === 0) return '$0';
   return `$${pricePerTicket * seatCount}`;
 }
 
-export function groupGamesByMonth<T extends { date: string }>(games: T[]): Map<string, T[]> {
+export function groupGamesByMonth<T extends { date: string }>(
+  games: T[]
+): Map<string, T[]> {
   const groups = new Map<string, T[]>();
   for (const game of games) {
     const d = new Date(game.date);
@@ -140,7 +166,11 @@ export function isGameAvailable(game: { status: string }): boolean {
 }
 
 export function isGameClaimed(game: { status: string }): boolean {
-  return game.status === 'CLAIMED' || game.status === 'TRANSFERRED' || game.status === 'COMPLETE';
+  return (
+    game.status === 'CLAIMED' ||
+    game.status === 'TRANSFERRED' ||
+    game.status === 'COMPLETE'
+  );
 }
 
 export function isGameUnavailable(game: { status: string }): boolean {
@@ -151,7 +181,10 @@ export function isGameUnavailable(game: { status: string }): boolean {
   );
 }
 
-export function getGameMonthYear(game: { date: string }): { month: number; year: number } {
+export function getGameMonthYear(game: { date: string }): {
+  month: number;
+  year: number;
+} {
   const d = new Date(game.date);
   return { month: d.getMonth(), year: d.getFullYear() };
 }

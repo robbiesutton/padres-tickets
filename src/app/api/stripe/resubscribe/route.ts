@@ -27,7 +27,11 @@ export async function POST() {
   const sub = user.subscription;
 
   // Case 1: Pending cancellation — undo it
-  if (sub?.cancelAtPeriodEnd && sub.stripeSubscriptionId && sub.status !== 'CANCELLED') {
+  if (
+    sub?.cancelAtPeriodEnd &&
+    sub.stripeSubscriptionId &&
+    sub.status !== 'CANCELLED'
+  ) {
     await stripe.subscriptions.update(sub.stripeSubscriptionId, {
       cancel_at_period_end: false,
     });

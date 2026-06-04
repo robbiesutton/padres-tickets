@@ -29,7 +29,9 @@ export function CalendarLegend({ games }: Props) {
         >
           {abbr}
         </div>
-        <span className="text-xs md:text-sm font-normal text-[#8e8985]">Available</span>
+        <span className="text-xs md:text-sm font-normal text-[#8e8985]">
+          Available
+        </span>
       </div>
       <div className="flex items-center gap-[6px]">
         <div className="relative w-[24px] h-[24px]">
@@ -41,7 +43,9 @@ export function CalendarLegend({ games }: Props) {
           </div>
           <CheckBadge variant="legend" />
         </div>
-        <span className="text-xs md:text-sm font-normal text-[#8e8985]">Claimed</span>
+        <span className="text-xs md:text-sm font-normal text-[#8e8985]">
+          Claimed
+        </span>
       </div>
       <div className="flex items-center gap-[6px]">
         <span className="text-xs md:text-sm font-normal text-[#8e8985]">02</span>

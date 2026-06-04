@@ -5,20 +5,34 @@ import { jsonError } from '@/lib/api-utils';
 import { getClientIp, rateLimit, rateLimitResponse } from '@/lib/rate-limit';
 import { DESIGN_MODE } from '@/lib/mock-data';
 import { setSessionCookie } from '@/lib/session';
+import { trackServerEvent, AnalyticsEvents } from '@/lib/analytics';
 
 export async function POST(request: NextRequest) {
   if (DESIGN_MODE) {
-    return NextResponse.json({ ok: true, data: { message: 'Check your email to verify your account' } });
+    return NextResponse.json({
+      ok: true,
+      data: { message: 'Check your email to verify your account' },
+    });
   }
   const ip = getClientIp(request);
   const { success } = rateLimit(`signup:${ip}`, 5, 60_000);
   if (!success) return rateLimitResponse();
 
   const body = await request.json();
-  const { firstName, lastName, email, password, agreedToTerms, marketingOptIn } = body;
+  const {
+    firstName,
+    lastName,
+    email,
+    password,
+    agreedToTerms,
+    marketingOptIn,
+  } = body;
 
   if (!agreedToTerms) {
-    return jsonError('You must agree to the Terms of Service and Privacy Policy', 400);
+    return jsonError(
+      'You must agree to the Terms of Service and Privacy Policy',
+      400
+    );
   }
 
   if (!firstName || !lastName || !email || !password) {
@@ -54,6 +68,12 @@ export async function POST(request: NextRequest) {
       notificationPrefs: { marketingOptIn: !!marketingOptIn },
     },
   });
+
+  trackServerEvent(
+    AnalyticsEvents.SIGNUP_COMPLETED,
+    { email: user.email, firstName: user.firstName },
+    user.id
+  );
 
   const response = NextResponse.json(
     {

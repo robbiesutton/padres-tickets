@@ -10,7 +10,12 @@ interface Props {
   onJumpToMonth: (monthIndex: number) => void;
 }
 
-export function AlsoPlaysIn({ games, opponentFilter, monthFilter, onJumpToMonth }: Props) {
+export function AlsoPlaysIn({
+  games,
+  opponentFilter,
+  monthFilter,
+  onJumpToMonth,
+}: Props) {
   if (opponentFilter.length === 0) return null;
 
   const oppGames = games.filter(
@@ -44,11 +49,25 @@ export function AlsoPlaysIn({ games, opponentFilter, monthFilter, onJumpToMonth 
                 : 'bg-white border border-[#dcd7d4] shadow-[0_1px_2px_rgba(0,0,0,0.05)] hover:bg-[#FFF8E7] hover:border-[#E5AB00] hover:shadow-none'
             }`}
           >
-            <span className={`text-[11px] font-medium leading-4 ${isSelected ? 'text-white' : 'text-[#2c2a2b]'}`}>
+            <span
+              className={`text-[11px] font-medium leading-4 ${isSelected ? 'text-white' : 'text-[#2c2a2b]'}`}
+            >
               {MONTH_NAMES[month]}
             </span>
             {!isSelected && (
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#2c2a2b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="M12 5l7 7-7 7" /></svg>
+              <svg
+                width="10"
+                height="10"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#2c2a2b"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M5 12h14" />
+                <path d="M12 5l7 7-7 7" />
+              </svg>
             )}
           </button>
         );

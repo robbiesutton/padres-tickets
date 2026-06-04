@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { prisma } from '@/lib/db';
+import { trackServerEvent, AnalyticsEvents } from '@/lib/analytics';
 import type Stripe from 'stripe';
 
 export async function POST(request: NextRequest) {
@@ -22,6 +23,13 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: 'Invalid signature' }, { status: 400 });
   }
 
+  // Deduplicate: Stripe retries on non-200; ignore already-processed events
+  try {
+    await prisma.stripeEvent.create({ data: { id: event.id } });
+  } catch {
+    return Response.json({ received: true });
+  }
+
   switch (event.type) {
     case 'checkout.session.completed': {
       const session = event.data.object as Stripe.Checkout.Session;
@@ -39,7 +47,9 @@ export async function POST(request: NextRequest) {
           stripePriceId: subscription.items.data[0]?.price.id,
           status: subscription.status === 'trialing' ? 'TRIALING' : 'ACTIVE',
           billingCycle: 'ANNUAL',
-          currentPeriodEnd: new Date(subscription.items.data[0].current_period_end * 1000),
+          currentPeriodEnd: new Date(
+            subscription.items.data[0].current_period_end * 1000
+          ),
           trialEnd: subscription.trial_end
             ? new Date(subscription.trial_end * 1000)
             : null,
@@ -52,13 +62,20 @@ export async function POST(request: NextRequest) {
           stripePriceId: subscription.items.data[0]?.price.id,
           status: subscription.status === 'trialing' ? 'TRIALING' : 'ACTIVE',
           billingCycle: 'ANNUAL',
-          currentPeriodEnd: new Date(subscription.items.data[0].current_period_end * 1000),
+          currentPeriodEnd: new Date(
+            subscription.items.data[0].current_period_end * 1000
+          ),
           trialEnd: subscription.trial_end
             ? new Date(subscription.trial_end * 1000)
             : null,
           cancelAtPeriodEnd: subscription.cancel_at_period_end,
         },
       });
+      trackServerEvent(
+        AnalyticsEvents.SUBSCRIPTION_STARTED,
+        { status: subscription.status, billingCycle: 'ANNUAL' },
+        userId
+      );
       break;
     }
 
@@ -69,7 +86,10 @@ export async function POST(request: NextRequest) {
       });
       if (!existing) break;
 
-      const statusMap: Record<string, 'ACTIVE' | 'TRIALING' | 'CANCELLED' | 'PAST_DUE'> = {
+      const statusMap: Record<
+        string,
+        'ACTIVE' | 'TRIALING' | 'CANCELLED' | 'PAST_DUE'
+      > = {
         active: 'ACTIVE',
         trialing: 'TRIALING',
         past_due: 'PAST_DUE',
@@ -81,7 +101,9 @@ export async function POST(request: NextRequest) {
         where: { stripeSubscriptionId: subscription.id },
         data: {
           status: statusMap[subscription.status] || 'ACTIVE',
-          currentPeriodEnd: new Date(subscription.items.data[0].current_period_end * 1000),
+          currentPeriodEnd: new Date(
+            subscription.items.data[0].current_period_end * 1000
+          ),
           cancelAtPeriodEnd: subscription.cancel_at_period_end,
           trialEnd: subscription.trial_end
             ? new Date(subscription.trial_end * 1000)
@@ -94,6 +116,10 @@ export async function POST(request: NextRequest) {
 
     case 'customer.subscription.deleted': {
       const subscription = event.data.object as Stripe.Subscription;
+      const deleted = await prisma.subscription.findUnique({
+        where: { stripeSubscriptionId: subscription.id },
+        select: { userId: true },
+      });
       await prisma.subscription.updateMany({
         where: { stripeSubscriptionId: subscription.id },
         data: {
@@ -103,6 +129,13 @@ export async function POST(request: NextRequest) {
           stripePriceId: null,
         },
       });
+      if (deleted?.userId) {
+        trackServerEvent(
+          AnalyticsEvents.SUBSCRIPTION_CANCELLED,
+          {},
+          deleted.userId
+        );
+      }
       break;
     }
 

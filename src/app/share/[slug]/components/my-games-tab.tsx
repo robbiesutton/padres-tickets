@@ -1,9 +1,15 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { signOut } from 'next-auth/react';
 import type { PackageInfo, MyGameClaim, Game } from '../types';
 import { getTeamColors } from '../team-colors';
-import { groupGamesByMonth, getOpponentAbbr, getOpponentColor, formatTime, formatShortDate } from '../utils';
+import {
+  groupGamesByMonth,
+  getOpponentAbbr,
+  getOpponentColor,
+  formatShortDate,
+} from '../utils';
 import { GameCard } from './game-card';
 import { CalendarPopover } from './calendar-popover';
 
@@ -15,11 +21,17 @@ interface Props {
   onGameReleased: (gameId: string) => void;
 }
 
-export function MyGamesTab({ pkg, claimerName, onSwitchToAvailable, onReservationCountChange, onGameReleased }: Props) {
+export function MyGamesTab({
+  pkg,
+  claimerName,
+  onSwitchToAvailable,
+  onReservationCountChange,
+  onGameReleased,
+}: Props) {
   const [claims, setClaims] = useState<MyGameClaim[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [selectedGameId, setSelectedGameId] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [, setCopied] = useState(false);
 
   const { primary: teamPrimary, accent: teamAccent } = getTeamColors(pkg.team);
 
@@ -59,7 +71,7 @@ export function MyGamesTab({ pkg, claimerName, onSwitchToAvailable, onReservatio
     }
   }
 
-  function handleCopyLink() {
+  function _handleCopyLink() {
     const link = `benchbuddy.app/s/${pkg.slug}`;
     navigator.clipboard.writeText(link);
     setCopied(true);
@@ -69,9 +81,7 @@ export function MyGamesTab({ pkg, claimerName, onSwitchToAvailable, onReservatio
   // Loading
   if (loading && !claims) {
     return (
-      <div className="py-12 text-center text-muted">
-        Loading your games...
-      </div>
+      <div className="py-12 text-center text-muted">Loading your games...</div>
     );
   }
 
@@ -122,27 +132,35 @@ export function MyGamesTab({ pkg, claimerName, onSwitchToAvailable, onReservatio
   const now = new Date();
   const nextGame = claimGames
     .filter((c) => new Date(c.game.date) > now)
-    .sort((a, b) => new Date(a.game.date).getTime() - new Date(b.game.date).getTime())[0];
+    .sort(
+      (a, b) =>
+        new Date(a.game.date).getTime() - new Date(b.game.date).getTime()
+    )[0];
 
-  const daysAway = nextGame
-    ? Math.ceil((new Date(nextGame.game.date).getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+  const _daysAway = nextGame
+    ? Math.ceil(
+        (new Date(nextGame.game.date).getTime() - now.getTime()) /
+          (1000 * 60 * 60 * 24)
+      )
     : null;
 
-  const nextGameDate = nextGame
-    ? formatShortDate(nextGame.game.date)
-    : null;
+  const _nextGameDate = nextGame ? formatShortDate(nextGame.game.date) : null;
 
-  const nextGameAbbr = nextGame ? getOpponentAbbr(nextGame.game.opponent) : '';
-  const nextGameColor = nextGame ? getOpponentColor(nextGame.game.opponent) : '';
+  const _nextGameAbbr = nextGame ? getOpponentAbbr(nextGame.game.opponent) : '';
+  const _nextGameColor = nextGame
+    ? getOpponentColor(nextGame.game.opponent)
+    : '';
 
   // Group by month
   const grouped = groupGamesByMonth(claimGames.map((c) => c.game));
 
   // Selected game for drawer
-  const selectedGame = selectedGameId ? claimGames.find((c) => c.game.id === selectedGameId) : null;
+  const selectedGame = selectedGameId
+    ? claimGames.find((c) => c.game.id === selectedGameId)
+    : null;
 
   // Holder initials
-  const holderInitials = pkg.holderName
+  const _holderInitials = pkg.holderName
     .split(' ')
     .map((n) => n[0])
     .join('')
@@ -150,9 +168,12 @@ export function MyGamesTab({ pkg, claimerName, onSwitchToAvailable, onReservatio
     .slice(0, 2);
 
   return (
-    <div className="flex flex-col">
+    <div data-testid="my-games-list" className="flex flex-col">
       {/* Greeting */}
-      <p className="hidden md:block text-2xl text-[#2c2a2b] mb-8 font-bold" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>
+      <p
+        className="hidden md:block text-2xl text-[#2c2a2b] mb-8 font-bold"
+        style={{ fontFamily: 'var(--font-syne), sans-serif' }}
+      >
         {claimerName || 'Margo'}, here are your games.
       </p>
 
@@ -162,13 +183,17 @@ export function MyGamesTab({ pkg, claimerName, onSwitchToAvailable, onReservatio
           {/* Month header — label → content = sm (16px) */}
           <div className="flex items-center gap-2 mb-4">
             <div className="flex items-center gap-2 pl-1">
-              <div className="w-[3px] h-4 rounded-sm" style={{ backgroundColor: teamAccent }} />
+              <div
+                className="w-[3px] h-4 rounded-sm"
+                style={{ backgroundColor: teamAccent }}
+              />
               <span className="text-xl font-semibold text-black">
                 {monthLabel}
               </span>
             </div>
             <span className="text-sm font-medium text-[#8e8985] leading-5">
-              &bull; {monthGames.length} game{monthGames.length !== 1 ? 's' : ''}
+              &bull; {monthGames.length} game
+              {monthGames.length !== 1 ? 's' : ''}
             </span>
           </div>
 
@@ -186,7 +211,9 @@ export function MyGamesTab({ pkg, claimerName, onSwitchToAvailable, onReservatio
                   teamColor={teamPrimary}
                   holderLabel={`${pkg.holderName}'s Season Tickets`}
                   onReserve={() => {}}
-                  onRelease={() => claimData && handleRelease(claimData.claim.id)}
+                  onRelease={() =>
+                    claimData && handleRelease(claimData.claim.id)
+                  }
                   onMobileTap={() => setSelectedGameId(game.id)}
                 />
               );
@@ -198,11 +225,19 @@ export function MyGamesTab({ pkg, claimerName, onSwitchToAvailable, onReservatio
       {/* Browse other games — desktop, mt = md/lg */}
       <div className="hidden md:flex flex-col items-end gap-3 -mt-4">
         <button
+          data-testid="my-games-browse"
           className="h-11 px-6 rounded-lg text-white text-base font-medium border-none cursor-pointer flex items-center justify-center hover:opacity-90 transition-opacity"
           style={{ backgroundColor: teamPrimary }}
           onClick={onSwitchToAvailable}
         >
           Browse other games
+        </button>
+        <button
+          data-testid="my-games-sign-out"
+          className="text-sm font-medium text-[#8e8985] bg-transparent border-none cursor-pointer hover:text-[#2c2a2b] transition-colors"
+          onClick={() => signOut()}
+        >
+          Sign out
         </button>
       </div>
 
@@ -215,10 +250,15 @@ export function MyGamesTab({ pkg, claimerName, onSwitchToAvailable, onReservatio
         >
           Browse other games
         </button>
+        <button
+          className="w-full mt-2 text-sm font-medium text-[#8e8985] bg-transparent border-none cursor-pointer active:text-[#2c2a2b] transition-colors py-1"
+          onClick={() => signOut()}
+        >
+          Sign out
+        </button>
       </div>
       {/* Spacer for sticky button + footer coverage */}
       <div className="md:hidden h-36" />
-
 
       {/* Mobile/Desktop game detail drawer */}
       {selectedGame && (

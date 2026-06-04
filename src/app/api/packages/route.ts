@@ -4,8 +4,12 @@ import { requireAuth, jsonError, jsonSuccess } from '@/lib/api-utils';
 import { generateUniqueSlug } from '@/lib/services/slug';
 import { getTeamById } from '@/lib/data/mlb-teams';
 import { getHomeSchedule } from '@/lib/services/schedule';
-import { getSeatViewPhotos, getBestSeatViewUrl } from '@/lib/services/seat-views';
+import {
+  getSeatViewPhotos,
+  getBestSeatViewUrl,
+} from '@/lib/services/seat-views';
 import { DESIGN_MODE, mockPackage } from '@/lib/mock-data';
+import { trackServerEvent, AnalyticsEvents } from '@/lib/analytics';
 
 export async function GET() {
   if (DESIGN_MODE) {
@@ -33,8 +37,8 @@ export async function GET() {
   });
 
   const packages = memberships
-    .filter(m => m.package.status === 'ACTIVE')
-    .map(m => ({
+    .filter((m) => m.package.status === 'ACTIVE')
+    .map((m) => ({
       ...m.package,
       _count: m.package._count,
     }));
@@ -189,10 +193,14 @@ export async function POST(request: NextRequest) {
             time: g.time,
             opponent: g.opponent,
             opponentLogo: null as string | null,
-            pricePerTicket: override?.pricePerTicket ?? (defaultPricePerTicket
-              ? parseFloat(defaultPricePerTicket)
-              : null),
-            status: (override?.status || 'AVAILABLE') as 'AVAILABLE' | 'GOING_MYSELF',
+            pricePerTicket:
+              override?.pricePerTicket ??
+              (defaultPricePerTicket
+                ? parseFloat(defaultPricePerTicket)
+                : null),
+            status: (override?.status || 'AVAILABLE') as
+              | 'AVAILABLE'
+              | 'GOING_MYSELF',
           };
         });
 
@@ -205,6 +213,18 @@ export async function POST(request: NextRequest) {
       console.error('Failed to auto-load schedule:', error);
     }
   }
+
+  trackServerEvent(
+    AnalyticsEvents.PACKAGE_SETUP_COMPLETED,
+    {
+      packageId: pkg.id,
+      team: team.name,
+      season,
+      gamesCreated,
+      shareLink: slug,
+    },
+    user.id
+  );
 
   return jsonSuccess(
     {

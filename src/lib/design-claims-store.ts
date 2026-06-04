@@ -3,7 +3,7 @@
  * Persists across API calls within the same server process,
  * resets on server restart.
  */
-import { mockMyClaims, mockGames, mockPackage, mockHolder, MOCK_USER_ID } from './mock-data';
+import { mockMyClaims, mockGames } from './mock-data';
 
 export interface DesignClaim {
   id: string;
@@ -45,7 +45,11 @@ export function getDesignClaims(): DesignClaim[] {
   return [...claims];
 }
 
-export function addDesignClaim(gameId: string): { success: boolean; claim?: DesignClaim; error?: string } {
+export function addDesignClaim(gameId: string): {
+  success: boolean;
+  claim?: DesignClaim;
+  error?: string;
+} {
   if (claims.some((c) => c.gameId === gameId)) {
     return { success: false, error: 'Game already reserved' };
   }
@@ -75,7 +79,10 @@ export function addDesignClaim(gameId: string): { success: boolean; claim?: Desi
   return { success: true, claim };
 }
 
-export function removeDesignClaim(claimId: string): { success: boolean; error?: string } {
+export function removeDesignClaim(claimId: string): {
+  success: boolean;
+  error?: string;
+} {
   const idx = claims.findIndex((c) => c.id === claimId);
   if (idx === -1) {
     return { success: false, error: 'Claim not found' };

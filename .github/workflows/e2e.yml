@@ -1,0 +1,261 @@
+name: E2E Tests
+
+on:
+  pull_request:
+    branches: [main, design]
+  push:
+    branches: [main, design]
+  workflow_dispatch:
+
+# Cancel in-progress runs on force-pushes to avoid burning Mailosaur quota
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit:
+    name: Unit tests (Vitest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci --legacy-peer-deps
+      - run: npx prisma generate
+      - run: npm test
+
+  e2e:
+    name: E2E tests (Playwright)
+    needs: [unit]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci --legacy-peer-deps
+      - run: npx prisma generate
+      - run: npx playwright install chromium webkit --with-deps
+
+      # Vercel auto-deploys every push. Poll Vercel's own API (not GitHub's)
+      # to find the existing deployment for this SHA and wait until READY.
+      # Falls back to branch-name lookup when Vercel doesn't tag the deployment
+      # with meta-githubCommitSha (happens when the GitHub integration omits it).
+      - name: Get Vercel preview URL
+        id: deploy
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_TEAM_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          # pull_request events have a synthetic merge SHA in github.sha —
+          # use the actual branch HEAD SHA that Vercel deploys from instead
+          SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          BRANCH: ${{ github.head_ref || github.ref_name }}
+        run: |
+          echo "Polling Vercel API for deployment of SHA $SHA (branch: $BRANCH)..."
+          for i in $(seq 1 60); do
+            RESPONSE=$(curl -sf \
+              -H "Authorization: Bearer $VERCEL_TOKEN" \
+              "https://api.vercel.com/v6/deployments?teamId=$VERCEL_TEAM_ID&projectId=$VERCEL_PROJECT_ID&meta-githubCommitSha=$SHA&limit=1")
+
+            STATE=$(echo "$RESPONSE" | jq -r '.deployments[0].readyState // empty')
+            URL=$(echo "$RESPONSE" | jq -r '.deployments[0].url // empty')
+
+            # SHA lookup found nothing — fall back to branch name
+            if [ -z "$STATE" ] && [ -n "$BRANCH" ]; then
+              RESPONSE=$(curl -sf \
+                -H "Authorization: Bearer $VERCEL_TOKEN" \
+                "https://api.vercel.com/v6/deployments?teamId=$VERCEL_TEAM_ID&projectId=$VERCEL_PROJECT_ID&meta-githubCommitRef=$BRANCH&limit=1")
+              STATE=$(echo "$RESPONSE" | jq -r '.deployments[0].readyState // empty')
+              URL=$(echo "$RESPONSE" | jq -r '.deployments[0].url // empty')
+              echo "Attempt $i: state=${STATE:-not found yet} (via branch fallback)"
+            else
+              echo "Attempt $i: state=${STATE:-not found yet}"
+            fi
+
+            if [ "$STATE" = "READY" ] && [ -n "$URL" ]; then
+              echo "url=https://$URL" >> "$GITHUB_OUTPUT"
+              echo "Preview ready: https://$URL"
+              exit 0
+            elif [ "$STATE" = "ERROR" ] || [ "$STATE" = "CANCELED" ]; then
+              echo "Deployment failed with state: $STATE"
+              exit 1
+            fi
+            sleep 10
+          done
+          echo "Timed out waiting for Vercel deployment (10 minutes)"
+          exit 1
+        timeout-minutes: 12
+
+      # Hit the root URL with the bypass header until the server responds
+      - name: Warm up preview
+        run: |
+          URL="${{ steps.deploy.outputs.url }}"
+          for i in $(seq 1 12); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+              -H "x-vercel-protection-bypass: ${{ secrets.VERCEL_BYPASS_SECRET }}" \
+              "$URL")
+            if echo "$STATUS" | grep -qE "^[23]"; then
+              echo "Preview warm (HTTP $STATUS)"; exit 0
+            fi
+            echo "Attempt $i/12 — status=${STATUS:-no response}, waiting 5s..."; sleep 5
+          done
+          echo "Preview did not warm up"; exit 1
+        timeout-minutes: 2
+
+      # Seed the Neon branch with deterministic test data before running tests
+      - name: Seed test database
+        run: npx prisma migrate deploy && npm run db:seed:test
+        env:
+          DATABASE_URL: ${{ secrets.NEON_PREVIEW_DATABASE_URL }}
+          TEST_EMAIL_DOMAIN: ${{ secrets.MAILOSAUR_SERVER_ID }}.mailosaur.net
+          NODE_ENV: test
+
+      # Bootstrap visual baselines if missing. Desktop and mobile are checked
+      # independently — adding mobile tests to a repo with existing desktop
+      # baselines only re-bootstraps mobile, not the full suite.
+      - name: Bootstrap visual baselines (first run only)
+        run: |
+          DESKTOP_COUNT=$(find e2e/specs/__screenshots__ -name "*.png" -not -name "mobile-*" 2>/dev/null | wc -l | tr -d ' ')
+          MOBILE_COUNT=$(find e2e/specs/__screenshots__ -name "mobile-*.png" 2>/dev/null | wc -l | tr -d ' ')
+          NEEDS_COMMIT=false
+
+          if [ "$DESKTOP_COUNT" = "0" ]; then
+            echo "No desktop baselines — generating..."
+            npx playwright test e2e/specs/visual.spec.ts \
+              --update-snapshots \
+              --project=chromium-desktop || true
+            NEEDS_COMMIT=true
+          else
+            echo "Desktop baselines present ($DESKTOP_COUNT files)."
+          fi
+
+          if [ "$MOBILE_COUNT" = "0" ]; then
+            echo "No mobile baselines — generating..."
+            npx playwright test e2e/specs/visual.spec.ts \
+              --update-snapshots \
+              --project=webkit-iphone-13 || true
+            NEEDS_COMMIT=true
+          else
+            echo "Mobile baselines present ($MOBILE_COUNT files)."
+          fi
+
+          if [ "$NEEDS_COMMIT" = "true" ]; then
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git config user.name "github-actions[bot]"
+            git add e2e/specs/__screenshots__/
+            git diff --cached --quiet || \
+              git commit -m "chore: add visual regression baselines [skip ci]"
+            git push origin HEAD || true
+            echo "Baselines committed — comparison mode active from next run."
+          fi
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ steps.deploy.outputs.url }}
+          VERCEL_BYPASS_SECRET: ${{ secrets.VERCEL_BYPASS_SECRET }}
+          # Auth env vars required so globalSetup can log in and authenticated
+          # visual tests get real page screenshots, not login-redirect screenshots.
+          MAILOSAUR_API_KEY: ${{ secrets.MAILOSAUR_API_KEY }}
+          MAILOSAUR_SERVER_ID: ${{ secrets.MAILOSAUR_SERVER_ID }}
+          TEST_EMAIL_DOMAIN: ${{ secrets.MAILOSAUR_SERVER_ID }}.mailosaur.net
+          NEON_PREVIEW_DATABASE_URL: ${{ secrets.NEON_PREVIEW_DATABASE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+
+      # Restore previous run state so subsequent PR pushes only re-run failed tests.
+      # Skipped for workflow_dispatch (no PR number) to avoid stale state from
+      # prior manual runs contaminating the --last-failed list.
+      - name: Restore last-run state
+        id: restore-last-run
+        if: github.event.pull_request.number != ''
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: playwright-last-run-pr-${{ github.event.pull_request.number }}
+          path: .playwright/
+
+      - name: Run Playwright tests
+        # On the design branch run only @smoke tests — fast, no Mailosaur/DB needed.
+        # On subsequent PR pushes where a last-run state exists, only re-run failures.
+        # Full suite on first run, on main, or on workflow_dispatch.
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/design" ]; then
+            npx playwright test --grep "@smoke"
+          elif [ -n "${{ github.event.pull_request.number }}" ] && [ "${{ steps.restore-last-run.outcome }}" = "success" ] && [ -f ".playwright/last-run.json" ]; then
+            echo "Previous run state found — re-running failed/not-run tests only"
+            npx playwright test --last-failed --pass-with-no-tests
+          else
+            npx playwright test
+          fi
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ steps.deploy.outputs.url }}
+          VERCEL_BYPASS_SECRET: ${{ secrets.VERCEL_BYPASS_SECRET }}
+          MAILOSAUR_API_KEY: ${{ secrets.MAILOSAUR_API_KEY }}
+          MAILOSAUR_SERVER_ID: ${{ secrets.MAILOSAUR_SERVER_ID }}
+          TEST_EMAIL_DOMAIN: ${{ secrets.MAILOSAUR_SERVER_ID }}.mailosaur.net
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          NEON_PREVIEW_DATABASE_URL: ${{ secrets.NEON_PREVIEW_DATABASE_URL }}
+
+      # Save last-run state so the next push to this PR can use --last-failed.
+      # Only saved for pull_request events (not workflow_dispatch) to avoid
+      # stale state from manual runs being used by subsequent PR pushes.
+      - name: Save last-run state
+        if: always() && github.event.pull_request.number != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-last-run-pr-${{ github.event.pull_request.number }}
+          path: .playwright/last-run.json
+          retention-days: 7
+          if-no-files-found: ignore
+          overwrite: true
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+
+      # Visual baselines are committed to e2e/specs/__screenshots__/.
+      # On first run (no baseline), Playwright writes new PNGs here.
+      # Download this artifact → commit → future runs diff against them.
+      - name: Upload visual baselines (new screenshots only)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-baselines
+          path: e2e/specs/__screenshots__/
+          retention-days: 30
+          if-no-files-found: ignore
+
+  report:
+    name: Notion reporter
+    needs: [e2e]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci --legacy-peer-deps
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: playwright-report
+          path: playwright-report/
+      - name: Run reporter
+        run: npx tsx scripts/verify-report.ts
+        env:
+          NOTION_API_TOKEN: ${{ secrets.NOTION_API_TOKEN }}
+          NOTION_VERIFICATION_DB_ID: ${{ secrets.NOTION_VERIFICATION_DB_ID }}
+          NOTION_TASKS_DB_ID: ${{ secrets.NOTION_TASKS_DB_ID }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERCEL_BLOB_RW_TOKEN: ${{ secrets.VERCEL_BLOB_RW_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_HEAD_REF: ${{ github.head_ref }}
+          GITHUB_SHA: ${{ github.sha }}

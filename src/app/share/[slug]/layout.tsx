@@ -34,15 +34,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const holderName = `${pkg.user.firstName} ${pkg.user.lastName}`;
   const availableCount = pkg._count.games;
+  const baseUrl = process.env.NEXTAUTH_URL || 'https://www.getbenchbuddy.com';
 
   return {
     title: `${holderName}'s ${pkg.team} tickets on BenchBuddy`,
     description: `${availableCount} games available this ${pkg.season} season. Claim your tickets!`,
     openGraph: {
-      title: `${holderName}'s ${pkg.team} Tickets on BenchBuddy`,
-      description: `${availableCount} games available this season`,
+      title: `${pkg.user.firstName} shared ${pkg.team} tickets with you`,
+      description: 'Browse available games and claim the ones you want.',
       type: 'website',
       siteName: 'BenchBuddy',
+      images: [
+        {
+          url: `${baseUrl}/share/${slug}/opengraph-image`,
+          width: 1200,
+          height: 630,
+          alt: 'BenchBuddy',
+        },
+      ],
     },
   };
 }

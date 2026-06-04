@@ -59,7 +59,9 @@ export async function GET(
       opponent: c.game.opponent,
       date: c.game.date.toISOString(),
       time: c.game.time,
-      pricePerTicket: c.game.pricePerTicket ? Number(c.game.pricePerTicket) : null,
+      pricePerTicket: c.game.pricePerTicket
+        ? Number(c.game.pricePerTicket)
+        : null,
     },
   }));
 

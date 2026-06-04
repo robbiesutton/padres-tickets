@@ -24,8 +24,9 @@ export async function setSessionCookie(
     maxAge: 30 * 24 * 60 * 60,
   });
 
-  const isSecure = request.headers.get('x-forwarded-proto') === 'https' ||
-                   process.env.NEXTAUTH_URL?.startsWith('https');
+  const isSecure =
+    request.headers.get('x-forwarded-proto') === 'https' ||
+    process.env.NEXTAUTH_URL?.startsWith('https');
   const cookieName = isSecure
     ? '__Secure-next-auth.session-token'
     : 'next-auth.session-token';

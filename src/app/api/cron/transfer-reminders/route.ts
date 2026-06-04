@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
       const markTransferredUrl = `${BASE_URL}/api/games/${game.id}/mark-transferred?token=${actionToken.token}`;
 
       const email = buildTransferActionEmail({
-        holderName: `${holder.firstName} ${holder.lastName}`,
+        holderFirstName: holder.firstName,
         claimerName: `${claim.claimer.firstName} ${claim.claimer.lastName}`,
         claimerEmail: claim.claimer.email,
         team: pkg.team,

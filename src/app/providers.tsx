@@ -1,7 +1,13 @@
 'use client';
 
 import { SessionProvider } from 'next-auth/react';
-import { DESIGN_MODE, MOCK_AS_HOLDER, mockHolder, mockClaimer } from '@/lib/mock-data';
+import { PHProvider } from '@/components/posthog-provider';
+import {
+  DESIGN_MODE,
+  MOCK_AS_HOLDER,
+  mockHolder,
+  mockClaimer,
+} from '@/lib/mock-data';
 
 const persona = MOCK_AS_HOLDER ? mockHolder : mockClaimer;
 
@@ -17,5 +23,9 @@ const mockSession = DESIGN_MODE
   : undefined;
 
 export default function Providers({ children }: { children: React.ReactNode }) {
-  return <SessionProvider session={mockSession}>{children}</SessionProvider>;
+  return (
+    <SessionProvider session={mockSession}>
+      <PHProvider>{children}</PHProvider>
+    </SessionProvider>
+  );
 }

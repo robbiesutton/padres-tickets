@@ -1,0 +1,43 @@
+import { defineConfig, devices } from '@playwright/test';
+
+export default defineConfig({
+  testDir: './e2e/specs',
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  workers: process.env.CI ? 1 : undefined,
+  reporter: [
+    ['html'],
+    ['json', { outputFile: 'playwright-report/results.json' }],
+    ['github'],
+  ],
+  use: {
+    baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000',
+    trace: 'on-first-retry',
+    video: 'on-first-retry',
+    screenshot: 'only-on-failure',
+    // Pass Vercel deployment protection bypass header when testing against previews
+    extraHTTPHeaders: process.env.VERCEL_BYPASS_SECRET
+      ? { 'x-vercel-protection-bypass': process.env.VERCEL_BYPASS_SECRET }
+      : {},
+  },
+  // Visual baselines stored alongside specs for easy review in PRs.
+  // Bootstrap step in e2e.yml creates baselines on first run via --update-snapshots.
+  snapshotPathTemplate:
+    'e2e/specs/__screenshots__/{testFilePath}/{arg}{ext}',
+  globalSetup: './e2e/fixtures/auth.ts',
+  projects: [
+    {
+      name: 'chromium-desktop',
+      use: { ...devices['Desktop Chrome'] },
+      grepInvert: /@mobile/,
+    },
+    {
+      name: 'webkit-iphone-13',
+      use: { ...devices['iPhone 13'] },
+      grep: /@mobile/,
+    },
+    // chromium-pixel-5 removed: snapshotPathTemplate has no {projectName}, so two
+    // mobile projects write to the same baseline files causing resolution mismatches.
+  ],
+});

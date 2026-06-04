@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, startTransition } from 'react';
 import Link from 'next/link';
 
 type ConsentStatus = 'pending' | 'accepted' | 'rejected' | 'custom';
@@ -25,7 +25,9 @@ function getStoredPrefs(): CookiePrefs | null {
 function storePrefs(prefs: CookiePrefs) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
   // Dispatch custom event so Analytics component can react
-  window.dispatchEvent(new CustomEvent('cookie-consent-change', { detail: prefs }));
+  window.dispatchEvent(
+    new CustomEvent('cookie-consent-change', { detail: prefs })
+  );
 }
 
 export function CookieConsent() {
@@ -36,7 +38,9 @@ export function CookieConsent() {
   useEffect(() => {
     const prefs = getStoredPrefs();
     if (prefs) {
-      setStatus(prefs.analytics ? 'accepted' : 'rejected');
+      startTransition(() =>
+        setStatus(prefs.analytics ? 'accepted' : 'rejected')
+      );
     }
   }, []);
 
@@ -67,14 +71,23 @@ export function CookieConsent() {
               <label className="flex items-center justify-between rounded-lg border border-foreground/10 p-3">
                 <div>
                   <p className="text-sm font-medium">Essential Cookies</p>
-                  <p className="text-xs text-foreground/50">Required for authentication and core functionality</p>
+                  <p className="text-xs text-foreground/50">
+                    Required for authentication and core functionality
+                  </p>
                 </div>
-                <input type="checkbox" checked disabled className="opacity-50" />
+                <input
+                  type="checkbox"
+                  checked
+                  disabled
+                  className="opacity-50"
+                />
               </label>
               <label className="flex items-center justify-between rounded-lg border border-foreground/10 p-3 cursor-pointer">
                 <div>
                   <p className="text-sm font-medium">Analytics Cookies</p>
-                  <p className="text-xs text-foreground/50">Help us understand how you use BenchBuddy</p>
+                  <p className="text-xs text-foreground/50">
+                    Help us understand how you use BenchBuddy
+                  </p>
                 </div>
                 <input
                   type="checkbox"
@@ -102,8 +115,9 @@ export function CookieConsent() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <div className="flex-1">
               <p className="text-sm text-foreground/70">
-                We use cookies to improve your experience. Essential cookies are required for the
-                site to function. Analytics cookies help us understand usage.{' '}
+                We use cookies to improve your experience. Essential cookies are
+                required for the site to function. Analytics cookies help us
+                understand usage.{' '}
                 <Link href="/cookies" className="underline">
                   Learn more
                 </Link>
@@ -142,7 +156,7 @@ export function useAnalyticsConsent(): boolean {
 
   useEffect(() => {
     const prefs = getStoredPrefs();
-    setAllowed(prefs?.analytics ?? false);
+    startTransition(() => setAllowed(prefs?.analytics ?? false));
 
     function handleChange(e: Event) {
       const detail = (e as CustomEvent<CookiePrefs>).detail;
@@ -150,7 +164,8 @@ export function useAnalyticsConsent(): boolean {
     }
 
     window.addEventListener('cookie-consent-change', handleChange);
-    return () => window.removeEventListener('cookie-consent-change', handleChange);
+    return () =>
+      window.removeEventListener('cookie-consent-change', handleChange);
   }, []);
 
   return allowed;

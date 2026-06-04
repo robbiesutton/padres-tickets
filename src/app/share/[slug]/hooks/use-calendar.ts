@@ -5,8 +5,18 @@ function getMonthData(month: number, year: number): CalendarMonth {
   const firstDay = new Date(year, month, 1);
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const monthNames = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December',
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
   ];
   return {
     month,
@@ -43,10 +53,7 @@ export function useCalendar(games: Game[], calendarStartIndex: number) {
     const start = entries[0];
     const end = entries[entries.length - 1];
     const current = { ...start };
-    while (
-      current.year * 12 + current.month <=
-      end.year * 12 + end.month
-    ) {
+    while (current.year * 12 + current.month <= end.year * 12 + end.month) {
       result.push({ ...current });
       current.month++;
       if (current.month > 11) {
@@ -65,7 +72,9 @@ export function useCalendar(games: Game[], calendarStartIndex: number) {
       months.push(getMonthData(allMonths[idx].month, allMonths[idx].year));
     }
     if (allMonths[idx + 1]) {
-      months.push(getMonthData(allMonths[idx + 1].month, allMonths[idx + 1].year));
+      months.push(
+        getMonthData(allMonths[idx + 1].month, allMonths[idx + 1].year)
+      );
     }
     return months;
   }, [allMonths, calendarStartIndex]);

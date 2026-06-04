@@ -1,37 +1,39 @@
-// Analytics service — abstract interface for event tracking.
-// Swap the implementation to PostHog, Mixpanel, Vercel Analytics, etc.
+import 'server-only';
+import { PostHog } from 'posthog-node';
 
 type EventProperties = Record<string, string | number | boolean | null>;
 
-interface AnalyticsEvent {
-  name: string;
-  properties?: EventProperties;
+let _client: PostHog | null = null;
+
+function getClient(): PostHog | null {
+  if (!process.env.NEXT_PUBLIC_POSTHOG_KEY) return null;
+  if (!_client) {
+    _client = new PostHog(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
+      host: process.env.NEXT_PUBLIC_POSTHOG_HOST ?? 'https://us.i.posthog.com',
+      flushAt: 1,
+      flushInterval: 0,
+    });
+  }
+  return _client;
 }
 
-// In-memory buffer for dev mode; production would send to provider
-const devBuffer: AnalyticsEvent[] = [];
-
-export function trackEvent(name: string, properties?: EventProperties) {
-  const event: AnalyticsEvent = { name, properties };
-
+export function trackServerEvent(
+  name: string,
+  properties?: EventProperties,
+  userId?: string
+) {
   if (process.env.NODE_ENV === 'development') {
-    devBuffer.push(event);
-    console.log(`[analytics] ${name}`, properties || '');
+    console.log(`[analytics:server] ${name}`, properties ?? '');
     return;
   }
-
-  // Production: send to analytics provider
-  // TODO: Wire up PostHog, Mixpanel, or Vercel Analytics
-  // Example with PostHog:
-  // posthog.capture(name, properties);
+  const client = getClient();
+  client?.capture({
+    distinctId: userId ?? 'anonymous',
+    event: name,
+    properties,
+  });
 }
 
-// Server-side event tracking (for API routes)
-export function trackServerEvent(name: string, properties?: EventProperties) {
-  trackEvent(name, properties);
-}
-
-// Predefined event names for type safety
 export const AnalyticsEvents = {
   // Funnel
   SIGNUP_STARTED: 'signup_started',
@@ -58,6 +60,10 @@ export const AnalyticsEvents = {
 
   // Payment
   PAYMENT_MARKED_PAID: 'payment_marked_paid',
+
+  // Subscription
+  SUBSCRIPTION_STARTED: 'subscription_started',
+  SUBSCRIPTION_CANCELLED: 'subscription_cancelled',
 
   // Engagement
   DASHBOARD_VISIT: 'dashboard_visit',

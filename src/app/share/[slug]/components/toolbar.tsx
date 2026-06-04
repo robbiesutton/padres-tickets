@@ -38,10 +38,18 @@ export function Toolbar({
   useEffect(() => {
     if (!opponentDropdownOpen && !monthDropdownOpen) return;
     function handleClick(e: MouseEvent) {
-      if (opponentDropdownOpen && opponentDropdownRef.current && !opponentDropdownRef.current.contains(e.target as Node)) {
+      if (
+        opponentDropdownOpen &&
+        opponentDropdownRef.current &&
+        !opponentDropdownRef.current.contains(e.target as Node)
+      ) {
         setOpponentDropdownOpen(false);
       }
-      if (monthDropdownOpen && monthDropdownRef.current && !monthDropdownRef.current.contains(e.target as Node)) {
+      if (
+        monthDropdownOpen &&
+        monthDropdownRef.current &&
+        !monthDropdownRef.current.contains(e.target as Node)
+      ) {
         setMonthDropdownOpen(false);
       }
     }
@@ -65,7 +73,8 @@ export function Toolbar({
     }
   }
 
-  const chevronSvg = "url('data:image/svg+xml,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M6%209l6%206%206-6%22%20stroke%3D%22%238e8985%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')";
+  const chevronSvg =
+    "url('data:image/svg+xml,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M6%209l6%206%206-6%22%20stroke%3D%22%238e8985%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')";
 
   const sheetSelectClass =
     "w-full h-12 px-4 pr-10 rounded-lg border border-[#eceae5] bg-white text-base font-medium text-[#2c2a2b] cursor-pointer appearance-none bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M6%209l6%206%206-6%22%20stroke%3D%22%238e8985%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_12px_center]";
@@ -77,27 +86,88 @@ export function Toolbar({
         <div className="relative flex h-11 bg-[#f5f4f2] rounded-lg p-[3px] gap-[3px]">
           <button
             className={`relative z-10 w-[44px] h-[38px] flex items-center justify-center rounded-md border-none cursor-pointer transition-all ${
-              viewMode === 'calendar' ? 'bg-white shadow-sm text-[#2c2a2b]' : 'bg-transparent text-[#8e8985]'
+              viewMode === 'calendar'
+                ? 'bg-white shadow-sm text-[#2c2a2b]'
+                : 'bg-transparent text-[#8e8985]'
             }`}
+            data-testid="view-toggle-calendar"
             onClick={() => onViewChange('calendar')}
           >
             <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
-              <rect x="1.5" y="2.5" width="13" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.2" />
-              <line x1="1.5" y1="6" x2="14.5" y2="6" stroke="currentColor" strokeWidth="1.2" />
-              <line x1="5" y1="1" x2="5" y2="4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-              <line x1="11" y1="1" x2="11" y2="4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+              <rect
+                x="1.5"
+                y="2.5"
+                width="13"
+                height="11"
+                rx="1.5"
+                stroke="currentColor"
+                strokeWidth="1.2"
+              />
+              <line
+                x1="1.5"
+                y1="6"
+                x2="14.5"
+                y2="6"
+                stroke="currentColor"
+                strokeWidth="1.2"
+              />
+              <line
+                x1="5"
+                y1="1"
+                x2="5"
+                y2="4"
+                stroke="currentColor"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+              />
+              <line
+                x1="11"
+                y1="1"
+                x2="11"
+                y2="4"
+                stroke="currentColor"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+              />
             </svg>
           </button>
           <button
             className={`relative z-10 w-[44px] h-[38px] flex items-center justify-center rounded-md border-none cursor-pointer transition-all ${
-              viewMode === 'list' ? 'bg-white shadow-sm text-[#2c2a2b]' : 'bg-transparent text-[#8e8985]'
+              viewMode === 'list'
+                ? 'bg-white shadow-sm text-[#2c2a2b]'
+                : 'bg-transparent text-[#8e8985]'
             }`}
+            data-testid="view-toggle-list"
             onClick={() => onViewChange('list')}
           >
             <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
-              <line x1="1" y1="5" x2="15" y2="5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-              <line x1="1" y1="8" x2="15" y2="8" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-              <line x1="1" y1="11" x2="15" y2="11" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+              <line
+                x1="1"
+                y1="5"
+                x2="15"
+                y2="5"
+                stroke="currentColor"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+              />
+              <line
+                x1="1"
+                y1="8"
+                x2="15"
+                y2="8"
+                stroke="currentColor"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+              />
+              <line
+                x1="1"
+                y1="11"
+                x2="15"
+                y2="11"
+                stroke="currentColor"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+              />
             </svg>
           </button>
         </div>
@@ -105,103 +175,223 @@ export function Toolbar({
           onClick={() => setMobileFiltersOpen(true)}
           className="h-11 px-4 rounded-lg border border-[#eceae5] bg-white text-sm font-medium text-[#2c2a2b] flex items-center gap-2 cursor-pointer"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="3" y1="6" x2="21" y2="6" /><line x1="6" y1="12" x2="18" y2="12" /><line x1="9" y1="18" x2="15" y2="18" />
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="6" y1="12" x2="18" y2="12" />
+            <line x1="9" y1="18" x2="15" y2="18" />
           </svg>
           Filters
         </button>
       </div>
 
       {/* ── Mobile: Filter bottom sheet ── */}
-      {mobileFiltersOpen && createPortal(
-        <div className="md:hidden fixed inset-0 z-50">
-          <div className="absolute inset-0 bg-black/30" onClick={() => setMobileFiltersOpen(false)} />
-          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-[0_-4px_16px_rgba(0,0,0,0.08)] animate-slide-up max-h-[85vh] flex flex-col overflow-hidden">
-            {/* Chrome strip — close X only */}
-            <div className="relative h-14 shrink-0">
-              <button
-                onClick={() => setMobileFiltersOpen(false)}
-                title="Close"
-                className="absolute top-3 right-3 w-11 h-11 flex items-center justify-center bg-transparent border-none cursor-pointer z-10"
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <path d="M18 6L6 18" stroke="#8e8985" strokeWidth="2" strokeLinecap="round" />
-                  <path d="M6 6l12 12" stroke="#8e8985" strokeWidth="2" strokeLinecap="round" />
-                </svg>
-              </button>
-            </div>
+      {mobileFiltersOpen &&
+        createPortal(
+          <div className="md:hidden fixed inset-0 z-50">
+            <div
+              className="absolute inset-0 bg-black/30"
+              onClick={() => setMobileFiltersOpen(false)}
+            />
+            <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-[0_-4px_16px_rgba(0,0,0,0.08)] animate-slide-up max-h-[85vh] flex flex-col overflow-hidden">
+              {/* Chrome strip — close X only */}
+              <div className="relative h-14 shrink-0">
+                <button
+                  onClick={() => setMobileFiltersOpen(false)}
+                  title="Close"
+                  className="absolute top-3 right-3 w-11 h-11 flex items-center justify-center bg-transparent border-none cursor-pointer z-10"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M18 6L6 18"
+                      stroke="#8e8985"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    />
+                    <path
+                      d="M6 6l12 12"
+                      stroke="#8e8985"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </button>
+              </div>
 
-            {/* Scrollable body */}
-            <div className="flex-1 overflow-y-auto">
-              <div className="px-5 pb-5">
-                <h3 className="text-[18px] font-bold text-[#1B1716] mb-5">Filters</h3>
-                <div className="flex flex-col gap-5">
-                  <div>
-                    <label className="block text-[13px] font-medium text-[#8E8985] mb-3">Opponent</label>
-                    <select className={sheetSelectClass} value={opponentFilter[0] || ''} onChange={(e) => onOpponentFilterChange(e.target.value ? [e.target.value] : [])}>
-                      <option value="">All opponents</option>
-                      {opponents.map((o) => <option key={o} value={o}>{o}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-[13px] font-medium text-[#8E8985] mb-3">Month</label>
-                    <select className={sheetSelectClass} value={monthFilter[0] || ''} onChange={(e) => onMonthFilterChange(e.target.value ? [e.target.value] : [])}>
-                      <option value="">All months</option>
-                      {months.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
-                    </select>
+              {/* Scrollable body */}
+              <div className="flex-1 overflow-y-auto">
+                <div className="px-5 pb-5">
+                  <h3 className="text-[18px] font-bold text-[#1B1716] mb-5">
+                    Filters
+                  </h3>
+                  <div className="flex flex-col gap-5">
+                    <div>
+                      <label className="block text-[13px] font-medium text-[#8E8985] mb-3">
+                        Opponent
+                      </label>
+                      <select
+                        className={sheetSelectClass}
+                        value={opponentFilter[0] || ''}
+                        onChange={(e) =>
+                          onOpponentFilterChange(
+                            e.target.value ? [e.target.value] : []
+                          )
+                        }
+                      >
+                        <option value="">All opponents</option>
+                        {opponents.map((o) => (
+                          <option key={o} value={o}>
+                            {o}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[13px] font-medium text-[#8E8985] mb-3">
+                        Month
+                      </label>
+                      <select
+                        className={sheetSelectClass}
+                        value={monthFilter[0] || ''}
+                        onChange={(e) =>
+                          onMonthFilterChange(
+                            e.target.value ? [e.target.value] : []
+                          )
+                        }
+                      >
+                        <option value="">All months</option>
+                        {months.map((m) => (
+                          <option key={m.value} value={m.value}>
+                            {m.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Sticky CTA footer */}
-            <div className="shrink-0 px-5 pb-5 bg-white">
-              <button
-                onClick={() => setMobileFiltersOpen(false)}
-                className="w-full h-[52px] rounded-[10px] bg-[#2C2A2B] text-base font-semibold text-white cursor-pointer border-none transition-opacity hover:opacity-90"
-              >
-                Apply filters
-              </button>
-              {hasActiveFilters && (
+              {/* Sticky CTA footer */}
+              <div className="shrink-0 px-5 pb-5 bg-white">
                 <button
-                  onClick={() => { onOpponentFilterChange([]); onMonthFilterChange([]); setMobileFiltersOpen(false); }}
-                  className="w-full mt-3 text-sm font-medium text-[#8E8985] bg-transparent border-none cursor-pointer py-2"
+                  onClick={() => setMobileFiltersOpen(false)}
+                  className="w-full h-[52px] rounded-[10px] bg-[#2C2A2B] text-base font-semibold text-white cursor-pointer border-none transition-opacity hover:opacity-90"
                 >
-                  Clear filters
+                  Apply filters
                 </button>
-              )}
+                {hasActiveFilters && (
+                  <button
+                    onClick={() => {
+                      onOpponentFilterChange([]);
+                      onMonthFilterChange([]);
+                      setMobileFiltersOpen(false);
+                    }}
+                    className="w-full mt-3 text-sm font-medium text-[#8E8985] bg-transparent border-none cursor-pointer py-2"
+                  >
+                    Clear filters
+                  </button>
+                )}
+              </div>
             </div>
-          </div>
-        </div>,
-        document.body
-      )}
+          </div>,
+          document.body
+        )}
 
       {/* ── Desktop: Inline dropdowns ── */}
       <div className="hidden md:flex md:items-center md:gap-4 mb-4 flex-wrap">
         <div className="relative flex w-auto h-11 bg-[#f5f4f2] rounded-lg p-[3px] gap-[3px]">
           <button
             className={`relative z-10 w-[38px] h-[38px] flex items-center justify-center rounded-md border-none cursor-pointer transition-all text-sm font-medium ${
-              viewMode === 'calendar' ? 'bg-white shadow-sm text-[#2c2a2b]' : 'bg-transparent text-[#8e8985]'
+              viewMode === 'calendar'
+                ? 'bg-white shadow-sm text-[#2c2a2b]'
+                : 'bg-transparent text-[#8e8985]'
             }`}
+            data-testid="view-toggle-calendar"
             onClick={() => onViewChange('calendar')}
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <rect x="1.5" y="2.5" width="13" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.2" />
-              <line x1="1.5" y1="6" x2="14.5" y2="6" stroke="currentColor" strokeWidth="1.2" />
-              <line x1="5" y1="1" x2="5" y2="4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-              <line x1="11" y1="1" x2="11" y2="4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+              <rect
+                x="1.5"
+                y="2.5"
+                width="13"
+                height="11"
+                rx="1.5"
+                stroke="currentColor"
+                strokeWidth="1.2"
+              />
+              <line
+                x1="1.5"
+                y1="6"
+                x2="14.5"
+                y2="6"
+                stroke="currentColor"
+                strokeWidth="1.2"
+              />
+              <line
+                x1="5"
+                y1="1"
+                x2="5"
+                y2="4"
+                stroke="currentColor"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+              />
+              <line
+                x1="11"
+                y1="1"
+                x2="11"
+                y2="4"
+                stroke="currentColor"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+              />
             </svg>
           </button>
           <button
             className={`relative z-10 w-[38px] h-[38px] flex items-center justify-center rounded-md border-none cursor-pointer transition-all text-sm font-medium ${
-              viewMode === 'list' ? 'bg-white shadow-sm text-[#2c2a2b]' : 'bg-transparent text-[#8e8985]'
+              viewMode === 'list'
+                ? 'bg-white shadow-sm text-[#2c2a2b]'
+                : 'bg-transparent text-[#8e8985]'
             }`}
+            data-testid="view-toggle-list"
             onClick={() => onViewChange('list')}
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <line x1="1" y1="5" x2="15" y2="5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-              <line x1="1" y1="8" x2="15" y2="8" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-              <line x1="1" y1="11" x2="15" y2="11" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+              <line
+                x1="1"
+                y1="5"
+                x2="15"
+                y2="5"
+                stroke="currentColor"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+              />
+              <line
+                x1="1"
+                y1="8"
+                x2="15"
+                y2="8"
+                stroke="currentColor"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+              />
+              <line
+                x1="1"
+                y1="11"
+                x2="15"
+                y2="11"
+                stroke="currentColor"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+              />
             </svg>
           </button>
         </div>
@@ -209,13 +399,24 @@ export function Toolbar({
           {/* Opponent multi-select */}
           <div className="relative" ref={opponentDropdownRef}>
             <button
-              onClick={() => { setOpponentDropdownOpen(!opponentDropdownOpen); setMonthDropdownOpen(false); }}
+              onClick={() => {
+                setOpponentDropdownOpen(!opponentDropdownOpen);
+                setMonthDropdownOpen(false);
+              }}
               className={`h-11 px-5 pr-10 rounded-lg border bg-white hover:bg-[#f5f4f2] transition-colors text-base font-medium text-[#2c2a2b] cursor-pointer text-left whitespace-nowrap ${
-                opponentFilter.length > 0 ? 'border-[#2c2a2b]' : 'border-[#eceae5]'
+                opponentFilter.length > 0
+                  ? 'border-[#2c2a2b]'
+                  : 'border-[#eceae5]'
               }`}
-              style={{ backgroundImage: chevronSvg, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center' }}
+              style={{
+                backgroundImage: chevronSvg,
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'right 8px center',
+              }}
             >
-              {opponentFilter.length === 0 ? 'All opponents' : `${opponentFilter.length} opponent${opponentFilter.length !== 1 ? 's' : ''}`}
+              {opponentFilter.length === 0
+                ? 'All opponents'
+                : `${opponentFilter.length} opponent${opponentFilter.length !== 1 ? 's' : ''}`}
             </button>
             {opponentDropdownOpen && (
               <div className="absolute left-0 top-[calc(100%+4px)] z-50 bg-white rounded-xl shadow-[0_0_0_1px_#eceae5,0_8px_24px_rgba(0,0,0,0.12)] w-[240px] max-h-[320px] overflow-y-auto py-1">
@@ -227,10 +428,23 @@ export function Toolbar({
                       onClick={() => toggleOpponent(o)}
                       className={`w-full flex items-center gap-3 px-3 py-2.5 border-none cursor-pointer text-left text-sm font-medium transition-colors hover:bg-[#f5f4f2] ${checked ? 'text-[#2c2a2b]' : 'text-[#8e8985]'}`}
                     >
-                      <div className={`w-[16px] h-[16px] rounded-[3px] border-[1.5px] shrink-0 flex items-center justify-center ${checked ? 'bg-[#2c2a2b] border-[#2c2a2b]' : 'bg-white border-[#dcd7d4]'}`}>
+                      <div
+                        className={`w-[16px] h-[16px] rounded-[3px] border-[1.5px] shrink-0 flex items-center justify-center ${checked ? 'bg-[#2c2a2b] border-[#2c2a2b]' : 'bg-white border-[#dcd7d4]'}`}
+                      >
                         {checked && (
-                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
-                            <path d="M5 13l4 4L19 7" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                          <svg
+                            width="10"
+                            height="10"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                          >
+                            <path
+                              d="M5 13l4 4L19 7"
+                              stroke="white"
+                              strokeWidth="3"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
                           </svg>
                         )}
                       </div>
@@ -253,13 +467,22 @@ export function Toolbar({
           {/* Month multi-select */}
           <div className="relative" ref={monthDropdownRef}>
             <button
-              onClick={() => { setMonthDropdownOpen(!monthDropdownOpen); setOpponentDropdownOpen(false); }}
+              onClick={() => {
+                setMonthDropdownOpen(!monthDropdownOpen);
+                setOpponentDropdownOpen(false);
+              }}
               className={`h-11 px-5 pr-10 rounded-lg border bg-white hover:bg-[#f5f4f2] transition-colors text-base font-medium text-[#2c2a2b] cursor-pointer text-left whitespace-nowrap ${
                 monthFilter.length > 0 ? 'border-[#2c2a2b]' : 'border-[#eceae5]'
               }`}
-              style={{ backgroundImage: chevronSvg, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center' }}
+              style={{
+                backgroundImage: chevronSvg,
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'right 8px center',
+              }}
             >
-              {monthFilter.length === 0 ? 'All months' : `${monthFilter.length} month${monthFilter.length !== 1 ? 's' : ''}`}
+              {monthFilter.length === 0
+                ? 'All months'
+                : `${monthFilter.length} month${monthFilter.length !== 1 ? 's' : ''}`}
             </button>
             {monthDropdownOpen && (
               <div className="absolute left-0 top-[calc(100%+4px)] z-50 bg-white rounded-xl shadow-[0_0_0_1px_#eceae5,0_8px_24px_rgba(0,0,0,0.12)] w-[240px] max-h-[320px] overflow-y-auto py-1">
@@ -271,10 +494,23 @@ export function Toolbar({
                       onClick={() => toggleMonth(m.value)}
                       className={`w-full flex items-center gap-3 px-3 py-2.5 border-none cursor-pointer text-left text-sm font-medium transition-colors hover:bg-[#f5f4f2] ${checked ? 'text-[#2c2a2b]' : 'text-[#8e8985]'}`}
                     >
-                      <div className={`w-[16px] h-[16px] rounded-[3px] border-[1.5px] shrink-0 flex items-center justify-center ${checked ? 'bg-[#2c2a2b] border-[#2c2a2b]' : 'bg-white border-[#dcd7d4]'}`}>
+                      <div
+                        className={`w-[16px] h-[16px] rounded-[3px] border-[1.5px] shrink-0 flex items-center justify-center ${checked ? 'bg-[#2c2a2b] border-[#2c2a2b]' : 'bg-white border-[#dcd7d4]'}`}
+                      >
                         {checked && (
-                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
-                            <path d="M5 13l4 4L19 7" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                          <svg
+                            width="10"
+                            height="10"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                          >
+                            <path
+                              d="M5 13l4 4L19 7"
+                              stroke="white"
+                              strokeWidth="3"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
                           </svg>
                         )}
                       </div>
@@ -296,10 +532,25 @@ export function Toolbar({
         </div>
         {hasActiveFilters && (
           <button
-            onClick={() => { onOpponentFilterChange([]); onMonthFilterChange([]); }}
+            onClick={() => {
+              onOpponentFilterChange([]);
+              onMonthFilterChange([]);
+            }}
             className="flex items-center gap-1.5 text-sm font-medium text-[#8e8985] hover:text-[#2c2a2b] bg-transparent border-none cursor-pointer transition-colors whitespace-nowrap"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18" /><path d="M6 6l12 12" /></svg>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M18 6L6 18" />
+              <path d="M6 6l12 12" />
+            </svg>
             Clear filters
           </button>
         )}

@@ -74,15 +74,24 @@ export function GameCard({
     'rounded-lg px-6 py-4 border border-solid flex items-center gap-2 md:gap-10';
 
   if (isReservedByMe) {
-    cardClass += ' bg-white border-[#0f6f57] shadow-[0_2px_4px_rgba(0,0,0,0.08)] md:shadow-[0_1px_3px_rgba(0,0,0,0.04)]';
+    cardClass +=
+      ' bg-white border-[#0f6f57] shadow-[0_2px_4px_rgba(0,0,0,0.08)] md:shadow-[0_1px_3px_rgba(0,0,0,0.04)]';
   } else if (isTakenByOthers) {
-    cardClass += ' bg-white border-[#dcd7d4] opacity-40 shadow-[0_2px_4px_rgba(0,0,0,0.08)] md:shadow-[0_1px_3px_rgba(0,0,0,0.04)]';
+    cardClass +=
+      ' bg-white border-[#dcd7d4] opacity-40 shadow-[0_2px_4px_rgba(0,0,0,0.08)] md:shadow-[0_1px_3px_rgba(0,0,0,0.04)]';
   } else {
-    cardClass += ' bg-white border-[#dcd7d4] shadow-[0_2px_4px_rgba(0,0,0,0.08)] md:shadow-[0_1px_3px_rgba(0,0,0,0.04)]';
+    cardClass +=
+      ' bg-white border-[#dcd7d4] shadow-[0_2px_4px_rgba(0,0,0,0.08)] md:shadow-[0_1px_3px_rgba(0,0,0,0.04)]';
   }
 
   return (
-    <div className={cardClass + ' md:cursor-default cursor-pointer'} onClick={() => { if (window.innerWidth < 768 && onMobileTap) onMobileTap(); }}>
+    <div
+      data-testid="game-card"
+      className={cardClass + ' md:cursor-default cursor-pointer'}
+      onClick={() => {
+        if (window.innerWidth < 768 && onMobileTap) onMobileTap();
+      }}
+    >
       {/* Date + separator + badge + info */}
       <div className="flex-1 flex items-center gap-2 md:gap-4 min-w-0">
         <div className="flex items-center gap-2 md:gap-4 shrink-0">
@@ -125,40 +134,56 @@ export function GameCard({
             {formatTime(game.time)} &bull; Petco Park
             <span className="hidden md:inline">
               {totalPrice !== null && (
-                <> &bull; {seatCount} ticket{seatCount !== 1 ? 's' : ''} for ${totalPrice}</>
+                <>
+                  {' '}
+                  &bull; {seatCount} ticket{seatCount !== 1 ? 's' : ''} for $
+                  {totalPrice}
+                </>
               )}
             </span>
-            {holderLabel && <span className="hidden md:inline"> &bull; {holderLabel}</span>}
+            {holderLabel && (
+              <span className="hidden md:inline"> &bull; {holderLabel}</span>
+            )}
           </div>
         </div>
       </div>
 
       {/* Action button — hidden on mobile */}
       <div className="hidden md:block">
-        {!isTakenByOthers && (
-          isReservedByMe ? (
+        {!isTakenByOthers &&
+          (isReservedByMe ? (
             <button
+              data-testid="game-card-release"
               className="shrink-0 h-10 px-4 rounded-lg bg-transparent text-black text-base font-medium border border-solid border-black cursor-pointer flex items-center justify-center hover:bg-[#f5f4f2] transition-colors"
-              onClick={(e) => { e.stopPropagation(); onRelease?.(); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                onRelease?.();
+              }}
             >
               Release
             </button>
           ) : (
             <button
+              data-testid="game-card-claim"
               className="shrink-0 h-10 px-4 rounded-lg text-white text-base font-medium border-none cursor-pointer flex items-center justify-center hover:opacity-90 transition-opacity"
               style={{ backgroundColor: teamColor || '#2c2a2b' }}
-              onClick={(e) => { e.stopPropagation(); onReserve(); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                onReserve();
+              }}
             >
               Claim
             </button>
-          )
-        )}
+          ))}
       </div>
 
       {/* Three-dot menu — mobile only */}
       <div className="relative shrink-0 md:hidden">
         <button
-          onClick={(e) => { e.stopPropagation(); if (onMobileTap) onMobileTap(); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (onMobileTap) onMobileTap();
+          }}
           className="w-6 h-6 rounded flex items-center justify-center text-[#8e8985] hover:bg-[#f3f4f6] hover:text-[#2c2a2b] transition-all cursor-pointer bg-transparent border-none text-sm font-bold"
         >
           ⋯

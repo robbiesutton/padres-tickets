@@ -256,3 +256,8 @@ model PackageMember {
   @@index([userId])
   @@index([packageId, role])
 }
+
+model StripeEvent {
+  id          String   @id
+  processedAt DateTime @default(now())
+}

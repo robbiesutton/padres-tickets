@@ -58,7 +58,8 @@ export function SeatInfoBar({ pkg }: Props) {
             {teamAbbr}
           </div>
           <div className="text-base font-semibold text-[#2c2a2b] whitespace-nowrap">
-            <span className="hidden md:inline">{pkg.team} &bull; </span>Section {pkg.section} &bull; Row {pkg.row} &bull; Seats {pkg.seats}
+            <span className="hidden md:inline">{pkg.team} &bull; </span>Section{' '}
+            {pkg.section} &bull; Row {pkg.row} &bull; Seats {pkg.seats}
           </div>
         </div>
         <svg
@@ -82,7 +83,9 @@ export function SeatInfoBar({ pkg }: Props) {
       <div
         ref={panelRef}
         className={`hidden md:block absolute right-0 top-[calc(100%+8px)] z-40 w-[840px] max-w-full bg-white rounded-lg border border-[#eceae5] shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.1),0px_4px_6px_-4px_rgba(0,0,0,0.1)] overflow-hidden transition-all duration-200 ${
-          expanded ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'
+          expanded
+            ? 'opacity-100 translate-y-0'
+            : 'opacity-0 -translate-y-2 pointer-events-none'
         }`}
       >
         <div className="p-4 flex gap-4">
@@ -98,8 +101,20 @@ export function SeatInfoBar({ pkg }: Props) {
                 unoptimized
               />
             ) : (
-              <div className="w-full h-full relative" style={{ backgroundImage: 'linear-gradient(143deg, rgb(74,122,58) 0%, rgb(122,170,90) 50%, rgb(74,122,58) 100%)' }}>
-                <div className="absolute bottom-0 left-0 right-0 h-[85px]" style={{ backgroundImage: 'linear-gradient(167deg, rgb(196,149,90) 0%, rgb(212,165,106) 100%)' }} />
+              <div
+                className="w-full h-full relative"
+                style={{
+                  backgroundImage:
+                    'linear-gradient(143deg, rgb(74,122,58) 0%, rgb(122,170,90) 50%, rgb(74,122,58) 100%)',
+                }}
+              >
+                <div
+                  className="absolute bottom-0 left-0 right-0 h-[85px]"
+                  style={{
+                    backgroundImage:
+                      'linear-gradient(167deg, rgb(196,149,90) 0%, rgb(212,165,106) 100%)',
+                  }}
+                />
                 <div className="absolute bottom-[85px] left-[15%] w-[70%] h-[2px] bg-[#e8d8b8] rounded" />
               </div>
             )}
