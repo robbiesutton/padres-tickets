@@ -77,6 +77,18 @@ const LEAGUES = [
   { value: 'NWSL', label: 'NWSL', available: false },
 ];
 
+// Sport emoji shown on the celebration screen, keyed by league
+const LEAGUE_EMOJI: Record<string, string> = {
+  MLB: '⚾',
+  NCAAB: '🏀',
+  NBA: '🏀',
+  NFL: '🏈',
+  NHL: '🏒',
+  MLS: '⚽',
+  WNBA: '🏀',
+  NWSL: '⚽',
+};
+
 const MONTH_NAMES = [
   'January',
   'February',
@@ -1151,7 +1163,9 @@ export default function NewPackagePage() {
         <div className="max-w-[480px] mx-auto px-5 pt-6 pb-12 md:py-16">
           {/* Header */}
           <div className="text-center mb-4">
-            <div className="hidden md:block text-6xl mb-5">⚾</div>
+            <div className="hidden md:block text-6xl mb-5">
+              {LEAGUE_EMOJI[league] ?? '⚾'}
+            </div>
             <h2
               className="text-[28px] font-bold text-[#1a1a1a] tracking-tight mb-2"
               style={{ fontFamily: 'var(--font-syne), sans-serif' }}
