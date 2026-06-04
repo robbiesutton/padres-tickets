@@ -1533,6 +1533,25 @@ const sfPackages: SeasonPackage[] = [
   },
 ];
 
+// ─── NCAA ───────────────────────────────────────────────
+
+/** San Diego State Aztecs Men's Basketball
+ * SDSU offers a single full-season ticket package (16–17 home games including
+ * one exhibition). No mini-plans or partial plans are publicly offered.
+ * Source: goaztecs.com/mens-basketball-season-ticket-faqs
+ */
+const sdsuPackages: SeasonPackage[] = [
+  {
+    id: 'sdsu-full',
+    name: 'Full Season',
+    tier: 'Full',
+    gameCount: 17,
+    description: 'All home games at Viejas Arena (16–17 games including exhibition)',
+    gameSelection: 'all',
+    gameFilter: { all: true },
+  },
+];
+
 // ─── Export ──────────────────────────────────────────────
 
 export const SEASON_PACKAGES: Record<string, SeasonPackage[]> = {
@@ -1572,4 +1591,6 @@ export const SEASON_PACKAGES: Record<string, SeasonPackage[]> = {
   LAD: ladPackages,
   SD: sdPackages,
   SF: sfPackages,
+  // NCAA
+  SDSU: sdsuPackages,
 };
