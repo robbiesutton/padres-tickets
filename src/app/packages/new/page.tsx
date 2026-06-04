@@ -755,7 +755,9 @@ export default function NewPackagePage() {
     DESIGN ? MOCK_SECTIONS : []
   );
   const [sectionsLoading, setSectionsLoading] = useState(false);
-  const [selectedSection, setSelectedSection] = useState<StadiumSection | null>(DESIGN ? MOCK_SECTIONS[1] : null);
+  const [selectedSection, setSelectedSection] = useState<StadiumSection | null>(
+    DESIGN ? MOCK_SECTIONS[1] : null
+  );
   const [row, setRow] = useState(DESIGN ? '5' : '');
   const [selectedSeats, setSelectedSeats] = useState<Set<number>>(
     DESIGN ? new Set([1, 2]) : new Set()
@@ -830,9 +832,22 @@ export default function NewPackagePage() {
   useEffect(() => {
     if (DESIGN) return;
     if (!selectedTeam) return;
-    setSectionsLoading(true); setSections([]); setSelectedSection(null); setRow(''); setSelectedSeats(new Set());
-    fetch(`/api/stadiums/${selectedTeam.abbreviation}/sections`).then((r) => (r.ok ? r.json() : null)).then((data) => { if (data) setSections(data.sections); }).finally(() => setSectionsLoading(false));
-    fetch(`/api/stadiums/${selectedTeam.abbreviation}/packages`).then((r) => (r.ok ? r.json() : null)).then((data) => { if (data) setPackages(data.packages); });
+    setSectionsLoading(true);
+    setSections([]);
+    setSelectedSection(null);
+    setRow('');
+    setSelectedSeats(new Set());
+    fetch(`/api/stadiums/${selectedTeam.abbreviation}/sections`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data) setSections(data.sections);
+      })
+      .finally(() => setSectionsLoading(false));
+    fetch(`/api/stadiums/${selectedTeam.abbreviation}/packages`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data) setPackages(data.packages);
+      });
   }, [selectedTeam]);
 
   // Auto-select the package when only one is available (e.g. SDSU full season)
@@ -1700,16 +1715,34 @@ export default function NewPackagePage() {
 
           {/* Seat info */}
           <div className="mt-4">
-            <FormLabel>Seat Photo <span className="font-normal">(Optional)</span></FormLabel>
+            <FormLabel>
+              Seat Photo <span className="font-normal">(Optional)</span>
+            </FormLabel>
             <div
               onClick={() => fileInputRef.current?.click()}
               className="relative w-full h-[160px] rounded-lg border-[1.5px] border-dashed border-[#eceae5] bg-white overflow-hidden cursor-pointer transition-all hover:border-[#b5b1ab]"
             >
               {seatPhotoUrl ? (
-                <Image src={seatPhotoUrl} alt="View from seat" fill className="object-cover" sizes="100vw" unoptimized />
+                <Image
+                  src={seatPhotoUrl}
+                  alt="View from seat"
+                  fill
+                  className="object-cover"
+                  sizes="100vw"
+                  unoptimized
+                />
               ) : (
                 <div className="flex flex-col items-center justify-center h-full gap-2 text-[#8e8985]">
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg
+                    width="28"
+                    height="28"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <rect x="3" y="3" width="18" height="18" rx="2" />
                     <circle cx="8.5" cy="8.5" r="1.5" />
                     <path d="M21 15l-5-5L5 21" />
@@ -1718,11 +1751,19 @@ export default function NewPackagePage() {
                 </div>
               )}
             </div>
-            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handlePhotoUpload}
+            />
           </div>
 
           <div className="mt-4">
-            <FormLabel>Description <span className="font-normal">(Optional)</span></FormLabel>
+            <FormLabel>
+              Description <span className="font-normal">(Optional)</span>
+            </FormLabel>
             <textarea
               value={seatDescription}
               onChange={(e) => setSeatDescription(e.target.value)}
@@ -1786,13 +1827,17 @@ export default function NewPackagePage() {
               {venmoHandle.trim() && (
                 <div className="flex items-center justify-between px-5 py-3.5">
                   <span className="text-sm text-[#8e8985]">Venmo</span>
-                  <span className="text-sm font-bold text-[#2c2a2b]">{venmoHandle}</span>
+                  <span className="text-sm font-bold text-[#2c2a2b]">
+                    {venmoHandle}
+                  </span>
                 </div>
               )}
               {zelleInfo.trim() && (
                 <div className="flex items-center justify-between px-5 py-3.5">
                   <span className="text-sm text-[#8e8985]">Zelle</span>
-                  <span className="text-sm font-bold text-[#2c2a2b]">{zelleInfo}</span>
+                  <span className="text-sm font-bold text-[#2c2a2b]">
+                    {zelleInfo}
+                  </span>
                 </div>
               )}
             </div>

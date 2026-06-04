@@ -149,72 +149,103 @@ export function SeatInfoBar({ pkg }: Props) {
       </div>
 
       {/* Mobile drawer */}
-      {expanded && createPortal(
-        <div className="md:hidden fixed inset-0 z-50">
-          <div className="absolute inset-0 bg-black/30" onClick={() => setExpanded(false)} />
-          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-[0_-8px_30px_rgba(0,0,0,0.12)] animate-slide-up max-h-[85vh] overflow-y-auto">
-            <div className="relative">
-              <button
-                className="absolute top-3 right-2 w-11 h-11 flex items-center justify-center bg-transparent border-none cursor-pointer z-10"
-                onClick={() => setExpanded(false)}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M18 6L6 18" stroke="#8e8985" strokeWidth="2.5" strokeLinecap="round" />
-                  <path d="M6 6l12 12" stroke="#8e8985" strokeWidth="2.5" strokeLinecap="round" />
-                </svg>
-              </button>
-              <div className="px-4 pt-5 pb-6 flex flex-col gap-4">
-                {/* Seat photo */}
-                <div className="w-full aspect-[3/2] relative overflow-hidden rounded-lg">
-                  {pkg.seatPhotoUrl ? (
-                    <Image
-                      src={pkg.seatPhotoUrl}
-                      alt="View from seat"
-                      fill
-                      className="object-cover"
-                      sizes="100vw"
-                      unoptimized
+      {expanded &&
+        createPortal(
+          <div className="md:hidden fixed inset-0 z-50">
+            <div
+              className="absolute inset-0 bg-black/30"
+              onClick={() => setExpanded(false)}
+            />
+            <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-[0_-8px_30px_rgba(0,0,0,0.12)] animate-slide-up max-h-[85vh] overflow-y-auto">
+              <div className="relative">
+                <button
+                  className="absolute top-3 right-2 w-11 h-11 flex items-center justify-center bg-transparent border-none cursor-pointer z-10"
+                  onClick={() => setExpanded(false)}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M18 6L6 18"
+                      stroke="#8e8985"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
                     />
-                  ) : (
-                    <div className="w-full h-full relative" style={{ backgroundImage: 'linear-gradient(143deg, rgb(74,122,58) 0%, rgb(122,170,90) 50%, rgb(74,122,58) 100%)' }}>
-                      <div className="absolute bottom-0 left-0 right-0 h-[35%]" style={{ backgroundImage: 'linear-gradient(167deg, rgb(196,149,90) 0%, rgb(212,165,106) 100%)' }} />
-                      <div className="absolute bottom-[35%] left-[15%] w-[70%] h-[2px] bg-[#e8d8b8] rounded" />
+                    <path
+                      d="M6 6l12 12"
+                      stroke="#8e8985"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </button>
+                <div className="px-4 pt-5 pb-6 flex flex-col gap-4">
+                  {/* Seat photo */}
+                  <div className="w-full aspect-[3/2] relative overflow-hidden rounded-lg">
+                    {pkg.seatPhotoUrl ? (
+                      <Image
+                        src={pkg.seatPhotoUrl}
+                        alt="View from seat"
+                        fill
+                        className="object-cover"
+                        sizes="100vw"
+                        unoptimized
+                      />
+                    ) : (
+                      <div
+                        className="w-full h-full relative"
+                        style={{
+                          backgroundImage:
+                            'linear-gradient(143deg, rgb(74,122,58) 0%, rgb(122,170,90) 50%, rgb(74,122,58) 100%)',
+                        }}
+                      >
+                        <div
+                          className="absolute bottom-0 left-0 right-0 h-[35%]"
+                          style={{
+                            backgroundImage:
+                              'linear-gradient(167deg, rgb(196,149,90) 0%, rgb(212,165,106) 100%)',
+                          }}
+                        />
+                        <div className="absolute bottom-[35%] left-[15%] w-[70%] h-[2px] bg-[#e8d8b8] rounded" />
+                      </div>
+                    )}
+                    <div className="absolute bottom-3 left-3 bg-[#2c2a2b]/80 text-white text-xs font-medium px-2.5 py-1 rounded-md">
+                      View from Section {pkg.section}
                     </div>
+                  </div>
+
+                  {/* Description */}
+                  {pkg.description && (
+                    <p className="text-base font-normal text-black leading-relaxed pb-4 border-b border-[#f5f4f2]">
+                      {pkg.description}
+                    </p>
                   )}
-                  <div className="absolute bottom-3 left-3 bg-[#2c2a2b]/80 text-white text-xs font-medium px-2.5 py-1 rounded-md">
-                    View from Section {pkg.section}
+
+                  {/* Details table */}
+                  <div className="flex flex-col gap-3 text-sm leading-6 pb-4 border-b border-[#f5f4f2]">
+                    <div className="flex items-center justify-between">
+                      <span className="font-normal text-black">Seats</span>
+                      <span className="font-bold text-black">
+                        Seats {pkg.seats}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="font-normal text-black">Level</span>
+                      <span className="font-bold text-black">Field Level</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="font-normal text-black">
+                        Ticket delivery
+                      </span>
+                      <span className="font-bold text-black">
+                        MLB Ballpark App
+                      </span>
+                    </div>
                   </div>
                 </div>
-
-                {/* Description */}
-                {pkg.description && (
-                  <p className="text-base font-normal text-black leading-relaxed pb-4 border-b border-[#f5f4f2]">
-                    {pkg.description}
-                  </p>
-                )}
-
-                {/* Details table */}
-                <div className="flex flex-col gap-3 text-sm leading-6 pb-4 border-b border-[#f5f4f2]">
-                  <div className="flex items-center justify-between">
-                    <span className="font-normal text-black">Seats</span>
-                    <span className="font-bold text-black">Seats {pkg.seats}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="font-normal text-black">Level</span>
-                    <span className="font-bold text-black">Field Level</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="font-normal text-black">Ticket delivery</span>
-                    <span className="font-bold text-black">MLB Ballpark App</span>
-                  </div>
-                </div>
-
               </div>
             </div>
-          </div>
-        </div>,
-        document.body
-      )}
+          </div>,
+          document.body
+        )}
     </div>
   );
 }

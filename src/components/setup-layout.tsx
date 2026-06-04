@@ -284,11 +284,24 @@ export function FormSelect({
   );
 }
 
-export function FormInput({ value, onChange, placeholder, inputMode, sanitize }: {
+export function FormInput({
+  value,
+  onChange,
+  placeholder,
+  inputMode,
+  sanitize,
+}: {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
-  inputMode?: 'text' | 'numeric' | 'decimal' | 'tel' | 'email' | 'url' | 'search';
+  inputMode?:
+    | 'text'
+    | 'numeric'
+    | 'decimal'
+    | 'tel'
+    | 'email'
+    | 'url'
+    | 'search';
   sanitize?: (raw: string) => string;
 }) {
   return (
@@ -296,7 +309,9 @@ export function FormInput({ value, onChange, placeholder, inputMode, sanitize }:
       type="text"
       value={value}
       inputMode={inputMode}
-      onChange={(e) => onChange(sanitize ? sanitize(e.target.value) : e.target.value)}
+      onChange={(e) =>
+        onChange(sanitize ? sanitize(e.target.value) : e.target.value)
+      }
       placeholder={placeholder}
       className="w-full h-12 px-4 bg-white border-[1.5px] border-[#eceae5] rounded-lg text-[15px] font-semibold text-[#1a1a1a] transition-all hover:border-[#b5b1ab] focus:border-[#2c2a2b] focus:outline-none focus:ring-[3px] focus:ring-[#2c2a2b]/10 placeholder:font-medium placeholder:text-[#8e8985]"
     />

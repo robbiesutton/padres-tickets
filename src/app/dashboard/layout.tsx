@@ -232,13 +232,14 @@ function SeatInfoPillDropdown({
       />
 
       {/* Backdrop: dims content behind the dropdown when open */}
-      {pillOpen && createPortal(
-        <div
-          className="hidden md:block fixed inset-0 bg-black/20 z-30"
-          onClick={() => setPillOpen(false)}
-        />,
-        document.body
-      )}
+      {pillOpen &&
+        createPortal(
+          <div
+            className="hidden md:block fixed inset-0 bg-black/20 z-30"
+            onClick={() => setPillOpen(false)}
+          />,
+          document.body
+        )}
 
       {/* Pill dropdown panel */}
       <div
@@ -252,9 +253,13 @@ function SeatInfoPillDropdown({
         <div className="p-[22px]">
           {/* Drawer header (State 3 + State 4) */}
           {showHeader && (
-            <div className={`flex items-center mb-[2px] ${editing ? 'justify-between' : 'justify-end'}`}>
+            <div
+              className={`flex items-center mb-[2px] ${editing ? 'justify-between' : 'justify-end'}`}
+            >
               {editing && (
-                <div className="text-[17px] font-bold text-[#1B1716]">{headerTitle}</div>
+                <div className="text-[17px] font-bold text-[#1B1716]">
+                  {headerTitle}
+                </div>
               )}
               <div className="flex items-center gap-1.5">
                 {!editing && (
@@ -263,18 +268,39 @@ function SeatInfoPillDropdown({
                     title="Edit seats"
                     className="w-8 h-8 rounded-lg bg-[#F5F4F2] hover:bg-[#DCD7D4] border-none cursor-pointer flex items-center justify-center text-[#1B1716]"
                   >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
                       <path d="M12 20h9" />
                       <path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
                     </svg>
                   </button>
                 )}
                 <button
-                  onClick={() => { setPillOpen(false); setEditing(false); }}
+                  onClick={() => {
+                    setPillOpen(false);
+                    setEditing(false);
+                  }}
                   title="Close"
                   className="w-8 h-8 rounded-lg bg-transparent hover:bg-[#F5F4F2] border-none cursor-pointer flex items-center justify-center text-[#1B1716]"
                 >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <path d="M18 6L6 18" />
                     <path d="M6 6l12 12" />
                   </svg>
@@ -298,7 +324,14 @@ function SeatInfoPillDropdown({
                   >
                     {seatPhotoUrl ? (
                       <>
-                        <Image src={seatPhotoUrl} alt="View from seat" fill className="object-cover" sizes="500px" unoptimized />
+                        <Image
+                          src={seatPhotoUrl}
+                          alt="View from seat"
+                          fill
+                          className="object-cover"
+                          sizes="500px"
+                          unoptimized
+                        />
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
                           <span className="text-white text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 px-3 py-1.5 rounded-md">
                             Change photo
@@ -310,13 +343,27 @@ function SeatInfoPillDropdown({
                       </>
                     ) : (
                       <div className="w-full h-full bg-[#F5F4F2] border-[1.5px] border-dashed border-[#D4CFC9] flex flex-col items-center justify-center gap-2 hover:border-[#8e8985] transition-colors">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#8e8985" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-60">
+                        <svg
+                          width="32"
+                          height="32"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="#8e8985"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="opacity-60"
+                        >
                           <rect x="3" y="3" width="18" height="18" rx="2" />
                           <circle cx="8.5" cy="8.5" r="1.5" />
                           <path d="M21 15l-5-5L5 21" />
                         </svg>
-                        <span className="text-sm font-semibold text-[#1B1716]">Add a seat photo</span>
-                        <span className="text-xs text-[#8e8985]">Claimers will see this on your share page</span>
+                        <span className="text-sm font-semibold text-[#1B1716]">
+                          Add a seat photo
+                        </span>
+                        <span className="text-xs text-[#8e8985]">
+                          Claimers will see this on your share page
+                        </span>
                       </div>
                     )}
                   </div>
@@ -491,7 +538,14 @@ function SeatInfoPillDropdown({
               <div className="flex flex-col">
                 {pkg.seatPhotoUrl ? (
                   <div className="relative w-full aspect-[3/2] rounded-xl overflow-hidden">
-                    <Image src={pkg.seatPhotoUrl} alt="View from seat" fill className="object-cover" sizes="500px" unoptimized />
+                    <Image
+                      src={pkg.seatPhotoUrl}
+                      alt="View from seat"
+                      fill
+                      className="object-cover"
+                      sizes="500px"
+                      unoptimized
+                    />
                     <div className="absolute bottom-3 left-3 bg-black/65 text-white text-xs font-semibold px-2.5 py-1 rounded-md">
                       View from Section {pkg.section}
                     </div>
@@ -501,7 +555,17 @@ function SeatInfoPillDropdown({
                     onClick={() => fileInputRef.current?.click()}
                     className="w-full aspect-[3/2] bg-[#F5F4F2] border-[1.5px] border-dashed border-[#D4CFC9] rounded-xl flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-[#8e8985] transition-colors"
                   >
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#8e8985" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-60">
+                    <svg
+                      width="32"
+                      height="32"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#8e8985"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="opacity-60"
+                    >
                       <rect x="3" y="3" width="18" height="18" rx="2" />
                       <circle cx="8.5" cy="8.5" r="1.5" />
                       <path d="M21 15l-5-5L5 21" />
@@ -931,7 +995,11 @@ export default function DashboardLayout({
   // Used to color the header on first paint before /api/me/packages resolves, so the
   // user doesn't see a flash of brand fallback colors during the loading window.
   const [lastTeam, setLastTeam] = useState<string>(() => {
-    try { return localStorage.getItem('bb-last-team') || ''; } catch { return ''; }
+    try {
+      return localStorage.getItem('bb-last-team') || '';
+    } catch {
+      return '';
+    }
   });
 
   useEffect(() => {
@@ -974,11 +1042,16 @@ export default function DashboardLayout({
 
   const selectedPkg = packages.find((p) => p.id === selectedPkgId) || null;
   const teamForColors = selectedPkg?.team || lastTeam;
-  const { primary: navColor, accent: teamAccent, badgeTextColor: badgeText } =
-    getTeamColors(teamForColors);
+  const {
+    primary: navColor,
+    accent: teamAccent,
+    badgeTextColor: badgeText,
+  } = getTeamColors(teamForColors);
   useEffect(() => {
     if (selectedPkg?.team) {
-      try { localStorage.setItem('bb-last-team', selectedPkg.team); } catch {}
+      try {
+        localStorage.setItem('bb-last-team', selectedPkg.team);
+      } catch {}
     }
   }, [selectedPkg?.team]);
 
