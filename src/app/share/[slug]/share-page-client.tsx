@@ -19,6 +19,7 @@ import {
   getOpponentAbbr,
 } from './utils';
 import { getTeamColors } from './team-colors';
+import { getTicketDeliveryName } from '@/lib/data/ticketing-platforms';
 import { ShareHeader } from './components/share-header';
 import { SeatInfoBar } from './components/seat-info-bar';
 import { Toolbar } from './components/toolbar';
@@ -55,7 +56,8 @@ function MobileSeatInfoPill({
   const hasPayment = !!(pkg.venmoHandle?.trim() || pkg.zelleInfo?.trim());
   const isCompletelyEmpty =
     !pkg.seatPhotoUrl && !pkg.description && !pkg.venmoHandle && !pkg.zelleInfo;
-  const sectionDisplay = `${pkg.section} · Field Level`;
+  const sectionDisplay = pkg.section;
+  const ticketDelivery = getTicketDeliveryName(pkg.team);
 
   const FTU_KEY = `bb-claimer-ftu-${pkg.slug}-seen`;
   const [hasSeenFTU, setHasSeenFTU] = useState(true);
@@ -261,7 +263,7 @@ function MobileSeatInfoPill({
                               Ticket delivery
                             </span>
                             <span className="font-bold text-[#1B1716]">
-                              MLB Ballpark App
+                              {ticketDelivery}
                             </span>
                           </div>
                         </div>

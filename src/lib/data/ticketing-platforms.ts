@@ -1,3 +1,6 @@
+import { getTeamByName as getMlbTeamByName } from './mlb-teams';
+import { getTeamByName as getNcaaTeamByName } from './ncaa-teams';
+
 export type TicketingPlatform =
   | 'TICKETMASTER'
   | 'AXS'
@@ -205,4 +208,11 @@ export function getTicketingInfo(
   teamId: number
 ): TeamTicketingInfo | undefined {
   return TEAM_TICKETING_INFO.find((t) => t.teamId === teamId);
+}
+
+/** Resolve a team's ticket-delivery display name from its team name. */
+export function getTicketDeliveryName(teamName: string): string {
+  const team = getMlbTeamByName(teamName) ?? getNcaaTeamByName(teamName);
+  const info = team ? getTicketingInfo(team.id) : undefined;
+  return info?.platformDisplayName ?? 'Mobile transfer';
 }
