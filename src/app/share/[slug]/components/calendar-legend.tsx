@@ -1,61 +1,55 @@
 'use client';
 
-import type { PackageInfo } from '../types';
-import { getOpponentAbbr } from '../utils';
-import { getTeamColors } from '../team-colors';
+import type { Game } from '../types';
+import { getOpponentAbbr, getOpponentColor } from '../utils';
+import { CheckBadge } from './check-badge';
 
 interface Props {
-  pkg: PackageInfo;
+  games: Game[];
 }
 
-export function CalendarLegend({ pkg }: Props) {
-  const { accent: teamAccent } = getTeamColors(pkg.team);
-  const teamAbbr = getOpponentAbbr(pkg.team);
+function pickExampleOpponent(games: Game[]): { abbr: string; color: string } {
+  const abbrs = new Set<string>();
+  for (const g of games) abbrs.add(getOpponentAbbr(g.opponent));
+  const pick = abbrs.has('LAD')
+    ? 'LAD'
+    : [...abbrs].sort()[0] ?? 'LAD';
+  return { abbr: pick, color: getOpponentColor(pick) };
+}
+
+export function CalendarLegend({ games }: Props) {
+  const { abbr, color } = pickExampleOpponent(games);
 
   return (
     <div className="flex gap-4 md:gap-6 items-center justify-center mt-3 md:mt-4 flex-wrap">
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-[6px]">
         <div
-          className="w-[16px] h-[16px] md:w-[19px] md:h-[19px] rounded-full flex items-center justify-center text-[6px] md:text-[7px] font-bold text-[#1a1a1a]"
-          style={{ backgroundColor: teamAccent }}
+          className="w-[24px] h-[24px] rounded-full flex items-center justify-center text-[9px] font-bold text-white"
+          style={{ backgroundColor: color }}
         >
-          {teamAbbr}
+          {abbr}
         </div>
         <span className="text-xs md:text-sm font-normal text-[#8e8985]">
           Available
         </span>
       </div>
-      <div className="flex items-center gap-1">
-        <div className="w-[16px] h-[16px] md:w-[19px] md:h-[19px] rounded-full bg-[#0f6f57] flex items-center justify-center">
-          <svg
-            viewBox="0 0 16 16"
-            width={9}
-            height={9}
-            fill="none"
-            className="md:w-[11px] md:h-[11px]"
+      <div className="flex items-center gap-[6px]">
+        <div className="relative w-[24px] h-[24px]">
+          <div
+            className="absolute inset-0 rounded-full flex items-center justify-center text-[9px] font-bold text-white opacity-[0.16]"
+            style={{ backgroundColor: color }}
           >
-            <path
-              d="M3.5 8.5L6.5 11.5L12.5 4.5"
-              stroke="#fff"
-              strokeWidth="2.2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+            {abbr}
+          </div>
+          <CheckBadge variant="legend" />
         </div>
         <span className="text-xs md:text-sm font-normal text-[#8e8985]">
           Claimed
         </span>
       </div>
-      <div className="flex items-center gap-1">
-        <div className="w-[16px] h-[16px] md:w-[19px] md:h-[19px] flex items-center justify-center">
-          <span className="text-xs md:text-sm font-normal text-[#8e8985]">
-            02
-          </span>
-        </div>
-        <span className="text-xs md:text-sm font-normal text-[#8e8985]">
-          No game
-        </span>
+      <div className="flex items-center gap-[6px]">
+        <span className="text-xs md:text-sm font-normal text-[#8e8985]">02</span>
+        <span className="text-xs md:text-sm font-normal text-[#8e8985]">No game</span>
       </div>
     </div>
   );

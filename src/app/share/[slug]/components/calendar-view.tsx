@@ -208,7 +208,7 @@ export function CalendarView({
           ))}
         </div>
 
-        <CalendarLegend pkg={pkg} />
+        <CalendarLegend games={allGames} />
 
         {/* Popover */}
         {expandedGame && (

@@ -130,189 +130,143 @@ function MobileSeatInfoPill({
       </div>
 
       {/* Drawer */}
-      {open &&
-        createPortal(
-          <div className="fixed inset-0 z-50 md:hidden">
-            <div
-              className="absolute inset-0 bg-black/30"
-              onClick={() => setOpen(false)}
-            />
-            <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-[0_-4px_16px_rgba(0,0,0,0.08)] animate-slide-up max-h-[85vh] flex flex-col overflow-hidden">
-              {/* Chrome strip — close X only */}
-              <div className="relative h-[63px] shrink-0">
-                <button
-                  className="absolute top-3 right-3 w-11 h-11 flex items-center justify-center bg-transparent border-none cursor-pointer z-10"
-                  onClick={() => setOpen(false)}
-                  title="Close"
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                    <path
-                      d="M18 6L6 18"
-                      stroke="#8e8985"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                    <path
-                      d="M6 6l12 12"
-                      stroke="#8e8985"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                </button>
-              </div>
+      {open && createPortal(
+        <div className="fixed inset-0 z-50 md:hidden">
+          <div className="absolute inset-0 bg-black/30" onClick={() => setOpen(false)} />
+          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-[0_-4px_16px_rgba(0,0,0,0.08)] animate-slide-up max-h-[85vh] flex flex-col overflow-hidden">
+            {/* Chrome strip — close X only */}
+            <div className="relative h-[63px] shrink-0">
+              <button
+                className="absolute top-3 right-3 w-11 h-11 flex items-center justify-center bg-transparent border-none cursor-pointer z-10"
+                onClick={() => setOpen(false)}
+                title="Close"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M18 6L6 18" stroke="#8e8985" strokeWidth="2" strokeLinecap="round" />
+                  <path d="M6 6l12 12" stroke="#8e8985" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
 
-              {/* Scrollable body */}
-              <div className="flex-1 overflow-y-auto">
-                <div className="px-5 pb-5 flex flex-col gap-5">
-                  {isCompletelyEmpty ? (
-                    /* Empty fallback (rule 9) */
-                    <div className="text-center py-6 px-2">
-                      <p className="text-[15px] text-[#1B1716] leading-relaxed">
-                        {firstName
-                          ? `${firstName} is still setting things up.`
-                          : 'The holder is still setting things up.'}{' '}
-                        Check back soon.
-                      </p>
-                    </div>
-                  ) : (
-                    <>
-                      {/* Seat photo (only if uploaded) */}
-                      {hasPhoto && (
-                        <div className="w-full h-[240px] relative overflow-hidden rounded-xl">
-                          <Image
-                            src={pkg.seatPhotoUrl as string}
-                            alt="View from seat"
-                            fill
-                            className="object-cover"
-                            sizes="100vw"
-                            unoptimized
-                          />
-                          <div className="absolute bottom-3 left-3 bg-black/65 text-white text-xs font-semibold px-2.5 py-1 rounded-md">
-                            View from Section {pkg.section}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* How it works */}
-                      <div>
-                        <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">
-                          How it works
-                        </p>
-                        <div className="bg-[#F5F4F2] rounded-[10px] px-4 py-3.5 flex flex-col gap-2.5">
-                          {[
-                            'Pick a game from the schedule.',
-                            claimStep,
-                            'Tickets arrive before game day.',
-                          ].map((step, i) => (
-                            <div
-                              key={i}
-                              className="flex gap-3 items-start text-[14px] leading-[1.4] text-[#1B1716]"
-                            >
-                              <div className="w-5 h-5 rounded-full bg-[#810100] text-white flex items-center justify-center text-[11px] font-bold shrink-0">
-                                {i + 1}
-                              </div>
-                              <div>{step}</div>
-                            </div>
-                          ))}
+            {/* Scrollable body */}
+            <div className="flex-1 overflow-y-auto">
+              <div className="px-5 pb-5 flex flex-col gap-5">
+                {isCompletelyEmpty ? (
+                  /* Empty fallback (rule 9) */
+                  <div className="text-center py-6 px-2">
+                    <p className="text-[15px] text-[#1B1716] leading-relaxed">
+                      {firstName ? `${firstName} is still setting things up.` : 'The holder is still setting things up.'} Check back soon.
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    {/* Seat photo (only if uploaded) */}
+                    {hasPhoto && (
+                      <div className="w-full aspect-[3/2] relative overflow-hidden rounded-xl">
+                        <Image
+                          src={pkg.seatPhotoUrl as string}
+                          alt="View from seat"
+                          fill
+                          className="object-cover"
+                          sizes="100vw"
+                          unoptimized
+                        />
+                        <div className="absolute bottom-3 left-3 bg-black/65 text-white text-xs font-semibold px-2.5 py-1 rounded-md">
+                          View from Section {pkg.section}
                         </div>
                       </div>
+                    )}
 
-                      {/* Description */}
-                      {pkg.description && (
-                        <div>
-                          <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">
-                            Description
-                          </p>
-                          <p className="text-[14px] leading-[1.5] text-[#1B1716]">
-                            {pkg.description}
-                          </p>
-                        </div>
-                      )}
-
-                      {/* Your seats */}
-                      <div>
-                        <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">
-                          Your seats
-                        </p>
-                        <div className="flex flex-col text-[14px]">
-                          <div className="flex items-center justify-between py-2">
-                            <span className="text-[#8e8985]">Section</span>
-                            <span className="font-bold text-[#1B1716]">
-                              {sectionDisplay}
-                            </span>
+                    {/* How it works */}
+                    <div>
+                      <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">How it works</p>
+                      <div className="bg-[#F5F4F2] rounded-[10px] px-4 py-3.5 flex flex-col gap-2.5">
+                        {[
+                          'Pick a game from the schedule.',
+                          claimStep,
+                          'Tickets arrive before game day.',
+                        ].map((step, i) => (
+                          <div key={i} className="flex gap-3 items-start text-[14px] leading-[1.4] text-[#1B1716]">
+                            <div className="w-5 h-5 rounded-full bg-[#810100] text-white flex items-center justify-center text-[11px] font-bold shrink-0">
+                              {i + 1}
+                            </div>
+                            <div>{step}</div>
                           </div>
-                          {pkg.row && (
-                            <div className="flex items-center justify-between py-2 border-t border-[#E5E1DD]">
-                              <span className="text-[#8e8985]">Row</span>
-                              <span className="font-bold text-[#1B1716]">
-                                Row {pkg.row}
-                              </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Description */}
+                    {pkg.description && (
+                      <div>
+                        <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">Description</p>
+                        <p className="text-[14px] leading-[1.5] text-[#1B1716]">{pkg.description}</p>
+                      </div>
+                    )}
+
+                    {/* Your seats */}
+                    <div>
+                      <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">Your seats</p>
+                      <div className="flex flex-col text-[14px]">
+                        <div className="flex items-center justify-between py-2">
+                          <span className="text-[#8e8985]">Section</span>
+                          <span className="font-bold text-[#1B1716]">{sectionDisplay}</span>
+                        </div>
+                        {pkg.row && (
+                          <div className="flex items-center justify-between py-2 border-t border-[#E5E1DD]">
+                            <span className="text-[#8e8985]">Row</span>
+                            <span className="font-bold text-[#1B1716]">Row {pkg.row}</span>
+                          </div>
+                        )}
+                        <div className="flex items-center justify-between py-2 border-t border-[#E5E1DD]">
+                          <span className="text-[#8e8985]">Seats</span>
+                          <span className="font-bold text-[#1B1716]">Seats {pkg.seats}</span>
+                        </div>
+                        <div className="flex items-center justify-between py-2 border-t border-[#E5E1DD]">
+                          <span className="text-[#8e8985]">Ticket delivery</span>
+                          <span className="font-bold text-[#1B1716]">MLB Ballpark App</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* How to pay */}
+                    {hasPayment && (
+                      <div>
+                        <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">{payHeading}</p>
+                        <div className="flex flex-col text-[14px]">
+                          {pkg.venmoHandle?.trim() && (
+                            <div className="flex items-center justify-between py-2">
+                              <span className="text-[#8e8985]">Venmo</span>
+                              <span className="font-bold text-[#1B1716]">{pkg.venmoHandle}</span>
                             </div>
                           )}
-                          <div className="flex items-center justify-between py-2 border-t border-[#E5E1DD]">
-                            <span className="text-[#8e8985]">Seats</span>
-                            <span className="font-bold text-[#1B1716]">
-                              Seats {pkg.seats}
-                            </span>
-                          </div>
-                          <div className="flex items-center justify-between py-2 border-t border-[#E5E1DD]">
-                            <span className="text-[#8e8985]">
-                              Ticket delivery
-                            </span>
-                            <span className="font-bold text-[#1B1716]">
-                              MLB Ballpark App
-                            </span>
-                          </div>
+                          {pkg.zelleInfo?.trim() && (
+                            <div className={`flex items-center justify-between py-2 ${pkg.venmoHandle?.trim() ? 'border-t border-[#E5E1DD]' : ''}`}>
+                              <span className="text-[#8e8985]">Zelle</span>
+                              <span className="font-bold text-[#1B1716]">{pkg.zelleInfo}</span>
+                            </div>
+                          )}
                         </div>
                       </div>
-
-                      {/* How to pay */}
-                      {hasPayment && (
-                        <div>
-                          <p className="text-[11px] font-bold tracking-[0.08em] uppercase text-[#1B1716] mb-2.5">
-                            {payHeading}
-                          </p>
-                          <div className="flex flex-col text-[14px]">
-                            {pkg.venmoHandle?.trim() && (
-                              <div className="flex items-center justify-between py-2">
-                                <span className="text-[#8e8985]">Venmo</span>
-                                <span className="font-bold text-[#1B1716]">
-                                  {pkg.venmoHandle}
-                                </span>
-                              </div>
-                            )}
-                            {pkg.zelleInfo?.trim() && (
-                              <div
-                                className={`flex items-center justify-between py-2 ${pkg.venmoHandle?.trim() ? 'border-t border-[#E5E1DD]' : ''}`}
-                              >
-                                <span className="text-[#8e8985]">Zelle</span>
-                                <span className="font-bold text-[#1B1716]">
-                                  {pkg.zelleInfo}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
-              </div>
-
-              {/* Sticky CTA footer */}
-              <div className="shrink-0 px-5 pb-5 bg-white">
-                <button
-                  onClick={dismissFTU}
-                  className="w-full h-[52px] bg-[#2C2A2B] text-white border-none rounded-[10px] text-base font-semibold cursor-pointer active:opacity-90"
-                >
-                  Got it, view games
-                </button>
+                    )}
+                  </>
+                )}
               </div>
             </div>
-          </div>,
-          document.body
-        )}
+
+            {/* Sticky CTA footer */}
+            <div className="shrink-0 px-5 pb-5 bg-white">
+              <button
+                onClick={dismissFTU}
+                className="w-full h-[52px] bg-[#2C2A2B] text-white border-none rounded-[10px] text-base font-semibold cursor-pointer active:opacity-90"
+              >
+                Got it, view games
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 }
