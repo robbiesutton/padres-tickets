@@ -6,6 +6,7 @@ import Image from 'next/image';
 import type { PackageInfo } from '../types';
 import { getOpponentAbbr } from '../utils';
 import { getTeamColors } from '../team-colors';
+import { getTicketDeliveryName } from '@/lib/data/ticketing-platforms';
 
 interface Props {
   pkg: PackageInfo;
@@ -18,6 +19,7 @@ export function SeatInfoBar({ pkg }: Props) {
   const barRef = useRef<HTMLDivElement>(null);
   const teamAbbr = getOpponentAbbr(pkg.team);
   const { primary: teamPrimary, accent: teamAccent } = getTeamColors(pkg.team);
+  const ticketDelivery = getTicketDeliveryName(pkg.team);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -136,12 +138,8 @@ export function SeatInfoBar({ pkg }: Props) {
                 <span className="font-bold text-black">Seats {pkg.seats}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="font-normal text-black">Level</span>
-                <span className="font-bold text-black">Field Level</span>
-              </div>
-              <div className="flex items-center justify-between">
                 <span className="font-normal text-black">Ticket delivery</span>
-                <span className="font-bold text-black">MLB Ballpark App</span>
+                <span className="font-bold text-black">{ticketDelivery}</span>
               </div>
             </div>
           </div>
@@ -228,15 +226,11 @@ export function SeatInfoBar({ pkg }: Props) {
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="font-normal text-black">Level</span>
-                      <span className="font-bold text-black">Field Level</span>
-                    </div>
-                    <div className="flex items-center justify-between">
                       <span className="font-normal text-black">
                         Ticket delivery
                       </span>
                       <span className="font-bold text-black">
-                        MLB Ballpark App
+                        {ticketDelivery}
                       </span>
                     </div>
                   </div>

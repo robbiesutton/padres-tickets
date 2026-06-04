@@ -18,6 +18,7 @@ import { TeamBadge } from '@/components/team-badge';
 import { ScoreTicker } from '@/components/score-ticker';
 import { DESIGN_MODE, mockHolder } from '@/lib/mock-data';
 import { SHOW_PACKAGE_SWITCHER } from '@/lib/feature-flags';
+import { getTicketDeliveryName } from '@/lib/data/ticketing-platforms';
 
 interface PackageForNav {
   id: string;
@@ -181,8 +182,8 @@ function SeatInfoPillDropdown({
     : 'How to pay';
   const hasPayment = !!(pkg.venmoHandle?.trim() || pkg.zelleInfo?.trim());
 
-  // Section row value: "203 · Field Level" (level hard-coded since not yet a captured field)
-  const sectionDisplay = `${pkg.section} · Field Level`;
+  const sectionDisplay = pkg.section;
+  const ticketDelivery = getTicketDeliveryName(pkg.team);
 
   return (
     <div className="hidden md:block relative">
@@ -415,7 +416,7 @@ function SeatInfoPillDropdown({
                       <div className="flex items-center justify-between py-2 border-t border-[#E5E1DD]">
                         <span className="text-[#8e8985]">Ticket delivery</span>
                         <span className="font-bold text-[#1B1716]">
-                          MLB Ballpark App
+                          {ticketDelivery}
                         </span>
                       </div>
                     </div>
@@ -621,7 +622,7 @@ function SeatInfoPillDropdown({
                     <div className="flex items-center justify-between py-2 border-t border-[#E5E1DD]">
                       <span className="text-[#8e8985]">Ticket delivery</span>
                       <span className="font-bold text-[#1B1716]">
-                        MLB Ballpark App
+                        {ticketDelivery}
                       </span>
                     </div>
                   </div>
@@ -682,6 +683,7 @@ function MobileSeatInfoDrawer({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isEmpty = !pkg.seatPhotoUrl && !pkg.description;
+  const ticketDelivery = getTicketDeliveryName(pkg.team);
 
   useEffect(() => {
     startTransition(() => setDescription(pkg.description || ''));
@@ -930,17 +932,11 @@ function MobileSeatInfoDrawer({
                           </span>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="font-normal text-black">Level</span>
-                          <span className="font-bold text-black">
-                            Field Level
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between">
                           <span className="font-normal text-black">
                             Ticket delivery
                           </span>
                           <span className="font-bold text-black">
-                            MLB Ballpark App
+                            {ticketDelivery}
                           </span>
                         </div>
                       </div>
